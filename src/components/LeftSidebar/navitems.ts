@@ -8,6 +8,7 @@ import PlaylistSvg from "@/assets/icons/playlist-1.svg";
 import SearchSvg from "@/assets/icons/search.svg";
 import SettingsSvg from "@/assets/icons/settings.svg";
 import HomeSvg from "@/assets/icons/home.svg";
+import ChartSvg from "@/assets/icons/chart.svg";
 
 const folder = {
   name: "folders",
@@ -49,6 +50,11 @@ export const menus = [
   },
   favorites,
   playlists,
+  {
+    name: "stats",
+    route_name: Routes.Stats,
+    icon: ChartSvg,
+  },
   {
     separator: true,
   },
