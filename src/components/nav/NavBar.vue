@@ -20,7 +20,7 @@
         </div>
         <NavSidenav @close="toggleSidenav" :class="{ active: sidenavActive }" />
         <div class="dimmer noSelect" :class="{ active: sidenavActive }" @click="toggleSidenav"></div>
-        <RouterLink v-if="settings.is_alt_layout" to="/" class="logo rounded-sm"><LogoSvg /></RouterLink>
+        <RouterLink v-if="settings.is_alt_layout" to="/" class="logo rounded-sm"><img :src="LogoImg" alt="SubspaceRadio" class="logo-img" /></RouterLink>
         <div v-if="settings.is_alt_layout || !settings.use_sidebar || !xl" class="right">
             <SearchInput :on_nav="true" />
             <AvatarWithDropdown />
@@ -37,7 +37,7 @@ import { content_width } from '@/stores/content-width'
 import useSettings from '@/stores/settings'
 import { xl } from './../../composables/useBreakpoints'
 
-import LogoSvg from '@/assets/icons/logos/logo-fill.light.svg'
+import LogoImg from '@/assets/icons/logos/logo-subspaceradio.png'
 import SearchInput from '../RightSideBar/SearchInput.vue'
 import NavButtons from './NavButtons.vue'
 import NavLinks from './NavLinks.vue'
@@ -110,6 +110,12 @@ function toggleSidenav() {
         display: flex;
         align-items: center;
         justify-content: center;
+
+        .logo-img {
+            height: 2rem;
+            width: 2rem;
+            object-fit: contain;
+        }
     }
 
     .right {
