@@ -1,7 +1,12 @@
 <template>
     <div
         class="songlist-item rounded-sm"
-        :class="[{ current: isCurrent() }, { contexton: context_menu_showing }]"
+        :class="[{ current: isCurrent() }, { contexton: context_menu_showing }, dragOverClass]"
+        :draggable="droppable && source === dropSources.playlist"
+        @dragstart="onDragStart"
+        @dragover.prevent="onDragOver"
+        @dragleave="onDragLeave"
+        @drop.prevent="onDrop"
         @dblclick="emitUpdate"
         @contextmenu.prevent="showMenu"
     >
@@ -42,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { dropSources, favType } from '@/enums'
@@ -51,6 +56,7 @@ import favoriteHandler from '@/helpers/favoriteHandler'
 import { Track } from '@/interfaces'
 import { isSmall } from '@/stores/content-width'
 import useQueueStore from '@/stores/queue'
+import { showDragStart } from '@/utils/songItemMethods'
 
 import ArtistName from './ArtistName.vue'
 import TrackAlbum from './SongItem/TrackAlbum.vue'
@@ -80,6 +86,52 @@ const emit = defineEmits<{
     (e: 'playThis'): void
     (e: 'trackDropped', source: dropSources, track: Track, newIndex: number, oldIndex: number): void
 }>()
+
+const dragOverTop = ref(false)
+const dragOverBottom = ref(false)
+const dragOverClass = computed(() => {
+    if (dragOverTop.value) return 'drag-over-top'
+    if (dragOverBottom.value) return 'drag-over-bottom'
+    return ''
+})
+
+function onDragStart(e: DragEvent) {
+    showDragStart(e, props.track, props.track.index, props.source)
+}
+
+function onDragOver(e: DragEvent) {
+    const el = e.currentTarget as HTMLElement
+    const mid = el.getBoundingClientRect().top + el.getBoundingClientRect().height / 2
+    if (e.clientY < mid) {
+        dragOverTop.value = true
+        dragOverBottom.value = false
+    } else {
+        dragOverTop.value = false
+        dragOverBottom.value = true
+    }
+}
+
+function onDragLeave() {
+    dragOverTop.value = false
+    dragOverBottom.value = false
+}
+
+function onDrop(e: DragEvent) {
+    dragOverTop.value = false
+    dragOverBottom.value = false
+    const data = e.dataTransfer?.getData('swing-track')
+    if (!data) return
+    const { track, source, oldIndex } = JSON.parse(data) as {
+        track: Track
+        source: dropSources
+        oldIndex: number
+    }
+    const el = e.currentTarget as HTMLElement
+    const top = e.clientY < el.getBoundingClientRect().top + el.getBoundingClientRect().height / 2
+    const newIndex = top ? props.track.index : props.track.index + 1
+    if (oldIndex === newIndex || oldIndex === newIndex - 1) return
+    emit('trackDropped', source, track, newIndex, oldIndex)
+}
 
 function emitUpdate() {
     emit('playThis')
@@ -196,5 +248,17 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 
 .songlist-item.contexton {
     background-color: $gray4 !important;
+}
+
+.songlist-item.drag-over-top {
+    border-top: 2px solid $blue;
+}
+
+.songlist-item.drag-over-bottom {
+    border-bottom: 2px solid $blue;
+}
+
+.songlist-item[draggable='true'] {
+    cursor: grab;
 }
 </style>

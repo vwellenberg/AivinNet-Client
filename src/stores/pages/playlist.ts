@@ -117,6 +117,10 @@ export default defineStore('playlist-tracks', {
         removeTrackByIndex(index: number) {
             this.allTracks.splice(index, 1)
         },
+        moveTrack(from: number, to: number) {
+            const [item] = this.allTracks.splice(from, 1)
+            this.allTracks.splice(to > from ? to - 1 : to, 0, item)
+        },
         addTrack(track: Track) {
             this.allTracks.push(track)
         },

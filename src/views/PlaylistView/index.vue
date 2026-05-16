@@ -19,6 +19,7 @@
                         :key="index"
                         v-bind="item.props"
                         @playThis="playFromPlaylistPage(item.props.index - 1)"
+                        @trackDropped="onTrackDropped"
                     ></component>
                 </DynamicScrollerItem>
             </template>
@@ -45,6 +46,8 @@ import SongItem from '@/components/shared/SongItem.vue'
 import AfterHeader from '@/components/PlaylistView/AfterHeader.vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import AlbumsFetcher from '@/components/ArtistView/AlbumsFetcher.vue'
+import { reorderTracks } from '@/requests/playlists'
+import { Track } from '@/interfaces'
 
 const queue = useQueue()
 const tracklist = useTracklist()
@@ -91,7 +94,7 @@ const scrollerItems = computed(() => {
                 track: track,
                 index: track.index + 1,
                 is_last: track.index === playlist.tracks.length - 1,
-                droppable: true,
+                droppable: !playlist.query,
                 source: dropSources.playlist,
             },
             size: 64,
@@ -113,6 +116,11 @@ const scrollerItems = computed(() => {
 
     return [header, afterHeader, ...body]
 })
+
+async function onTrackDropped(_source: dropSources, _track: Track, newIndex: number, oldIndex: number) {
+    playlist.moveTrack(oldIndex, newIndex)
+    await reorderTracks(playlist.info.id, playlist.allTracks.map(t => t.trackhash))
+}
 
 async function playFromPlaylistPage(index: number) {
     const { name, id } = playlist.info

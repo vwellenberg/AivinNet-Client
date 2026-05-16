@@ -275,6 +275,18 @@ export async function removeBannerImage(playlistid: number) {
     new Notification('Unable to remove banner image', NotifType.Error)
 }
 
+export async function reorderTracks(pid: number, trackhashes: string[]) {
+    const { status } = await useAxios({
+        url: paths.api.playlist.base + `/${pid}/reorder`,
+        method: 'PUT',
+        props: { trackhashes },
+    })
+
+    if (status !== 200) {
+        new Notification('Unable to reorder tracks', NotifType.Error)
+    }
+}
+
 export async function pinUnpinPlaylist(pid: number) {
     const { status } = await useAxios({
         url: paths.api.playlist.base + `/${pid}/pin_unpin`,
