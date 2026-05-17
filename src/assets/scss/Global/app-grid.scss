@@ -33,8 +33,10 @@ $g-border: solid 1px $gray5;
 #acontent {
     width: 100%;
     grid-area: content;
+    grid-row: 2 / 4;
     overflow: hidden;
     margin-right: $margright;
+    z-index: 0;
 }
 
 .topnav {
@@ -60,13 +62,15 @@ $g-border: solid 1px $gray5;
     background-color: rgba(16, 16, 16, 0.82);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
+    position: relative;
+    z-index: 50;
 }
 
 .content-page {
     scrollbar-gutter: stable;
     padding-left: $padleft;
     padding-right: $padright;
-    padding-bottom: $padbottom;
+    padding-bottom: calc($padbottom + 5.125rem);
     -webkit-overflow-scrolling: touch;
 
     @include allPhones {

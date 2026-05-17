@@ -85,10 +85,6 @@ import { menus } from "./navitems";
     .circular.nav-item:last-child {
       display: none;
     }
-
-    .circular.nav-item:nth-child(3) {
-      display: none;
-    }
   }
 
   svg {
