@@ -2,7 +2,9 @@
     <div class="sidenav noSelect">
         <div class="sidenav_header">
             <a @click="closeSidenav" class="sidenav_logo" href="#">
-                <img :src="LogoImg" alt="AivinNet" class="sidenav_logo_img" />
+                <div class="logo-orbit-wrapper">
+                    <img :src="LogoImg" alt="AivinNet" class="sidenav_logo_img" />
+                </div>
                 <div class="title">AivinNet</div>
             </a>
         </div>
@@ -97,10 +99,18 @@ function closeSidenav() {
                 align-items: center;
                 gap: 1rem;
 
-                .sidenav_logo_img {
+                .logo-orbit-wrapper {
                     width: 1.75rem;
                     height: 1.75rem;
+                    flex-shrink: 0;
+                }
+
+                .sidenav_logo_img {
+                    width: 100%;
+                    height: 100%;
                     object-fit: contain;
+                    position: relative;
+                    z-index: 1;
                 }
 
                 .title {

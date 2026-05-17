@@ -1,5 +1,10 @@
 // colors
 
+// AivinNet brand colors
+$brand-red: #FF284E;
+$brand-green: #1D9E75;
+$brand-purple: #7F77DD;
+
 $highlight-blue: #006eff;
 $darkestblue: #234ece;
 $bbb: #161616; //bottom controls background
@@ -29,7 +34,7 @@ $gray4: #3a3a3c;
 $gray5: #2c2c2e;
 $body: #000;
 
-$red: #f7635c;
+$red: $brand-red;
 $blue: #0a84ff;
 $darkblue: #055ee2;
 $green: #5ef784;

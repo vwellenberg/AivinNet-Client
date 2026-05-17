@@ -1,5 +1,6 @@
 <template>
-    <div class="album-virtual-scroller v-scroll-page" :class="{ isSmall }" style="height: 100%">
+    <div class="album-virtual-scroller v-scroll-page" :class="{ isSmall }" style="height: 100%; position: relative;">
+        <div class="page-ambient-gradient" :style="{ background: album.colors.bg ? `linear-gradient(180deg, ${album.colors.bg}55 0%, ${album.colors.bg}22 40%, transparent 70%)` : '' }"></div>
         <DynamicScroller
             id="album-scroller"
             style="height: 100%"
@@ -267,5 +268,16 @@ onBeforeRouteLeave(() => {
         padding: $medium;
         padding-top: 2rem;
     }
+}
+
+.page-ambient-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 35rem;
+    pointer-events: none;
+    z-index: 0;
+    transition: background 1s ease;
 }
 </style>
