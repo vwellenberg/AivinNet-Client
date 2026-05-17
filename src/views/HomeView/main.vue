@@ -1,9 +1,5 @@
 <template>
     <div class="homepageview content-page">
-        <GenericHeader>
-            <template #name>Home</template>
-            <template #description>{{ getGreetings(auth.user.username) }}</template>
-        </GenericHeader>
         <Browse />
 
         <PageItem
@@ -30,7 +26,6 @@ import updatePageTitle from '@/utils/updatePageTitle'
 
 import Browse from '@/components/HomeView/Browse.vue'
 import PageItem from '@/components/shared/CardScroller.vue'
-import GenericHeader from '@/components/shared/GenericHeader.vue'
 
 const home = useHome()
 const auth = useAuth()

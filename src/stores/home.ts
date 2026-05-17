@@ -38,7 +38,7 @@ export default defineStore('homepage', () => {
             // @ts-ignore
             homepageData[key] = item[key]
             // @ts-ignore
-            homepageData[key].position = index
+            homepageData[key].position = key === 'recently_played' ? -1 : index
             // @ts-ignore
             homepageData[key].path = routes[key]
             // @ts-ignore

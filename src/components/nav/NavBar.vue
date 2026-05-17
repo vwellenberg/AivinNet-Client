@@ -24,7 +24,13 @@
             <div class="logo-orbit-wrapper"><img :src="LogoImg" alt="AivinNet" class="logo-img" /></div>
         </RouterLink>
         <div v-if="settings.is_alt_layout || !settings.use_sidebar || !xl" class="right">
-            <SearchInput :on_nav="true" />
+            <RouterLink
+                :to="{ name: Routes.search, params: { page: 'top' }, query: { q: search.query } }"
+                class="search-icon-btn circular"
+                title="Search"
+            >
+                <SearchSvg />
+            </RouterLink>
             <AvatarWithDropdown />
         </div>
     </div>
@@ -40,7 +46,8 @@ import useSettings from '@/stores/settings'
 import { xl } from './../../composables/useBreakpoints'
 
 import LogoImg from '@/assets/icons/logos/logo-subspaceradio.png'
-import SearchInput from '../RightSideBar/SearchInput.vue'
+import SearchSvg from '@/assets/icons/search.svg'
+import useSearch from '@/stores/search'
 import NavButtons from './NavButtons.vue'
 import NavLinks from './NavLinks.vue'
 import NavSidenav from './NavSidenav.vue'
@@ -50,6 +57,7 @@ import AvatarWithDropdown from './AvatarWithDropdown.vue'
 
 const auth = useAuth()
 const settings = useSettings()
+const search = useSearch()
 const isSmall = computed(() => content_width.value < 800)
 
 const sidenavActive = ref(false)
@@ -124,6 +132,28 @@ function toggleSidenav() {
             object-fit: contain;
             position: relative;
             z-index: 1;
+        }
+    }
+
+    .search-icon-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        color: $white;
+        opacity: 0.75;
+        transition: opacity 0.15s, background-color 0.15s;
+        flex-shrink: 0;
+
+        &:hover {
+            opacity: 1;
+            background-color: $gray5;
+        }
+
+        svg {
+            width: 1.25rem;
+            height: 1.25rem;
         }
     }
 

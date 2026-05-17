@@ -2,18 +2,14 @@
     <div
         class="songlist-item rounded-sm"
         :class="[{ current: isCurrent() }, { contexton: context_menu_showing }, dragOverClass]"
+        :draggable="droppable && source === dropSources.playlist"
+        @dragstart="onDragStart"
         @dragover.prevent="onDragOver"
         @dragleave="onDragLeave"
         @drop.prevent="onDrop"
         @dblclick="emitUpdate"
         @contextmenu.prevent="showMenu"
     >
-        <div
-            v-if="droppable && source === dropSources.playlist"
-            class="drag-handle"
-            draggable="true"
-            @dragstart="onDragStart"
-        >⠿</div>
         <TrackIndex
             v-if="!isSmall"
             :index="index"
@@ -239,23 +235,8 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     border-bottom: 2px solid $blue;
 }
 
-.songlist-item .drag-handle {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 1.75rem;
-    display: none;
-    align-items: center;
-    justify-content: center;
+.songlist-item[draggable="true"] {
     cursor: grab;
-    color: $gray2;
-    font-size: 1.1rem;
-    z-index: 1;
-    user-select: none;
-}
-
-.songlist-item:hover .drag-handle {
-    display: flex;
+    &:active { cursor: grabbing; }
 }
 </style>
