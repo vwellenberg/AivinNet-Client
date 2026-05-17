@@ -20,7 +20,7 @@
         </div>
         <NavSidenav @close="toggleSidenav" :class="{ active: sidenavActive }" />
         <div class="dimmer noSelect" :class="{ active: sidenavActive }" @click="toggleSidenav"></div>
-        <RouterLink v-if="settings.is_alt_layout" to="/" class="logo rounded-sm"><img :src="LogoImg" alt="SubspaceRadio" class="logo-img" /></RouterLink>
+        <RouterLink v-if="settings.is_alt_layout" to="/" class="logo rounded-sm"><img :src="LogoImg" alt="AivinNet" class="logo-img" /></RouterLink>
         <div v-if="settings.is_alt_layout || !settings.use_sidebar || !xl" class="right">
             <SearchInput :on_nav="true" />
             <AvatarWithDropdown />

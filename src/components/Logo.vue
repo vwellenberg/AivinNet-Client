@@ -1,7 +1,7 @@
 <template>
   <router-link class="swing-logo rounded-md" :to="{ name: 'Home' }">
-    <img src="@/assets/icons/logos/logo-subspaceradio.png" alt="SubspaceRadio" class="logo-img" />
-    <span>SubspaceRadio</span>
+    <img src="@/assets/icons/logos/logo-subspaceradio.png" alt="AivinNet" class="logo-img" />
+    <span>AivinNet</span>
   </router-link>
 </template>
 
