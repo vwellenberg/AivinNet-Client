@@ -145,17 +145,21 @@ function showMenu(e: MouseEvent) {
             .gradient {
                 opacity: 1;
             }
+
+            img {
+                filter: brightness(0.75);
+            }
         }
     }
 
     .play-btn {
-        $btn-width: 4rem;
+        $btn-width: 3.25rem;
         position: absolute;
-        bottom: 1rem;
-        right: calc((100% - $btn-width) / 2);
+        bottom: 0.75rem;
+        right: 0.75rem;
         opacity: 0;
-        transform: translateY(1rem);
-        transition: all 0.25s;
+        transform: translateY(0.5rem);
+        transition: opacity 0.2s ease, transform 0.2s ease;
         width: $btn-width;
     }
 

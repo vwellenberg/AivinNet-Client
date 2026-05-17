@@ -28,16 +28,16 @@
 
 .logo-orbit-wrapper {
   position: relative;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 
   .logo-img {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
     object-fit: contain;
     position: relative;
     z-index: 1;

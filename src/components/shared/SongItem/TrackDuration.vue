@@ -1,9 +1,8 @@
 <template>
     <div class="options-and-duration">
         <div
-            v-if="showInlineFavIcon"
             class="heart-icon"
-            :class="{ showInlineFavIcon, 'is_fav': is_fav && highlightFavoriteTracks }"
+            :class="{ 'is_fav': is_fav && highlightFavoriteTracks }"
             @click.stop="$emit('toggleFav')"
         >
             <HeartSvg :state="is_fav" :no_emit="true" />
@@ -58,12 +57,18 @@ defineEmits<{
         width: 28px;
         height: 28px;
         user-select: none;
-        transition: opacity 0.2s ease-out;
+        opacity: 0.6;
+        transition: opacity 0.15s ease-out;
         transform: scale(0.8);
         margin-right: $small;
+        cursor: pointer;
+
+        &:hover {
+            opacity: 1;
+        }
 
         svg {
-            color: $red;
+            color: $gray1;
         }
 
         @include mediumPhones {
@@ -77,6 +82,10 @@ defineEmits<{
 
     .heart-icon.is_fav {
         display: block;
+
+        svg {
+            color: $red;
+        }
     }
 
     .song-duration {

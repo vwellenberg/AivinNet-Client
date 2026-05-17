@@ -197,32 +197,15 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     &:hover {
         background-color: $gray;
 
-        .index.ready {
-            .text {
-                transition-delay: 400ms;
-
-                transform: translateX(0);
-                opacity: 0;
-            }
-
-            .heart-icon {
-                transition-delay: 400ms;
-                transform: translateX(0);
-                opacity: 1;
-                visibility: visible;
-            }
-        }
-
         .song-duration.has_help_text {
             opacity: 0;
         }
 
-        // INFO: Show help text on hover
         .song-duration.help-text {
             opacity: 1;
         }
 
-        .options-and-duration .heart-icon.showInlineFavIcon {
+        .options-and-duration .heart-icon {
             display: block;
         }
 
@@ -237,16 +220,6 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 
     .index {
         overflow: unset !important;
-
-        .heart-icon {
-            opacity: 0;
-            visibility: hidden;
-        }
-    }
-
-    .song-artists {
-        width: fit-content;
-        max-width: calc(100% - 10px);
     }
 }
 

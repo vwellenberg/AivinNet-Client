@@ -76,9 +76,16 @@ function handlePlay() {
 .play-btn {
   aspect-ratio: 1;
   padding: 0;
-  background: $darkblue;
+  background: $brand-green;
   display: grid;
   place-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  }
 
   svg {
     transition: transform 0.2s ease;

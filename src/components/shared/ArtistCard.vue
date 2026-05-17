@@ -85,15 +85,16 @@ const showContextMenu = (e: MouseEvent) => {
         }
     }
 
-    $btnwidth: 4rem;
+    $btnwidth: 3.25rem;
 
     .play-btn {
         opacity: 0;
         position: absolute;
-        width: 4rem;
-        bottom: 0;
-        left: calc(50% - ($btnwidth / 2));
-        transition: all 0.25s;
+        width: $btnwidth;
+        bottom: 3rem;
+        right: calc(50% - ($btnwidth / 2));
+        transform: translateY(0.5rem);
+        transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
     &:hover {
@@ -101,7 +102,7 @@ const showContextMenu = (e: MouseEvent) => {
 
         .play-btn {
             opacity: 1;
-            transform: translateY(-1.25rem);
+            transform: translateY(0);
         }
 
         .overlay {
