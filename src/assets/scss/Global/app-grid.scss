@@ -227,10 +227,6 @@ $g-border: solid 1px $gray5;
     }
 }
 
-.song-title > .isSmallArtists {
-    display: none;
-}
-
 .isSmall {
     .album_disc_header {
         padding-left: $small;
@@ -240,7 +236,6 @@ $g-border: solid 1px $gray5;
         grid-template-columns: 2fr 7.5rem !important;
 
         // disable hover on mobile
-        // to prevent tap effect
         &:hover {
             background-color: unset;
         }
@@ -251,25 +246,15 @@ $g-border: solid 1px $gray5;
         }
     }
 
-    .song-artists,
     .song-album {
         display: none !important;
-    }
-
-    .isSmallArtists {
-        display: flex !important;
-        align-items: center;
-        gap: 4px;
-        font-size: small;
-        color: $white;
-        opacity: 0.67;
     }
 }
 
 .isMedium {
-    // hide album column
+    // hide album column on medium screens
     .songlist-item {
-        grid-template-columns: 1.75rem 1.5fr 1fr 7.5rem;
+        grid-template-columns: 1.75rem 2.5fr 7.5rem;
     }
 
     .song-album {

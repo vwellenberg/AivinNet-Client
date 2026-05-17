@@ -2,6 +2,9 @@
   <div class="tracktitle flex">
     <div class="thumbnail" @click.prevent="$emit('play')">
       <img :src="imguri + track.image" class="album-art image rounded-sm" />
+      <div class="thumb-play-overlay" v-if="!is_current">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </div>
       <div
         class="now-playing-track-indicator"
         :class="{ 'now-playing-track-indicator': is_current, last_played: !is_current_playing, active: is_current }"
@@ -68,6 +71,8 @@ defineEmits<{
   .thumbnail {
     margin-right: $medium;
     display: flex;
+    position: relative;
+    flex-shrink: 0;
 
     .album-art {
       width: 3rem;
@@ -75,6 +80,26 @@ defineEmits<{
       object-fit: contain;
       cursor: pointer;
       z-index: 20;
+      transition: filter 0.15s ease;
+    }
+
+    .thumb-play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      z-index: 30;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+
+      svg {
+        width: 1.4rem;
+        height: 1.4rem;
+        color: white;
+        filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
+      }
     }
 
     .now-playing-track-indicator {
@@ -87,6 +112,14 @@ defineEmits<{
     @include smallerPhones {
       margin-right: $small;
     }
+  }
+
+  .song-title > .isSmallArtists {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: small;
+    opacity: 0.67;
   }
 
   .song-title {

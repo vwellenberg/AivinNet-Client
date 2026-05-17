@@ -28,9 +28,6 @@
             :is_current_playing="isCurrentPlaying()"
             @play="emitUpdate"
         />
-        <div class="song-artists">
-            <ArtistName :artists="track.artists" :albumartists="track.albumartists" />
-        </div>
 
         <TrackAlbum
             :album="track.album || 'Unknown'"
@@ -62,7 +59,6 @@ import { isSmall } from '@/stores/content-width'
 import useQueueStore from '@/stores/queue'
 import { showDragStart } from '@/utils/songItemMethods'
 
-import ArtistName from './ArtistName.vue'
 import TrackAlbum from './SongItem/TrackAlbum.vue'
 import TrackDuration from './SongItem/TrackDuration.vue'
 import TrackIndex from './SongItem/TrackIndex.vue'
@@ -186,7 +182,7 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 // NOTE: CSS for responsiveness is at app-grid.scss
 .songlist-item {
     display: grid;
-    grid-template-columns: 1.75rem 1.25fr 1fr 1fr 7.5rem;
+    grid-template-columns: 1.75rem 2.5fr 1.5fr 7.5rem;
     align-items: center;
     justify-content: flex-start;
     gap: 1rem;
@@ -228,6 +224,14 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 
         .options-and-duration .heart-icon.showInlineFavIcon {
             display: block;
+        }
+
+        .thumbnail .album-art {
+            filter: brightness(0.55);
+        }
+
+        .thumb-play-overlay {
+            opacity: 1 !important;
         }
     }
 
