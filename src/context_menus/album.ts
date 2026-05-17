@@ -8,7 +8,8 @@ import { getAlbumTracks } from '@/requests/album'
 import { addOrRemoveItemFromCollection } from '@/requests/collections'
 import { addAlbumToPlaylist } from '@/requests/playlists'
 
-import { AddToQueueIcon, DeleteIcon, PlayNextIcon, PlusIcon } from '@/icons'
+import { AddToQueueIcon, DeleteIcon, DownloadIcon, PlayNextIcon, PlusIcon } from '@/icons'
+import { getBaseUrl, paths } from '@/config'
 import { Album, Collection, Option, Playlist, Track } from '@/interfaces'
 import { get_find_on_social, getAddToCollectionOptions, getAddToPlaylistOptions } from './utils'
 
@@ -99,11 +100,22 @@ export default async (album?: Album) => {
         icon: DeleteIcon,
     }
 
+    const download_album = <Option>{
+        label: 'Download as ZIP',
+        action: () => {
+            const a = document.createElement('a')
+            a.href = getBaseUrl() + paths.api.download + `/album/${album.albumhash}`
+            a.click()
+        },
+        icon: DownloadIcon,
+    }
+
     return [
         play_next,
         add_to_queue,
         add_to_playlist,
         ...[router.currentRoute.value.name === Routes.Page ? remove_from_page : add_to_page],
+        download_album,
         get_find_on_social('album', '', album),
     ]
 }

@@ -149,6 +149,7 @@ export const paths = {
             },
         },
         files: '/file',
+        download: '/download',
         home: {
             base: '/nothome',
             get recentlyAdded() {

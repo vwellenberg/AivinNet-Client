@@ -6,7 +6,8 @@ import { Option } from '@/interfaces'
 import { openInFiles } from '@/requests/folders'
 import { addTracksToPlaylist, removeTracks } from '@/requests/playlists'
 
-import { AddToQueueIcon, AlbumIcon, ArtistIcon, DeleteIcon, FolderIcon, PlayNextIcon, PlusIcon } from '@/icons'
+import { AddToQueueIcon, AlbumIcon, ArtistIcon, DeleteIcon, DownloadIcon, FolderIcon, PlayNextIcon, PlusIcon } from '@/icons'
+import { getBaseUrl, paths } from '@/config'
 import usePlaylistStore from '@/stores/pages/playlist'
 import useQueueStore from '@/stores/queue'
 import useTracklist from '@/stores/queue/tracklist'
@@ -155,6 +156,16 @@ export default async (track: Track): Promise<Option[]> => {
             critical: true,
         }
 
+    const download_track: Option = {
+        label: 'Download',
+        action: () => {
+            const a = document.createElement('a')
+            a.href = getBaseUrl() + paths.api.download + `/track/${track.trackhash}`
+            a.click()
+        },
+        icon: DownloadIcon,
+    }
+
     const options: Option[] = [
         play_next,
         add_to_q,
@@ -163,6 +174,7 @@ export default async (track: Track): Promise<Option[]> => {
         go_to_folder,
         go_to_artist,
         open_in_explorer,
+        download_track,
         get_find_on_social('track', `${track.title} ${track.artists[0].name}`),
         // del_track,
     ]
