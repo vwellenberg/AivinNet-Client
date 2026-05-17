@@ -114,13 +114,13 @@ function toggleSidenav() {
         justify-content: center;
 
         .logo-orbit-wrapper {
-            width: 2.5rem;
-            height: 2.5rem;
+            width: 2.4rem;
+            height: 2.4rem;
         }
 
         .logo-img {
-            width: 2rem;
-            height: 2rem;
+            width: 1.8rem;
+            height: 1.8rem;
             object-fit: contain;
             position: relative;
             z-index: 1;

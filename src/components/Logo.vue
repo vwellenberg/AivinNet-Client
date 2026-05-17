@@ -28,16 +28,16 @@
 
 .logo-orbit-wrapper {
   position: relative;
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 2rem;
+  height: 2rem;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 
   .logo-img {
-    width: 1.6rem;
-    height: 1.6rem;
+    width: 1.5rem;
+    height: 1.5rem;
     object-fit: contain;
     position: relative;
     z-index: 1;
@@ -48,16 +48,16 @@
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.08);
-    border-top-color: $brand-green;
-    border-right-color: $brand-purple;
-    animation: logo-orbit 5s linear infinite;
+    border: 2px solid $brand-red;
+    animation: logo-color-cycle 6s ease-in-out infinite;
     pointer-events: none;
   }
 }
 
-@keyframes logo-orbit {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@keyframes logo-color-cycle {
+  0%   { border-color: $brand-red; }
+  33%  { border-color: $brand-green; }
+  66%  { border-color: $brand-purple; }
+  100% { border-color: $brand-red; }
 }
 </style>
