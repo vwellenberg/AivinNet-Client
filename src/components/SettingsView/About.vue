@@ -1,54 +1,22 @@
 <template>
     <div class="aboutswingmusic">
-        <div class="version">Swing Music v{{ settings.version }}</div>
-        Swing Music is a labor of love developed by
-        <a
-            href="https://github.com/cwilvx"
-            target="_blank"
-            >@<u>cwilvx</u></a
-        >
-        on GitHub. If you like this software, a star on GitHub would be nice.
-        Hope you enjoy using it as much as I enjoy building it. 😁🤗
+        <div class="version">AivinNet v{{ settings.version }}</div>
+        AivinNet ist ein Fork von
+        <a href="https://github.com/swingmx/swingmusic" target="_blank"><u>Swing Music</u></a>
+        — ein selbst gehosteter Musik-Player für deine lokale Bibliothek.
         <br /><br />
         <div class="links">
             <h2>Links</h2>
             <div class="flex">
-                <a
-                    href="https://swingmusic.vercel.app/guide/introduction.html"
-                    target="_blank"
-                    ><button>Docs</button></a
-                >
-                <a
-                    href="https://github.com/cwilvx/swingmusic"
-                    target="_blank"
-                    ><button>Star on Github</button></a
-                >
-                <a
-                    href="https://github.com/cwilvx/swingmusic/issues/new/choose"
-                    target="_blank"
-                >
-                    <button>Report issue</button>
+                <a href="https://github.com/vwellenberg/SubspaceRadio" target="_blank">
+                    <button>Backend (GitHub)</button>
                 </a>
-                <a
-                    href="https://github.com/cwilvx/swingmusic/blob/master/.github/contributing.md"
-                    target="_blank"
-                    ><button>Contribute</button></a
-                >
-            </div>
-        </div>
-        <br />
-        <div class="contact">
-            <h2>Get in touch</h2>
-            If you like my work, and would like to say hi, I'd like to hear from
-            you.
-            <br /><br />
-            <div class="flex">
-                <a
-                    href="mailto:geoffreymungai45@gmail.com?subject=Hiii 👋😁&body=Hi Mungai,
-        "
-                    target="_blank"
-                    ><button>Send email</button></a
-                >
+                <a href="https://github.com/vwellenberg/SubspaceRadio-Client" target="_blank">
+                    <button>Frontend (GitHub)</button>
+                </a>
+                <a href="https://github.com/swingmx/swingmusic" target="_blank">
+                    <button>Upstream: Swing Music</button>
+                </a>
             </div>
         </div>
     </div>
@@ -76,10 +44,6 @@ const settings = useSettings()
         flex-wrap: wrap;
         margin-top: $small;
         gap: 1rem;
-    }
-
-    .contact button {
-        background-color: $blue;
     }
 
     h2 {

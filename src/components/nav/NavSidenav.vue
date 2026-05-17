@@ -2,8 +2,8 @@
     <div class="sidenav noSelect">
         <div class="sidenav_header">
             <a @click="closeSidenav" class="sidenav_logo" href="#">
-                <div class="art"><LogoSvg /></div>
-                <div class="title">Swing Music</div>
+                <img :src="LogoImg" alt="AivinNet" class="sidenav_logo_img" />
+                <div class="title">AivinNet</div>
             </a>
         </div>
         <div class="sidenav_content scrollable">
@@ -20,12 +20,12 @@
                 <span>{{ link.name }}</span>
             </RouterLink>
         </div>
-        <div class="sidenav_footer">Swing Music - v</div>
+        <div class="sidenav_footer">AivinNet v</div>
     </div>
 </template>
 
 <script setup lang="ts">
-import LogoSvg from '@/assets/icons/logos/logo-fill.light.svg'
+import LogoImg from '@/assets/icons/logos/logo-subspaceradio.png'
 import { topnavitems } from '../LeftSidebar/navitems'
 
 const emit = defineEmits(['close'])
@@ -96,6 +96,12 @@ function closeSidenav() {
                 display: flex;
                 align-items: center;
                 gap: 1rem;
+
+                .sidenav_logo_img {
+                    width: 1.75rem;
+                    height: 1.75rem;
+                    object-fit: contain;
+                }
 
                 .title {
                     font-size: 1rem;

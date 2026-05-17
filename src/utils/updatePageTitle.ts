@@ -6,7 +6,7 @@ export default (title: string, isNowPlayingInfo: boolean = false) => {
         return
     }
 
-    const base = 'Swing Music'
+    const base = 'AivinNet'
 
     if (title) {
         document.title = `${title} | ${base}`

@@ -37,7 +37,7 @@
             </div>
             <ArtistName
                 :artists="queue.currenttrack?.artists || []"
-                :albumartists="queue.currenttrack?.albumartists || 'Welcome to Swing Music'"
+                :albumartists="queue.currenttrack?.albumartists || 'Welcome to AivinNet'"
                 class="artist"
             />
         </div>
