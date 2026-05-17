@@ -12,8 +12,8 @@
 <style lang="scss">
 .swing-logo {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   width: 100%;
   height: 100%;
   overflow: visible;
@@ -26,8 +26,8 @@
 
 .logo-orbit-wrapper {
   position: relative;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -35,8 +35,8 @@
   overflow: visible;
 
   .logo-img {
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 2.25rem;
+    height: 2.25rem;
     object-fit: contain;
     position: relative;
     z-index: 1;
