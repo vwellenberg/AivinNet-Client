@@ -15,7 +15,7 @@
             maxWidth: `${settings.is_default_layout ? (content_height > 1080 ? '2220px' : '1760px') : ''}`,
         }"
     >
-        <LeftSidebar v-if="settings.is_default_layout && !isMobile" />
+        <LeftSidebar v-if="!isMobile" />
         <NavBar />
         <div id="acontent" v-element-size="updateContentElemSize">
             <div id="contentresizer" ref="appcontent"></div>

@@ -111,12 +111,12 @@ $g-border: solid 1px $gray5;
 // ====== MODIFIERS =======
 
 #app-grid.is_alt_layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: min-content 1fr;
     grid-template-rows: max-content 1fr 5.125rem;
     grid-template-areas:
-        'nav'
-        'content'
-        'bottombar';
+        'l-sidebar nav'
+        'l-sidebar content'
+        'bottombar bottombar';
 
     @include allPhones {
         grid-template-columns: 1fr !important;

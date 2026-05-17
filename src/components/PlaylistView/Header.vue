@@ -72,7 +72,7 @@ const bg = computed(() => {
     }
   }
 
-  return colors.value.bg ? colors.value.bg : "";
+  return "";
 });
 
 const useSqrImg = computed(() => !playlist.info.has_image || !bg.value.startsWith("url"));
