@@ -12,7 +12,11 @@
             v-if="droppable && source === dropSources.playlist"
             class="drag-handle"
             draggable="true"
+            @pointerdown.stop="onHandlePointerDown"
+            @pointerup.stop="onHandlePointerUp"
+            @click.stop
             @dragstart="onDragStart"
+            @dragend="onDragEnd"
         >⠿</div>
         <TrackIndex
             v-if="!isSmall"
@@ -99,7 +103,37 @@ const dragOverClass = computed(() => {
     return ''
 })
 
+let isDragReady = false
+let dragReadyTimeout: ReturnType<typeof setTimeout> | null = null
+
+function onHandlePointerDown() {
+    isDragReady = false
+    dragReadyTimeout = setTimeout(() => {
+        isDragReady = true
+    }, 150)
+}
+
+function onHandlePointerUp() {
+    if (dragReadyTimeout !== null) {
+        clearTimeout(dragReadyTimeout)
+        dragReadyTimeout = null
+    }
+    isDragReady = false
+}
+
+function onDragEnd() {
+    isDragReady = false
+    if (dragReadyTimeout !== null) {
+        clearTimeout(dragReadyTimeout)
+        dragReadyTimeout = null
+    }
+}
+
 function onDragStart(e: DragEvent) {
+    if (!isDragReady) {
+        e.preventDefault()
+        return
+    }
     showDragStart(e, props.track, props.track.index, props.source)
 }
 
