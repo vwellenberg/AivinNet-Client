@@ -20,9 +20,6 @@
         </div>
         <NavSidenav @close="toggleSidenav" :class="{ active: sidenavActive }" />
         <div class="dimmer noSelect" :class="{ active: sidenavActive }" @click="toggleSidenav"></div>
-        <RouterLink v-if="settings.is_alt_layout" to="/" class="logo rounded-sm">
-            <div class="logo-orbit-wrapper"><img :src="LogoImg" alt="AivinNet" class="logo-img" /></div>
-        </RouterLink>
         <div v-if="settings.is_alt_layout || !settings.use_sidebar || !xl" class="right">
             <SearchInput :on_nav="true" />
             <AvatarWithDropdown />
@@ -39,7 +36,6 @@ import { content_width } from '@/stores/content-width'
 import useSettings from '@/stores/settings'
 import { xl } from './../../composables/useBreakpoints'
 
-import LogoImg from '@/assets/icons/logos/logo-subspaceradio.png'
 import SearchInput from '../RightSideBar/SearchInput.vue'
 import NavButtons from './NavButtons.vue'
 import NavLinks from './NavLinks.vue'
@@ -103,27 +99,6 @@ function toggleSidenav() {
         .sortbar {
             top: 0 !important;
             right: 0 !important;
-        }
-    }
-
-    .logo {
-        width: max-content;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        .logo-orbit-wrapper {
-            width: 2rem;
-            height: 2rem;
-        }
-
-        .logo-img {
-            width: 2rem;
-            height: 2rem;
-            object-fit: contain;
-            position: relative;
-            z-index: 1;
         }
     }
 

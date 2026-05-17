@@ -1,9 +1,8 @@
 <template>
-  <router-link class="swing-logo rounded-md" :to="{ name: 'Home' }">
+  <router-link class="swing-logo" :to="{ name: 'Home' }">
     <div class="logo-orbit-wrapper">
       <img src="@/assets/icons/logos/logo-subspaceradio.png" alt="AivinNet" class="logo-img" />
     </div>
-    <span>AivinNet</span>
   </router-link>
 </template>
 
@@ -12,18 +11,16 @@
 
 <style lang="scss">
 .swing-logo {
-  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: $medium;
-  padding-left: 1rem;
-  border: solid 1px $gray5;
-  background-image: linear-gradient(37deg, rgb(29, 28, 28), transparent);
-  transition: background-color 0.2s ease-out;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   overflow: visible;
+  transition: opacity 0.2s ease-out;
 
   &:hover {
-    background-color: $gray5;
+    opacity: 0.8;
   }
 }
 

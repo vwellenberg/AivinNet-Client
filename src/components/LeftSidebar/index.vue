@@ -55,10 +55,10 @@ onMounted(() => {
   width: 15rem;
   grid-area: l-sidebar;
   display: grid;
-  grid-template-rows: 3.75rem 1fr max-content;
+  grid-template-rows: 3rem 1fr max-content;
   border-right: solid 1px $gray5;
   position: relative;
-  padding: 1rem;
+  padding: 0.75rem 1rem 1rem;
 
   .scrollable {
     height: 100%;
