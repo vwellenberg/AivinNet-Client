@@ -20,7 +20,7 @@
             }"
         >
             <HeartFillSvg v-if="state" />
-            <HeartSvg v-else />
+            <PlusSvg v-else />
         </Motion>
     </button>
 </template>
@@ -29,7 +29,7 @@
 import { Motion } from 'motion/vue'
 
 import HeartFillSvg from '@/assets/icons/heart.fill.svg'
-import HeartSvg from '@/assets/icons/heart.svg'
+import PlusSvg from '@/assets/icons/plus.svg'
 
 import { getTextColor } from '@/utils/colortools/shift'
 

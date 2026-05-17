@@ -20,6 +20,7 @@
   border: solid 1px $gray5;
   background-image: linear-gradient(37deg, rgb(29, 28, 28), transparent);
   transition: background-color 0.2s ease-out;
+  overflow: visible;
 
   &:hover {
     background-color: $gray5;
@@ -34,6 +35,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
 
   .logo-img {
     width: 1.75rem;
@@ -48,16 +50,15 @@
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    border: 2px solid $brand-red;
-    animation: logo-color-cycle 6s ease-in-out infinite;
+    border: 2px solid $brand-green;
+    animation: logo-pulse 3s ease-in-out infinite;
     pointer-events: none;
+    transform-origin: center;
   }
 }
 
-@keyframes logo-color-cycle {
-  0%   { border-color: $brand-red; }
-  33%  { border-color: $brand-green; }
-  66%  { border-color: $brand-purple; }
-  100% { border-color: $brand-red; }
+@keyframes logo-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.85; }
+  50%       { transform: scale(1.4);  opacity: 0;    }
 }
 </style>
