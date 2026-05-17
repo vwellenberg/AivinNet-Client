@@ -133,10 +133,6 @@ export const get_find_on_social = (page = 'album', query = '', album?: Album) =>
                 action: () =>
                     window.open(`https://en.wikipedia.org/wiki/Special:Search?search=${search_term}`, '_blank'),
             },
-            {
-                label: 'Last.fm',
-                action: () => window.open(`https://www.last.fm/search/${page}s?q=${search_term}`, '_blank'),
-            },
         ],
     }
 }
