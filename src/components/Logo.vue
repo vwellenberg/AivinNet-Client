@@ -28,13 +28,16 @@
 
 .logo-orbit-wrapper {
   position: relative;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2.2rem;
+  height: 2.2rem;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   .logo-img {
-    width: 100%;
-    height: 100%;
+    width: 1.6rem;
+    height: 1.6rem;
     object-fit: contain;
     position: relative;
     z-index: 1;
@@ -43,10 +46,7 @@
   &::after {
     content: '';
     position: absolute;
-    top: -4px;
-    left: -4px;
-    right: -4px;
-    bottom: -4px;
+    inset: 0;
     border-radius: 50%;
     border: 2px solid rgba(255, 255, 255, 0.08);
     border-top-color: $brand-green;

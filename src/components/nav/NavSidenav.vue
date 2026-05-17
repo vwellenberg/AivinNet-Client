@@ -100,14 +100,14 @@ function closeSidenav() {
                 gap: 1rem;
 
                 .logo-orbit-wrapper {
-                    width: 1.75rem;
-                    height: 1.75rem;
+                    width: 2.2rem;
+                    height: 2.2rem;
                     flex-shrink: 0;
                 }
 
                 .sidenav_logo_img {
-                    width: 100%;
-                    height: 100%;
+                    width: 1.6rem;
+                    height: 1.6rem;
                     object-fit: contain;
                     position: relative;
                     z-index: 1;

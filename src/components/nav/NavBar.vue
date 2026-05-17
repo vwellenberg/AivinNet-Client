@@ -20,7 +20,9 @@
         </div>
         <NavSidenav @close="toggleSidenav" :class="{ active: sidenavActive }" />
         <div class="dimmer noSelect" :class="{ active: sidenavActive }" @click="toggleSidenav"></div>
-        <RouterLink v-if="settings.is_alt_layout" to="/" class="logo rounded-sm"><img :src="LogoImg" alt="AivinNet" class="logo-img" /></RouterLink>
+        <RouterLink v-if="settings.is_alt_layout" to="/" class="logo rounded-sm">
+            <div class="logo-orbit-wrapper"><img :src="LogoImg" alt="AivinNet" class="logo-img" /></div>
+        </RouterLink>
         <div v-if="settings.is_alt_layout || !settings.use_sidebar || !xl" class="right">
             <SearchInput :on_nav="true" />
             <AvatarWithDropdown />
@@ -111,10 +113,17 @@ function toggleSidenav() {
         align-items: center;
         justify-content: center;
 
+        .logo-orbit-wrapper {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
         .logo-img {
-            height: 2rem;
             width: 2rem;
+            height: 2rem;
             object-fit: contain;
+            position: relative;
+            z-index: 1;
         }
     }
 
