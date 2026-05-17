@@ -1,6 +1,6 @@
 <template>
     <div class="artist-page v-scroll-page" style="height: 100%; position: relative;"
-        :style="{ background: store.colors.bg ? `linear-gradient(180deg, ${store.colors.bg}CC 0%, ${store.colors.bg}88 20%, ${store.colors.bg}33 45%, transparent 65%)` : '' }">
+        :style="{ background: store.colors.bg ? `linear-gradient(180deg, ${store.colors.bg}CC 0%, ${store.colors.bg}88 20%, ${store.colors.bg}33 45%, transparent 65%)` : `linear-gradient(180deg, #2e2e2e 0%, #1c1c1c 30%, transparent 60%)` }">
         <DynamicScroller
             id="artist-scroller"
             :items="scrollerItems"

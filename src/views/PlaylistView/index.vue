@@ -1,6 +1,6 @@
 <template>
     <div class="folder-view v-scroll-page" style="height: 100%; position: relative;" :class="{ isSmall, isMedium }"
-        :style="{ background: playlist.colors.bg ? `linear-gradient(180deg, ${playlist.colors.bg}CC 0%, ${playlist.colors.bg}88 20%, ${playlist.colors.bg}33 45%, transparent 65%)` : '' }">
+        :style="{ background: playlist.colors.bg ? `linear-gradient(180deg, ${playlist.colors.bg}CC 0%, ${playlist.colors.bg}88 20%, ${playlist.colors.bg}33 45%, transparent 65%)` : `linear-gradient(180deg, #2e2e2e 0%, #1c1c1c 30%, transparent 60%)` }">
         <DynamicScroller
             id="contentscroller"
             :items="scrollerItems"
@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { onMounted, onUpdated } from 'vue'
 
 import { isMedium, isSmall, isSmallPhone, track_limit } from '@/stores/content-width'
@@ -45,7 +45,7 @@ import Header from '@/components/PlaylistView/Header.vue'
 import NoItems from '@/components/shared/NoItems.vue'
 import SongItem from '@/components/shared/SongItem.vue'
 import AfterHeader from '@/components/PlaylistView/AfterHeader.vue'
-import { onBeforeRouteLeave } from 'vue-router'
+import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import AlbumsFetcher from '@/components/ArtistView/AlbumsFetcher.vue'
 import { reorderTracks } from '@/requests/playlists'
 import { Track } from '@/interfaces'
@@ -53,6 +53,14 @@ import { Track } from '@/interfaces'
 const queue = useQueue()
 const tracklist = useTracklist()
 const playlist = usePlaylistStore()
+const route = useRoute()
+
+watch(() => route.params.pid, async (newPid, oldPid) => {
+    if (newPid && newPid !== oldPid) {
+        playlist.resetAll()
+        await playlist.fetchAll(newPid as string)
+    }
+})
 
 interface ScrollerItem {
     id: string | number

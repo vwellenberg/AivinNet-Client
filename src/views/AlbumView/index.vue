@@ -1,6 +1,6 @@
 <template>
     <div class="album-virtual-scroller v-scroll-page" :class="{ isSmall }" style="height: 100%; position: relative;"
-        :style="{ background: album.colors.bg ? `linear-gradient(180deg, ${album.colors.bg}CC 0%, ${album.colors.bg}88 20%, ${album.colors.bg}33 45%, transparent 65%)` : '' }">
+        :style="{ background: album.colors.bg ? `linear-gradient(180deg, ${album.colors.bg}CC 0%, ${album.colors.bg}88 20%, ${album.colors.bg}33 45%, transparent 65%)` : `linear-gradient(180deg, #2e2e2e 0%, #1c1c1c 30%, transparent 60%)` }">
         <DynamicScroller
             id="album-scroller"
             style="height: 100%"
