@@ -28,7 +28,7 @@ export default defineStore('settings', {
         periodicInterval: 0,
         enableWatchDog: false,
 
-        folder_list_mode: false,
+        folder_list_mode: true,
         volume: 1.0,
         mute: false,
 

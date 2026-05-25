@@ -14,7 +14,7 @@
         <DynamicScroller
             id="contentscroller"
             :items="scrollerItems"
-            :min-item-size="64"
+            :min-item-size="72"
             class="scroller"
             style="height: 100%"
         >

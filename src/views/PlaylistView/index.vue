@@ -1,10 +1,10 @@
 <template>
     <div class="folder-view v-scroll-page" style="height: 100%; position: relative;" :class="{ isSmall, isMedium }"
-        :style="{ background: playlist.colors.bg ? `linear-gradient(180deg, ${playlist.colors.bg}CC 0%, ${playlist.colors.bg}88 20%, ${playlist.colors.bg}33 45%, transparent 65%)` : `linear-gradient(180deg, #2e2e2e 0%, #1c1c1c 30%, transparent 60%)` }">
+        :style="{ background: playlist.colors.bg ? `linear-gradient(180deg, ${playlist.colors.bg}FF 0%, ${playlist.colors.bg}CC 18%, ${playlist.colors.bg}77 45%, ${playlist.colors.bg}22 68%, transparent 85%)` : `linear-gradient(180deg, #3a3a3a 0%, #1c1c1c 35%, transparent 65%)` }">
         <DynamicScroller
             id="contentscroller"
             :items="scrollerItems"
-            :min-item-size="64"
+            :min-item-size="72"
             class="scroller"
             style="height: 100%"
         >
@@ -106,7 +106,7 @@ const scrollerItems = computed(() => {
                 droppable: !playlist.query,
                 source: dropSources.playlist,
             },
-            size: 64,
+            size: 72,
         }
     })
 

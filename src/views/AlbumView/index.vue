@@ -1,11 +1,11 @@
 <template>
     <div class="album-virtual-scroller v-scroll-page" :class="{ isSmall }" style="height: 100%; position: relative;"
-        :style="{ background: album.colors.bg ? `linear-gradient(180deg, ${album.colors.bg}CC 0%, ${album.colors.bg}88 20%, ${album.colors.bg}33 45%, transparent 65%)` : `linear-gradient(180deg, #2e2e2e 0%, #1c1c1c 30%, transparent 60%)` }">
+        :style="{ background: album.colors.bg ? `linear-gradient(180deg, ${album.colors.bg}FF 0%, ${album.colors.bg}CC 18%, ${album.colors.bg}77 45%, ${album.colors.bg}22 68%, transparent 85%)` : `linear-gradient(180deg, #3a3a3a 0%, #1c1c1c 35%, transparent 65%)` }">
         <DynamicScroller
             id="album-scroller"
             style="height: 100%"
             class="scroller"
-            :min-item-size="64"
+            :min-item-size="72"
             :items="scrollerItems"
         >
             <template #default="{ item, index, active }">
