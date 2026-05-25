@@ -21,7 +21,10 @@
         <NavSidenav @close="toggleSidenav" :class="{ active: sidenavActive }" />
         <div class="dimmer noSelect" :class="{ active: sidenavActive }" @click="toggleSidenav"></div>
         <div v-if="settings.is_alt_layout || !settings.use_sidebar || !xl" class="right">
-            <SearchInput :on_nav="true" />
+            <span v-if="isMobile && $route.name !== Routes.search" class="mobile-nav-title">
+                {{ mobileTitle }}
+            </span>
+            <SearchInput v-if="!isMobile || $route.name === Routes.search" :on_nav="true" />
             <AvatarWithDropdown />
         </div>
     </div>
@@ -30,9 +33,10 @@
 <script setup lang="ts">
 import { Routes } from '@/router'
 import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 import useAuth from '@/stores/auth'
-import { content_width } from '@/stores/content-width'
+import { content_width, isMobile } from '@/stores/content-width'
 import useSettings from '@/stores/settings'
 import { xl } from './../../composables/useBreakpoints'
 
@@ -47,6 +51,23 @@ import AvatarWithDropdown from './AvatarWithDropdown.vue'
 const auth = useAuth()
 const settings = useSettings()
 const isSmall = computed(() => content_width.value < 800)
+const route = useRoute()
+
+const mobileTitle = computed(() => {
+    const map: Record<string, string> = {
+        [Routes.Home]: 'Home',
+        [Routes.favorites]: 'Favorites',
+        [Routes.playlists]: 'Playlists',
+        [Routes.folder]: 'Folders',
+        [Routes.Stats]: 'Stats',
+        [Routes.nowPlaying]: 'Now Playing',
+        [Routes.album]: 'Album',
+        [Routes.artist]: 'Artist',
+        [Routes.playlist]: 'Playlist',
+        [Routes.Lyrics]: 'Lyrics',
+    }
+    return map[route.name as string] || ''
+})
 
 const sidenavActive = ref(false)
 
@@ -112,6 +133,16 @@ function toggleSidenav() {
         @include allPhones {
             gap: unset;
             justify-content: unset;
+        }
+
+        .mobile-nav-title {
+            flex: 1;
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding-left: $small;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 

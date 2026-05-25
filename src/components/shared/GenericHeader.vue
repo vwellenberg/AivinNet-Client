@@ -70,5 +70,14 @@
         gap: 1rem;
         grid-template-columns: repeat(auto-fill, 100%);
     }
+
+    @include allPhones {
+        h1.title {
+            font-size: 1.5rem;
+        }
+        .desc {
+            display: none;
+        }
+    }
 }
 </style>
