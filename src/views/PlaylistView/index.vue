@@ -1,6 +1,6 @@
 <template>
     <div class="folder-view v-scroll-page" style="height: 100%; position: relative;" :class="{ isSmall, isMedium }"
-        :style="{ background: playlist.colors.bg ? `linear-gradient(180deg, ${playlist.colors.bg}FF 0%, ${playlist.colors.bg}CC 18%, ${playlist.colors.bg}77 45%, ${playlist.colors.bg}22 68%, transparent 85%)` : `linear-gradient(180deg, #3a3a3a 0%, #1c1c1c 35%, transparent 65%)` }">
+        :style="{ background: playlist.colors.bg ? `linear-gradient(180deg, ${lightenHex(playlist.colors.bg)} 0%, ${lightenHex(playlist.colors.bg, 0.25)}CC 25%, ${playlist.colors.bg}55 55%, transparent 80%)` : `linear-gradient(180deg, #4a4a4a 0%, #1c1c1c 40%, transparent 70%)` }">
         <DynamicScroller
             id="contentscroller"
             :items="scrollerItems"
@@ -49,6 +49,7 @@ import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import AlbumsFetcher from '@/components/ArtistView/AlbumsFetcher.vue'
 import { reorderTracks } from '@/requests/playlists'
 import { Track } from '@/interfaces'
+import { lightenHex } from '@/utils/colortools'
 
 const queue = useQueue()
 const tracklist = useTracklist()

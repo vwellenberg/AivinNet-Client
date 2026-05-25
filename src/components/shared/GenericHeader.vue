@@ -71,13 +71,12 @@
         grid-template-columns: repeat(auto-fill, 100%);
     }
 
-    @include allPhones {
-        h1.title {
-            font-size: 1.5rem;
-        }
-        .desc {
-            display: none;
-        }
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    .desc {
+        display: none;
     }
 }
 </style>

@@ -8,7 +8,6 @@
     >
         <div class="left">
             <NavButtons />
-            <NavLinks v-if="settings.is_alt_layout" />
             <div v-if="settings.is_default_layout && $route.name == Routes.folder" class="info">
                 <Folder />
             </div>
