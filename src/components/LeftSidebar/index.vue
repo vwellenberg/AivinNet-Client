@@ -56,7 +56,8 @@ onMounted(() => {
   grid-area: l-sidebar;
   display: grid;
   grid-template-rows: 2.25rem 1fr max-content;
-  border-right: solid 1px $gray5;
+  background-color: #121212;
+  border-radius: 8px;
   position: relative;
   padding: 0.625rem 0.875rem 1rem;
 

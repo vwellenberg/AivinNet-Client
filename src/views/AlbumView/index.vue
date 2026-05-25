@@ -1,6 +1,6 @@
 <template>
     <div class="album-virtual-scroller v-scroll-page" :class="{ isSmall }" style="height: 100%; position: relative;"
-        :style="{ background: album.colors.bg ? `linear-gradient(180deg, ${lightenHex(album.colors.bg)} 0%, ${lightenHex(album.colors.bg, 0.25)}CC 25%, ${album.colors.bg}55 55%, transparent 80%)` : `linear-gradient(180deg, #4a4a4a 0%, #1c1c1c 40%, transparent 70%)` }">
+        :style="{ background: album.colors.bg ? `linear-gradient(180deg, ${vibrateHex(album.colors.bg)} 0%, ${vibrateHex(album.colors.bg)}CC 25%, ${album.colors.bg}55 55%, transparent 80%)` : `linear-gradient(180deg, #4a4a4a 0%, #1c1c1c 40%, transparent 70%)` }">
         <DynamicScroller
             id="album-scroller"
             style="height: 100%"
@@ -48,7 +48,7 @@ import Stats from '@/components/Stats/Stats.vue'
 
 import { dropSources } from '@/enums'
 import { isSmall } from '@/stores/content-width'
-import { lightenHex } from '@/utils/colortools'
+import { vibrateHex } from '@/utils/colortools'
 
 const album = useAlbumStore()
 const queue = useQueueStore()

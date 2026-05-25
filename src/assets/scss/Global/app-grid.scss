@@ -10,9 +10,7 @@ $g-border: solid 1px $gray5;
         'l-sidebar content'
         'bottombar bottombar';
     height: 100%;
-    border: $g-border;
-    border-top: none;
-    border-bottom: none;
+    column-gap: 8px;
     margin: 0 auto;
     position: relative;
 
@@ -37,6 +35,8 @@ $g-border: solid 1px $gray5;
     overflow: hidden;
     margin-right: $margright;
     z-index: 0;
+    background-color: #121212;
+    border-radius: 8px 8px 0 0;
 }
 
 .topnav {
@@ -44,6 +44,8 @@ $g-border: solid 1px $gray5;
     height: $navheight;
     padding: 1rem $padleft;
     padding-right: $padright;
+    background-color: #121212;
+    border-radius: 8px 8px 0 0;
 
     @include allPhones {
         display: flex;
@@ -146,7 +148,6 @@ $g-border: solid 1px $gray5;
 
     .topnav {
         // background-color: $bars;
-        border-bottom: $g-border;
     }
 
     .vue-recycle-scroller,

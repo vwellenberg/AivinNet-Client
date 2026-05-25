@@ -7,7 +7,6 @@
         }"
     >
         <div class="left">
-            <NavButtons />
             <div v-if="settings.is_default_layout && $route.name == Routes.folder" class="info">
                 <Folder />
             </div>
@@ -40,7 +39,6 @@ import useSettings from '@/stores/settings'
 import { xl } from './../../composables/useBreakpoints'
 
 import SearchInput from '../RightSideBar/SearchInput.vue'
-import NavButtons from './NavButtons.vue'
 import NavLinks from './NavLinks.vue'
 import NavSidenav from './NavSidenav.vue'
 import NavTitles from './NavTitles.vue'
