@@ -4,7 +4,7 @@ import { SettingType } from '../enums'
 
 const authorize = <Setting>{
     title: 'Connect your account',
-    desc: 'Allow Swing Music to access your Last.fm account',
+    desc: 'Allow AivinNet to access your Last.fm account',
     type: SettingType.button,
     action: () => {
         const settings = useSettings()

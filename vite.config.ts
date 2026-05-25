@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+/// <reference types="vitest" />
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
@@ -20,9 +21,9 @@ export default defineConfig({
         enabled: true,
       },
       manifest: {
-        name: "Swing Music",
-        short_name: "Swing Music",
-        description: "Swing Music",
+        name: "AivinNet",
+        short_name: "AivinNet",
+        description: "AivinNet — selbst-gehosteter Musik-Player",
         theme_color: "#111",
         icons: [
           {
@@ -111,5 +112,9 @@ export default defineConfig({
     reportCompressedSize: false,
     chunkSizeWarningLimit: 1500,
     emptyOutDir: true,
+  },
+  test: {
+    environment: "jsdom",
+    globals: true,
   },
 });

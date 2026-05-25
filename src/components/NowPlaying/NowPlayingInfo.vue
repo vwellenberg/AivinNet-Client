@@ -1,7 +1,7 @@
 <template>
   <div class="now-playing-info">
     <div class="text">
-      <div class="title">{{ queue.currenttrack?.title || "Swing Music" }}</div>
+      <div class="title">{{ queue.currenttrack?.title || "AivinNet" }}</div>
       <ArtistName
         v-if="queue.currenttrack"
         :artists="queue.currenttrack?.artists || null"
