@@ -31,7 +31,7 @@ import { onMounted, ref } from 'vue'
 import StatItem from './StatItem.vue'
 import CalendarSvg from '@/assets/icons/calendar.svg'
 
-interface StatItem {
+interface StatItemData {
     cssclass: string
     value: string
     text: string
@@ -39,10 +39,10 @@ interface StatItem {
 }
 
 const props = defineProps<{
-    items?: StatItem[]
+    items?: StatItemData[]
 }>()
 
-const statItems = ref<StatItem[]>([])
+const statItems = ref<StatItemData[]>([])
 const date = ref<string | null>(null)
 
 onMounted(async () => {

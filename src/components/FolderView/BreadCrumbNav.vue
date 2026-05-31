@@ -1,7 +1,7 @@
 <template>
     <div class="breadcrumb-nav">
         <div
-            v-for="path in props.subPaths ? props.subPaths : subPaths"
+            v-for="path in props.subPaths ? props.subPaths : localSubPaths"
             :key="path.path"
             class="path"
             :class="{ inthisfolder: path.active }"
@@ -29,12 +29,12 @@ const props = defineProps<{
 const folder = useFolder()
 const settings = useSettings()
 
-const subPaths: Ref<subPath[]> = ref([])
+const localSubPaths: Ref<subPath[]> = ref([])
 
 let oldpath = ''
 
 const getSubPaths = (newPath: string) => {
-    ;[oldpath, subPaths.value] = createSubPaths(newPath, oldpath)
+    ;[oldpath, localSubPaths.value] = createSubPaths(newPath, oldpath)
 }
 
 // INFO: if there are no subPaths, watch the folder path

@@ -1,5 +1,5 @@
 <template>
-    <form action="" v-if="delete">
+    <form action="" v-if="isDelete">
         <br>
         <div>Are you sure you want to delete this collection?</div>
         <br />
@@ -29,7 +29,7 @@ const props = defineProps<{
     hash?: string
     type?: string
     extra?: any
-    delete?: boolean
+    isDelete?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -37,10 +37,10 @@ const emit = defineEmits<{
     (e: 'setTitle', title: string): void
 }>()
 
-emit('setTitle', (props.collection ? (props.delete ? 'Delete' : 'Update') : 'New') + ' Collection')
+emit('setTitle', (props.collection ? (props.isDelete ? 'Delete' : 'Update') : 'New') + ' Collection')
 
 async function submit(e: Event) {
-    if (props.delete && props.collection) {
+    if (props.isDelete && props.collection) {
         const deleted = await deleteCollection(props.collection.id)
         if (deleted) {
             new Notification('Collection deleted', NotifType.Success)

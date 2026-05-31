@@ -47,13 +47,13 @@ import ArrowSvg from '@/assets/icons/arrow.svg'
 import ArtistName from '../shared/ArtistName.vue'
 import PlayBtn from '../shared/PlayBtn.vue'
 
-type name = 'artist' | 'album' | 'track'
+type ChartName = 'artist' | 'album' | 'track'
 type ChartItem = Artist | Album | Track
 
 const props = defineProps<{
     item: ChartItem
     index: number
-    name: name
+    name: ChartName
 }>()
 
 const color = ref<string | null>(null)

@@ -36,7 +36,7 @@
                             {{ user.firstname || user.username }}
                         </div>
                         <div class="roles">
-                            <span class="role" v-for="role in user.roles">{{ role }}</span>
+                            <span class="role" v-for="role in user.roles" :key="role">{{ role }}</span>
                         </div>
                     </div>
                     <DeleteSvg

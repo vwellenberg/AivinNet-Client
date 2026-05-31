@@ -48,7 +48,7 @@ function updatePage() {
 function deletePage() {
     modal.showCollectionModal({
         collection: collection.collection,
-        delete: true,
+        isDelete: true,
     })
 }
 

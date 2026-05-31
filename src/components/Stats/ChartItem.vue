@@ -36,13 +36,13 @@ import ArtistName from '../shared/ArtistName.vue'
 import { Routes } from '@/router'
 import MasterFlag from '../shared/MasterFlag.vue'
 
-type name = 'artist' | 'album' | 'track'
+type ChartName = 'artist' | 'album' | 'track'
 type ChartItem = Artist | Album | Track
 
 const props = defineProps<{
     item: ChartItem
     index: number
-    name: name
+    name: ChartName
 }>()
 
 const isArtist = computed(() => props.name === 'artist')
