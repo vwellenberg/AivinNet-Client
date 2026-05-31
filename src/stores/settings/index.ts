@@ -70,6 +70,7 @@ export default defineStore('settings', {
         layout: 'alternate',
         use_np_img: false,
         use_sidebar: false,
+        sidebar_width: 240,
 
         // stats
         statsgroup: 'artists',

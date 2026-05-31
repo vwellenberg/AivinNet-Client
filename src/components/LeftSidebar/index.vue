@@ -1,5 +1,5 @@
 <template>
-  <div class="l-sidebar no-scroll">
+  <div class="l-sidebar no-scroll" :style="{ width: settings.sidebar_width + 'px' }">
     <Logo />
     <div class="scrollable">
       <Navigation />
@@ -24,11 +24,16 @@
     </div>
 
     <SongCard v-if="settings.use_np_img" />
+    <div
+      class="sidebar-resize-handle"
+      :class="{ active: isResizing }"
+      @mousedown="startResize"
+    ></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import useSettingsStore from "@/stores/settings";
 import usePStore from "@/stores/pages/playlists";
 import { Routes } from '@/router'
@@ -43,6 +48,31 @@ const settings = useSettingsStore();
 const playlists = usePStore();
 const imgBase = paths.images.playlist;
 
+const SIDEBAR_MIN_WIDTH = 180
+const SIDEBAR_MAX_WIDTH = 420
+const isResizing = ref(false)
+
+function startResize(e: MouseEvent) {
+  e.preventDefault()
+  isResizing.value = true
+  document.body.style.cursor = 'col-resize'
+  document.body.style.userSelect = 'none'
+
+  const onMove = (ev: MouseEvent) => {
+    const next = Math.min(Math.max(ev.clientX, SIDEBAR_MIN_WIDTH), SIDEBAR_MAX_WIDTH)
+    settings.sidebar_width = next
+  }
+  const onUp = () => {
+    isResizing.value = false
+    document.body.style.cursor = ''
+    document.body.style.userSelect = ''
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('mouseup', onUp)
+  }
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('mouseup', onUp)
+}
+
 onMounted(() => {
   if (!playlists.playlists.length) {
     playlists.fetchAll();
@@ -52,7 +82,6 @@ onMounted(() => {
 
 <style lang="scss">
 .l-sidebar {
-  width: 15rem;
   grid-area: l-sidebar;
   display: grid;
   grid-template-rows: 2.25rem 1fr max-content;
@@ -79,6 +108,23 @@ onMounted(() => {
 
   &:hover .scrollable::-webkit-scrollbar-thumb:hover {
     background-color: $gray1;
+  }
+}
+
+.sidebar-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+  background-color: transparent;
+  transition: background-color 0.15s ease;
+
+  &:hover,
+  &.active {
+    background-color: rgba(255, 255, 255, 0.08);
   }
 }
 
