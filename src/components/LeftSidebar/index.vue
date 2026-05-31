@@ -1,5 +1,5 @@
 <template>
-  <div class="l-sidebar no-scroll" :style="{ width: settings.sidebar_width + 'px' }">
+  <div class="l-sidebar no-scroll" :style="{ width: displayWidth + 'px' }">
     <Logo />
     <div class="scrollable">
       <Navigation />
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import useSettingsStore from "@/stores/settings";
 import usePStore from "@/stores/pages/playlists";
 import { Routes } from '@/router'
@@ -51,26 +51,44 @@ const imgBase = paths.images.playlist;
 const SIDEBAR_MIN_WIDTH = 180
 const SIDEBAR_MAX_WIDTH = 420
 const isResizing = ref(false)
+const dragWidth = ref(0)
+let moveHandler: ((ev: MouseEvent) => void) | null = null
+let upHandler: (() => void) | null = null
+
+const displayWidth = computed(() =>
+  isResizing.value ? dragWidth.value : settings.sidebar_width
+)
+
+function clamp(n: number) {
+  return Math.min(Math.max(n, SIDEBAR_MIN_WIDTH), SIDEBAR_MAX_WIDTH)
+}
+
+function teardown() {
+  if (moveHandler) document.removeEventListener('mousemove', moveHandler)
+  if (upHandler) document.removeEventListener('mouseup', upHandler)
+  moveHandler = null
+  upHandler = null
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+}
 
 function startResize(e: MouseEvent) {
   e.preventDefault()
   isResizing.value = true
+  dragWidth.value = settings.sidebar_width
   document.body.style.cursor = 'col-resize'
   document.body.style.userSelect = 'none'
 
-  const onMove = (ev: MouseEvent) => {
-    const next = Math.min(Math.max(ev.clientX, SIDEBAR_MIN_WIDTH), SIDEBAR_MAX_WIDTH)
-    settings.sidebar_width = next
+  moveHandler = (ev: MouseEvent) => {
+    dragWidth.value = clamp(ev.clientX)
   }
-  const onUp = () => {
+  upHandler = () => {
+    settings.sidebar_width = dragWidth.value
     isResizing.value = false
-    document.body.style.cursor = ''
-    document.body.style.userSelect = ''
-    document.removeEventListener('mousemove', onMove)
-    document.removeEventListener('mouseup', onUp)
+    teardown()
   }
-  document.addEventListener('mousemove', onMove)
-  document.addEventListener('mouseup', onUp)
+  document.addEventListener('mousemove', moveHandler)
+  document.addEventListener('mouseup', upHandler)
 }
 
 onMounted(() => {
@@ -78,6 +96,8 @@ onMounted(() => {
     playlists.fetchAll();
   }
 });
+
+onBeforeUnmount(teardown);
 </script>
 
 <style lang="scss">
