@@ -1,6 +1,6 @@
 {
-  "name": "swing_music_client",
-  "version": "0.1.0.alpha",
+  "name": "aivinnet-client",
+  "version": "0.2.0-alpha",
   "private": true,
   "scripts": {
     "dev": "vite",

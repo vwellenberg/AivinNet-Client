@@ -24,26 +24,15 @@
 import {
   AlbumIcon,
   ArtistIcon,
-  FolderIcon,
   HeartIcon,
-  PlaylistIcon,
-  SettingsIcon,
-  ReloadIcon
 } from "@/icons";
-import { triggerScan } from "@/requests/settings/rootdirs";
 import { Routes } from "@/router";
 import { album_card_with } from "@/stores/content-width";
-import useDialog from "@/stores/modal";
 
+// INFO: Sidebar covers Home/Folders/Search/Favorites/Playlists/Stats/Settings.
+// Browse-Library here only shows entries NOT already in the sidebar
+// (avoids duplicates — sidebar is primary nav).
 const browselist = [
-  {
-    title: "Folders",
-    route: Routes.folder,
-    params: {
-      path: "$home",
-    },
-    icon: FolderIcon,
-  },
   {
     title: "Albums",
     route: Routes.AlbumList,
@@ -53,17 +42,6 @@ const browselist = [
     title: "Artists",
     route: Routes.ArtistList,
     icon: ArtistIcon,
-  },
-  {
-    title: "Playlists",
-    route: Routes.playlists,
-    icon: PlaylistIcon,
-  },
-  {
-    title: "Favorites",
-    route: Routes.favorites,
-    icon: HeartIcon,
-    class: "favorite",
   },
   {
     title: "Fav. tracks",
@@ -83,20 +61,6 @@ const browselist = [
     icon: AlbumIcon,
     class: "favorite",
   },
-  // {
-  //   title: "Settings",
-  //   route: null,
-  //   icon: SettingsIcon,
-  //   action: () => {
-  //     useDialog().showSettingsModal();
-  //   },
-  //   class: "settings",
-  // },
-  {
-    title: "Stats",
-    icon: AlbumIcon,
-    route: Routes.Stats,
-  }
 ];
 </script>
 
