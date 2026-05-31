@@ -75,6 +75,8 @@ const errorText = computed(() => {
     if (confirmPassword.value.length && password.value !== confirmPassword.value) {
         return 'Passwords do not match'
     }
+
+    return ''
 })
 
 const payload = computed(() => {

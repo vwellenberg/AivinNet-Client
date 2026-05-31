@@ -1,4 +1,4 @@
-import { ref } from "@vue/reactivity";
+import { ref } from "vue";
 import { useIntersectionObserver } from "@vueuse/core";
 import { Ref, watch } from "vue";
 

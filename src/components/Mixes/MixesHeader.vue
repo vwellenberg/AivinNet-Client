@@ -12,8 +12,8 @@
             </div>
             <div class="buttons">
                 <PlayBtnRect :source="playSources.mix" :bg_color="'#fff'" @click.prevent="$emit('playThis')" />
-                <button class="savebtn" :title="mix.saved ? 'Saved Mix' : 'Save Mix'" @click="saveMix">
-                    <SaveFilledSvg v-if="mix.saved" />
+                <button class="savebtn" :title="saved ? 'Saved Mix' : 'Save Mix'" @click="saveMix">
+                    <SaveFilledSvg v-if="saved" />
                     <SaveSvg v-else />
                 </button>
             </div>
@@ -30,6 +30,7 @@ import SaveFilledSvg from '@/assets/icons/bookmark.fill.svg'
 import { playSources } from '@/enums'
 import useAxios from '@/requests/useAxios'
 import { paths } from '@/config'
+import { ref, watch } from 'vue'
 
 const props = defineProps<{
     mix: FullMix
@@ -39,9 +40,17 @@ defineEmits<{
     (e: 'playThis'): void
 }>()
 
+const saved = ref(props.mix.saved)
+watch(
+    () => props.mix.saved,
+    value => {
+        saved.value = value
+    }
+)
+
 async function saveMix() {
-    const initialState = props.mix.saved
-    props.mix.saved = !initialState
+    const initialState = saved.value
+    saved.value = !initialState
 
     const res = await useAxios({
         url: paths.api.mixes + '/save',
@@ -57,7 +66,7 @@ async function saveMix() {
     })
 
     if (res.status !== 200) {
-        props.mix.saved = initialState
+        saved.value = initialState
     }
 }
 </script>

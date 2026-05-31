@@ -64,6 +64,8 @@ const currentGroup = computed(() => {
             }
         }
     }
+
+    return null
 })
 
 const showContent = computed(() => {
