@@ -72,7 +72,12 @@ async function submit(e: Event) {
         const updatedPage = await updateCollection(props.collection, name, description)
 
         if (updatedPage) {
+            // INFO: collection is passed by reference from a Pinia store, so
+            // mutating it here updates the store. Proper refactor would be a
+            // store action; deferred to a separate cleanup.
+            // eslint-disable-next-line vue/no-mutating-props
             props.collection.name = updatedPage.name
+            // eslint-disable-next-line vue/no-mutating-props
             props.collection.extra.description = updatedPage.extra.description
             new Notification('Collection updated', NotifType.Success)
             emit('hideModal')
