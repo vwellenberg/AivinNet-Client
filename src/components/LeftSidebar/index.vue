@@ -24,6 +24,7 @@
     </div>
 
     <SongCard v-if="settings.use_np_img" />
+    <div class="sidebar-version" :title="`AivinNet ${version}`">v{{ version }}</div>
     <div
       class="sidebar-resize-handle"
       :class="{ active: isResizing }"
@@ -43,6 +44,9 @@ import Navigation from "@/components/LeftSidebar/NavButtons.vue";
 import Logo from "@/components/Logo.vue";
 import SongCard from "./NP/SongCard.vue";
 import PlaylistSvg from "@/assets/icons/playlist-1.svg";
+import pkg from "../../../package.json";
+
+const version = pkg.version;
 
 const settings = useSettingsStore();
 const playlists = usePStore();
@@ -145,6 +149,22 @@ onBeforeUnmount(teardown);
   &:hover,
   &.active {
     background-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.sidebar-version {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  opacity: 0.3;
+  text-align: center;
+  padding: 0.5rem 0 0;
+  user-select: none;
+  font-feature-settings: 'tnum';
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.6;
   }
 }
 
