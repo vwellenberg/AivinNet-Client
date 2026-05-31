@@ -45,7 +45,7 @@ The production output is placed in the `dist/` folder.
 The following command pulls the latest code, builds the project, deploys it to the server, and restarts the service:
 
 ```bash
-ssh -i ~/.ssh/id_ed25519 vwellenberg@192.168.0.4 "cd ~/SubspaceRadio-Client && git pull && NODE_OPTIONS='--dns-result-order=ipv4first' yarn install --ignore-engines --network-timeout 120000 2>&1 | tail -2 && NODE_OPTIONS='--dns-result-order=ipv4first' yarn build 2>&1 | tail -5 && rm -rf ~/.config/swingmusic/client && cp -r dist ~/.config/swingmusic/client && sudo -n systemctl restart subspaceradio && echo deployed"
+ssh -i ~/.ssh/id_ed25519 vwellenberg@192.168.0.4 "cd ~/AivinNet-Client && git pull && NODE_OPTIONS='--dns-result-order=ipv4first' yarn install --ignore-engines --network-timeout 120000 2>&1 | tail -2 && NODE_OPTIONS='--dns-result-order=ipv4first' yarn build 2>&1 | tail -5 && rm -rf ~/.config/swingmusic/client && cp -r dist ~/.config/swingmusic/client && sudo -n systemctl restart aivinnet && echo deployed"
 ```
 
 > **Note:** The server runs Node 18, so `--ignore-engines` is required for `yarn install`.
