@@ -45,17 +45,18 @@
   &::after {
     content: '';
     position: absolute;
-    inset: 0;
+    inset: 3px;
     border-radius: 50%;
-    border: 2px solid $brand-green;
-    animation: logo-pulse 3s ease-in-out infinite;
+    border: 1.5px solid $brand-green;
+    animation: logo-pulse 4s ease-in-out infinite;
     pointer-events: none;
     transform-origin: center;
+    will-change: transform, opacity;
   }
 }
 
 @keyframes logo-pulse {
-  0%, 100% { transform: scale(1);    opacity: 0.85; }
-  50%       { transform: scale(1.4);  opacity: 0;    }
+  0%, 100% { transform: scale(1);    opacity: 0.5; }
+  50%       { transform: scale(1.3);  opacity: 0;   }
 }
 </style>
