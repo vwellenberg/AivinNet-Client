@@ -2,13 +2,12 @@
     <div
         class="playlist-banner-images no-scroll"
         :style="{
-      background: playlist.info.images.length ? (playlist.info.images[1] as any).color : undefined,
+      background: playlist.info.images.length ? (playlist.info.images[0] as any).color : undefined,
     }"
     >
         <img
-            v-for="(img, index) in playlist.info.images"
-            :key="index"
-            :src="paths.images.thumb.medium + (img as any).image"
+            v-if="playlist.info.images.length"
+            :src="paths.images.thumb.medium + (playlist.info.images[0] as any).image"
             class=""
         />
     </div>
@@ -23,21 +22,17 @@ const playlist = usePStore()
 
 <style lang="scss">
 .playlist-banner-images {
-    display: grid;
-    grid: repeat(2, 1fr) / repeat(2, 1fr);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
     transition: all 0.2s ease-in-out;
 
     img {
-        height: 7rem;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
         transition: all 0.2s ease-in-out;
-    }
-
-    @include largePhones {
-        right: -4rem;
-
-        img {
-            height: 7rem;
-        }
     }
 }
 </style>

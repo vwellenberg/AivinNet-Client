@@ -47,3 +47,17 @@ export async function getMusicBrainzStatus(): Promise<MusicBrainzStatus | null> 
 
     return (data as MusicBrainzStatus) || null
 }
+
+export interface MissingCount {
+    total: number
+    missing: number
+}
+
+export async function getMissingCoverCount(): Promise<MissingCount | null> {
+    const { data } = await useAxios({
+        url: '/musicbrainz/missing-count',
+        method: 'GET',
+    })
+
+    return (data as MissingCount) || null
+}
