@@ -21,6 +21,7 @@ export default defineStore('artistPage', {
         similar_artists: <Artist[]>[],
         colors: {
             bg: '',
+            bg2: '',
             btn: '',
         },
         fetched_similar_hash: '',

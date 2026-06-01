@@ -19,6 +19,7 @@ export default defineStore('playlist-tracks', {
         allTracks: <Track[]>[],
         colors: {
             bg: '',
+            bg2: '',
             btn: '',
         },
         uploadImgUrl: '',

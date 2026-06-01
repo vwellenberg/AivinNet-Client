@@ -63,6 +63,7 @@ export default defineStore('album', {
         discs: <Disc>{},
         colors: {
             bg: '',
+            bg2: '',
             btn: '',
         },
         fetched_similar_hash: '',
