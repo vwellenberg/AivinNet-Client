@@ -1,5 +1,5 @@
 <template>
-  <div class="l-sidebar no-scroll" :style="{ width: displayWidth + 'px' }">
+  <div class="l-sidebar" :style="{ width: displayWidth + 'px' }">
     <Logo />
     <div class="scrollable">
       <Navigation />

@@ -45,10 +45,14 @@
   &::after {
     content: '';
     position: absolute;
-    inset: 3px;
+    inset: -12px;
     border-radius: 50%;
-    border: 1.5px solid $brand-green;
-    animation: logo-pulse 4s ease-in-out infinite;
+    background: radial-gradient(circle,
+      rgba(29, 158, 117, 0.75) 12%,
+      rgba(29, 158, 117, 0.35) 30%,
+      rgba(29, 158, 117, 0.12) 55%,
+      transparent 80%);
+    animation: logo-pulse 3.2s ease-in-out infinite;
     pointer-events: none;
     transform-origin: center;
     will-change: transform, opacity;
@@ -56,7 +60,7 @@
 }
 
 @keyframes logo-pulse {
-  0%, 100% { transform: scale(1);    opacity: 0.5; }
-  50%       { transform: scale(1.3);  opacity: 0;   }
+  0%, 100% { transform: scale(1);   opacity: 0.95; }
+  50%      { transform: scale(1.7); opacity: 0;    }
 }
 </style>
