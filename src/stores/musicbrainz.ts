@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import {
     MusicBrainzStatus,
     fetchMissingCovers,
+    getMissingCoverCount,
     getMusicBrainzStatus,
 } from '@/requests/musicbrainz'
 import { NotifType, useToast } from '@/stores/notification'
@@ -12,6 +13,9 @@ interface State {
     status: MusicBrainzStatus | null
     pollTimer: ReturnType<typeof setInterval> | null
     starting: boolean
+    totalAlbums: number
+    missingCount: number
+    countLoaded: boolean
 }
 
 export default defineStore('musicbrainz', {
@@ -19,6 +23,9 @@ export default defineStore('musicbrainz', {
         status: null,
         pollTimer: null,
         starting: false,
+        totalAlbums: 0,
+        missingCount: 0,
+        countLoaded: false,
     }),
     getters: {
         isRunning: (s) => !!s.status?.in_progress,
@@ -35,7 +42,7 @@ export default defineStore('musicbrainz', {
                 return `${done}/${s.total} — ${s.fetched} ok, ${s.failed} fail`
             }
             if (s.total > 0) {
-                return `Done: ${s.fetched}/${s.total} (${s.failed} fail)`
+                return `Fertig: ${s.fetched}/${s.total} (${s.failed} fehlgeschlagen)`
             }
             return ''
         },
@@ -45,6 +52,16 @@ export default defineStore('musicbrainz', {
             this.status = await getMusicBrainzStatus()
             if (this.status && !this.status.in_progress) {
                 this.stopPolling()
+                // Refresh the missing count once a batch settles.
+                this.refreshCount()
+            }
+        },
+        async refreshCount() {
+            const res = await getMissingCoverCount()
+            if (res) {
+                this.totalAlbums = res.total
+                this.missingCount = res.missing
+                this.countLoaded = true
             }
         },
         startPolling() {
@@ -57,7 +74,10 @@ export default defineStore('musicbrainz', {
                 this.pollTimer = null
             }
         },
-        async startBatch(limit = 50) {
+        /**
+         * Start a batch. limit = 0 means "all missing albums".
+         */
+        async startBatch(limit = 0) {
             if (this.starting || this.isRunning) return
             this.starting = true
             try {
@@ -69,20 +89,20 @@ export default defineStore('musicbrainz', {
                 }
                 if (!res.success) {
                     useToast().showNotification(
-                        res.error || 'Could not start batch',
+                        res.error || 'Batch konnte nicht gestartet werden',
                         NotifType.Error,
                     )
                     return
                 }
                 if (res.queued === 0) {
                     useToast().showNotification(
-                        'No albums without covers',
+                        'Keine Alben ohne Cover',
                         NotifType.Info,
                     )
                     return
                 }
                 useToast().showNotification(
-                    `Started batch (${res.queued} albums)`,
+                    `Batch gestartet (${res.queued} Alben)`,
                     NotifType.Info,
                 )
                 await this.refreshStatus()

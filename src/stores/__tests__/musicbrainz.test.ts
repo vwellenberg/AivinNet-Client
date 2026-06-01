@@ -65,6 +65,13 @@ describe('useMusicBrainzStore getters', () => {
         expect(store.isRunning).toBe(true)
     })
 
+    it('countLoaded starts false and counts start at 0', () => {
+        const store = useMusicBrainzStore()
+        expect(store.countLoaded).toBe(false)
+        expect(store.missingCount).toBe(0)
+        expect(store.totalAlbums).toBe(0)
+    })
+
     it('progressText is empty when no status', () => {
         const store = useMusicBrainzStore()
         expect(store.progressText).toBe('')
@@ -95,7 +102,7 @@ describe('useMusicBrainzStore getters', () => {
             started_at: 0,
             finished_at: 1,
         }
-        expect(store.progressText).toContain('Done')
+        expect(store.progressText).toContain('Fertig')
         expect(store.progressText).toContain('4/5')
     })
 })
