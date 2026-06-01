@@ -17,7 +17,7 @@
         }"
     >
         <div class="big-img no-scroll" :class="`${isHeaderSmall ? 'imgSmall' : ''} shadow-lg rounded-sm`">
-            <img :src="imguri.thumb.large + album.image" class="rounded-sm" />
+            <img :src="imguri.thumb.large + album.image + (store.coverVersion ? '?v=' + store.coverVersion : '')" class="rounded-sm" />
         </div>
         <Info />
     </div>

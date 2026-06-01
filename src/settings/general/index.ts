@@ -10,6 +10,7 @@ import contextChildrenShowMode from './context-children-show-mode'
 import extendWidth from './extend-width'
 import folderlistmode from './folderlistmode'
 import layout from './layout'
+import musicbrainz from './musicbrainz'
 import nowPlaying from './now-playing-group'
 import rootDirSettings from './root-dirs'
 import separators from './separators'
@@ -78,6 +79,13 @@ export const library = {
             icon: AvatarSvg,
             desc: 'Customize artist separators',
             settings: [separators],
+        },
+        {
+            show_if: () => useSettings().feat !== null,
+            title: 'Album Cover',
+            icon: AlbumSvg,
+            desc: 'Fehlende Album-Cover via MusicBrainz / Cover Art Archive nachholen',
+            settings: [...musicbrainz],
         },
         {
             title: "Backup",

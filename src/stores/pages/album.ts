@@ -69,6 +69,9 @@ export default defineStore('album', {
         fetched_version_hash: '',
         fetched_other_hash: '',
         stats: <StatItem[]>[],
+        // Bumped after a successful MusicBrainz cover refetch so the
+        // <img> URL changes and the browser drops its cached thumb.
+        coverVersion: 0,
     }),
     actions: {
         /**
@@ -163,6 +166,9 @@ export default defineStore('album', {
                 this.resetOtherVersions()
                 this.resetSimilarAlbums()
             }, 5000)
+        },
+        bumpCoverVersion() {
+            this.coverVersion = Date.now()
         },
     },
     getters: {
