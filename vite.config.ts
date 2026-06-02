@@ -20,6 +20,14 @@ export default defineConfig({
       devOptions: {
         enabled: true,
       },
+      workbox: {
+        // Apply a new build immediately instead of waiting for every tab to
+        // close first. Without this, deployed updates kept showing stale UI
+        // until the service worker was manually unregistered.
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
+      },
       manifest: {
         name: "AivinNet",
         short_name: "AivinNet",

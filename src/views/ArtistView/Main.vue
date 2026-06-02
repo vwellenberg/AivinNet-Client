@@ -1,6 +1,6 @@
 <template>
     <div class="artist-page v-scroll-page" style="height: 100%; position: relative;"
-        :style="{ background: store.colors.bg ? `linear-gradient(180deg, ${vibrateHex(store.colors.bg)} 0%, ${vibrateHex(store.colors.bg2 || store.colors.bg)}DD 28%, ${store.colors.bg}55 55%, transparent 80%)` : `linear-gradient(180deg, #4a4a4a 0%, #1c1c1c 40%, transparent 70%)` }">
+        :style="{ background: store.colors.bg ? `linear-gradient(180deg, ${vibrateHex(store.colors.bg)} 0%, ${vibrateHex(store.colors.bg2 || store.colors.bg)}EE 20%, ${store.colors.bg}AA 42%, ${store.colors.bg}55 65%, transparent 95%)` : `linear-gradient(180deg, #4a4a4a 0%, #1c1c1c 40%, transparent 70%)` }">
         <DynamicScroller
             id="artist-scroller"
             :items="scrollerItems"
