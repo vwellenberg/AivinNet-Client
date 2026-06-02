@@ -97,6 +97,7 @@ export default defineStore('playlist-tracks', {
         resetColors() {
             this.colors = {
                 bg: '',
+                bg2: '',
                 btn: '',
             }
         },

@@ -13,7 +13,7 @@
           :class="{ active: $route.params.pid == pl.id }"
         >
           <div class="sidebar-pl-img rounded-sm">
-            <img v-if="pl.image" :src="imgBase + pl.image" />
+            <img v-if="pl.has_image" :src="imgBase + pl.image" />
             <img v-else-if="pl.images && pl.images.length" :src="thumbBase + pl.images[0].image" />
             <div v-else class="sidebar-pl-placeholder">
               <PlaylistSvg />

@@ -50,9 +50,20 @@ function vividness(s: SwatchLite): number {
  * @param btn_only - If true, only assign the `colors.btn` property.
  */
 export default (store: any, img_url: string, btn_only: boolean = false) => {
+  // Supersede any in-flight extraction for this store. Several lifecycle
+  // hooks can call this in quick succession; without a token the async
+  // results race and the page colour flips randomly between reloads.
+  // Only the most recently started call is allowed to write.
+  const token = (store._colorToken || 0) + 1;
+  store._colorToken = token;
+
   const vibrant = new Vibrant(img_url);
 
-  vibrant.getPalette().then((palette) => {
+  vibrant
+    .getPalette()
+    .then((palette) => {
+    if (store._colorToken !== token) return; // a newer call took over
+
     const swatches = collectSwatches(palette);
 
     // Button: a bright, punchy colour.
@@ -90,5 +101,8 @@ export default (store: any, img_url: string, btn_only: boolean = false) => {
 
     store.colors.bg = listToRgbString(primary.rgb) || "";
     store.colors.bg2 = listToRgbString(secondary.rgb) || store.colors.bg;
-  });
+    })
+    .catch(() => {
+      // Image failed to load/decode — leave whatever colours are set.
+    });
 };
