@@ -14,6 +14,7 @@
         >
           <div class="sidebar-pl-img rounded-sm">
             <img v-if="pl.image" :src="imgBase + pl.image" />
+            <img v-else-if="pl.images && pl.images.length" :src="thumbBase + pl.images[0].image" />
             <div v-else class="sidebar-pl-placeholder">
               <PlaylistSvg />
             </div>
@@ -51,6 +52,8 @@ const version = pkg.version;
 const settings = useSettingsStore();
 const playlists = usePStore();
 const imgBase = paths.images.playlist;
+// First album cover of the playlist, used when it has no dedicated image.
+const thumbBase = paths.images.thumb.small;
 
 const SIDEBAR_MIN_WIDTH = 180
 const SIDEBAR_MAX_WIDTH = 420
