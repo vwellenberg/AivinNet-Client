@@ -23,10 +23,10 @@ export async function fetchCoverFromMusicBrainz(albumhash: string) {
     }
 }
 
-export async function fetchMissingCovers(limit = 50) {
+export async function fetchMissingCovers(limit = 0, retryFailed = false) {
     const { data, status } = await useAxios({
         url: '/musicbrainz/fetch-missing-covers',
-        props: { limit },
+        props: { limit, retry_failed: retryFailed },
     })
 
     return {
@@ -51,6 +51,8 @@ export async function getMusicBrainzStatus(): Promise<MusicBrainzStatus | null> 
 export interface MissingCount {
     total: number
     missing: number
+    failed: number
+    remaining: number
 }
 
 export async function getMissingCoverCount(): Promise<MissingCount | null> {
