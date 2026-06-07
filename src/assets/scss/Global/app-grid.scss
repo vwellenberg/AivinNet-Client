@@ -4,7 +4,9 @@ $g-border: solid 1px $gray5;
     display: grid;
     // grid-template-columns: min-content 1fr 29rem;
     grid-template-columns: min-content 1fr;
-    grid-template-rows: $navheight 1fr 5.125rem;
+    // minmax(0, 1fr) so a tall sidebar/content can't blow the middle row past
+    // 100% and push the bottom bar off-screen.
+    grid-template-rows: $navheight minmax(0, 1fr) 5.125rem;
     // Full-width top bar across sidebar + content (Spotify-style).
     grid-template-areas:
         'nav nav'
@@ -116,7 +118,7 @@ $g-border: solid 1px $gray5;
 
 #app-grid.is_alt_layout {
     grid-template-columns: min-content 1fr;
-    grid-template-rows: max-content 1fr 5.125rem;
+    grid-template-rows: max-content minmax(0, 1fr) 5.125rem;
     grid-template-areas:
         'nav nav'
         'l-sidebar content'

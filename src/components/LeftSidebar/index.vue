@@ -1,6 +1,5 @@
 <template>
   <div class="l-sidebar" :style="{ width: displayWidth + 'px' }">
-    <Logo />
     <div class="scrollable">
       <Navigation />
       <div class="sidebar-library">
@@ -42,7 +41,6 @@ import { Routes } from '@/router'
 import { paths } from '@/config'
 
 import Navigation from "@/components/LeftSidebar/NavButtons.vue";
-import Logo from "@/components/Logo.vue";
 import SongCard from "./NP/SongCard.vue";
 import PlaylistSvg from "@/assets/icons/playlist-1.svg";
 import pkg from "../../../package.json";
@@ -111,11 +109,13 @@ onBeforeUnmount(teardown);
 .l-sidebar {
   grid-area: l-sidebar;
   display: grid;
-  grid-template-rows: 2.25rem 1fr max-content;
+  // Logo now lives in the top bar; sidebar is scrollable list + now-playing card.
+  grid-template-rows: 1fr max-content;
   background-color: #121212;
   border-radius: 8px;
   position: relative;
-  padding: 0.625rem 0.875rem 1rem;
+  padding: 0.875rem 0.875rem 1rem;
+  min-height: 0;
 
   .scrollable {
     height: 100%;

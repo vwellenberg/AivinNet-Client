@@ -7,6 +7,7 @@
         }"
     >
         <div class="left">
+            <Logo v-if="!isMobile" class="nav-logo" />
             <div v-if="settings.is_default_layout && $route.name == Routes.folder" class="info">
                 <Folder />
             </div>
@@ -39,6 +40,7 @@ import useSettings from '@/stores/settings'
 import { xl } from './../../composables/useBreakpoints'
 
 import SearchInput from '../RightSideBar/SearchInput.vue'
+import Logo from '@/components/Logo.vue'
 import NavLinks from './NavLinks.vue'
 import NavSidenav from './NavSidenav.vue'
 import NavTitles from './NavTitles.vue'
@@ -95,6 +97,13 @@ function toggleSidenav() {
         grid-template-columns: max-content 1fr;
         gap: 1rem;
         position: relative;
+        align-items: center;
+
+        .nav-logo {
+            width: 2.5rem;
+            height: 2.5rem;
+            align-self: center;
+        }
 
         .info {
             margin: auto 0;
