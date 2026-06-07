@@ -1,6 +1,6 @@
 <template>
     <div class="artist-page v-scroll-page" style="height: 100%; position: relative;"
-        :style="{ background: store.colors.bg ? `linear-gradient(180deg, ${vibrateHex(store.colors.bg)} 0%, ${vibrateHex(store.colors.bg2 || store.colors.bg)}EE 20%, ${store.colors.bg}AA 42%, ${store.colors.bg}55 65%, transparent 95%)` : `linear-gradient(180deg, #4a4a4a 0%, #1c1c1c 40%, transparent 70%)` }">
+        :style="{ background: store.colors.bg ? `linear-gradient(180deg, ${store.colors.bg} 0%, ${store.colors.bg2 || store.colors.bg} 40%, #121212 90%)` : `linear-gradient(180deg, #2a2a2a 0%, #121212 60%)` }">
         <DynamicScroller
             id="artist-scroller"
             :items="scrollerItems"
@@ -43,7 +43,6 @@ import Header from '@/components/ArtistView/Header.vue'
 import TopTracks from '@/components/ArtistView/TopTracks.vue'
 import CardScroller from '@/components/shared/CardScroller.vue'
 import Stats from '@/components/Stats/Stats.vue'
-import { vibrateHex } from '@/utils/colortools'
 
 const route = useRoute()
 

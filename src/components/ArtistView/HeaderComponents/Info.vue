@@ -2,7 +2,7 @@
     <div
         class="artist-info"
         :style="{
-            color: !useCircularImage ? (artist.color ? getTextColor(artist.color) : undefined) : undefined,
+            color: !useCircularImage ? (artist.colors.bg ? getTextColor(artist.colors.bg) : undefined) : undefined,
         }"
     >
         <section class="text">
