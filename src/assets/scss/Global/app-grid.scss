@@ -204,6 +204,13 @@ $g-border: solid 1px $gray5;
     }
 }
 
+// Top bar spans edge-to-edge: keep the logo at the very left and the avatar at
+// the very right (Spotify-style), independent of the centered content padding.
+#app-grid.is_alt_layout .topnav {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
 #app-grid.extendWidth {
     padding-right: 0;
     border-left: none;

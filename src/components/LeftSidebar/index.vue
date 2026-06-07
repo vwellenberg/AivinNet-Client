@@ -17,6 +17,15 @@
             <div v-else class="sidebar-pl-placeholder">
               <PlaylistSvg />
             </div>
+            <button
+              class="pl-play-overlay"
+              :class="{ playing: isCurrent(pl.id) }"
+              :title="isPlaying(pl.id) ? 'Pause' : 'Play'"
+              @click.prevent.stop="togglePlay(pl.id)"
+            >
+              <PauseSvg v-if="isPlaying(pl.id)" />
+              <PlaySvg v-else />
+            </button>
           </div>
           <span class="ellip">{{ pl.name }}</span>
         </RouterLink>
@@ -43,15 +52,42 @@ import { paths } from '@/config'
 import Navigation from "@/components/LeftSidebar/NavButtons.vue";
 import SongCard from "./NP/SongCard.vue";
 import PlaylistSvg from "@/assets/icons/playlist-1.svg";
+import PlaySvg from "@/assets/icons/play.svg";
+import PauseSvg from "@/assets/icons/pause.svg";
 import pkg from "../../../package.json";
+
+import useQueue from "@/stores/queue";
+import useTracklist from "@/stores/queue/tracklist";
+import { FromOptions } from "@/enums";
+import { playFromPlaylist } from "@/helpers/usePlayFrom";
 
 const version = pkg.version;
 
 const settings = useSettingsStore();
 const playlists = usePStore();
+const queue = useQueue();
+const tracklist = useTracklist();
 const imgBase = paths.images.playlist;
 // First album cover of the playlist, used when it has no dedicated image.
 const thumbBase = paths.images.thumb.small;
+
+// Is the given playlist the one currently loaded in the player?
+function isCurrent(plId: number) {
+  return (
+    (tracklist.from as any)?.type === FromOptions.playlist &&
+    (tracklist.from as any)?.id === plId
+  );
+}
+function isPlaying(plId: number) {
+  return isCurrent(plId) && queue.playing;
+}
+function togglePlay(plId: number) {
+  if (isCurrent(plId)) {
+    queue.playPause();
+  } else {
+    playFromPlaylist(String(plId));
+  }
+}
 
 const SIDEBAR_MIN_WIDTH = 180
 const SIDEBAR_MAX_WIDTH = 420
@@ -206,11 +242,45 @@ onBeforeUnmount(teardown);
     height: 2rem;
     flex-shrink: 0;
     overflow: hidden;
+    position: relative;
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    // Spotify-style play/pause overlay: shows on hover, or always while this
+    // playlist is the one playing.
+    .pl-play-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background-color: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+
+      svg {
+        height: 1rem;
+        width: 1rem;
+        color: $brand-green;
+      }
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.65);
+      }
+    }
+
+    &:hover .pl-play-overlay,
+    .pl-play-overlay.playing {
+      opacity: 1;
     }
   }
 

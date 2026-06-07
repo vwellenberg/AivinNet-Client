@@ -1,27 +1,24 @@
 <template>
-    <button class="speaker" @wheel.passive="handleMouseWheel">
-        <div class="icon" @click="settings.toggleMute">
+    <div class="volume-control" @wheel.passive="handleMouseWheel">
+        <button class="speaker-icon" title="Stummschalten" @click="settings.toggleMute">
             <VolumeMuteSvg v-if="settings.mute || settings.volume == 0.0" />
-            <VolumeMidSvg v-else-if="settings.volume > 0.75" />
-            <VolumeLowSvg v-else-if="settings.volume > 0" />
-        </div>
-        <div class="dialog rounded-sm pad-sm">
-            <input
-                id="volume"
-                type="range"
-                name="volume"
-                max="1"
-                min="0"
-                step="0.01"
-                :value="settings.volume"
-                @input="changeVolume"
-                :style="{
-                    backgroundSize: `${(settings.volume / 1) * 100}% 100%`,
-                }"
-            />
-            <div className="volume_indicator">{{ ((settings.volume / 1) * 100).toFixed(0) }}</div>
-        </div>
-    </button>
+            <VolumeMidSvg v-else-if="settings.volume > 0.5" />
+            <VolumeLowSvg v-else />
+        </button>
+        <input
+            class="volume-slider"
+            type="range"
+            name="volume"
+            max="1"
+            min="0"
+            step="0.01"
+            :value="settings.mute ? 0 : settings.volume"
+            @input="changeVolume"
+            :style="{
+                backgroundSize: `${(settings.mute ? 0 : settings.volume) * 100}% 100%`,
+            }"
+        />
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -34,6 +31,7 @@ const settings = useSettingsStore()
 
 const changeVolume = (event: Event) => {
     const target = event.target as HTMLInputElement
+    if (settings.mute) settings.toggleMute()
     settings.setVolume(parseFloat(target.value))
 }
 
@@ -41,95 +39,88 @@ const handleMouseWheel = (event: WheelEvent) => {
     const delta = event.deltaY / 1000
     let newVolume = settings.volume - delta / 3
 
-    if (newVolume > 1) {
-        newVolume = 1
-    }
-
-    if (newVolume < 0) {
-        newVolume = 0
-    }
+    if (newVolume > 1) newVolume = 1
+    if (newVolume < 0) newVolume = 0
 
     settings.setVolume(newVolume)
 }
 </script>
 
 <style lang="scss">
-.b-bar .right-group button.speaker {
-    border-top: 1px solid transparent !important;
-    border-top-left-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-}
+.b-bar .right-group .volume-control {
+    display: flex;
+    align-items: center;
+    gap: 2px;
 
-.speaker {
-    position: relative;
+    .speaker-icon {
+        height: 2.25rem !important;
+        width: 2.25rem !important;
+        background-color: transparent;
+        border: none !important;
 
-    .icon {
-        height: 100%;
-        width: 100%;
-        display: grid;
-        place-items: center;
+        svg {
+            transform: scale(0.72);
+        }
+
+        &:hover {
+            background-color: transparent !important;
+            opacity: 0.85;
+        }
     }
 
-    svg {
-        transform: scale(0.75);
-    }
+    // Always-visible horizontal volume slider (Spotify-style).
+    .volume-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 6rem;
+        min-width: 4rem;
+        height: 4px;
+        border-radius: 2px;
+        cursor: pointer;
+        outline: none;
+        background-color: $gray4;
+        background-image: linear-gradient(#fff, #fff);
+        background-repeat: no-repeat;
+        // background-size set inline from the current volume.
 
-    .dialog {
-        position: absolute;
-        cursor: default;
-        bottom: 56px;
-        left: -1px;
-        height: 48px;
-        padding: 0 6px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        background-color: $gray;
-        border-top: 1px solid $gray3;
-        border-bottom: 1px solid $gray3;
-        border-right: 1px solid $gray3;
-        border-bottom-left-radius: 0;
-        border-top-left-radius: 0;
-        -webkit-font-smoothing: antialiased;
-        transform: rotate(270deg) translateX(-50%) perspective(1px);
-        transform-origin: left top;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
+        &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
 
-        input {
-            width: max-content;
-            max-width: 87px;
-            margin: 0;
-            touch-action: pan-x;
-            background: linear-gradient(to top, #ffffff, #ffffff) 0% 50% no-repeat, $gray4;
+        &::-moz-range-thumb {
+            height: 12px;
+            width: 12px;
+            border: none;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            opacity: 0;
+        }
+
+        &:hover {
+            background-image: linear-gradient($brand-green, $brand-green);
 
             &::-webkit-slider-thumb {
-                height: 1rem;
-                width: 1rem;
-                cursor: pointer;
+                opacity: 1;
             }
-
             &::-moz-range-thumb {
-                height: 1rem;
-                width: 1rem;
-                cursor: pointer;
+                opacity: 1;
             }
         }
     }
 
-    &:hover {
-        .dialog {
-            opacity: 1;
-            visibility: visible;
+    @include allPhones {
+        .volume-slider {
+            display: none;
         }
-    }
-
-    .volume_indicator {
-        font-weight: 600;
-        width: 24px;
-        height: 18px;
-        transform: rotate(90deg) translate3d(0, 0, 0);
     }
 }
 </style>

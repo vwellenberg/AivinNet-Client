@@ -1,7 +1,5 @@
 <template>
     <div class="right-group">
-        <LyricsButton />
-        <Volume />
         <button
             class="repeat"
             :class="{ 'repeat-disabled': settings.repeat == 'none' }"
@@ -20,6 +18,8 @@
             :state="queue.currenttrack?.is_favorite"
             @handleFav="() => $emit('handleFav')"
         />
+        <LyricsButton />
+        <Volume />
     </div>
 </template>
 
@@ -48,10 +48,10 @@ defineEmits<{
 
 <style lang="scss">
 .right-group {
-    display: grid;
+    display: flex;
     justify-content: flex-end;
-    grid-template-columns: repeat(5, max-content);
     align-items: center;
+    gap: 2px;
     height: 4rem;
 
     @include allPhones {
