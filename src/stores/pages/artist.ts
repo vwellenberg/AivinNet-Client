@@ -8,6 +8,7 @@ import { Routes, router } from '@/router'
 import { maxAbumCards } from '@/stores/content-width'
 import useSettingsStore from '@/stores/settings'
 import setColorsToStore from '@/utils/colortools/setColorsToStore'
+import { darkenHex } from '@/utils/colortools'
 
 export default defineStore('artistPage', {
     state: () => ({
@@ -65,8 +66,9 @@ export default defineStore('artistPage', {
             setColorsToStore(this, url, true)
         },
         setBgColor() {
-            const colors = this.info.color
-            this.colors.bg = colors ? colors : ''
+            const c = this.info.color
+            this.colors.bg = c ? darkenHex(c, 16) : ''
+            this.colors.bg2 = c ? darkenHex(c, 12) : ''
         },
         resetAlbums() {
             this.colors.bg = ''

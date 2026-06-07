@@ -1,5 +1,6 @@
 import Vibrant from "node-vibrant";
 import listToRgbString from "./listToRgbString";
+import { darkenHex } from "./index";
 
 interface SwatchLite {
   rgb: number[];
@@ -28,22 +29,24 @@ function collectSwatches(palette: any): SwatchLite[] {
 }
 
 /**
- * How "colourful" a swatch is. Saturation dominates so we never pick a grey,
- * with a mild boost for swatches that actually cover a lot of the image.
+ * Score used to pick the *dominant* colour (Spotify-style), NOT the most
+ * saturated one. Population dominates so a big earthy tone wins over a tiny
+ * vivid accent, but a mild saturation factor breaks ties toward the more
+ * colourful option and away from near-greys.
  */
-function vividness(s: SwatchLite): number {
+function dominance(s: SwatchLite): number {
   const sat = s.hsl[1];
-  const popWeight = 0.6 + 0.4 * Math.min(1, s.pop / 8000);
-  return sat * popWeight;
+  const satFactor = 0.35 + 0.65 * Math.min(1, sat / 0.5);
+  return s.pop * satFactor;
 }
 
 /**
  * Assigns `colors.bg`, `colors.bg2` and `colors.btn` on the store.
  *
- * Background used to be node-vibrant's `DarkMuted` swatch — which is by
- * definition dark AND desaturated, i.e. grey. We now pick the most vivid
- * swatch as the primary and a second, hue-distinct swatch so the page
- * gradient can run between two real colours instead of fading one grey.
+ * Background used to be node-vibrant's `DarkMuted` swatch (grey) and was
+ * then briefly the *most saturated* swatch (which over-picked tiny vivid
+ * accents). We now pick the *dominant* coloured swatch and darken it, so the
+ * gradient matches the cover's overall feel like Spotify.
  *
  * @param store - The store object to assign the color values to.
  * @param img_url - The URL of the image to extract colors from.
@@ -82,25 +85,18 @@ export default (store: any, img_url: string, btn_only: boolean = false) => {
       return;
     }
 
-    const byVividness = [...swatches].sort((a, b) => vividness(b) - vividness(a));
-    const primary = byVividness[0];
+    // Prefer the dominant *coloured* swatch; only fall back to greys if the
+    // cover is genuinely greyscale.
+    const colored = swatches.filter((s) => s.hsl[1] >= 0.15);
+    const pool = colored.length ? colored : swatches;
+    const primary = [...pool].sort((a, b) => dominance(b) - dominance(a))[0];
 
-    // Secondary: most vivid swatch whose hue differs enough from the primary
-    // (so the gradient shows two colours, not two shades of one). Fall back to
-    // the next vivid swatch, then to the primary itself.
-    const hueDelta = (a: number, b: number) => {
-      const d = Math.abs(a - b);
-      return Math.min(d, 1 - d); // hue wraps at 1.0
-    };
-    const secondary =
-      byVividness.find(
-        (s) => s !== primary && hueDelta(s.hsl[0], primary.hsl[0]) > 0.06
-      ) ||
-      byVividness[1] ||
-      primary;
-
-    store.colors.bg = listToRgbString(primary.rgb) || "";
-    store.colors.bg2 = listToRgbString(secondary.rgb) || store.colors.bg;
+    // bg/bg2 are the dark, Spotify-style gradient colours (same hue, two
+    // lightness levels). Darkening here keeps the gradient and the header
+    // text colour (which is derived from bg) perfectly in sync.
+    const primaryRgb = listToRgbString(primary.rgb);
+    store.colors.bg = darkenHex(primaryRgb, 16);
+    store.colors.bg2 = darkenHex(primaryRgb, 12);
     })
     .catch(() => {
       // Image failed to load/decode — leave whatever colours are set.

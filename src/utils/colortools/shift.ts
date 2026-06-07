@@ -2,6 +2,7 @@
 // @ts-ignore
 import { colorShift, brightness } from "@nextcss/color-tools";
 import rgb2Hex from "./rgb2Hex";
+import { parseColor } from "./index";
 
 /**
  * Shifts a color by a multiplier to get a lighter or darker color.
@@ -19,8 +20,17 @@ export function getShift(color: string, multipliers: number[]) {
     : colorShift(color, multipliers[1]);
 }
 
+/**
+ * Returns a readable text colour for the given background: white on dark
+ * backgrounds, near-black on light ones. Uses relative luminance instead of
+ * hue-shifting the colour, so it never produces a tinted (e.g. blue) text.
+ * Accepts both `rgb(r,g,b)` and `#rrggbb` inputs.
+ */
 export function getTextColor(color: string) {
-  return getShift(color, [80, -80]);
+  if (!color) return "";
+  const [r, g, b] = parseColor(color);
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return luminance < 0.55 ? "#ffffff" : "#0a0a0a";
 }
 
 export function getBackgroundColor(color: string) {
