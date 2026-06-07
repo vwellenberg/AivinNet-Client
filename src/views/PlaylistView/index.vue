@@ -1,6 +1,6 @@
 <template>
     <div class="folder-view v-scroll-page" style="height: 100%; position: relative;" :class="{ isSmall, isMedium }"
-        :style="{ background: playlist.colors.bg ? `linear-gradient(180deg, ${playlist.colors.bg} 0%, ${playlist.colors.bg2 || playlist.colors.bg} 40%, #121212 90%)` : `linear-gradient(180deg, #2a2a2a 0%, #121212 60%)` }">
+        :style="{ background: playlist.colors.bg ? `linear-gradient(180deg, ${playlist.colors.bg} 0%, ${playlist.colors.bg2 || playlist.colors.bg} 28%, #121212 62%)` : `linear-gradient(180deg, #2a2a2a 0%, #121212 45%)` }">
         <DynamicScroller
             id="contentscroller"
             :items="scrollerItems"
