@@ -103,6 +103,10 @@ function toggleSidenav() {
             width: 2.5rem;
             height: 2.5rem;
             align-self: center;
+            // Logo component centres its icon at flex-start by default; center
+            // it vertically so it sits in the middle of the top bar.
+            align-items: center !important;
+            justify-content: center !important;
         }
 
         .info {
