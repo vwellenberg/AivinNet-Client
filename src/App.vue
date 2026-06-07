@@ -33,7 +33,7 @@
 // @libraries
 import { vElementSize } from "@vueuse/components";
 import { onStartTyping } from "@vueuse/core";
-import { onMounted, Ref, ref } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { BalancerProvider } from "vue-wrap-balancer";
 
@@ -76,6 +76,15 @@ const settings = useSettings();
 useTracker();
 
 handleShortcuts(useQueue, useModal);
+
+// Toggle the Spotify-style UI font based on the "Schriftart" setting.
+watch(
+    () => settings.font,
+    (font) => {
+        document.body.classList.toggle("use-spotify-font", font === "spotify");
+    },
+    { immediate: true }
+);
 
 router.afterEach(() => {
     (document.getElementById("acontent") as HTMLElement).scrollTo(0, 0);

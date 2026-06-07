@@ -46,6 +46,7 @@ export default defineStore('settings', {
         nowPlayingTrackOnTabTitle: true,
         streaming_quality: 'original',
         streaming_container: 'mp3',
+        font: <'default' | 'spotify'>'default',
 
         // plugins
         use_lyrics_plugin: <boolean | undefined>false,
@@ -161,6 +162,12 @@ export default defineStore('settings', {
         // folders 👇
         toggleFolderListMode() {
             this.folder_list_mode = !this.folder_list_mode
+        },
+        setFont(value: 'default' | 'spotify') {
+            this.font = value
+        },
+        toggleFont() {
+            this.font = this.font === 'spotify' ? 'default' : 'spotify'
         },
         toggleCleanTrackTitles() {
             this.clean_titles = !this.clean_titles
