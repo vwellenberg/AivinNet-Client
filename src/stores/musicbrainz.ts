@@ -15,6 +15,8 @@ interface State {
     starting: boolean
     totalAlbums: number
     missingCount: number
+    failedCount: number
+    remainingCount: number
     countLoaded: boolean
 }
 
@@ -25,6 +27,8 @@ export default defineStore('musicbrainz', {
         starting: false,
         totalAlbums: 0,
         missingCount: 0,
+        failedCount: 0,
+        remainingCount: 0,
         countLoaded: false,
     }),
     getters: {
@@ -61,6 +65,8 @@ export default defineStore('musicbrainz', {
             if (res) {
                 this.totalAlbums = res.total
                 this.missingCount = res.missing
+                this.failedCount = res.failed ?? 0
+                this.remainingCount = res.remaining ?? res.missing
                 this.countLoaded = true
             }
         },
@@ -76,12 +82,13 @@ export default defineStore('musicbrainz', {
         },
         /**
          * Start a batch. limit = 0 means "all missing albums".
+         * retryFailed = true also retries albums previously without a cover.
          */
-        async startBatch(limit = 0) {
+        async startBatch(limit = 0, retryFailed = false) {
             if (this.starting || this.isRunning) return
             this.starting = true
             try {
-                const res = await fetchMissingCovers(limit)
+                const res = await fetchMissingCovers(limit, retryFailed)
                 if (res.status === 409 && res.runningStatus) {
                     this.status = res.runningStatus
                     this.startPolling()

@@ -22,10 +22,18 @@ const fetchMissingCovers: Setting = {
         if (s.missingCount === 0) {
             return `Alle ${s.totalAlbums} Alben haben ein Cover ✓`
         }
-        return `${s.missingCount} von ${s.totalAlbums} Alben ohne Cover · alle laden`
+        const triedNote = s.failedCount > 0 ? ` (${s.failedCount} ohne Treffer übersprungen)` : ''
+        if (s.remainingCount === 0) {
+            return `Keine neuen Cover zu holen${triedNote} · erneut versuchen`
+        }
+        return `${s.remainingCount} von ${s.totalAlbums} Alben laden${triedNote}`
     },
-    // limit 0 = all missing albums
-    action: () => store().startBatch(0),
+    // limit 0 = all missing albums. When nothing is left to try (all
+    // remaining were previously failed), the click retries those instead.
+    action: () => {
+        const s = store()
+        s.startBatch(0, s.countLoaded && s.remainingCount === 0 && s.missingCount > 0)
+    },
 }
 
 export default [fetchMissingCovers]
