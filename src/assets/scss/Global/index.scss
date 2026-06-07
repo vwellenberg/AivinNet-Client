@@ -9,6 +9,18 @@
     overflow: visible !important;
 }
 
+:root {
+    // Active UI font. Switched via the "Schriftart" setting (see App.vue,
+    // which toggles `body.use-spotify-font`).
+    --app-font: "SF Compact Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+        sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+body.use-spotify-font {
+    --app-font: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
 html {
     cursor: default !important;
     overflow: hidden;
@@ -29,8 +41,7 @@ html.loading * {
 }
 
 body {
-    font-family: "SF Compact Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-        sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: var(--app-font);
     font-size: 1rem;
     font-weight: 400;
     color: $white;

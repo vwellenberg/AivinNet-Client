@@ -8,6 +8,7 @@ import restore from './backup'
 import circularArtistImg from './circular-artist-img'
 import contextChildrenShowMode from './context-children-show-mode'
 import extendWidth from './extend-width'
+import font from './font'
 import folderlistmode from './folderlistmode'
 import layout from './layout'
 import musicbrainz from './musicbrainz'
@@ -35,6 +36,7 @@ export const general = {
             icon: AppearanceSvg,
             settings: [
                 ...layout,
+                ...font,
                 ...extendWidth,
                 ...sidebarSettings,
                 circularArtistImg,
