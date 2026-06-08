@@ -174,6 +174,19 @@ defineProps<{
         border-bottom: solid 1px $gray5;
         padding: 1.25rem 0;
 
+        // Control buttons (e.g. the cover-fetch button) sit in the max-content
+        // column; let long labels wrap and cap the width so they don't overflow
+        // and get clipped by the panel's overflow-x: hidden.
+        > button {
+            white-space: normal;
+            height: auto;
+            min-height: 2.25rem;
+            max-width: 16rem;
+            text-align: center;
+            line-height: 1.3;
+            padding: 0.45rem 0.85rem;
+        }
+
         .options {
             margin: auto 0;
         }

@@ -13,20 +13,21 @@ const fetchMissingCovers: Setting = {
     button_text: () => {
         const s = store()
         if (s.starting) return 'Starte…'
-        if (s.isRunning) return `Lädt… ${s.progressText} (${s.progressPct}%)`
+        if (s.isRunning) return `Lädt… ${s.progressPct}%`
         if (!s.countLoaded) {
             // Lazy-load the count the first time the setting renders.
             s.refreshCount()
             return 'Lade Anzahl…'
         }
         if (s.missingCount === 0) {
-            return `Alle ${s.totalAlbums} Alben haben ein Cover ✓`
+            return 'Alle Cover vorhanden ✓'
         }
-        const triedNote = s.failedCount > 0 ? ` (${s.failedCount} ohne Treffer übersprungen)` : ''
         if (s.remainingCount === 0) {
-            return `Keine neuen Cover zu holen${triedNote} · erneut versuchen`
+            return s.failedCount > 0
+                ? `${s.failedCount} ohne Treffer · erneut versuchen`
+                : 'Erneut versuchen'
         }
-        return `${s.remainingCount} von ${s.totalAlbums} Alben laden${triedNote}`
+        return `${s.remainingCount} Cover laden`
     },
     // limit 0 = all missing albums. When nothing is left to try (all
     // remaining were previously failed), the click retries those instead.
