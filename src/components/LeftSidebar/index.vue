@@ -250,10 +250,11 @@ onBeforeUnmount(teardown);
 
     .pl-pin {
       flex-shrink: 0;
-      width: 0.8rem;
-      height: 0.8rem;
-      opacity: 0.8;
+      width: 0.85rem;
+      height: 0.85rem;
       color: $brand-green;
+      // Tilt the thumbtack like Spotify's pin (📌, point to the lower-left).
+      transform: rotate(-40deg);
     }
   }
 
