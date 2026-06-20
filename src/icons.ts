@@ -6,6 +6,7 @@ export { default as DeleteIcon } from "@/assets/icons/delete.svg?raw";
 export { default as FolderIcon } from "@/assets/icons/folder.svg?raw";
 export { default as NextIcon } from "@/assets/icons/next.svg?raw";
 export { default as PlayIcon } from "@/assets/icons/play.svg?raw";
+export { default as PushPinIcon } from "@/assets/icons/push-pin.svg?raw";
 export { default as PlusIcon } from "@/assets/icons/plus.svg?raw";
 // export { default as PrevIcon } from "@/assets/icons/prev.svg?raw";
 export { default as PlayNextIcon } from "@/assets/icons/add_to_queue.svg?raw";

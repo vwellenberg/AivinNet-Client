@@ -76,10 +76,17 @@ function hideModal() {
 
 function deletePlaylist() {
     const pid = modal.props.pid
+    // Only navigate away if we're currently viewing the playlist being deleted
+    // (e.g. deleting from its page). Deleting via the sidebar context menu
+    // should not yank the user back somewhere.
+    const route = router.currentRoute.value
+    const onDeletedPage = route.name === 'PlaylistView' && Number(route.params.pid) === pid
     delPlaylist(pid)
         .then(() => usePlaylistsStore().removePlaylist(pid))
         .then(() => modal.hideModal())
-        .then(() => router.back())
+        .then(() => {
+            if (onDeletedPage) router.back()
+        })
 }
 </script>
 
