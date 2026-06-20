@@ -124,10 +124,13 @@ const settings = useSettings()
     }
 
     // shuffle / repeat — subtle auxiliary controls.
+    // Different box sizes on purpose: the shuffle glyph fills ~59% of its
+    // viewBox, the repeat glyph ~78%, so equal CSS boxes look unequal. Bump
+    // shuffle up and trim repeat down for optically matched icons.
     .aux {
         svg {
-            width: 1.15rem;
-            height: 1.15rem;
+            width: 1.3rem;
+            height: 1.3rem;
             opacity: 0.7;
             transition: opacity 0.15s ease, transform 0.1s ease;
         }
@@ -139,6 +142,11 @@ const settings = useSettings()
         &:active svg {
             transform: scale(0.85);
         }
+    }
+
+    .aux.repeat svg {
+        width: 1.05rem;
+        height: 1.05rem;
     }
 
     .aux-disabled svg {
