@@ -23,6 +23,9 @@
             <span v-if="isMobile && $route.name !== Routes.search" class="mobile-nav-title">
                 {{ mobileTitle }}
             </span>
+            <RouterLink v-if="!isMobile" :to="{ name: Routes.Home }" class="nav-home" title="Home">
+                <HomeSvg />
+            </RouterLink>
             <SearchInput v-if="!isMobile || $route.name === Routes.search" :on_nav="true" />
             <AvatarWithDropdown />
         </div>
@@ -41,6 +44,7 @@ import { xl } from './../../composables/useBreakpoints'
 
 import SearchInput from '../RightSideBar/SearchInput.vue'
 import Logo from '@/components/Logo.vue'
+import HomeSvg from '@/assets/icons/home.svg'
 import NavLinks from './NavLinks.vue'
 import NavSidenav from './NavSidenav.vue'
 import NavTitles from './NavTitles.vue'
@@ -143,6 +147,29 @@ function toggleSidenav() {
         @include allPhones {
             gap: unset;
             justify-content: unset;
+        }
+
+        // Spotify-style round home button, sits just left of the search bar.
+        .nav-home {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: 50%;
+            background-color: $gray;
+            flex-shrink: 0;
+            transition: background-color 0.15s ease, transform 0.15s ease;
+
+            svg {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+
+            &:hover {
+                background-color: $gray4;
+                transform: scale(1.05);
+            }
         }
 
         .mobile-nav-title {

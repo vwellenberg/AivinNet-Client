@@ -152,6 +152,8 @@ onBeforeUnmount(teardown);
   position: relative;
   padding: 0.875rem 0.875rem 1rem;
   min-height: 0;
+  // Small black gap on the far left so the panel floats (Spotify-style).
+  margin-left: 8px;
 
   .scrollable {
     height: 100%;
