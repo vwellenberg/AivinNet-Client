@@ -161,10 +161,12 @@ function handleFav() {
     .with-time {
         display: grid;
         grid-template-columns: max-content 1fr max-content;
-        align-items: flex-end;
+        align-items: center;
         height: 2rem;
 
-        button {
+        // Keep the prev/next glyph buttons transparent, but NOT the white
+        // play circle (it must keep its #fff background).
+        button:not(.play) {
             background: transparent;
         }
     }
