@@ -16,14 +16,23 @@ export default defineConfig({
     vue(),
     svgLoader(),
     VitePWA({
+      // SERVICE WORKER DISABLED ON PURPOSE.
+      // This is a self-hosted player on the LAN that we deploy to constantly.
+      // A precaching service worker repeatedly served STALE assets: hard
+      // refresh (Ctrl+Shift+R) and "clear cache" do NOT bypass a service
+      // worker, so deployed fixes never reached the browser until the SW was
+      // manually unregistered. skipWaiting/clientsClaim did not help because an
+      // already-installed older SW kept waiting.
+      // `selfDestroying` ships a SW whose only job is to unregister itself and
+      // wipe the old caches. After it runs once, NO service worker controls the
+      // page, so every deploy is visible on a normal reload. Do not re-enable
+      // PWA caching here without a very good reason — see CLAUDE.md.
+      selfDestroying: true,
       registerType: "autoUpdate",
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
       workbox: {
-        // Apply a new build immediately instead of waiting for every tab to
-        // close first. Without this, deployed updates kept showing stale UI
-        // until the service worker was manually unregistered.
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
