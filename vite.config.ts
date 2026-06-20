@@ -14,7 +14,21 @@ export default defineConfig({
   base: "./",
   plugins: [
     vue(),
-    svgLoader(),
+    // Keep the viewBox on every SVG. SVGO's default `removeViewBox` strips it
+    // when width/height attrs are present, which breaks CSS-resizing: without a
+    // viewBox the icon renders at native coordinates and the SVG's own
+    // overflow:hidden CROPS anything past the (smaller) CSS box — this clipped
+    // the bottom of the shuffle/repeat glyphs in the bottom bar. Preserve it.
+    svgLoader({
+      svgoConfig: {
+        plugins: [
+          {
+            name: "preset-default",
+            params: { overrides: { removeViewBox: false } },
+          },
+        ],
+      },
+    }),
     VitePWA({
       // SERVICE WORKER DISABLED ON PURPOSE.
       // This is a self-hosted player on the LAN that we deploy to constantly.
