@@ -5,12 +5,12 @@ import useSettings from '@/stores/settings'
 const settings = useSettings
 
 const font: Setting = {
-    title: 'Schriftart',
-    desc: 'Wähle zwischen der Standard-Schrift und einer Spotify-ähnlichen Schrift (Figtree).',
+    title: 'Font',
+    desc: 'Choose between the default font and a Spotify-like font (Figtree).',
     type: SettingType.select,
     options: [
-        { title: 'Standard', value: 'default' },
-        { title: 'Spotify-Stil', value: 'spotify' },
+        { title: 'Default', value: 'default' },
+        { title: 'Spotify style', value: 'spotify' },
     ],
     state: () => settings().font,
     action: (value: 'default' | 'spotify') => settings().setFont(value),

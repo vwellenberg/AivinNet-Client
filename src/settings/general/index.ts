@@ -86,7 +86,7 @@ export const library = {
             show_if: () => useSettings().feat !== null,
             title: 'Album Cover',
             icon: AlbumSvg,
-            desc: 'Fehlende Album-Cover via MusicBrainz / Cover Art Archive nachholen',
+            desc: 'Fetch missing album covers via MusicBrainz / Cover Art Archive',
             settings: [...musicbrainz],
         },
         {

@@ -10,7 +10,7 @@
     <button
       class="mb-cover"
       :class="{ loading: mbLoading }"
-      :title="mbLoading ? 'Lädt…' : 'Cover via MusicBrainz suchen'"
+      :title="mbLoading ? 'Loading…' : 'Find cover via MusicBrainz'"
       :disabled="mbLoading"
       @click.prevent="fetchCover"
     >
@@ -77,10 +77,10 @@ async function fetchCover() {
     const res = await fetchCoverFromMusicBrainz(album.value.albumhash);
     if (res.success) {
       store.bumpCoverVersion();
-      new Notification("Cover via MusicBrainz gefunden", NotifType.Success);
+      new Notification("Cover found via MusicBrainz", NotifType.Success);
     } else {
       new Notification(
-        res.error || "Kein Cover auf MusicBrainz gefunden",
+        res.error || "No cover found on MusicBrainz",
         NotifType.Error
       );
     }

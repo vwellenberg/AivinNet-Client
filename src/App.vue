@@ -77,7 +77,7 @@ useTracker();
 
 handleShortcuts(useQueue, useModal);
 
-// Toggle the Spotify-style UI font based on the "Schriftart" setting.
+// Toggle the Spotify-style UI font based on the "Font" setting.
 watch(
     () => settings.font,
     (font) => {

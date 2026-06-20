@@ -1,6 +1,6 @@
 {
   "name": "aivinnet-client",
-  "version": "0.10.13-alpha",
+  "version": "0.10.14-alpha",
   "private": true,
   "scripts": {
     "dev": "vite",

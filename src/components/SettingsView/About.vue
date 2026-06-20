@@ -2,9 +2,9 @@
     <div class="aboutswingmusic">
         <div class="version">AivinNet v{{ clientVersion }}</div>
         <div v-if="settings.version" class="server-version">Server v{{ settings.version }}</div>
-        AivinNet ist ein Fork von
+        AivinNet is a fork of
         <a href="https://github.com/swingmx/swingmusic" target="_blank"><u>Swing Music</u></a>
-        — ein selbst gehosteter Musik-Player für deine lokale Bibliothek.
+        — a self-hosted music player for your local library.
         <br /><br />
         <div class="links">
             <h2>Links</h2>
