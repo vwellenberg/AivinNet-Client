@@ -5,11 +5,12 @@
       <div class="sidebar-library">
         <div class="sidebar-library-title">Bibliothek</div>
         <RouterLink
-          v-for="pl in playlists.playlists"
+          v-for="pl in playlists.sortedPlaylists"
           :key="pl.id"
           :to="{ name: Routes.playlist, params: { pid: pl.id } }"
           class="sidebar-playlist-item"
           :class="{ active: $route.params.pid == pl.id }"
+          @contextmenu.prevent="showPlaylistContextMenu($event, pl, ctxFlag)"
         >
           <div class="sidebar-pl-img rounded-sm">
             <img v-if="pl.has_image" :src="imgBase + pl.image" />
@@ -28,6 +29,7 @@
             </button>
           </div>
           <span class="ellip">{{ pl.name }}</span>
+          <PinFillSvg v-if="pl.pinned" class="pl-pin" title="Angepinnt" />
         </RouterLink>
       </div>
     </div>
@@ -54,12 +56,16 @@ import SongCard from "./NP/SongCard.vue";
 import PlaylistSvg from "@/assets/icons/playlist-1.svg";
 import PlaySvg from "@/assets/icons/play.svg";
 import PauseSvg from "@/assets/icons/pause.svg";
+import PinFillSvg from "@/assets/icons/pin.fill.svg";
 import pkg from "../../../package.json";
 
 import useQueue from "@/stores/queue";
 import useTracklist from "@/stores/queue/tracklist";
 import { FromOptions } from "@/enums";
 import { playFromPlaylist } from "@/helpers/usePlayFrom";
+import { showPlaylistContextMenu } from "@/helpers/contextMenuHandler";
+
+const ctxFlag = ref(false);
 
 const version = pkg.version;
 
@@ -236,7 +242,19 @@ onBeforeUnmount(teardown);
     &:hover { background-color: $gray; }
     &.active { background-color: $gray5; }
 
-    span { opacity: 0.85; }
+    span.ellip {
+      opacity: 0.85;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pl-pin {
+      flex-shrink: 0;
+      width: 0.8rem;
+      height: 0.8rem;
+      opacity: 0.8;
+      color: $brand-green;
+    }
   }
 
   .sidebar-pl-img {

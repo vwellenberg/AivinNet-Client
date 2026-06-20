@@ -1,28 +1,21 @@
-import { Option } from "../interfaces";
+import { Option, Playlist } from "../interfaces";
+import { pinUnpinPlaylist } from "@/requests/playlists";
+import { playFromPlaylist } from "@/helpers/usePlayFrom";
+import usePlaylistsStore from "@/stores/pages/playlists";
 
-export default async () => {
-  const deletePlaylist: Option = {
-    label: "Delete playlist",
-    critical: true,
-    action: () => {
-      console.log("delete playlist");
+export default async (playlist: Playlist) => {
+  const play: Option = {
+    label: "Wiedergeben",
+    action: () => playFromPlaylist(String(playlist.id)),
+  };
+
+  const pin: Option = {
+    label: playlist.pinned ? "Loslösen" : "Anpinnen",
+    action: async () => {
+      const ok = await pinUnpinPlaylist(playlist.id);
+      if (ok) usePlaylistsStore().togglePin(playlist.id);
     },
   };
 
-  const playNext: Option = {
-    label: "Play next",
-    action: () => {
-      console.log("play next");
-    },
-  };
-
-  const addToQueue: Option = {
-    label: "Add to queue",
-    action: () => {
-      console.log("add to queue");
-    },
-  };
-
-
-  return [playNext, addToQueue, deletePlaylist];
+  return [play, pin];
 };

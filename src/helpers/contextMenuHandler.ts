@@ -3,7 +3,7 @@ import { Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { ContextSrc } from '@/enums'
-import { Album, Track } from '@/interfaces'
+import { Album, Playlist, Track } from '@/interfaces'
 import useContextStore from '@/stores/context'
 
 import albumContextItems from '@/context_menus/album'
@@ -11,6 +11,7 @@ import artistContextItems from '@/context_menus/artist'
 import folderContextItems from '@/context_menus/folder'
 import trackContextItems from '@/context_menus/track'
 import queueContextItems from '@/context_menus/queue'
+import playlistContextItems from '@/context_menus/playlist'
 
 let stop_prev_watcher = () => {}
 
@@ -69,6 +70,15 @@ export const showQueueContextMenu = (e: MouseEvent, flag: Ref<boolean>) => {
 
     const options = () => queueContextItems()
     menu.showContextMenu(e, options, ContextSrc.Queue)
+
+    flagWatcher(menu, flag)
+}
+
+export const showPlaylistContextMenu = (e: MouseEvent, playlist: Playlist, flag: Ref<boolean>) => {
+    const menu = useContextStore()
+
+    const options = () => playlistContextItems(playlist)
+    menu.showContextMenu(e, options, ContextSrc.PHeader)
 
     flagWatcher(menu, flag)
 }
