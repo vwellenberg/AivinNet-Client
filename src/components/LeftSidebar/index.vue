@@ -29,7 +29,7 @@
             </button>
           </div>
           <span class="ellip">{{ pl.name }}</span>
-          <PinFillSvg v-if="pl.pinned" class="pl-pin" title="Angepinnt" />
+          <PushPinSvg v-if="pl.pinned" class="pl-pin" title="Angepinnt" />
         </RouterLink>
       </div>
     </div>
@@ -56,7 +56,7 @@ import SongCard from "./NP/SongCard.vue";
 import PlaylistSvg from "@/assets/icons/playlist-1.svg";
 import PlaySvg from "@/assets/icons/play.svg";
 import PauseSvg from "@/assets/icons/pause.svg";
-import PinFillSvg from "@/assets/icons/pin.fill.svg";
+import PushPinSvg from "@/assets/icons/push-pin.svg";
 import pkg from "../../../package.json";
 
 import useQueue from "@/stores/queue";
@@ -250,11 +250,11 @@ onBeforeUnmount(teardown);
 
     .pl-pin {
       flex-shrink: 0;
-      width: 0.85rem;
-      height: 0.85rem;
+      width: 0.95rem;
+      height: 0.95rem;
       color: $brand-green;
-      // Tilt the thumbtack like Spotify's pin (📌, point to the lower-left).
-      transform: rotate(-40deg);
+      // Tilt the thumbtack like Spotify's pin (📌): head top-right, point lower-left.
+      transform: rotate(35deg);
     }
   }
 
