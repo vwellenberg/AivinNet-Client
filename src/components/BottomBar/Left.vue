@@ -82,8 +82,7 @@ defineEmits<{
 
 <style lang="scss">
 .left-group {
-    display: grid;
-    grid-template-columns: max-content 1fr max-content;
+    display: flex;
     gap: $medium;
     align-items: center;
     font-size: small;
@@ -164,6 +163,12 @@ defineEmits<{
     }
 
     .track-info {
+        // Flex child: allow the title to truncate (ellipsis) and keep the
+        // favorite heart hugging the title instead of being pushed to the
+        // right edge near the transport controls.
+        min-width: 0;
+        max-width: 15rem;
+
         .title {
             color: $white;
             display: flex;
@@ -190,6 +195,7 @@ defineEmits<{
     }
 
     @include allPhones {
+        display: grid;
         grid-template-columns: max-content 1fr max-content max-content;
         margin-right: unset;
 
