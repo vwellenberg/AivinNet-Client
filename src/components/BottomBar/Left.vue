@@ -41,6 +41,13 @@
                 class="artist"
             />
         </div>
+        <HeartSvg
+            v-if="!isMobile"
+            class="np-fav"
+            title="Favorite"
+            :state="queue.currenttrack?.is_favorite"
+            @handleFav="$emit('handleFav')"
+        />
         <Actions v-if="isLargerMobile" @handleFav="$emit('handleFav')" />
         <HotKeys v-if="isMobile" />
     </div>
@@ -76,13 +83,27 @@ defineEmits<{
 <style lang="scss">
 .left-group {
     display: grid;
-    grid-template-columns: max-content 1fr;
+    grid-template-columns: max-content 1fr max-content;
     gap: $medium;
     align-items: center;
     font-size: small;
     font-weight: 700;
     line-height: 1.2;
     margin-right: $medium;
+
+    // Favorite heart next to the title (Spotify-style), desktop only.
+    .np-fav {
+        height: 2rem !important;
+        width: 2rem !important;
+        border: none !important;
+        background-color: transparent !important;
+        flex-shrink: 0;
+
+        &:hover {
+            background-color: transparent !important;
+            opacity: 0.85;
+        }
+    }
 
     .np-image {
         position: relative;

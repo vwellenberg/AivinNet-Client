@@ -1,38 +1,57 @@
 <template>
     <div class="hotkeys no-scroll">
-        <button @click.prevent="queue.playPrev">
+        <button v-if="!isMobile" class="aux" title="Shuffle" @click.prevent="queue.shuffleQueue">
+            <ShuffleSvg />
+        </button>
+        <button class="skip skip-prev" @click.prevent="queue.playPrev">
             <PrevSvg />
         </button>
-        <button @click.prevent="queue.playPause">
+        <button class="play" @click.prevent="queue.playPause">
             <Spinner v-if="buffering && queue.playing" />
             <PauseSvg v-else-if="queue.playing" />
             <PlaySvg class="playsvg" v-else />
         </button>
-        <button @click.prevent="queue.playNext">
+        <button class="skip" @click.prevent="queue.playNext">
             <NextSvg />
+        </button>
+        <button
+            v-if="!isMobile"
+            class="aux repeat"
+            :class="{ 'aux-disabled': settings.repeat === 'none' }"
+            :title="settings.repeat === 'all' ? 'Repeat all' : settings.repeat === 'one' ? 'Repeat one' : 'No repeat'"
+            @click.prevent="settings.toggleRepeatMode"
+        >
+            <RepeatOneSvg v-if="settings.repeat === 'one'" />
+            <RepeatAllSvg v-else />
         </button>
     </div>
 </template>
 
 <script setup lang="ts">
 import { buffering } from '@/stores/player'
+import { isMobile } from '@/stores/content-width'
 import useQStore from '@/stores/queue'
+import useSettings from '@/stores/settings'
 
 import { default as NextSvg, default as PrevSvg } from '@/assets/icons/next.svg'
 import PauseSvg from '@/assets/icons/pause.svg'
 import PlaySvg from '@/assets/icons/play.svg'
+import ShuffleSvg from '@/assets/icons/shuffle.svg'
+import RepeatAllSvg from '@/assets/icons/repeat.svg'
+import RepeatOneSvg from '@/assets/icons/repeat-one.svg'
 import Spinner from '@/components/shared/Spinner.vue'
 
 const queue = useQStore()
+const settings = useSettings()
 </script>
 
 <style lang="scss">
 .hotkeys {
-    display: grid;
-    grid-template-columns: 1fr 4rem 1fr;
-    gap: 1rem;
-    height: 100%;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    gap: 1.1rem;
+    height: 100%;
 
     button {
         height: 100%;
@@ -46,38 +65,58 @@ const queue = useQStore()
         }
     }
 
-    button:first-child {
+    .play {
+        width: 4rem;
+    }
+
+    .skip-prev {
         svg {
             transform: rotate(180deg);
         }
 
-        &:active {
-            svg {
-                transform: rotate(180deg) scale(0.75);
-            }
+        &:active svg {
+            transform: rotate(180deg) scale(0.75);
         }
     }
 
-    button:nth-child(2) {
-        width: 4rem;
+    // Shuffle / repeat: smaller and subtler than the transport buttons, no
+    // heavy hover fill (Spotify-style auxiliary controls).
+    .aux {
+        &:hover {
+            background: none;
+        }
+
+        svg {
+            transform: scale(0.62);
+            opacity: 0.85;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+
+        &:hover svg {
+            opacity: 1;
+        }
+
+        &:active svg {
+            transform: scale(0.52);
+        }
+    }
+
+    .aux-disabled svg {
+        opacity: 0.3;
     }
 
     @include allPhones {
-        grid-template-columns: 1fr max-content 1fr;
-        position: relative;
-        margin-right: -$small;
         gap: 0;
 
-        button:first-child {
+        .skip-prev {
             margin-left: $small;
         }
     }
 
     @include largePhones {
-        display: flex;
         flex-shrink: 0;
 
-        button:first-child {
+        .skip-prev {
             margin-left: $smaller;
         }
     }
