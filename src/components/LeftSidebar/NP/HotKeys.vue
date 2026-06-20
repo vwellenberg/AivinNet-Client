@@ -1,5 +1,5 @@
 <template>
-    <div class="hotkeys no-scroll">
+    <div class="hotkeys">
         <button v-if="!isMobile" class="aux" title="Shuffle" @click.prevent="queue.shuffleQueue">
             <ShuffleSvg />
         </button>

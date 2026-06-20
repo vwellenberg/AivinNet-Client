@@ -162,7 +162,9 @@ function handleFav() {
         display: grid;
         grid-template-columns: max-content 1fr max-content;
         align-items: center;
-        height: 2rem;
+        // No fixed height: the row sizes to the white play circle (2.5rem) so
+        // its rounded edges are never clipped. A short fixed height + scaled
+        // buttons + overflow:hidden used to crop the transport icons.
 
         // Keep the prev/next glyph buttons transparent, but NOT the white
         // play circle (it must keep its #fff background).
@@ -212,7 +214,6 @@ function handleFav() {
     .buttons {
         display: grid;
         place-items: center;
-        transform: scale(1.2);
         border: none;
     }
 }
