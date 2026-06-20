@@ -51,6 +51,7 @@
 <script setup lang="ts">
 import { deletePlaylist as delPlaylist } from '@/requests/playlists'
 import useModalStore, { ModalOptions } from '@/stores/modal'
+import usePlaylistsStore from '@/stores/pages/playlists'
 import { useRouter } from 'vue-router'
 
 import AuthLogin from './modals/AuthLogin.vue'
@@ -74,7 +75,9 @@ function hideModal() {
 }
 
 function deletePlaylist() {
-    delPlaylist(modal.props.pid)
+    const pid = modal.props.pid
+    delPlaylist(pid)
+        .then(() => usePlaylistsStore().removePlaylist(pid))
         .then(() => modal.hideModal())
         .then(() => router.back())
 }

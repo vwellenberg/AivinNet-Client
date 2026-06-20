@@ -34,6 +34,13 @@ export default defineStore("playlists", {
       if (pl) pl.pinned = !pl.pinned;
     },
     /**
+     * Remove a playlist from the store (after the server delete succeeds) so
+     * the library sidebar updates immediately instead of only after a reload.
+     */
+    removePlaylist(id: number) {
+      this.playlists = this.playlists.filter((p) => p.id !== id);
+    },
+    /**
      * Adds a single playlist to the store
      * @param playlist Playlist to add to the store
      * @returns void
