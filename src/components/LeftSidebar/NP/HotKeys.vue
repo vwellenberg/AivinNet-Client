@@ -50,46 +50,27 @@ const settings = useSettings()
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1.1rem;
+    gap: 1.25rem;
     height: 100%;
 
     button {
-        height: 100%;
         padding: 0;
         background: none;
-        border: 1px solid transparent;
+        border: none;
         border-radius: 0;
-
-        &:hover {
-            background: $darkestblue;
-        }
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
     }
 
-    .play {
-        width: 4rem;
-    }
-
-    .skip-prev {
+    // prev / next — light-grey glyphs that brighten on hover (no box).
+    .skip {
         svg {
-            transform: rotate(180deg);
-        }
-
-        &:active svg {
-            transform: rotate(180deg) scale(0.75);
-        }
-    }
-
-    // Shuffle / repeat: smaller and subtler than the transport buttons, no
-    // heavy hover fill (Spotify-style auxiliary controls).
-    .aux {
-        &:hover {
-            background: none;
-        }
-
-        svg {
-            transform: scale(0.62);
-            opacity: 0.85;
-            transition: opacity 0.15s ease, transform 0.15s ease;
+            width: 1.4rem;
+            height: 1.4rem;
+            opacity: 0.7;
+            transition: opacity 0.15s ease, transform 0.1s ease;
         }
 
         &:hover svg {
@@ -97,7 +78,66 @@ const settings = useSettings()
         }
 
         &:active svg {
-            transform: scale(0.52);
+            transform: scale(0.85);
+        }
+    }
+
+    .skip-prev svg {
+        transform: rotate(180deg);
+    }
+
+    .skip-prev:active svg {
+        transform: rotate(180deg) scale(0.85);
+    }
+
+    // play / pause — prominent white circle with a dark icon (Spotify).
+    .play {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background: #fff;
+        flex-shrink: 0;
+        transition: transform 0.1s ease;
+
+        svg {
+            width: 1.35rem;
+            height: 1.35rem;
+        }
+
+        // Both play (currentColor) and pause (#F2F2F2) paths -> dark on white.
+        svg path {
+            fill: #181818;
+        }
+
+        // Optically centre the play triangle inside the circle.
+        .playsvg {
+            transform: translateX(1px);
+        }
+
+        &:hover {
+            transform: scale(1.06);
+        }
+
+        &:active {
+            transform: scale(0.98);
+        }
+    }
+
+    // shuffle / repeat — subtle auxiliary controls.
+    .aux {
+        svg {
+            width: 1.15rem;
+            height: 1.15rem;
+            opacity: 0.7;
+            transition: opacity 0.15s ease, transform 0.1s ease;
+        }
+
+        &:hover svg {
+            opacity: 1;
+        }
+
+        &:active svg {
+            transform: scale(0.85);
         }
     }
 
@@ -106,23 +146,11 @@ const settings = useSettings()
     }
 
     @include allPhones {
-        gap: 0;
+        gap: 0.75rem;
 
         .skip-prev {
             margin-left: $small;
         }
-    }
-
-    @include largePhones {
-        flex-shrink: 0;
-
-        .skip-prev {
-            margin-left: $smaller;
-        }
-    }
-
-    .playsvg {
-        height: 1.75rem;
     }
 }
 </style>
