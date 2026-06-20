@@ -45,7 +45,7 @@
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
 
-import { pinUnpinPlaylist } from "@/requests/playlists";
+import { togglePlaylistPin } from "@/helpers/pinPlaylist";
 import { isSmallPhone } from "@/stores/content-width";
 import usePStore from "@/stores/pages/playlist";
 import { getTextColor } from "@/utils/colortools/shift";
@@ -87,11 +87,8 @@ const textColor = computed(() => {
 });
 
 function pinPlaylist(pid: number) {
-  pinUnpinPlaylist(pid).then((success) => {
-    if (success) {
-      playlist.info.pinned = !playlist.info.pinned;
-    }
-  });
+  // Shared helper keeps the sidebar list + this page in sync.
+  togglePlaylistPin(pid);
 }
 </script>
 

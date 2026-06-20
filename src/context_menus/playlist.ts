@@ -1,7 +1,6 @@
 import { Option, Playlist } from "../interfaces";
-import { pinUnpinPlaylist } from "@/requests/playlists";
 import { playFromPlaylist } from "@/helpers/usePlayFrom";
-import usePlaylistsStore from "@/stores/pages/playlists";
+import { togglePlaylistPin } from "@/helpers/pinPlaylist";
 
 export default async (playlist: Playlist) => {
   const play: Option = {
@@ -11,10 +10,7 @@ export default async (playlist: Playlist) => {
 
   const pin: Option = {
     label: playlist.pinned ? "Loslösen" : "Anpinnen",
-    action: async () => {
-      const ok = await pinUnpinPlaylist(playlist.id);
-      if (ok) usePlaylistsStore().togglePin(playlist.id);
-    },
+    action: () => togglePlaylistPin(playlist.id),
   };
 
   return [play, pin];
