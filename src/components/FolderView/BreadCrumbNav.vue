@@ -34,7 +34,7 @@ const localSubPaths: Ref<subPath[]> = ref([])
 let oldpath = ''
 
 const getSubPaths = (newPath: string) => {
-    ;[oldpath, localSubPaths.value] = createSubPaths(newPath, oldpath)
+    ;[oldpath, localSubPaths.value] = createSubPaths(newPath, oldpath, settings.root_dirs)
 }
 
 // INFO: if there are no subPaths, watch the folder path

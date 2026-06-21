@@ -6,6 +6,7 @@ import useFolderPageStore from '@/stores/pages/folder'
 import usePlaylistPageStore from '@/stores/pages/playlist'
 import usePlaylistListPageStore from '@/stores/pages/playlists'
 import useArtistPageStore from '@/stores/pages/artist'
+import useSettingsStore from '@/stores/settings'
 
 import HomeView from '@/views/HomeView'
 const Lyrics = () => import('@/views/LyricsView')
@@ -34,6 +35,12 @@ const folder = {
     name: 'FolderView',
     component: FolderView,
     beforeEnter: async (to: any) => {
+        // Start inside the single configured root dir instead of the virtual
+        // "$home" screen, so the folder view opens at e.g. `music` directly.
+        const roots = useSettingsStore().root_dirs
+        if (to.params.path === '$home' && roots.length === 1 && roots[0] !== '$home') {
+            return { name: 'FolderView', params: { path: roots[0] } }
+        }
         state.loading.value = true
         await useFolderPageStore()
             .fetchAll(to.params.path, true)
