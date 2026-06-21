@@ -1,12 +1,10 @@
 import { Routes } from "@/router";
-import useDialog from "@/stores/modal";
 import useSearch from "@/stores/search";
 
 import FolderSvg from "@/assets/icons/folder-1.svg";
 import HeartSvg from "@/assets/icons/heart.svg";
 import PlaylistSvg from "@/assets/icons/playlist-1.svg";
 import SearchSvg from "@/assets/icons/search.svg";
-import SettingsSvg from "@/assets/icons/settings.svg";
 import HomeSvg from "@/assets/icons/home.svg";
 import ChartSvg from "@/assets/icons/chart.svg";
 
@@ -54,17 +52,6 @@ export const menus = [
     name: "stats",
     route_name: Routes.Stats,
     icon: ChartSvg,
-  },
-  {
-    separator: true,
-  },
-  {
-    name: "settings",
-    route_name: null,
-    icon: SettingsSvg,
-    action: () => {
-      useDialog().showSettingsModal()
-    }
   },
 ];
 
