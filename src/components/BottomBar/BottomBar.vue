@@ -102,7 +102,9 @@ function handleFav() {
         width: 3rem;
         transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
 
-        &:hover {
+        // The white play circle must NOT get the grey hover background — it
+        // keeps its #fff and a Spotify-style scale-up (.play:hover in HotKeys).
+        &:not(.play):hover {
             border: solid 1px $gray3 !important;
             background-color: $gray !important;
         }
@@ -200,11 +202,10 @@ function handleFav() {
         .time {
             font-weight: 500;
             font-size: $medium;
+            color: rgba(255, 255, 255, 0.66); // muted, Spotify-style time text
 
             .numbers {
-                background-color: $gray3;
-                border-radius: $smaller;
-                padding: 1px $smaller;
+                // Plain time text, no pill/box background (Spotify).
                 font-variant-numeric: tabular-nums;
             }
         }
