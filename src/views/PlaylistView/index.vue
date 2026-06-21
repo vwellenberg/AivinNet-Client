@@ -12,12 +12,12 @@
                 <DynamicScrollerItem
                     :item="item"
                     :active="active"
-                    :size-dependencies="[item.props]"
+                    :size-dependencies="[item.id, item.size]"
                     :data-index="index"
                 >
                     <component
                         :is="item.component"
-                        :key="index"
+                        :key="item.id"
                         v-bind="item.props"
                         @playThis="playFromPlaylistPage(item.props.index - 1)"
                         @trackDropped="onTrackDropped"
@@ -114,7 +114,7 @@ const scrollerItems = computed(() => {
 
     if (playlist.tracks.length >= track_limit.value) {
         body.push({
-            id: Math.random(),
+            id: 'tracks-fetcher',
             size: 1,
             component: AlbumsFetcher,
             props: {
