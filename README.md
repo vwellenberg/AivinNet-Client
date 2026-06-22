@@ -7,12 +7,43 @@ A Spotify-style music player frontend, branded as **AivinNet**. This is a fork o
 
 ---
 
+## Screenshots
+
+|                                                  |                                                      |
+| ------------------------------------------------ | ---------------------------------------------------- |
+| **Home** — browse your library                   | **Album** — color-matched ambient background         |
+| ![Home](docs/screenshots/home.png)               | ![Album view](docs/screenshots/album.png)            |
+| **Playlist** — track list with ambient gradient  | **Artists** — library grid                           |
+| ![Playlist view](docs/screenshots/playlist.png)  | ![Artists](docs/screenshots/artists.png)             |
+
+---
+
+## Features
+
+- Full visual redesign over the swingmusic webclient, with custom **AivinNet** branding.
+- Color-matched **ambient gradient** on album, artist, and playlist views, derived from the cover artwork.
+- Library browsing for albums, artists, playlists, folders, and favorites, with sorting and filtering.
+- Built-in player with queue, shuffle, and repeat.
+
+### Brand palette
+
+| Token           | Hex       | Meaning        |
+| --------------- | --------- | -------------- |
+| `$brand-red`    | `#FF284E` | BCS red        |
+| `$brand-green`  | `#1D9E75` | WAVENET green  |
+| `$brand-purple` | `#7F77DD` | Frequency      |
+
+Defined in `src/assets/scss/_variables.scss`.
+
+---
+
 ## Tech Stack
 
 - **Vue 3** + TypeScript
 - **Pinia** (state management)
 - **SCSS** (styling)
 - **Vite** (build tool)
+- **Vitest** (unit tests)
 
 ---
 
@@ -26,7 +57,16 @@ yarn install
 
 # Start the development server
 yarn dev
+
+# Lint (auto-fix) / lint check only (CI)
+yarn lint
+yarn lint:check
+
+# Run tests
+yarn test
 ```
+
+Tests live in `src/**/__tests__/` as `*.test.ts`.
 
 ---
 
