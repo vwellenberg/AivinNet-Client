@@ -13,6 +13,14 @@ const disable_np_img: Setting = {
     show_if: () => !settings().is_alt_layout,
 }
 
+const npLauflicht: Setting = {
+    title: 'Now Playing glow',
+    desc: 'Animated brand light around the Now Playing artwork (green glimmer + red running light)',
+    type: SettingType.binary,
+    state: () => settings().use_np_lauflicht,
+    action: () => settings().toggleNpLauflicht(),
+}
+
 const showNowPlayingOnTabTitle: Setting = {
     title: 'Show Now Playing track on tab title',
     desc: 'Replace current page info with Now Playing track info',
@@ -38,4 +46,4 @@ const highlightFavoriteTracks: Setting = {
     show_if: () => settings().showInlineFavIcon,
 }
 
-export default [disable_np_img, showNowPlayingOnTabTitle, showInlineFavIcon, highlightFavoriteTracks]
+export default [disable_np_img, npLauflicht, showNowPlayingOnTabTitle, showInlineFavIcon, highlightFavoriteTracks]
