@@ -15,7 +15,7 @@
                 },
                 replace: true,
             }"
-            class="np-image rounded-sm no-scroll"
+            class="np-image lauflicht-rim rounded-sm no-scroll"
         >
             <img :src="paths.images.thumb.small + queue.currenttrack?.image" alt="" />
             <div class="expandicon">
@@ -107,6 +107,14 @@ defineEmits<{
     .np-image {
         position: relative;
         height: 3rem;
+
+        // Lauflicht comet ring around the playing cover (always visible here).
+        // The soft green bloom is suppressed in the compact bar — it would be
+        // clipped by no-scroll (overflow:hidden) anyway; the bloom lives on the
+        // bigger now-playing surfaces (sidebar card / full NP view).
+        &.lauflicht-rim::after {
+            display: none;
+        }
 
         img {
             height: 100%;
