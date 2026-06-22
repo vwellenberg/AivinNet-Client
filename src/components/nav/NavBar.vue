@@ -104,7 +104,9 @@ function toggleSidenav() {
         align-items: center;
 
         .nav-logo {
-            width: 2.5rem;
+            // Width grows with the wordmark beside the icon (was a fixed 2.5rem
+            // when the logo was icon-only, which would clip the "AivinNet" text).
+            width: max-content;
             height: 2.5rem;
             align-self: center;
             // Logo component centres its icon at flex-start by default; center

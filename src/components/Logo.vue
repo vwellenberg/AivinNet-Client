@@ -3,6 +3,7 @@
     <div class="logo-orbit-wrapper">
       <img src="@/assets/icons/logos/logo-subspaceradio.png" alt="AivinNet" class="logo-img" />
     </div>
+    <span class="logo-wordmark">AivinNet</span>
   </router-link>
 </template>
 
@@ -12,8 +13,9 @@
 <style lang="scss">
 .swing-logo {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
+  gap: 0.6rem;
   width: 100%;
   height: 100%;
   overflow: visible;
@@ -21,6 +23,15 @@
 
   &:hover {
     opacity: 0.8;
+  }
+
+  // Brand wordmark next to the icon (desktop top bar; Logo only renders there).
+  .logo-wordmark {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: $white;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
   }
 }
 
