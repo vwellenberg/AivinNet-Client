@@ -2,8 +2,8 @@
 //
 // Brand-coloured "running light" around an active container (now-playing card
 // & full now-playing cover art): a soft GREEN glimmer breathes all around it
-// while a RED light comet travels along the rim. The green halo + red runner
-// together read as the AivinNet brand mix.
+// while a brighter GREEN comet with a white-hot tip travels along the rim —
+// AivinNet green throughout (no red).
 //
 // Cheap by construction: only a registered `--np-angle` angle and `opacity`
 // animate — no layout, no animated box-shadow. Lives in Global/index.scss
@@ -29,10 +29,10 @@
 @keyframes np-comet-breathe {
     0%,
     100% {
-        opacity: 0.2;
+        opacity: 0.26;
     }
     50% {
-        opacity: 0.42;
+        opacity: 0.55;
     }
 }
 
@@ -40,22 +40,22 @@
     position: relative;
     isolation: isolate;
 
-    // The travelling RED light comet, masked down to a 2px border ring.
+    // The travelling GREEN light comet (white-hot tip), masked to a 3px ring.
     &::before {
         content: "";
         position: absolute;
         inset: 0;
         z-index: 2;
         border-radius: inherit;
-        padding: 2px;
+        padding: 3px;
         background: conic-gradient(
             from var(--np-angle),
             transparent 0deg,
-            transparent 250deg,
-            rgba($brand-red, 0.6) 300deg,
-            $brand-red 335deg,
+            transparent 235deg,
+            rgba($brand-green, 0.55) 300deg,
+            $brand-green 332deg,
             #ffffff 348deg,
-            $brand-red 353deg,
+            $brand-green 354deg,
             transparent 360deg
         );
         -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -74,8 +74,8 @@
         z-index: -1;
         border-radius: inherit;
         background: $brand-green;
-        filter: blur(22px);
-        opacity: 0.28;
+        filter: blur(24px);
+        opacity: 0.34;
         pointer-events: none;
         animation: np-comet-breathe 5.5s ease-in-out infinite;
     }
