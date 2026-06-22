@@ -75,10 +75,13 @@ defineEmits<{
             border: solid 1px $gray3 !important;
             background-color: $gray !important;
         }
-    }
 
-    .lyrics,
-    .repeat {
+        // Normalize every control icon (repeat, shuffle, lyrics, volume speaker)
+        // to one size. The volume speaker's own scaling lives in Volume.vue but
+        // is scoped under a .b-bar ancestor; in the Now Playing header this group
+        // is NOT inside .b-bar, so without this the speaker rendered full-size and
+        // looked bigger than its neighbours. (In the bottom bar Volume.vue's more
+        // specific rule still wins, so that context is unchanged.)
         svg {
             transform: scale(0.75);
         }

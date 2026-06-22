@@ -117,7 +117,11 @@ function handleFav() {
             width: 2.5rem;
             height: 2.5rem;
 
-            &:nth-child(2) {
+            // Exclude the white play circle: it must stay square (.hotkeys .play
+            // = 2.5rem). Without :not(.play) this wider rule wins on specificity
+            // and stretches the play button into an oval. (Targets desktop's
+            // skip-prev, which is the real 2nd child once aux buttons render.)
+            &:not(.play):nth-child(2) {
                 width: 3.5rem;
             }
         }
