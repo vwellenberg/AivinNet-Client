@@ -97,7 +97,7 @@ const settings = useSettings()
         border-radius: 50%;
         background: #fff;
         flex-shrink: 0;
-        transition: transform 0.1s ease;
+        transition: transform 0.1s ease, box-shadow 0.2s ease;
 
         svg {
             width: 1.35rem;
@@ -114,12 +114,15 @@ const settings = useSettings()
             transform: translateX(1px);
         }
 
+        // Subtle brand-red accent glow on hover / press (#32).
         &:hover {
             transform: scale(1.06);
+            box-shadow: 0 0 16px 1px rgba($brand-red, 0.55);
         }
 
         &:active {
             transform: scale(0.98);
+            box-shadow: 0 0 10px 1px rgba($brand-red, 0.45);
         }
     }
 
