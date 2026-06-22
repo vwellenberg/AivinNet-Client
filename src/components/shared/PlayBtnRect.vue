@@ -5,7 +5,7 @@
         :style="{
             backgroundColor: bg_color ? bg_color : '',
             borderColor: bg_color ? bg_color : '',
-            color: bg_color ? getShift(bg_color, [100, 100]) : '',
+            color: bg_color ? getTextColor(bg_color) : '',
         }"
         @click="playFrom(source)"
     >
@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { playSources } from '@/enums'
-import { getShift } from '@/utils/colortools/shift'
+import { getTextColor } from '@/utils/colortools/shift'
 
 import playBtnSvg from '@/assets/icons/play.svg'
 import { playFrom } from '@/helpers/usePlayFrom'
@@ -35,9 +35,19 @@ defineProps<{
     justify-content: center;
     color: $white;
     padding-right: 1rem;
+    // Quick scale on hover/press — matches the bottom-bar play button.
+    transition: transform 0.1s ease;
 
     svg {
         height: 1.75rem;
+    }
+
+    &:hover {
+        transform: scale(1.06);
+    }
+
+    &:active {
+        transform: scale(0.98);
     }
 }
 </style>
