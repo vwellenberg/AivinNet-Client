@@ -1,0 +1,94 @@
+// Lauflicht / running-light — issue #32.
+//
+// A soft light "comet" travels slowly around the rim of an active container
+// (the now-playing card). The accent colour comes from the *current track's*
+// cover via the `--np-accent` custom property (set from the colours store,
+// `colors.theme1` = LightVibrant), with a brand-red fallback so the effect is
+// always visible even before colour extraction finishes.
+//
+// Cheap by construction: only a registered `--np-angle` angle and `opacity`
+// animate — no layout, no animated box-shadow. Lives in Global/index.scss
+// (imported exactly once) so the @property/@keyframes are emitted a single
+// time; never put these in _mixins.scss (Vite prepends that into every
+// component style and would duplicate them).
+
+@property --np-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes np-comet-spin {
+    to {
+        --np-angle: 360deg;
+    }
+}
+
+@keyframes np-comet-breathe {
+    0%,
+    100% {
+        opacity: 0.16;
+    }
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.lauflicht-rim {
+    // Resolve the cover accent once; fall back to the brand red.
+    --_lauflicht-accent: var(--np-accent, #{$brand-red});
+
+    position: relative;
+    isolation: isolate;
+
+    // The travelling light itself, masked down to a 2px border ring.
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        border-radius: inherit;
+        padding: 2px;
+        background: conic-gradient(
+            from var(--np-angle),
+            transparent 0deg,
+            transparent 250deg,
+            var(--_lauflicht-accent) 320deg,
+            #ffffff 345deg,
+            var(--_lauflicht-accent) 350deg,
+            transparent 360deg
+        );
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+        animation: np-comet-spin 7s linear infinite;
+    }
+
+    // Soft outer glow that gently "breathes" — blur + opacity only.
+    &::after {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        z-index: -1;
+        border-radius: inherit;
+        background: var(--_lauflicht-accent);
+        filter: blur(20px);
+        opacity: 0.22;
+        pointer-events: none;
+        animation: np-comet-breathe 5.5s ease-in-out infinite;
+    }
+}
+
+// Accessibility: kill all motion but keep a calm static accent glow.
+@media (prefers-reduced-motion: reduce) {
+    .lauflicht-rim::before {
+        animation: none;
+    }
+
+    .lauflicht-rim::after {
+        animation: none;
+        opacity: 0.26;
+    }
+}

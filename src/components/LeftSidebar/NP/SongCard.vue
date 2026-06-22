@@ -9,7 +9,11 @@
     }"
     :exit="{ opacity: 0, scale: 0.9 }"
   >
-    <div v-wave class="sidebar-songcard rounded-sm">
+    <div
+      v-wave
+      class="sidebar-songcard lauflicht-rim rounded-sm"
+      :style="{ '--np-accent': colors.theme1 || '#FF284E' }"
+    >
       <router-link
         :to="{
           name: Routes.nowPlaying,
@@ -34,12 +38,16 @@ import { Motion } from "motion/vue";
 import { Routes } from "@/router";
 
 import { paths } from "@/config";
+import useColorStore from "@/stores/colors";
 import useQueueStore from "@/stores/queue";
 
 import Bitrate from "./Bitrate.vue";
 
 const imguri = paths.images.thumb.medium;
 const q = useQueueStore();
+// Cover accent of the current track (LightVibrant, set per track in
+// stores/player.ts). Drives the Lauflicht rim; brand-red fallback below.
+const colors = useColorStore();
 </script>
 
 <style lang="scss">
