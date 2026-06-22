@@ -32,14 +32,36 @@ yarn test:watch
 yarn build
 ```
 
-## Branch-Workflow
+## Branch-Workflow (verbindlich — keine Ausnahmen)
+
+**Strikte Pflicht:** Jede Code-/Doc-Änderung läuft über **eigenen Worktree + dedizierten Branch + PR**. **Niemals direkt auf `master` committen oder pushen** — auch nicht für „nur eine Kleinigkeit".
 
 Pro Aufgabe/Issue:
-- **Worktree + Feature-Branch** (`fix/...`, `feat/...`) von `origin/master` — NICHT direkt auf `master` committen.
-- **PR** öffnen → **Self-Review** (`/code-review`), Findings fixen, erneut prüfen.
-- **Autonom (squash) mergen, sobald das Review sauber ist** — kein manuelles Gate/keine Rückfrage.
-- Danach **Deploy von master** + verifizieren, Worktree entfernen.
-- Kein `dev`-Branch (Feature-Branches gehen direkt von `master` aus).
+1. **Worktree + dedizierter Branch** von `origin/master`:
+   `git worktree add -b <prefix>/<slug> ../_wt-<slug> origin/master`
+   - **Immer ein frischer Branch pro Aufgabe** — nie auf `master`, nie auf einem fremden/alten Branch weiterarbeiten.
+   - **Branch-Name mit geläufigem Prefix** (Conventional-Commits-Stil):
+     - `feat/` — neues Feature / sichtbare Funktion
+     - `fix/` — Bugfix / Korrektur
+     - `refactor/` — Umbau ohne Verhaltensänderung
+     - `style/` — reines CSS/Formatting ohne Logikänderung
+     - `docs/` — nur Doku (README, CLAUDE.md, Kommentare)
+     - `chore/` — Tooling / Deps / Config / Version-Bump
+     - `test/` — nur Tests · `perf/` — Performance
+   - Slug knapp + sprechend, optional Issue-Nr.: `fix/34-drawer-glow`, `feat/track-edit`.
+2. **Implementieren** im Worktree (nie im Hauptverzeichnis auf `master`).
+3. **PR** öffnen → **Self-Review** (`/code-review`), Findings fixen, erneut prüfen — bis sauber.
+4. **CI grün abwarten** (Lint/Tests/Build).
+5. **Autonom (squash) mergen**, sobald Review sauber + CI grün — kein manuelles Gate/keine Rückfrage.
+6. **Deploy von `master`** + verifizieren (bei UI: Headless-Screenshot), dann **Worktree entfernen** (`git worktree remove`) + lokalen Branch löschen.
+
+- Kein `dev`-Branch (Branches gehen direkt von `master` aus).
+- **`master` ändert sich laufend = normal und gewollt:** jeder gemergte PR bewegt `master`. Das ist KEIN Zeichen für Direkt-Commits, sondern der vorgesehene Fluss (Worktree → Branch → PR → Merge).
+
+### Mehrere Agents parallel
+- **Vor jedem Merge `git fetch` + `origin/master`-Stand prüfen.** Bei `BEHIND`: `git rebase origin/master`, Konflikte lösen (häufig die `package.json`-Version → auf nächste freie Patch-Version ziehen).
+- **Footprint klein halten**, Branch klar benennen, zügig mergen (kurzes offenes Fenster = weniger Konflikte).
+- **Gleiche Dateien nicht gleichzeitig** anfassen (v.a. Theming wie `lauflicht.scss`, geteilte Komponenten/Mixins) — sonst Merge-Konflikte und sich überschreibende Design-Entscheidungen. Bei absehbarer Überlappung Bereiche/Lanes informell abgrenzen.
 
 ## CI
 
