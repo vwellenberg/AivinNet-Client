@@ -114,12 +114,13 @@ function handleFav() {
         }
 
         @include largePhones {
+            // All transport buttons stay square at 2.5rem so the white play
+            // circle stays round. A former `&:nth-child(2) { width: 3.5rem }`
+            // here only ever hit the play button (aux buttons are hidden at
+            // mobile widths, making play the 2nd child) and stretched it into
+            // an oval, so it was removed.
             width: 2.5rem;
             height: 2.5rem;
-
-            &:nth-child(2) {
-                width: 3.5rem;
-            }
         }
 
         @include smallestPhones {

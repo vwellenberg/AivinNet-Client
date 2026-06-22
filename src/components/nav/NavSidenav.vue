@@ -8,10 +8,12 @@
                 <div class="title">AivinNet</div>
             </a>
         </div>
+        <div class="sidenav_divider"></div>
         <div class="sidenav_content scrollable">
             <RouterLink
                 v-for="link in topnavitems"
                 :key="link.name"
+                v-wave
                 class="link"
                 :to="{ name: link.route_name, params: link.params }"
                 :class="{ active: $route.name === link.route_name }"
@@ -22,13 +24,16 @@
                 <span>{{ link.name }}</span>
             </RouterLink>
         </div>
-        <div class="sidenav_footer">AivinNet v</div>
+        <div class="sidenav_footer">AivinNet v{{ version }}</div>
     </div>
 </template>
 
 <script setup lang="ts">
 import LogoImg from '@/assets/icons/logos/logo-subspaceradio.png'
 import { topnavitems } from '../LeftSidebar/navitems'
+import pkg from '../../../package.json'
+
+const version = pkg.version
 
 const emit = defineEmits(['close'])
 
@@ -82,12 +87,32 @@ function closeSidenav() {
         height: 100%;
         display: flex;
         flex-direction: column;
-        background-color: $body;
+        background-color: #121212; // app surface grey (matches .l-sidebar / #acontent)
         transform: translateX(-240px);
         transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+
+        // Subtle AivinNet brand glow behind the header (red -> purple -> fade).
+        &::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            left: -40px;
+            width: 320px;
+            height: 300px;
+            background: radial-gradient(
+                60% 55% at 28% 28%,
+                rgba($brand-red, 0.28) 0%,
+                rgba($brand-purple, 0.16) 42%,
+                transparent 72%
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
 
         .sidenav_header {
             position: relative;
+            z-index: 1;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -121,10 +146,19 @@ function closeSidenav() {
             }
         }
 
+        .sidenav_divider {
+            position: relative;
+            z-index: 1;
+            height: 1px;
+            margin: 0 18px 8px;
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
         .sidenav_content {
             display: flex;
             flex-direction: column;
             position: relative;
+            z-index: 1;
             height: 100%;
             margin-right: 2px;
             overflow: auto;
@@ -143,7 +177,33 @@ function closeSidenav() {
                 gap: 1rem;
                 margin: $smaller $medium;
                 padding: $small $medium;
+                border-radius: 8px;
+                color: $white;
+                opacity: 0.72;
                 cursor: pointer;
+                transition: background-color 0.15s ease, opacity 0.15s ease;
+
+                &:hover {
+                    opacity: 1;
+                    background-color: $gray;
+                }
+
+                // Active route: grey pill + brand-red accent bar (Spotify-style).
+                &.active {
+                    opacity: 1;
+                    background-color: $gray5;
+
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        left: 0;
+                        top: 9px;
+                        bottom: 9px;
+                        width: 3px;
+                        border-radius: 3px;
+                        background-color: $brand-red;
+                    }
+                }
             }
 
             svg {
@@ -152,6 +212,8 @@ function closeSidenav() {
         }
 
         .sidenav_footer {
+            position: relative;
+            z-index: 1;
             font-size: $medium;
             margin: $large auto;
             opacity: 0.5;
