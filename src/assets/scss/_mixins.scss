@@ -59,3 +59,34 @@
     display: none !important;
   }
 }
+
+// Floating green play button shared by all cover cards (Album, Playlist,
+// Track, Favorites, Folder, Artist). Single source of truth for placement
+// + hover reveal so it can't drift per card. Include inside a card's root
+// selector — the hover reveal binds to that card. See issue #44.
+//
+// $placement:
+//   bottom-right (default) — square covers
+//   center                 — round covers (e.g. artist), where a corner
+//                            button would float outside the circle
+@mixin card-play-btn($placement: bottom-right) {
+  .play-btn {
+    position: absolute;
+    width: 3.25rem;
+    bottom: 0.75rem;
+    opacity: 0;
+    transform: translateY(0.5rem);
+    transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.15s ease;
+
+    @if $placement == center {
+      left: calc(50% - 1.625rem); // half of width
+    } @else {
+      right: 0.75rem;
+    }
+  }
+
+  &:hover .play-btn {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

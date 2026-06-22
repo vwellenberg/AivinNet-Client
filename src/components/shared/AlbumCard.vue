@@ -113,6 +113,8 @@ function showMenu(e: MouseEvent) {
     height: max-content;
     transition: background-color 0.2s ease-out;
 
+    @include card-play-btn;
+
     &.context-menu-open {
         background-color: $gray5;
     }
@@ -135,13 +137,12 @@ function showMenu(e: MouseEvent) {
             opacity: 0;
             transition: opacity 0.25s ease;
         }
+    }
 
-        &:hover {
-            .play-btn {
-                transform: translateY(0);
-                opacity: 1;
-            }
+    &:hover {
+        background-color: $gray5;
 
+        .with-img {
             .gradient {
                 opacity: 1;
             }
@@ -150,21 +151,6 @@ function showMenu(e: MouseEvent) {
                 filter: brightness(0.75);
             }
         }
-    }
-
-    .play-btn {
-        $btn-width: 3.25rem;
-        position: absolute;
-        bottom: 0.75rem;
-        right: 0.75rem;
-        opacity: 0;
-        transform: translateY(0.5rem);
-        transition: opacity 0.2s ease, transform 0.2s ease;
-        width: $btn-width;
-    }
-
-    &:hover {
-        background-color: $gray5;
     }
 
     img {

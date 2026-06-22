@@ -70,21 +70,10 @@ const name = (path: string) => {
     font-size: 0.95rem;
   }
 
-  .play-btn {
-    position: absolute;
-    width: 4rem;
-    bottom: 0;
-    opacity: 0;
-    transition: all 0.25s;
-  }
+  @include card-play-btn;
 
   &:hover {
     background-color: $gray4;
-
-    .play-btn {
-      opacity: 1;
-      transform: translateY(-1rem);
-    }
   }
 
   svg.bg {
