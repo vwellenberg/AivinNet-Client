@@ -58,6 +58,7 @@ const route = useRoute()
 watch(() => route.params.pid, async (newPid, oldPid) => {
     if (newPid && newPid !== oldPid) {
         playlist.allTracks = []
+        playlist.allLoaded = false
         await playlist.fetchAll(newPid as string)
     }
 })
@@ -97,7 +98,11 @@ const scrollerItems = computed(() => {
 
     const tracks = playlist.tracks.map(track => {
         return {
-            id: track.filepath,
+            // Key by position (track.index = Fuse refIndex), like every other
+            // track list in the app (SongList, Queue, ...). filepath is NOT
+            // guaranteed unique, so a duplicate entry collided on the scroller
+            // key and one row collapsed into a blank gap.
+            id: track.index,
             component: SongItem,
             props: {
                 track: track,
@@ -134,9 +139,12 @@ async function onTrackDropped(_source: dropSources, _track: Track, newIndex: num
 async function playFromPlaylistPage(index: number) {
     const { name, id } = playlist.info
 
-    if (playlist.tracks.length !== playlist.info.count) {
-        // fetch all the tracks
-        playlist.fetchAll(id, false, true)
+    if (!playlist.allLoaded) {
+        // Load the complete tracklist before building the queue. Gate on
+        // allLoaded (not tracks.length !== count): an orphan trackhash keeps
+        // count > resolvable tracks forever, so the old gate re-fetched on
+        // every play. Await so the queue is built from the complete list.
+        await playlist.fetchAll(id, false, true)
     }
 
     tracklist.setFromPlaylist(name, id, playlist.allTracks)
