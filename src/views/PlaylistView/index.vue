@@ -32,7 +32,7 @@
 import { computed, watch } from 'vue'
 import { onMounted, onUpdated } from 'vue'
 
-import { isMedium, isSmall, isSmallPhone, track_limit } from '@/stores/content-width'
+import { isMedium, isSmall, isSmallPhone } from '@/stores/content-width'
 import { dropSources } from '@/enums'
 import useQueue from '@/stores/queue'
 import useTracklist from '@/stores/queue/tracklist'
@@ -57,7 +57,7 @@ const route = useRoute()
 
 watch(() => route.params.pid, async (newPid, oldPid) => {
     if (newPid && newPid !== oldPid) {
-        playlist.allTracks = []
+        playlist.resetTracks()
         await playlist.fetchAll(newPid as string)
     }
 })
@@ -97,7 +97,11 @@ const scrollerItems = computed(() => {
 
     const tracks = playlist.tracks.map(track => {
         return {
-            id: track.filepath,
+            // Key by position (track.index = Fuse refIndex), like every other
+            // track list in the app (SongList, Queue, ...). filepath is NOT
+            // guaranteed unique, so a duplicate entry collided on the scroller
+            // key and one row collapsed into a blank gap.
+            id: track.index,
             component: SongItem,
             props: {
                 track: track,
@@ -112,7 +116,11 @@ const scrollerItems = computed(() => {
 
     const body = playlist.tracks.length === 0 ? [getNoItemsComponent()] : tracks
 
-    if (playlist.tracks.length >= track_limit.value) {
+    // Show the infinite-scroll sentinel while more stored trackhashes remain to
+    // be loaded. Gate on allLoaded (not the filtered tracks.length, which an
+    // orphan-shortened first page or an active search could drop below the
+    // limit and wrongly hide the fetcher). Don't auto-load during a search.
+    if (!playlist.allLoaded && !playlist.query) {
         body.push({
             id: 'tracks-fetcher',
             size: 1,
@@ -134,9 +142,12 @@ async function onTrackDropped(_source: dropSources, _track: Track, newIndex: num
 async function playFromPlaylistPage(index: number) {
     const { name, id } = playlist.info
 
-    if (playlist.tracks.length !== playlist.info.count) {
-        // fetch all the tracks
-        playlist.fetchAll(id, false, true)
+    if (!playlist.allLoaded) {
+        // Load the complete tracklist before building the queue. Gate on
+        // allLoaded (not tracks.length !== count): an orphan trackhash keeps
+        // count > resolvable tracks forever, so the old gate re-fetched on
+        // every play. Await so the queue is built from the complete list.
+        await playlist.fetchAll(id, false, true)
     }
 
     tracklist.setFromPlaylist(name, id, playlist.allTracks)

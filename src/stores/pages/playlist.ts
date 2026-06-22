@@ -17,6 +17,14 @@ export default defineStore('playlist-tracks', {
         query: '',
         initialBannerPos: 0,
         allTracks: <Track[]>[],
+        // True once every stored trackhash has been requested. Used to stop the
+        // play path from re-fetching forever when info.count counts an
+        // unresolvable (orphan) trackhash and thus never equals allTracks.length.
+        allLoaded: false,
+        // How many stored trackhashes have been requested so far. Pagination
+        // must advance over the trackhash list (which includes orphans), NOT
+        // over the resolved-track count, or orphans drift the offset.
+        loadedHashCount: 0,
         colors: {
             bg: '',
             bg2: '',
@@ -31,23 +39,53 @@ export default defineStore('playlist-tracks', {
          */
         async fetchAll(id: number, no_tracks = false, fetchAll = false) {
             this.resetBannerPos()
-            // if fetchAll, use -1 to fetch all tracks
-            const playlist = await getPlaylist(id, no_tracks, this.allTracks.length, fetchAll ? -1 : track_limit.value)
-            if (this.allTracks.length !== 0) {
-                this.allTracks.push(...(playlist?.tracks || []))
-                return
+
+            const isFreshLoad = this.allTracks.length === 0
+            // track_limit can be 0 before the layout is measured; fall back so
+            // we never request an empty page or stall pagination.
+            const pageSize = track_limit.value || 50
+            const limit = fetchAll ? -1 : pageSize
+            // Paginate over the stored trackhash list (start counts trackhashes,
+            // incl. orphans), NOT the resolved-track count. Orphan hashes make
+            // resolved-count < trackhash-index, so using allTracks.length as the
+            // offset drifts and either re-requests or skips windows.
+            const start = isFreshLoad || fetchAll ? 0 : this.loadedHashCount
+            const playlist = await getPlaylist(id, no_tracks, start, limit)
+
+            if (isFreshLoad) {
+                this.info = playlist?.info || ({} as Playlist)
+                this.initialBannerPos = this.info.settings.banner_pos
+                this.createImageLink()
+
+                this.resetColors()
+                this.extractColors()
             }
-
-            this.info = playlist?.info || ({} as Playlist)
-            this.initialBannerPos = this.info.settings.banner_pos
-            this.createImageLink()
-
-            this.resetColors()
-            this.extractColors()
 
             if (no_tracks) return
 
-            this.allTracks = playlist?.tracks || []
+            const fetched = playlist?.tracks || []
+
+            if (isFreshLoad || fetchAll) {
+                // Fresh load or "load everything" pass: REPLACE the tracklist.
+                // The old code appended from start=allTracks.length, but that
+                // offset counts *resolved* tracks while the backend paginates
+                // over *trackhashes*. When a playlist holds an orphan trackhash
+                // (info.count > resolvable tracks) the offset drifts and an
+                // already-loaded track gets re-appended -> duplicate row/gap.
+                this.allTracks = fetched
+            } else {
+                // Incremental append (infinite scroll); dedupe by trackhash so a
+                // stray re-fetch can never introduce duplicates.
+                const have = new Set(this.allTracks.map(t => t.trackhash))
+                this.allTracks.push(...fetched.filter(t => !have.has(t.trackhash)))
+            }
+
+            // Advance the trackhash cursor by the window we just requested.
+            // info.count is len(trackhashes) (incl. orphans), so a short page
+            // caused by orphans no longer fools us into stopping early.
+            const total = this.info.count || 0
+            this.loadedHashCount = fetchAll ? total : Math.min(start + pageSize, total)
+            this.allLoaded = !total || this.loadedHashCount >= total
         },
         createImageLink() {
             this.info.image = paths.images.playlist + this.info.image
@@ -133,10 +171,17 @@ export default defineStore('playlist-tracks', {
                 /* empty */
             }
         },
+        // Clears the loaded tracklist and its pagination state. Call this when
+        // switching to a different playlist so stale tracks/offset don't leak.
+        resetTracks() {
+            this.allTracks = []
+            this.allLoaded = false
+            this.loadedHashCount = 0
+        },
         resetAll() {
             setTimeout(() => {
                 if (router.currentRoute.value.name == Routes.playlist) return
-                this.allTracks = []
+                this.resetTracks()
             }, 1000)
         },
     },

@@ -136,8 +136,10 @@ export const playFrom = async (source: playSources) => {
             const playlist = usePlaylist()
 
             if (playlist.tracks.length === 0) return
-            if (playlist.tracks.length !== playlist.info.count) {
-                // Fetch all tracks if not already fetched
+            if (!playlist.allLoaded) {
+                // Fetch all tracks if not already fully loaded. Gate on
+                // allLoaded rather than tracks.length !== count, which an orphan
+                // trackhash keeps permanently unequal.
                 await playlist.fetchAll(playlist.info.id, false, true)
             }
             tracklist.setFromPlaylist(playlist.info.name, playlist.info.id, playlist.tracks)
