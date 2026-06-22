@@ -86,6 +86,16 @@ watch(
     { immediate: true }
 );
 
+// Globally enable/disable the Now Playing Lauflicht glow. Defaults to on, so
+// only an explicit `false` hides it (an absent persisted value stays enabled).
+watch(
+    () => settings.use_np_lauflicht,
+    (on) => {
+        document.body.classList.toggle("lauflicht-off", on === false);
+    },
+    { immediate: true }
+);
+
 router.afterEach(() => {
     (document.getElementById("acontent") as HTMLElement).scrollTo(0, 0);
 });

@@ -70,6 +70,7 @@ export default defineStore('settings', {
         // INFO: Default to alternate layout from v2.0.0
         layout: 'alternate',
         use_np_img: false,
+        use_np_lauflicht: true,
         use_sidebar: false,
         sidebar_width: 240,
 
@@ -111,6 +112,9 @@ export default defineStore('settings', {
         // now playing 👇
         toggleUseNPImg() {
             this.use_np_img = !this.use_np_img
+        },
+        toggleNpLauflicht() {
+            this.use_np_lauflicht = !this.use_np_lauflicht
         },
         toggleShowInlineFavIcon() {
             this.showInlineFavIcon = !this.showInlineFavIcon

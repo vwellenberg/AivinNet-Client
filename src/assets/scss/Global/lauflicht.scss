@@ -1,16 +1,18 @@
 // Lauflicht / running-light — issue #32.
 //
-// A soft light "comet" travels slowly around the rim of an active container
-// (the now-playing card). The accent colour comes from the *current track's*
-// cover via the `--np-accent` custom property (set from the colours store,
-// `colors.theme1` = LightVibrant), with a brand-red fallback so the effect is
-// always visible even before colour extraction finishes.
+// Brand-coloured "running light" around an active container (now-playing card
+// & full now-playing cover art): a soft GREEN glimmer breathes all around it
+// while a RED light comet travels along the rim. The green halo + red runner
+// together read as the AivinNet brand mix.
 //
 // Cheap by construction: only a registered `--np-angle` angle and `opacity`
 // animate — no layout, no animated box-shadow. Lives in Global/index.scss
 // (imported exactly once) so the @property/@keyframes are emitted a single
 // time; never put these in _mixins.scss (Vite prepends that into every
 // component style and would duplicate them).
+//
+// Globally toggleable: `body.lauflicht-off` hides it (App.vue watches the
+// `use_np_lauflicht` setting). Respects `prefers-reduced-motion`.
 
 @property --np-angle {
     syntax: "<angle>";
@@ -27,21 +29,18 @@
 @keyframes np-comet-breathe {
     0%,
     100% {
-        opacity: 0.16;
+        opacity: 0.2;
     }
     50% {
-        opacity: 0.4;
+        opacity: 0.42;
     }
 }
 
 .lauflicht-rim {
-    // Resolve the cover accent once; fall back to the brand red.
-    --_lauflicht-accent: var(--np-accent, #{$brand-red});
-
     position: relative;
     isolation: isolate;
 
-    // The travelling light itself, masked down to a 2px border ring.
+    // The travelling RED light comet, masked down to a 2px border ring.
     &::before {
         content: "";
         position: absolute;
@@ -53,9 +52,10 @@
             from var(--np-angle),
             transparent 0deg,
             transparent 250deg,
-            var(--_lauflicht-accent) 320deg,
-            #ffffff 345deg,
-            var(--_lauflicht-accent) 350deg,
+            rgba($brand-red, 0.6) 300deg,
+            $brand-red 335deg,
+            #ffffff 348deg,
+            $brand-red 353deg,
             transparent 360deg
         );
         -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -66,22 +66,30 @@
         animation: np-comet-spin 7s linear infinite;
     }
 
-    // Soft outer glow that gently "breathes" — blur + opacity only.
+    // Soft GREEN outer glimmer that gently "breathes" — blur + opacity only.
     &::after {
         content: "";
         position: absolute;
         inset: -2px;
         z-index: -1;
         border-radius: inherit;
-        background: var(--_lauflicht-accent);
-        filter: blur(20px);
-        opacity: 0.22;
+        background: $brand-green;
+        filter: blur(22px);
+        opacity: 0.28;
         pointer-events: none;
         animation: np-comet-breathe 5.5s ease-in-out infinite;
     }
 }
 
-// Accessibility: kill all motion but keep a calm static accent glow.
+// Global on/off (App.vue toggles body.lauflicht-off from the setting).
+body.lauflicht-off .lauflicht-rim {
+    &::before,
+    &::after {
+        display: none;
+    }
+}
+
+// Accessibility: kill all motion but keep a calm static green glimmer.
 @media (prefers-reduced-motion: reduce) {
     .lauflicht-rim::before {
         animation: none;
@@ -89,6 +97,6 @@
 
     .lauflicht-rim::after {
         animation: none;
-        opacity: 0.26;
+        opacity: 0.3;
     }
 }
