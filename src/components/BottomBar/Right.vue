@@ -24,7 +24,7 @@
             />
         </template>
         <LyricsButton />
-        <Volume />
+        <Volume v-if="!hideVolume" />
     </div>
 </template>
 
@@ -45,6 +45,9 @@ const settings = useSettings()
 
 defineProps<{
     hideHeart?: boolean
+    // In the Now Playing view the volume gets its own dedicated row (see
+    // NowPlaying/Header.vue), so it is suppressed in this control group there.
+    hideVolume?: boolean
 }>()
 
 defineEmits<{

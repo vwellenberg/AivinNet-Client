@@ -21,11 +21,12 @@
                 <div v-if="isMobile" class="time">
                     {{ formatSeconds(queue.duration.current) }}
                 </div>
-                <Buttons v-if="isSmallPhone" :hide-heart="true" @handleFav="() => {}" />
+                <Buttons v-if="isSmallPhone" :hide-heart="true" :hide-volume="true" @handleFav="() => {}" />
                 <div v-if="isMobile" class="time">
                     {{ formatSeconds(queue.duration.full) }}
                 </div>
             </div>
+            <Volume v-if="isSmallPhone" class="np-volume" />
         </div>
         <h3 class="nowplaying_title" v-if="queue.next">Up Next</h3>
         <SongItem
@@ -51,6 +52,7 @@ import { formatSeconds } from '@/utils'
 
 import Progress from '@/components/LeftSidebar/NP/Progress.vue'
 import Buttons from '../BottomBar/Right.vue'
+import Volume from '../BottomBar/Volume.vue'
 import SongItem from '../shared/SongItem.vue'
 import NowPlayingInfo from './NowPlayingInfo.vue'
 import PlayingFrom from './PlayingFrom.vue'
@@ -147,6 +149,72 @@ function handleFav() {
                 width: 100% !important;
                 display: flex;
                 justify-content: space-between;
+            }
+        }
+    }
+
+    // Volume gets its own full-width row in the mobile Now Playing view. In the
+    // bottom bar the slider styling is .b-bar-scoped (and hidden on mobile), so
+    // here the standalone control is styled explicitly: speaker icon + an
+    // accessible horizontal slider on its own line (instead of being crammed —
+    // and the slider mis-rendered — into the repeat/shuffle/lyrics row).
+    .np-volume {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 0.85rem;
+        padding: 0 0.25rem;
+
+        .speaker-icon {
+            flex-shrink: 0;
+            height: 2.25rem;
+            width: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+
+            svg {
+                transform: scale(0.8);
+            }
+        }
+
+        .volume-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 5px;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+            background-color: $gray4;
+            background-image: linear-gradient(#fff, #fff);
+            background-repeat: no-repeat;
+            // background-size is set inline from the current volume (Volume.vue).
+
+            &::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                height: 13px;
+                width: 13px;
+                border-radius: 50%;
+                background: #fff;
+                cursor: pointer;
+            }
+
+            &::-moz-range-thumb {
+                height: 13px;
+                width: 13px;
+                border: none;
+                border-radius: 50%;
+                background: #fff;
+                cursor: pointer;
+            }
+
+            &:hover {
+                background-image: linear-gradient($brand-green, $brand-green);
             }
         }
     }
