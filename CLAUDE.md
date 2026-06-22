@@ -37,13 +37,13 @@ yarn build
 Pro Aufgabe/Issue:
 - **Worktree + Feature-Branch** (`fix/...`, `feat/...`) von `origin/master` — NICHT direkt auf `master` committen.
 - **PR** öffnen → **Self-Review** (`/code-review`), Findings fixen, erneut prüfen.
-- **Autonom (squash) mergen, sobald das Review sauber ist** — kein manuelles Gate/keine Rückfrage.
-- Danach **Deploy von master** + verifizieren, Worktree entfernen.
+- **NICHT auto-mergen.** Nach sauberem Self-Review den PR **dem User übergeben** — er merged manuell. `master` ist seit 2026-06-22 **Branch-protected** (1 Approval, Checks Build/Lint/Tests strict, kein Force-Push/Delete), d.h. `gh pr merge` schlägt ohne Approval fehl. **Nicht** mit `gh pr merge --admin` umgehen. Grund: mehrere Agenten arbeiteten parallel und überschrieben sich — der User will den Merge-Gate als Absicherung.
+- **Deploy von master erst nach dem User-Merge**, auf Freigabe + verifizieren; danach Worktree entfernen.
 - Kein `dev`-Branch (Feature-Branches gehen direkt von `master` aus).
 
 ## CI
 
-GitHub Actions laufen (Lint/Tests/Build), **gaten aber den Merge nicht** (kein Branch-Protection-Enforcement) — Qualitäts-Gate ist das Self-Review oben:
+GitHub Actions laufen (Lint/Tests/Build). Seit 2026-06-22 **gaten sie den Merge** — `master` ist Branch-protected: die drei Checks müssen grün sein **und** ein Approval liegen, bevor gemerged werden kann. Self-Review oben bleibt das inhaltliche Qualitäts-Gate:
 - **Lint** — ESLint (`yarn lint:check`)
 - **Tests** — Vitest (`yarn test`)
 - **Build** — Vite Build (`yarn build`)
