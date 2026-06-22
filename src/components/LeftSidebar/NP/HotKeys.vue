@@ -67,8 +67,8 @@ const settings = useSettings()
     // prev / next — light-grey glyphs that brighten on hover (no box).
     .skip {
         svg {
-            width: 1.4rem;
-            height: 1.4rem;
+            width: 1.55rem;
+            height: 1.55rem;
             opacity: 0.7;
             transition: opacity 0.15s ease, transform 0.1s ease;
         }
@@ -101,8 +101,8 @@ const settings = useSettings()
 
         svg {
             // Larger glyph — the 1.35rem play/pause looked too small in the circle.
-            width: 1.65rem;
-            height: 1.65rem;
+            width: 1.8rem;
+            height: 1.8rem;
         }
 
         // Both play (currentColor) and pause (#F2F2F2) paths -> white on green.
@@ -131,8 +131,8 @@ const settings = useSettings()
     // shuffle up and trim repeat down for optically matched icons.
     .aux {
         svg {
-            width: 1.3rem;
-            height: 1.3rem;
+            width: 1.45rem;
+            height: 1.45rem;
             opacity: 0.7;
             transition: opacity 0.15s ease, transform 0.1s ease;
         }
@@ -147,8 +147,8 @@ const settings = useSettings()
     }
 
     .aux.repeat svg {
-        width: 1.05rem;
-        height: 1.05rem;
+        width: 1.15rem;
+        height: 1.15rem;
     }
 
     .aux-disabled svg {
