@@ -65,8 +65,31 @@ describe('playlist store fetchAll', () => {
         await store.fetchAll(59)
 
         // allLoaded short-circuits playFromPlaylistPage / usePlayFrom, so the
-        // buggy re-fetch never runs for an orphan playlist.
+        // buggy re-fetch never runs for an orphan playlist (the 8th hash is an
+        // orphan but all 8 hash-windows were requested in the single page).
         expect(store.allLoaded).toBe(true)
+        expect(getPlaylist).toHaveBeenCalledTimes(1)
+    })
+
+    it('large playlist with an orphan in the first page keeps loading (allLoaded stays false)', async () => {
+        const store = usePlaylistStore()
+
+        // 100 stored hashes; first page (limit 50) resolves to only 49 (one
+        // orphan inside the window). A short page must NOT be read as "done".
+        const page1 = Array.from({ length: 49 }, (_, i) => mkTrack(i))
+        getPlaylist.mockResolvedValueOnce({ info: mkInfo(100), tracks: page1 })
+        await store.fetchAll(59)
+        expect(store.allTracks).toHaveLength(49)
+        expect(store.allLoaded).toBe(false)
+
+        // Next page advances by the trackhash cursor (50), not the resolved
+        // count (49), so no window is skipped or re-requested.
+        const page2 = Array.from({ length: 50 }, (_, i) => mkTrack(50 + i))
+        getPlaylist.mockResolvedValueOnce({ info: mkInfo(100), tracks: page2 })
+        await store.fetchAll(59)
+        expect(store.allTracks).toHaveLength(99)
+        expect(store.allLoaded).toBe(true)
+        expect(getPlaylist.mock.calls[1][2]).toBe(50) // start = trackhash cursor
     })
 
     it('play-path fetchAll(true) REPLACES the list and never duplicates a track', async () => {

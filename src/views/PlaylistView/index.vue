@@ -32,7 +32,7 @@
 import { computed, watch } from 'vue'
 import { onMounted, onUpdated } from 'vue'
 
-import { isMedium, isSmall, isSmallPhone, track_limit } from '@/stores/content-width'
+import { isMedium, isSmall, isSmallPhone } from '@/stores/content-width'
 import { dropSources } from '@/enums'
 import useQueue from '@/stores/queue'
 import useTracklist from '@/stores/queue/tracklist'
@@ -57,8 +57,7 @@ const route = useRoute()
 
 watch(() => route.params.pid, async (newPid, oldPid) => {
     if (newPid && newPid !== oldPid) {
-        playlist.allTracks = []
-        playlist.allLoaded = false
+        playlist.resetTracks()
         await playlist.fetchAll(newPid as string)
     }
 })
@@ -117,7 +116,11 @@ const scrollerItems = computed(() => {
 
     const body = playlist.tracks.length === 0 ? [getNoItemsComponent()] : tracks
 
-    if (playlist.tracks.length >= track_limit.value) {
+    // Show the infinite-scroll sentinel while more stored trackhashes remain to
+    // be loaded. Gate on allLoaded (not the filtered tracks.length, which an
+    // orphan-shortened first page or an active search could drop below the
+    // limit and wrongly hide the fetcher). Don't auto-load during a search.
+    if (!playlist.allLoaded && !playlist.query) {
         body.push({
             id: 'tracks-fetcher',
             size: 1,
