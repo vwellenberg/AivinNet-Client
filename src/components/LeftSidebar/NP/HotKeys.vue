@@ -90,23 +90,23 @@ const settings = useSettings()
         transform: rotate(180deg) scale(0.85);
     }
 
-    // play / pause — prominent white circle with a dark icon (Spotify).
+    // play / pause — AivinNet-green circle with a white glyph.
     .play {
         width: 2.5rem;
         height: 2.5rem;
         border-radius: 50%;
-        background: #fff;
+        background: $brand-green;
         flex-shrink: 0;
-        transition: transform 0.1s ease, box-shadow 0.2s ease;
+        transition: transform 0.1s ease;
 
         svg {
             width: 1.35rem;
             height: 1.35rem;
         }
 
-        // Both play (currentColor) and pause (#F2F2F2) paths -> dark on white.
+        // Both play (currentColor) and pause (#F2F2F2) paths -> white on green.
         svg path {
-            fill: #181818;
+            fill: #fff;
         }
 
         // Optically centre the play triangle inside the circle.
@@ -114,15 +114,13 @@ const settings = useSettings()
             transform: translateX(1px);
         }
 
-        // Subtle brand-red accent glow on hover / press (#32).
+        // Just a quick scale on hover/press — no glow.
         &:hover {
             transform: scale(1.06);
-            box-shadow: 0 0 16px 1px rgba($brand-red, 0.55);
         }
 
         &:active {
             transform: scale(0.98);
-            box-shadow: 0 0 10px 1px rgba($brand-red, 0.45);
         }
     }
 
