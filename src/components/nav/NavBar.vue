@@ -91,8 +91,7 @@ const mobileTitle = computed(() => {
         align-items: center;
 
         .nav-logo {
-            // Width grows with the wordmark beside the icon (was a fixed 2.5rem
-            // when the logo was icon-only, which would clip the "AivinNet" text).
+            // Icon-only logo; width hugs the glyph.
             width: max-content;
             height: 2.5rem;
             align-self: center;
