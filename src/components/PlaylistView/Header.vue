@@ -36,7 +36,7 @@
       <img :src="(playlist.info.image as string)" class="rounded-sm" />
     </div>
     <BannerImages v-if="playlist.info.count && !info.has_image && useSqrImg" class="sqr_img rounded-sm" />
-    <Info :text-color="textColor" :btn_color="colors.btn" />
+    <Info :text-color="textColor" :btn_color="'#1D9E75'" /><!-- brand-green -->
     <LastUpdated />
   </div>
 </template>

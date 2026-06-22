@@ -1,6 +1,6 @@
 <template>
   <div class="artist-buttons">
-    <PlayBtnRect :source="playSources.artist" :bg_color="artist.colors.btn" />
+    <PlayBtnRect :source="playSources.artist" :bg_color="'#1D9E75'" /><!-- brand-green -->
     <HeartSvg
       :state="artist.info.is_favorite"
       :color="

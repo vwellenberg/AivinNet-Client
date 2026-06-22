@@ -100,8 +100,9 @@ const settings = useSettings()
         transition: transform 0.1s ease;
 
         svg {
-            width: 1.35rem;
-            height: 1.35rem;
+            // Larger glyph — the 1.35rem play/pause looked too small in the circle.
+            width: 1.65rem;
+            height: 1.65rem;
         }
 
         // Both play (currentColor) and pause (#F2F2F2) paths -> white on green.
