@@ -25,6 +25,8 @@ A Spotify-style music player frontend, branded as **AivinNet**. This is a fork o
 - **Playlist power tools** — drag-and-drop track reordering, pin playlists to the sidebar, and play/pin/delete from a right-click menu.
 - **MusicBrainz cover fetching** — grab a missing album cover with one click, or batch-fetch every missing cover from Settings with live progress.
 
+See [FEATURES.md](FEATURES.md) for the full list, including how each item compares to upstream.
+
 ### Brand palette
 
 | Token           | Hex       | Meaning        |
