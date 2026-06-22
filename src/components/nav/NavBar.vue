@@ -13,12 +13,6 @@
             </div>
             <NavTitles v-else-if="settings.is_default_layout && !isSmall" />
         </div>
-        <div class="sidenav_toggle" @click="toggleSidenav">
-            <div class="bar"></div>
-            <div class="bar"></div>
-        </div>
-        <NavSidenav @close="toggleSidenav" :class="{ active: sidenavActive }" />
-        <div class="dimmer noSelect" :class="{ active: sidenavActive }" @click="toggleSidenav"></div>
         <div v-if="settings.is_alt_layout || !settings.use_sidebar || !xl" class="right">
             <span v-if="isMobile && $route.name !== Routes.search" class="mobile-nav-title">
                 {{ mobileTitle }}
@@ -34,7 +28,7 @@
 
 <script setup lang="ts">
 import { Routes } from '@/router'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 import useAuth from '@/stores/auth'
@@ -46,7 +40,6 @@ import SearchInput from '../RightSideBar/SearchInput.vue'
 import Logo from '@/components/Logo.vue'
 import HomeSvg from '@/assets/icons/home.svg'
 import NavLinks from './NavLinks.vue'
-import NavSidenav from './NavSidenav.vue'
 import NavTitles from './NavTitles.vue'
 import Folder from './Titles/Folder.vue'
 import AvatarWithDropdown from './AvatarWithDropdown.vue'
@@ -71,12 +64,6 @@ const mobileTitle = computed(() => {
     }
     return map[route.name as string] || ''
 })
-
-const sidenavActive = ref(false)
-
-function toggleSidenav() {
-    sidenavActive.value = !sidenavActive.value
-}
 </script>
 
 <style lang="scss">
