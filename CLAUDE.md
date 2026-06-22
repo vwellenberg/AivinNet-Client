@@ -34,13 +34,16 @@ yarn build
 
 ## Branch-Workflow
 
-- **`dev`** — aktiver Entwicklungs-Branch; Features hier entwickeln
-- **`master`** — geschützt; Merge nur via PR, CI muss grün sein
-- Branch Protection: `Lint` + `Tests` + `Build` müssen bestehen
+Pro Aufgabe/Issue:
+- **Worktree + Feature-Branch** (`fix/...`, `feat/...`) von `origin/master` — NICHT direkt auf `master` committen.
+- **PR** öffnen → **Self-Review** (`/code-review`), Findings fixen, erneut prüfen.
+- **Autonom (squash) mergen, sobald das Review sauber ist** — kein manuelles Gate/keine Rückfrage.
+- Danach **Deploy von master** + verifizieren, Worktree entfernen.
+- Kein `dev`-Branch (Feature-Branches gehen direkt von `master` aus).
 
 ## CI
 
-GitHub Actions bei Push auf `dev`/`master` und bei PRs auf `master`:
+GitHub Actions laufen (Lint/Tests/Build), **gaten aber den Merge nicht** (kein Branch-Protection-Enforcement) — Qualitäts-Gate ist das Self-Review oben:
 - **Lint** — ESLint (`yarn lint:check`)
 - **Tests** — Vitest (`yarn test`)
 - **Build** — Vite Build (`yarn build`)
