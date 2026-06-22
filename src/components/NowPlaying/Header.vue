@@ -10,7 +10,8 @@
                     },
                 }"
                 title="Go to Album"
-                class="np-image"
+                class="np-image lauflicht-rim"
+                :style="{ '--np-accent': colors.theme1 || '#FF284E' }"
             >
                 <img v-motion-fade class="rounded" :src="paths.images.thumb.large + queue.currenttrack?.image" />
             </RouterLink>
@@ -45,6 +46,7 @@ import favoriteHandler from '@/helpers/favoriteHandler'
 import { Routes } from '@/router'
 import { isMobile, isSmallPhone } from '@/stores/content-width'
 import useQueueStore from '@/stores/queue'
+import useColorStore from '@/stores/colors'
 import { formatSeconds } from '@/utils'
 
 import Progress from '@/components/LeftSidebar/NP/Progress.vue'
@@ -54,6 +56,8 @@ import NowPlayingInfo from './NowPlayingInfo.vue'
 import PlayingFrom from './PlayingFrom.vue'
 
 const queue = useQueueStore()
+// Cover accent of the current track drives the Lauflicht rim (#32); brand-red fallback.
+const colors = useColorStore()
 
 function handleFav() {
     favoriteHandler(
@@ -155,7 +159,11 @@ function handleFav() {
 
     .np-image {
         position: relative;
+        display: block;
         margin-bottom: 1rem;
+        // Match the cover's corner radius so the Lauflicht rim (border-radius:
+        // inherit) traces the rounded image edge instead of a square.
+        border-radius: 1rem;
 
         img {
             width: 100%;
@@ -163,6 +171,7 @@ function handleFav() {
             max-width: 30rem;
             // aspect-ratio: 1;
             object-fit: cover;
+            display: block;
         }
     }
 
