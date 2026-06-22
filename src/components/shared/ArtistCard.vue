@@ -85,25 +85,11 @@ const showContextMenu = (e: MouseEvent) => {
         }
     }
 
-    $btnwidth: 3.25rem;
-
-    .play-btn {
-        opacity: 0;
-        position: absolute;
-        width: $btnwidth;
-        bottom: 3rem;
-        right: calc(50% - ($btnwidth / 2));
-        transform: translateY(0.5rem);
-        transition: opacity 0.2s ease, transform 0.2s ease;
-    }
+    // round cover → centered button (a corner button would sit outside the circle)
+    @include card-play-btn(center);
 
     &:hover {
         background-color: $gray5;
-
-        .play-btn {
-            opacity: 1;
-            transform: translateY(0);
-        }
 
         .overlay {
             opacity: 1;

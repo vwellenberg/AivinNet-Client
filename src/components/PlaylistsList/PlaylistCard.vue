@@ -51,29 +51,11 @@ defineProps<{
     position: relative;
   }
 
+  @include card-play-btn;
+
   &:hover {
     background-color: $gray4 !important;
     background-blend-mode: screen;
-  }
-
-  $btnwidth: 4rem;
-
-  .play-btn {
-    opacity: 0;
-    position: absolute;
-    width: 4rem;
-    bottom: $small;
-    left: calc(50% - ($btnwidth / 2));
-    transition: all 0.25s;
-  }
-
-  &:hover {
-    background-color: $gray4;
-
-    .play-btn {
-      opacity: 1;
-      transform: translateY(-0.75rem);
-    }
   }
 
   img {
