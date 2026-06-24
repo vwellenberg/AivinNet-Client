@@ -95,6 +95,9 @@ export default defineStore('search', () => {
                 if (aStarts !== bStarts) return aStarts ? -1 : 1
                 return a.name.localeCompare(b.name)
             })
+            // Tag with a type so shared card renderers (CardRow) can dispatch to
+            // PlaylistCard, mirroring how the API tags albums/artists.
+            .map(pl => ({ ...pl, type: 'playlist' }))
     }
 
     function fetchTopResults(query: string) {
@@ -222,6 +225,9 @@ export default defineStore('search', () => {
                 case 'artists':
                     fetchArtists(newQuery)
                     break
+                case 'playlists':
+                    filterPlaylists(newQuery)
+                    break
                 default:
                     fetchTracks(newQuery)
                     break
@@ -252,6 +258,9 @@ export default defineStore('search', () => {
                 case 'artists':
                     if (artists.query == current_query) break
                     fetchArtists(current_query)
+                    break
+                case 'playlists':
+                    filterPlaylists(current_query)
                     break
                 default:
                     fetchTracks(current_query)

@@ -38,7 +38,7 @@ const search = useSearchStore();
 
 const is_alt_layout = computed(() => settings.is_alt_layout || content_width.value < 1100);
 
-const pages = ["top", "tracks", "albums", "artists"];
+const pages = ["top", "tracks", "albums", "artists", "playlists"];
 
 const route = useRoute();
 
@@ -65,6 +65,17 @@ const component = computed(() => {
           page: "artist",
           items: search.artists.value,
           fetch_callback: search.loadArtists,
+        },
+      };
+
+    case pages[4]:
+      return {
+        component: CardGridPage,
+        props: {
+          // Playlists are matched client-side; the full list is already loaded,
+          // so there is no fetch_callback / pagination.
+          page: "playlist",
+          items: search.top_results.playlists,
         },
       };
 

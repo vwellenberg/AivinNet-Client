@@ -45,6 +45,15 @@ function getComponent() {
           fetch_callback: search.loadArtists,
         },
       };
+    case "playlists":
+      return {
+        component: CardPage,
+        props: {
+          page: "playlist",
+          items: search.top_results.playlists,
+          outside_route: true,
+        },
+      };
     default:
       return null;
   }
