@@ -97,6 +97,13 @@ export default defineStore('search', () => {
             })
     }
 
+    // Same matches as `top_results.playlists`, but tagged with a type so the
+    // shared CardRow grid (Playlists tab) dispatches them to PlaylistCard —
+    // mirroring how the search API tags albums/artists.
+    const playlistCards = computed(() =>
+        top_results.playlists.map(pl => ({ ...pl, type: 'playlist' }))
+    )
+
     function fetchTopResults(query: string) {
         if (!query) return
         let limit = 3
@@ -222,6 +229,9 @@ export default defineStore('search', () => {
                 case 'artists':
                     fetchArtists(newQuery)
                     break
+                case 'playlists':
+                    filterPlaylists(newQuery)
+                    break
                 default:
                     fetchTracks(newQuery)
                     break
@@ -253,6 +263,9 @@ export default defineStore('search', () => {
                     if (artists.query == current_query) break
                     fetchArtists(current_query)
                     break
+                case 'playlists':
+                    filterPlaylists(current_query)
+                    break
                 default:
                     fetchTracks(current_query)
                     break
@@ -270,6 +283,7 @@ export default defineStore('search', () => {
         albums,
         artists,
         playlists,
+        playlistCards,
         query,
         currentTab,
         loadTracks,
