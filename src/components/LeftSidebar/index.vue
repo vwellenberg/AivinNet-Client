@@ -168,9 +168,20 @@ onBeforeUnmount(teardown);
     -webkit-overflow-scrolling: touch;
     padding: 1rem 0;
 
+    // Scrollbar is hidden until the sidebar is hovered. The width/`thin` track
+    // stays constant so showing the thumb never reflows the list.
+    // Firefox + standard-properties path (Chrome 121+): transparent thumb by default.
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+
+    // Legacy WebKit path (older Chrome): transparent thumb by default.
     &::-webkit-scrollbar-thumb {
       background-color: transparent;
     }
+  }
+
+  &:hover .scrollable {
+    scrollbar-color: $gray2 transparent;
   }
 
   &:hover .scrollable::-webkit-scrollbar-thumb {
