@@ -4,7 +4,20 @@
       :title="'No results'"
       :description="'We can\'t find any results for your search.'"
       :icon="SearchSvg"
-      :flag="!search.top_results.top_result || !search.top_results.top_result.type"
+      :flag="
+        (!search.top_results.top_result || !search.top_results.top_result.type) &&
+        !search.top_results.playlists.length
+      "
+    />
+    <RecentItems
+      v-if="search.top_results.playlists.length"
+      :title="'Playlists'"
+      :items="
+        search.top_results.playlists.map((i) => ({
+          type: 'playlist',
+          item: i,
+        }))
+      "
     />
     <div v-if="search.top_results.top_result && search.top_results.top_result.type" class="header">
       <div class="top">
