@@ -95,10 +95,14 @@ export default defineStore('search', () => {
                 if (aStarts !== bStarts) return aStarts ? -1 : 1
                 return a.name.localeCompare(b.name)
             })
-            // Tag with a type so shared card renderers (CardRow) can dispatch to
-            // PlaylistCard, mirroring how the API tags albums/artists.
-            .map(pl => ({ ...pl, type: 'playlist' }))
     }
+
+    // Same matches as `top_results.playlists`, but tagged with a type so the
+    // shared CardRow grid (Playlists tab) dispatches them to PlaylistCard —
+    // mirroring how the search API tags albums/artists.
+    const playlistCards = computed(() =>
+        top_results.playlists.map(pl => ({ ...pl, type: 'playlist' }))
+    )
 
     function fetchTopResults(query: string) {
         if (!query) return
@@ -279,6 +283,7 @@ export default defineStore('search', () => {
         albums,
         artists,
         playlists,
+        playlistCards,
         query,
         currentTab,
         loadTracks,

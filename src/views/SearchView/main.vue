@@ -75,7 +75,7 @@ const component = computed(() => {
           // Playlists are matched client-side; the full list is already loaded,
           // so there is no fetch_callback / pagination.
           page: "playlist",
-          items: search.top_results.playlists,
+          items: search.playlistCards,
         },
       };
 

@@ -50,7 +50,7 @@ function getComponent() {
         component: CardPage,
         props: {
           page: "playlist",
-          items: search.top_results.playlists,
+          items: search.playlistCards,
           outside_route: true,
         },
       };
