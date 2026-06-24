@@ -69,14 +69,18 @@ export default defineStore('search', () => {
      * client against the already-loaded library. Matches are shown first in the
      * top results, ordered prefix-matches-first then alphabetically.
      */
-    async function filterPlaylists(query: string) {
+    async function filterPlaylists(searchQuery: string) {
         const pStore = usePlaylists()
 
         if (!pStore.playlists.length) {
             await pStore.fetchAll()
         }
 
-        const q = normalize(query.trim())
+        // A newer keystroke may have superseded us while the library loaded —
+        // don't overwrite fresh results with this stale query's matches.
+        if (searchQuery !== query.value) return
+
+        const q = normalize(searchQuery.trim())
 
         if (!q) {
             top_results.playlists = []

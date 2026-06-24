@@ -15,12 +15,6 @@ import PlaylistCard from "@/components/PlaylistsList/PlaylistCard.vue";
 const search = useSearchstore();
 </script>
 
-<style lang="scss">
-.right-search-top-albums-or-artists {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
-  padding: $small $smaller;
-  gap: $small 0;
-  margin-bottom: 2rem;
-}
-</style>
+<!-- Layout comes from the shared global `.right-search-top-albums-or-artists`
+     rule defined in TopAlbums.vue, mirroring TopArtists.vue. -->
+
