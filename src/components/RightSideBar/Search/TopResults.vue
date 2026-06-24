@@ -5,9 +5,14 @@
       :description="'We can\'t find any results for your search.'"
       :icon="SearchSvg"
       :flag="
-        !search.top_results.top_result || !search.top_results.top_result.type
+        (!search.top_results.top_result || !search.top_results.top_result.type) &&
+        !search.top_results.playlists.length
       "
     />
+    <div v-if="search.top_results.playlists.length">
+      <h3 class="h3">Playlists</h3>
+      <TopPlaylists />
+    </div>
     <div
       v-if="search.top_results.top_result && search.top_results.top_result.type"
     >
@@ -33,6 +38,7 @@
 import TopItem from "./Top/TopItem.vue";
 import TopAlbums from "./Top/TopAlbums.vue";
 import TopTracks from "./Top/TopTracks.vue";
+import TopPlaylists from "./Top/TopPlaylists.vue";
 
 import useSearchStore from "@/stores/search";
 import TopArtists from "./Top/TopArtists.vue";

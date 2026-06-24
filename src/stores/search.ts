@@ -10,9 +10,18 @@ import { searchAlbums, searchArtists, searchTopResults, searchTracks } from '@/r
 import useTabs from './tabs'
 import useLoader from './loader'
 import useSettings from './settings'
+import usePlaylists from './pages/playlists'
 import { maxAbumCards } from './content-width'
 
 import { Album, Artist, Playlist, Track } from '../interfaces'
+
+/** Lowercase + strip accents so "Tropico" matches "trópico" and vice-versa. */
+function normalize(text: string) {
+    return text
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .toLowerCase()
+}
 
 export default defineStore('search', () => {
     const query = ref('')
@@ -28,6 +37,7 @@ export default defineStore('search', () => {
         tracks: <Track[]>[],
         albums: <Album[]>[],
         artists: <Artist[]>[],
+        playlists: <Playlist[]>[],
     })
 
     const tracks = reactive({
@@ -54,6 +64,35 @@ export default defineStore('search', () => {
         more: false,
     })
 
+    /**
+     * The backend search does not include playlists, so we match them on the
+     * client against the already-loaded library. Matches are shown first in the
+     * top results, ordered prefix-matches-first then alphabetically.
+     */
+    async function filterPlaylists(query: string) {
+        const pStore = usePlaylists()
+
+        if (!pStore.playlists.length) {
+            await pStore.fetchAll()
+        }
+
+        const q = normalize(query.trim())
+
+        if (!q) {
+            top_results.playlists = []
+            return
+        }
+
+        top_results.playlists = pStore.playlists
+            .filter(pl => normalize(pl.name).includes(q))
+            .sort((a, b) => {
+                const aStarts = normalize(a.name).startsWith(q)
+                const bStarts = normalize(b.name).startsWith(q)
+                if (aStarts !== bStarts) return aStarts ? -1 : 1
+                return a.name.localeCompare(b.name)
+            })
+    }
+
     function fetchTopResults(query: string) {
         if (!query) return
         let limit = 3
@@ -61,6 +100,9 @@ export default defineStore('search', () => {
         if (route.value.name == Routes.search) {
             limit = maxAbumCards.value
         }
+
+        // Matching playlists come from the local library, not the search API.
+        filterPlaylists(query)
 
         searchTopResults(query, limit).then(res => {
             top_results.top_result = res.top_result
