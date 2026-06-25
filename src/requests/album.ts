@@ -125,4 +125,32 @@ export async function getSimilarAlbums(artisthash: string, limit: number = 5): P
     return data
 }
 
+/**
+ * Toggle pin/unpin for an album on the server.
+ * @returns the new pinned state, or null if the request failed.
+ */
+export async function pinUnpinAlbum(albumhash: string): Promise<boolean | null> {
+    const { data, status } = await useAxios({
+        url: albumUrl + `/${albumhash}/pin_unpin`,
+    })
+
+    if (status === 200) {
+        return data.pinned as boolean
+    }
+
+    return null
+}
+
+/**
+ * Fetch the current user's pinned albums (cards for the library sidebar).
+ */
+export async function getPinnedAlbums(): Promise<Album[]> {
+    const { data } = await useAxios({
+        url: albumUrl + '/pinned',
+        method: 'GET',
+    })
+
+    return data?.albums ?? []
+}
+
 export { getAlbumData as getAlbum, getAlbumArtists, getAlbumBio }
