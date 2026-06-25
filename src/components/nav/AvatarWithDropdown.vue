@@ -1,18 +1,41 @@
 <template>
-    <div class="avatar">
-        <div class="img circular">
+    <div ref="avatarRef" class="avatar">
+        <div class="img circular" @click="toggle">
             <Avatar :name="auth.user.username || ''" :size="36" />
         </div>
-        <ProfileDropdown />
+        <Transition name="profiledrop-fade">
+            <ProfileDropdown v-if="isOpen" @close="close" />
+        </Transition>
     </div>
 </template>
 
 <script setup lang="ts">
+import { onClickOutside } from '@vueuse/core'
+import { ref } from 'vue'
+
 import useAuth from '@/stores/auth';
 const auth = useAuth()
 
 import Avatar from '../shared/Avatar.vue';
 import ProfileDropdown from './ProfileDropdown.vue';
+
+const isOpen = ref(false)
+const avatarRef = ref<HTMLElement>()
+
+function toggle() {
+    isOpen.value = !isOpen.value
+}
+
+function close() {
+    isOpen.value = false
+}
+
+// Tap/click anywhere outside the avatar closes the dropdown.
+// (Pure CSS :hover left the menu stuck open on touch devices, where it
+// overlapped the settings modal and blocked it from closing.)
+onClickOutside(avatarRef, () => {
+    isOpen.value = false
+})
 </script>
 
 <style lang="scss">
@@ -48,19 +71,15 @@ import ProfileDropdown from './ProfileDropdown.vue';
         }
     }
 
-    .profiledrop {
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(0.5rem);
-        transition: opacity 0.2s ease-out, visibility 0.2s ease-out, transform 0.2s ease-out;
+    .profiledrop-fade-enter-active,
+    .profiledrop-fade-leave-active {
+        transition: opacity 0.2s ease-out, transform 0.2s ease-out;
     }
 
-    &:hover {
-        .profiledrop {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
+    .profiledrop-fade-enter-from,
+    .profiledrop-fade-leave-to {
+        opacity: 0;
+        transform: translateY(0.5rem);
     }
 
     @include allPhones {
