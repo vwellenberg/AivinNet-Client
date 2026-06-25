@@ -86,12 +86,13 @@ watch(
     { immediate: true }
 );
 
-// Globally enable/disable the Now Playing Lauflicht glow. Defaults to on, so
-// only an explicit `false` hides it (an absent persisted value stays enabled).
+// Drive the Now Playing Lauflicht intensity from the setting. `off` hides it,
+// `subtle` dims it (body.lauflicht-subtle), `normal` is full strength (no class).
 watch(
-    () => settings.use_np_lauflicht,
-    (on) => {
-        document.body.classList.toggle("lauflicht-off", on === false);
+    () => settings.np_lauflicht_level,
+    (level) => {
+        document.body.classList.toggle("lauflicht-off", level === "off");
+        document.body.classList.toggle("lauflicht-subtle", level === "subtle");
     },
     { immediate: true }
 );
