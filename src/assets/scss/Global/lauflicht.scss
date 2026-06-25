@@ -11,8 +11,11 @@
 // time; never put these in _mixins.scss (Vite prepends that into every
 // component style and would duplicate them).
 //
-// Globally toggleable: `body.lauflicht-off` hides it (App.vue watches the
-// `use_np_lauflicht` setting). Respects `prefers-reduced-motion`.
+// Adjustable intensity (App.vue sets these from the `np_lauflicht_level`
+// setting): `body.lauflicht-off` hides it entirely, `body.lauflicht-subtle`
+// dials it down via the shared `--lauflicht-strength` multiplier (comet +
+// glimmer both fade together). No class = full "normal" strength.
+// Respects `prefers-reduced-motion`.
 
 @property --np-angle {
     syntax: "<angle>";
@@ -29,10 +32,10 @@
 @keyframes np-comet-breathe {
     0%,
     100% {
-        opacity: 0.26;
+        opacity: calc(0.26 * var(--lauflicht-strength, 1));
     }
     50% {
-        opacity: 0.55;
+        opacity: calc(0.55 * var(--lauflicht-strength, 1));
     }
 }
 
@@ -63,6 +66,7 @@
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         pointer-events: none;
+        opacity: var(--lauflicht-strength, 1);
         animation: np-comet-spin 7s linear infinite;
     }
 
@@ -75,7 +79,7 @@
         border-radius: inherit;
         background: $brand-green;
         filter: blur(24px);
-        opacity: 0.34;
+        opacity: calc(0.34 * var(--lauflicht-strength, 1));
         pointer-events: none;
         animation: np-comet-breathe 5.5s ease-in-out infinite;
     }
@@ -89,8 +93,15 @@ body.lauflicht-off .lauflicht-rim {
     }
 }
 
-// The Lauflicht is an explicit opt-in brand accent (`use_np_lauflicht`, default
-// on), so the user's choice wins over the OS hint: it keeps running under
+// Subtler level: one multiplier dims both the comet (::before opacity) and the
+// breathing glimmer (::after opacity / keyframes) at once. App.vue toggles
+// body.lauflicht-subtle from the setting.
+body.lauflicht-subtle .lauflicht-rim {
+    --lauflicht-strength: 0.5;
+}
+
+// The Lauflicht is an explicit opt-in brand accent (`np_lauflicht_level`,
+// default on), so the user's choice wins over the OS hint: it keeps running under
 // reduced-motion — just slower and calmer. Without this the comet froze outright
 // on phones that enable reduced-motion via battery saver / "remove animations",
 // which reads as the effect being broken (mobile Lauflicht fix).

@@ -15,10 +15,16 @@ const disable_np_img: Setting = {
 
 const npLauflicht: Setting = {
     title: 'Now Playing glow',
-    desc: 'Animated brand light around the Now Playing artwork (green glimmer + red running light)',
-    type: SettingType.binary,
-    state: () => settings().use_np_lauflicht,
-    action: () => settings().toggleNpLauflicht(),
+    desc: 'Animated brand light around the Now Playing artwork (green glimmer + running comet). Pick how intense it is.',
+    type: SettingType.select,
+    options: [
+        { title: 'Off', value: 'off' },
+        { title: 'Subtle', value: 'subtle' },
+        { title: 'Normal', value: 'normal' },
+    ],
+    state: () => settings().np_lauflicht_level,
+    action: (value: 'off' | 'subtle' | 'normal') => settings().setNpLauflichtLevel(value),
+    defaultAction: () => settings().cycleNpLauflichtLevel(),
 }
 
 const showNowPlayingOnTabTitle: Setting = {
