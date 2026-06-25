@@ -72,6 +72,7 @@ export interface Album {
     help_text?: string
     time?: string
     is_favorite: boolean
+    is_pinned?: boolean
     genres: Genre[]
     versions: string[]
     trend?: {

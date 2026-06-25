@@ -5,6 +5,29 @@
       <div class="sidebar-library">
         <div class="sidebar-library-title">Bibliothek</div>
         <RouterLink
+          v-for="al in pinnedAlbums.sortedAlbums"
+          :key="al.albumhash"
+          :to="{ name: Routes.album, params: { albumhash: al.albumhash } }"
+          class="sidebar-playlist-item"
+          :class="{ active: $route.params.albumhash == al.albumhash }"
+          @contextmenu.prevent="showAlbumContextMenu($event, ctxFlag, al)"
+        >
+          <div class="sidebar-pl-img rounded-sm">
+            <img :src="thumbBase + al.image" />
+            <button
+              class="pl-play-overlay"
+              :class="{ playing: isCurrentAlbum(al.albumhash) }"
+              :title="isPlayingAlbum(al.albumhash) ? 'Pause' : 'Play'"
+              @click.prevent.stop="togglePlayAlbum(al)"
+            >
+              <PauseSvg v-if="isPlayingAlbum(al.albumhash)" />
+              <PlaySvg v-else />
+            </button>
+          </div>
+          <span class="ellip">{{ al.title }}</span>
+          <PushPinSvg class="pl-pin" title="Angepinnt" />
+        </RouterLink>
+        <RouterLink
           v-for="pl in playlists.sortedPlaylists"
           :key="pl.id"
           :to="{ name: Routes.playlist, params: { pid: pl.id } }"
@@ -48,8 +71,10 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import useSettingsStore from "@/stores/settings";
 import usePStore from "@/stores/pages/playlists";
+import usePinnedAlbums from "@/stores/pages/pinnedAlbums";
 import { Routes } from '@/router'
 import { paths } from '@/config'
+import { Album } from "@/interfaces";
 
 import Navigation from "@/components/LeftSidebar/NavButtons.vue";
 import SongCard from "./NP/SongCard.vue";
@@ -62,8 +87,8 @@ import pkg from "../../../package.json";
 import useQueue from "@/stores/queue";
 import useTracklist from "@/stores/queue/tracklist";
 import { FromOptions } from "@/enums";
-import { playFromPlaylist } from "@/helpers/usePlayFrom";
-import { showPlaylistContextMenu } from "@/helpers/contextMenuHandler";
+import { playFromPlaylist, playFromAlbumCard } from "@/helpers/usePlayFrom";
+import { showPlaylistContextMenu, showAlbumContextMenu } from "@/helpers/contextMenuHandler";
 
 const ctxFlag = ref(false);
 
@@ -71,11 +96,30 @@ const version = pkg.version;
 
 const settings = useSettingsStore();
 const playlists = usePStore();
+const pinnedAlbums = usePinnedAlbums();
 const queue = useQueue();
 const tracklist = useTracklist();
 const imgBase = paths.images.playlist;
 // First album cover of the playlist, used when it has no dedicated image.
 const thumbBase = paths.images.thumb.small;
+
+// Is the given album the one currently loaded in the player?
+function isCurrentAlbum(albumhash: string) {
+  return (
+    (tracklist.from as any)?.type === FromOptions.album &&
+    (tracklist.from as any)?.albumhash === albumhash
+  );
+}
+function isPlayingAlbum(albumhash: string) {
+  return isCurrentAlbum(albumhash) && queue.playing;
+}
+function togglePlayAlbum(al: Album) {
+  if (isCurrentAlbum(al.albumhash)) {
+    queue.playPause();
+  } else {
+    playFromAlbumCard(al.albumhash, al.title);
+  }
+}
 
 // Is the given playlist the one currently loaded in the player?
 function isCurrent(plId: number) {
@@ -141,6 +185,9 @@ function startResize(e: MouseEvent) {
 onMounted(() => {
   if (!playlists.playlists.length) {
     playlists.fetchAll();
+  }
+  if (!pinnedAlbums.albums.length) {
+    pinnedAlbums.fetchAll();
   }
 });
 

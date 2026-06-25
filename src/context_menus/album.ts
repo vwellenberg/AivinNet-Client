@@ -7,8 +7,10 @@ import useTracklist from '@/stores/queue/tracklist'
 import { getAlbumTracks } from '@/requests/album'
 import { addOrRemoveItemFromCollection } from '@/requests/collections'
 import { addAlbumToPlaylist } from '@/requests/playlists'
+import { toggleAlbumPin } from '@/helpers/pinAlbum'
+import usePinnedAlbums from '@/stores/pages/pinnedAlbums'
 
-import { AddToQueueIcon, DeleteIcon, DownloadIcon, PlayNextIcon, PlusIcon } from '@/icons'
+import { AddToQueueIcon, DeleteIcon, DownloadIcon, PlayNextIcon, PlusIcon, PushPinIcon } from '@/icons'
 import { getBaseUrl, paths } from '@/config'
 import { Album, Collection, Option, Playlist, Track } from '@/interfaces'
 import { get_find_on_social, getAddToCollectionOptions, getAddToPlaylistOptions } from './utils'
@@ -110,11 +112,19 @@ export default async (album?: Album) => {
         icon: DownloadIcon,
     }
 
+    const is_pinned = usePinnedAlbums().isPinned(album.albumhash) || !!album.is_pinned
+    const pin: Option = {
+        label: is_pinned ? 'Unpin from library' : 'Pin to library',
+        icon: PushPinIcon,
+        action: () => toggleAlbumPin(album as Album),
+    }
+
     return [
         play_next,
         add_to_queue,
         add_to_playlist,
         ...[router.currentRoute.value.name === Routes.Page ? remove_from_page : add_to_page],
+        pin,
         download_album,
         get_find_on_social('album', '', album),
     ]
