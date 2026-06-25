@@ -93,7 +93,11 @@ function deletePlaylist() {
 <style lang="scss">
 .modal {
     position: fixed;
-    z-index: 21;
+    // Above the bottom bar (.b-bar, z-index 50) so a blocking modal — and its
+    // backdrop — cover it. Otherwise the bottom bar overlapped the modal on
+    // mobile and hid the last rows of the settings list. Only the bottom bar
+    // sits in the 21..60 range, so this re-orders nothing else.
+    z-index: 60;
     height: 100vh;
     width: 100vw;
     display: grid;
