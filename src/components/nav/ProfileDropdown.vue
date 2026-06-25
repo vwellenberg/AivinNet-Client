@@ -4,16 +4,16 @@
             <div class="username ellip2">Hi {{ auth.user.firstname || auth.user.username }}</div>
         </div>
         <div class="separator"></div>
-        <div class="item scan" @click="triggerScan">
+        <div class="item scan" @click="onScan">
             <div class="label">Quick scan</div>
             <ReloadSvg />
         </div>
-        <div class="item" @click="modal.showSettingsModal">
+        <div class="item" @click="onSettings">
             <div class="label">Settings</div>
             <SettingsSvg />
         </div>
         <div class="separator"></div>
-        <div class="item critical logout" @click="auth.logout">
+        <div class="item critical logout" @click="onLogout">
             <div class="label">Log out</div>
             <LogoutSvg />
         </div>
@@ -31,6 +31,28 @@ import { triggerScan } from '@/requests/settings/rootdirs'
 
 const auth = useAuth()
 const modal = useModal()
+
+const emit = defineEmits<{
+    (e: 'close'): void
+}>()
+
+// Each action closes the dropdown, so it never lingers on top of the
+// opened modal (z-index 9999 over the modal's 21) — the cause of the
+// settings modal being unclosable on touch devices.
+function onScan() {
+    triggerScan()
+    emit('close')
+}
+
+function onSettings() {
+    modal.showSettingsModal()
+    emit('close')
+}
+
+function onLogout() {
+    emit('close')
+    auth.logout()
+}
 </script>
 
 <style lang="scss">
