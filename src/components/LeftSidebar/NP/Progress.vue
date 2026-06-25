@@ -78,6 +78,20 @@ const hover = reactive({
     tooltipLeft: 0,
 })
 
+// Pointer X (px) -> clamped 0..1 ratio across the input's own width. Shared by
+// the hover preview AND the click-to-seek so the tooltip, the fill and the
+// actual seek target are always the same position. (A native range maps a
+// click over a track inset by half the thumb, which would otherwise drift a
+// few seconds from the tooltip off-centre — #66 wants tooltip == seek time.)
+const ratioFromClientX = (clientX: number): number | null => {
+    const el = input.value
+    if (!el) return null
+    const rect = el.getBoundingClientRect()
+    if (rect.width === 0) return null
+    const ratio = (clientX - rect.left) / rect.width
+    return ratio < 0 ? 0 : ratio > 1 ? 1 : ratio
+}
+
 const onPointerMove = (e: PointerEvent) => {
     // Desktop pointers only; never show on touch (#66 acceptance: no stray
     // hover behaviour on mobile). Also skip when there is no track loaded.
@@ -88,14 +102,14 @@ const onPointerMove = (e: PointerEvent) => {
 
     const el = input.value
     const wrapEl = wrap.value
-    if (!el || !wrapEl) return
+    const ratio = ratioFromClientX(e.clientX)
+    if (!el || !wrapEl || ratio === null) {
+        hover.active = false
+        return
+    }
 
     const inRect = el.getBoundingClientRect()
-    if (inRect.width === 0) return
     const wrapRect = wrapEl.getBoundingClientRect()
-
-    let ratio = (e.clientX - inRect.left) / inRect.width
-    ratio = ratio < 0 ? 0 : ratio > 1 ? 1 : ratio
 
     hover.ratio = ratio
     hover.barLeft = inRect.left - wrapRect.left
@@ -118,11 +132,22 @@ const seek = (e: Event) => {
         return
     }
 
-    const elem = e.target as HTMLInputElement
-    const value = elem.value
+    // A genuine mouse click seeks to the exact cursor position so the landing
+    // spot matches the tooltip and the preview fill (full-width mapping).
+    // Keyboard (arrow/Home/End) and drag fire `change` and fall back to the
+    // native input value, keeping the range fully accessible. `detail > 0`
+    // tells a real click apart from a keyboard-synthesised one.
+    let value: number
+    if (e.type === 'click' && (e as MouseEvent).detail > 0) {
+        const ratio = ratioFromClientX((e as MouseEvent).clientX)
+        if (ratio === null) return
+        value = ratio * (time.full || 0)
+    } else {
+        value = Number((e.target as HTMLInputElement).value)
+    }
 
     prevHash = q.currenttrackhash
-    q.seek(value as unknown as number)
+    q.seek(value)
 }
 
 const currentPercent = computed(() => (time.current / (time.full || 1)) * 100)
