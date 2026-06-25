@@ -145,6 +145,12 @@ function deletePlaylist() {
         padding: 0;
         overflow: hidden;
         // min-height: 39rem;
+
+        // Flex column so the settings panes get a height bounded by the modal
+        // box itself (capped by max-height) and scroll internally, instead of
+        // relying on fragile `100vh - Xrem` math that overshot the viewport.
+        display: flex;
+        flex-direction: column;
     }
 
     .m-content.authlogin {

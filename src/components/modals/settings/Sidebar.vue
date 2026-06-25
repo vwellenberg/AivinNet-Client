@@ -66,11 +66,9 @@ defineEmits<{
     overflow: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    max-height: calc(100vh - 4rem);
-
-    @include allPhones {
-        max-height: calc(100vh - 2rem);
-    }
+    // Height comes from the modal's flex/grid box; min-height:0 lets this
+    // pane shrink below its content so it scrolls within the modal.
+    min-height: 0;
 
     @include largePhones {
         padding: 1rem;

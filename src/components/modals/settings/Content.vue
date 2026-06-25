@@ -18,14 +18,13 @@ defineProps<{
     width: 100%;
     padding: 0 1rem;
     height: 100%;
-    max-height: calc(100vh - 6.85rem);
+    // Fills the `1fr` row of .content; min-height:0 lets it scroll within the
+    // modal box instead of overflowing past the viewport (the old
+    // `100vh - Xrem` max-height pushed its bottom off-screen and got clipped).
+    min-height: 0;
     overflow: auto;
     overflow-x: hidden;
     scrollbar-gutter: stable;
     -webkit-overflow-scrolling: touch;
-
-    @include allPhones {
-        max-height: calc(100vh - 4.85rem);
-    }
 }
 </style>

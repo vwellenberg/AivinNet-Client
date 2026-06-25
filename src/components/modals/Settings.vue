@@ -83,10 +83,16 @@ $modalheight: 38rem;
 .settingsmodal {
     display: grid;
     grid-template-columns: 15rem 1fr;
+    // Fill the modal's height (it is a flex column, see .m-content.settings)
+    // and let the single row collapse so the inner panes can scroll instead
+    // of overflowing past the modal / viewport.
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
 
     .content {
         display: grid;
         grid-template-rows: 4rem 1fr;
+        min-height: 0;
 
         .head {
             border-bottom: solid 1px $gray4;
