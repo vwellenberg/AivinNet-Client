@@ -1,5 +1,5 @@
 <template>
-    <div class="avatar" ref="avatarRef">
+    <div ref="avatarRef" class="avatar">
         <div class="img circular" @click="toggle">
             <Avatar :name="auth.user.username || ''" :size="36" />
         </div>
