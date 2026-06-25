@@ -93,7 +93,11 @@ function deletePlaylist() {
 <style lang="scss">
 .modal {
     position: fixed;
-    z-index: 21;
+    // Above the bottom bar (.b-bar, z-index 50) so a blocking modal — and its
+    // backdrop — cover it. Otherwise the bottom bar overlapped the modal on
+    // mobile and hid the last rows of the settings list. Only the bottom bar
+    // sits in the 21..60 range, so this re-orders nothing else.
+    z-index: 60;
     height: 100vh;
     width: 100vw;
     display: grid;
@@ -145,6 +149,12 @@ function deletePlaylist() {
         padding: 0;
         overflow: hidden;
         // min-height: 39rem;
+
+        // Flex column so the settings panes get a height bounded by the modal
+        // box itself (capped by max-height) and scroll internally, instead of
+        // relying on fragile `100vh - Xrem` math that overshot the viewport.
+        display: flex;
+        flex-direction: column;
     }
 
     .m-content.authlogin {
