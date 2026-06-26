@@ -91,6 +91,8 @@ Definiert in `src/assets/scss/_variables.scss`. `$red` zeigt auf `$brand-red`.
 
 ## Server deployen
 
+### Frontend (dieser Client)
+
 ```bash
 # Server 192.168.0.4. Lokaler Ordner heisst noch SubspaceRadio-Client,
 # auf Server + GitHub aber AivinNet-Client; systemd-Service heisst aivinnet.
@@ -102,6 +104,35 @@ ssh -i /c/Users/vwell/.ssh/id_ed25519 vwellenberg@192.168.0.4 \
 ```
 
 **Wichtig:** Server hat IPv6-Problem — git/yarn brauchen `NODE_OPTIONS='--dns-result-order=ipv4first'`. Nach jedem sichtbaren Deploy `package.json` version bumpen (wird unten in der Sidebar angezeigt).
+
+### Backend ([SubspaceRadio](https://github.com/vwellenberg/AivinNet))
+
+Liegt auf dem Server unter `~/AivinNet` und läuft via **denselben** systemd-Service `aivinnet`
+(`ExecStart=/home/vwellenberg/.local/bin/uv run swingmusic --host 0.0.0.0`, Port 1970 — serviert
+auch das gebaute Frontend aus `~/.config/swingmusic/client`).
+
+```bash
+ssh -i /c/Users/vwell/.ssh/id_ed25519 vwellenberg@192.168.0.4 \
+  "cd ~/AivinNet && NODE_OPTIONS='--dns-result-order=ipv4first' git pull -q && \
+   ~/.local/bin/uv sync && sudo -n systemctl restart aivinnet && \
+   sleep 4 && systemctl is-active aivinnet"
+```
+
+**Gotchas:**
+- **`uv` ist NICHT im PATH der nicht-interaktiven SSH-Shell** → vollen Pfad `~/.local/bin/uv` nutzen
+  (oder `export PATH="$HOME/.local/bin:$PATH"`), sonst „uv: command not found".
+- Health-Check: `journalctl -u aivinnet --since '1 min ago'` zeigt beim erfolgreichen Start
+  „Loading tracks/albums/artists... Done!"; `curl -s -o /dev/null -w '%{http_code}' http://localhost:1970/` → 200.
+- Backend ist ebenfalls ein **Fork** (origin `vwellenberg/AivinNet`, upstream `swingmx/swingmusic`) →
+  `gh pr create` immer mit `--repo vwellenberg/AivinNet`. Issues liegen aber in **diesem** Client-Repo →
+  Backend-PRs referenzieren mit „For vwellenberg/AivinNet-Client#N" (kein „Closes").
+
+**JWT ohne Passwort minten** (für Endpoint-/Headless-Checks der eingeloggten App) — in `~/AivinNet`:
+```bash
+~/.local/bin/uv run python -c "from swingmusic.app_builder import app, config_jwt; from swingmusic.db.userdata import UserTable; from flask_jwt_extended import create_access_token; config_jwt(app); app.app_context().push(); print(create_access_token(identity=list(UserTable.get_all())[0].todict()))"
+```
+Dann als Cookie verwenden: `curl ... -H "Cookie: access_token_cookie=$TOKEN"`, bzw. in Playwright (`~/uitest`)
+gegen `http://localhost:1970/#/<route>` (Hash-Routing).
 
 ## Learnings / Gotchas (für alle Agents)
 
