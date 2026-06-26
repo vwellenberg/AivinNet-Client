@@ -11,6 +11,7 @@
                 :track="song"
                 :index="total ? total - index : index + 1"
                 :source="source"
+                :show_plays="show_plays"
                 @playThis="playHandler(index)"
             />
         </div>
@@ -32,6 +33,7 @@ defineProps<{
     playHandler: (index: number) => void
     source: dropSources
     total?: number
+    show_plays?: boolean
 }>()
 </script>
 

@@ -142,6 +142,7 @@ function getTopTracksComponent(): ScrollerItem {
             route: `/artists/${store.info.artisthash}/tracks?artist=${store.info.name}`,
             playHandler: handlePlay,
             source: dropSources.artist,
+            show_plays: true,
         },
     }
 }

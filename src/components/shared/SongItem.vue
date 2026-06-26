@@ -1,7 +1,7 @@
 <template>
     <div
         class="songlist-item rounded-sm"
-        :class="[{ current: isCurrent() }, { contexton: context_menu_showing }, dragOverClass]"
+        :class="[{ current: isCurrent() }, { contexton: context_menu_showing }, { 'with-plays': showPlaysColumn }, dragOverClass]"
         :draggable="droppable && source === dropSources.playlist"
         @dragstart="onDragStart"
         @dragover.prevent="onDragOver"
@@ -31,6 +31,7 @@
             :albumhash="track.albumhash || ''"
             :hide_album="hide_album || false"
         />
+        <TrackPlays v-if="showPlaysColumn" :playcount="track.playcount" />
         <TrackDuration
             :duration="track.duration || 0"
             :help_text="track.help_text"
@@ -52,13 +53,14 @@ import { dropSources, favType } from '@/enums'
 import { showTrackContextMenu as showContext } from '@/helpers/contextMenuHandler'
 import favoriteHandler from '@/helpers/favoriteHandler'
 import { Track } from '@/interfaces'
-import { isSmall } from '@/stores/content-width'
+import { isMedium, isSmall } from '@/stores/content-width'
 import useQueueStore from '@/stores/queue'
 import { showDragStart } from '@/utils/songItemMethods'
 
 import TrackAlbum from './SongItem/TrackAlbum.vue'
 import TrackDuration from './SongItem/TrackDuration.vue'
 import TrackIndex from './SongItem/TrackIndex.vue'
+import TrackPlays from './SongItem/TrackPlays.vue'
 import TrackTitle from './SongItem/TrackTitle.vue'
 import useSettings from '@/stores/settings'
 
@@ -75,7 +77,13 @@ const props = defineProps<{
     droppable?: boolean
     is_last?: boolean
     source: dropSources
+    show_plays?: boolean
 }>()
+
+// Plays column is opt-in (artist "Popular"/Top Tracks) and hidden on narrow
+// layouts. Gating both the class and the child on the same condition keeps the
+// grid column count in sync with the rendered children.
+const showPlaysColumn = computed(() => Boolean(props.show_plays) && !isSmall.value && !isMedium.value)
 
 const is_fav = ref(props.track.is_favorite || false)
 
@@ -190,6 +198,14 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     padding-left: $small;
     position: relative;
     transition: background-color 0.2s ease-out;
+
+    // Plays column (issue #68): inserted between album and duration. Only set
+    // on wide layouts (the .with-plays class is toggled off on isSmall/isMedium
+    // together with the TrackPlays child), so it never clashes with the
+    // responsive grids in app-grid.scss.
+    &.with-plays {
+        grid-template-columns: 1.75rem 2.5fr 1.5fr 5rem 7.5rem;
+    }
 
     &:hover {
         background-color: $gray;
