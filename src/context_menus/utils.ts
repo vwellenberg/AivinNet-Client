@@ -5,6 +5,7 @@ import { SearchIcon } from '@/icons'
 import { Album, Collection, Option, Playlist } from '@/interfaces'
 import { getAllCollections } from '@/requests/collections'
 import { getAllPlaylists } from '@/requests/playlists'
+import { getRecentPlaylistIds } from '@/utils/recentPlaylists'
 
 export const separator: Option = {
     type: 'separator',
@@ -46,16 +47,27 @@ export async function getAddToPlaylistOptions(addToPlaylist: action, new_playlis
         return items
     }
 
-    let playlists = <Option[]>[]
-
-    playlists = p.map(playlist => {
-        return <Option>{
-            label: playlist.name,
-            action: () => {
-                addToPlaylist(playlist)
-            },
-        }
+    const toOption = (playlist: Playlist): Option => ({
+        label: playlist.name,
+        action: () => {
+            addToPlaylist(playlist)
+        },
     })
+
+    const playlists = p.map(toOption)
+
+    // Pin the up-to-3 most-recently-used playlists above the full list, set off
+    // by their own separator. They stay in the full list below too, so nothing
+    // silently disappears from the alphabetical listing.
+    const recents = getRecentPlaylistIds()
+        .map(id => p.find(playlist => playlist.id === id))
+        .filter((playlist): playlist is Playlist => playlist !== undefined)
+        .slice(0, 3)
+        .map(toOption)
+
+    if (recents.length > 0) {
+        return [...items, separator, ...recents, separator, ...playlists]
+    }
 
     return [...items, separator, ...playlists]
 }
