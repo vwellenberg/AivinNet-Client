@@ -12,10 +12,10 @@
 // component style and would duplicate them).
 //
 // Adjustable intensity (App.vue sets these from the `np_lauflicht_level`
-// setting): `body.lauflicht-off` hides it entirely, `body.lauflicht-subtle`
-// dials it down via the shared `--lauflicht-strength` multiplier (comet +
-// glimmer both fade together). No class = full "normal" strength.
-// Respects `prefers-reduced-motion`.
+// setting): `body.lauflicht-off` hides it entirely. `body.lauflicht-subtle`
+// leaves the soft glimmer (::after) untouched and only makes the travelling
+// comet (::before) discreeter — lighter via `--lauflicht-strength` and slower.
+// No class = full "normal" strength. Respects `prefers-reduced-motion`.
 
 @property --np-angle {
     syntax: "<angle>";
@@ -32,10 +32,10 @@
 @keyframes np-comet-breathe {
     0%,
     100% {
-        opacity: calc(0.26 * var(--lauflicht-strength, 1));
+        opacity: 0.26;
     }
     50% {
-        opacity: calc(0.55 * var(--lauflicht-strength, 1));
+        opacity: 0.55;
     }
 }
 
@@ -79,7 +79,7 @@
         border-radius: inherit;
         background: $brand-green;
         filter: blur(24px);
-        opacity: calc(0.34 * var(--lauflicht-strength, 1));
+        opacity: 0.34;
         pointer-events: none;
         animation: np-comet-breathe 5.5s ease-in-out infinite;
     }
@@ -93,11 +93,17 @@ body.lauflicht-off .lauflicht-rim {
     }
 }
 
-// Subtler level: one multiplier dims both the comet (::before opacity) and the
-// breathing glimmer (::after opacity / keyframes) at once. App.vue toggles
-// body.lauflicht-subtle from the setting.
+// Subtler level (App.vue toggles body.lauflicht-subtle from the setting):
+// only the travelling comet is toned down — the soft glimmer (::after) stays
+// exactly as in "normal". `--lauflicht-strength` lightens the comet's opacity
+// and a longer spin makes it drift by more slowly, so it reads as a calm accent
+// rather than an attention-grabbing chase.
 body.lauflicht-subtle .lauflicht-rim {
-    --lauflicht-strength: 0.5;
+    --lauflicht-strength: 0.35;
+
+    &::before {
+        animation-duration: 12s;
+    }
 }
 
 // The Lauflicht is an explicit opt-in brand accent (`np_lauflicht_level`,
