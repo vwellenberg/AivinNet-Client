@@ -1,7 +1,7 @@
 import { paths } from '@/config'
 import axios from 'axios'
 import useAxios from './useAxios'
-import { Track, Album, Artist } from '@/interfaces'
+import { Track, Album, Artist, Folder } from '@/interfaces'
 
 const {
     top: searchTopResultsUrl,
@@ -27,7 +27,7 @@ async function searchTopResults(query: string, limit: number) {
     return await fetchData(url)
 }
 
-async function searchItems(type: 'tracks' | 'albums' | 'artists', index: number, query: string) {
+async function searchItems(type: 'tracks' | 'albums' | 'artists' | 'folders', index: number, query: string) {
     const { data } = await useAxios({
         url: base + `/?itemtype=${type}&start=${index}&q=${query}&limit=30`,
         method: 'GET',
@@ -48,6 +48,10 @@ async function searchArtists(query: string, start: number = 0): Promise<{ result
     return searchItems('artists', start, query)
 }
 
-export { searchAlbums, searchArtists, searchTracks, searchTopResults }
+async function searchFolders(query: string, start: number = 0): Promise<{ results: Folder[]; more: boolean }> {
+    return searchItems('folders', start, query)
+}
+
+export { searchAlbums, searchArtists, searchFolders, searchTracks, searchTopResults }
 
 // TODO: Rewrite this module using `useAxios` hook

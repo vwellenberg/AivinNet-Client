@@ -15,7 +15,7 @@ import TabsWrapper from "./TabsWrapper.vue";
 
 const search = useSearchStore();
 
-const tabs = ["top", "tracks", "albums", "artists", "playlists"];
+const tabs = ["top", "tracks", "albums", "artists", "playlists", "folders"];
 
 const currentTab = ref("top");
 

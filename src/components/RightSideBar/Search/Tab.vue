@@ -7,6 +7,7 @@ import useSearch from "@/stores/search";
 
 import TracksGrid from "./TracksGrid.vue";
 import TopResults from "./TopResults.vue";
+import FolderResults from "./FolderResults.vue";
 import CardPage from "@/views/SearchView/CardGridPage.vue";
 
 const search = useSearch();
@@ -53,6 +54,10 @@ function getComponent() {
           items: search.playlistCards,
           outside_route: true,
         },
+      };
+    case "folders":
+      return {
+        component: FolderResults,
       };
     default:
       return null;
