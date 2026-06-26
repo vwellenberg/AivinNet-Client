@@ -14,6 +14,8 @@
             v-if="!isSmall"
             :index="index"
             :is_fav="is_fav"
+            :is_current="isCurrent()"
+            :is_current_playing="isCurrentPlaying()"
             :show-inline-fav-icon="settings.showInlineFavIcon"
             @add-to-fav="addToFav(track.trackhash)"
         />
@@ -21,7 +23,6 @@
         <TrackTitle
             :track="track"
             :is_current="isCurrent()"
-            :is_current_playing="isCurrentPlaying()"
             @play="emitUpdate"
         />
 
