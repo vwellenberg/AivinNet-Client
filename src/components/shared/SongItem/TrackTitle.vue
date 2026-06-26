@@ -5,27 +5,10 @@
       <div class="thumb-play-overlay" v-if="!is_current">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
       </div>
-      <div
-        class="now-playing-track-indicator"
-        :class="{ 'now-playing-track-indicator': is_current, last_played: !is_current_playing, active: is_current }"
-      >
-        <svg id="wave" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 30">
-          <title>Audio Wave</title>
-          <rect id="Line_1" x="1" y="11" width="2" height="8" rx="1" ry="1" />
-          <rect id="Line_2" x="4" y="8" width="2" height="14" rx="1" ry="1" />
-          <rect id="Line_3" x="7" y="4" width="2" height="22" rx="1" ry="1" />
-          <rect id="Line_4" x="10" y="6" width="2" height="18" rx="1" ry="1" />
-          <rect id="Line_5" x="13" y="11" width="2" height="8" rx="1" ry="1" />
-          <rect id="Line_6" x="16" y="6" width="2" height="18" rx="1" ry="1" />
-          <rect id="Line_7" x="19" y="4" width="2" height="22" rx="1" ry="1" />
-          <rect id="Line_8" x="22" y="8" width="2" height="14" rx="1" ry="1" />
-          <rect id="Line_9" x="25" y="11" width="2" height="8" rx="1" ry="1" />
-        </svg>
-      </div>
     </div>
     <div v-tooltip class="song-title">
       <div class="with-flag" @click.prevent="$emit('play')">
-        <span class="title ellip">
+        <span class="title ellip" :class="{ 'is-current': is_current }">
           {{ track.title }}
         </span>
         <ExplicitIcon  class="explicit-icon" v-if="track.explicit" />
@@ -51,7 +34,6 @@ import { paths } from "@/config";
 defineProps<{
   track: Track;
   is_current: boolean;
-  is_current_playing: boolean;
 }>();
 
 defineEmits<{
@@ -102,13 +84,6 @@ defineEmits<{
       }
     }
 
-    .now-playing-track-indicator {
-      position: absolute;
-      left: $small;
-      top: $small;
-      z-index: 20;
-    }
-
     @include smallerPhones {
       margin-right: $small;
     }
@@ -131,6 +106,11 @@ defineEmits<{
     .with-flag {
       display: flex;
       align-items: center;
+    }
+
+    // Highlight the title of the currently-playing track (issue #67).
+    .title.is-current {
+      color: $brand-green;
     }
   }
 }
