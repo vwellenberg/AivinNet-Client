@@ -77,19 +77,21 @@ function handleFav() {
 
         /* Hiding the dot/thumb/handle for readonly input */
         /* Webkit browsers, Firefox, IE etc */
-        &:hover > .center > #progress::-webkit-slider-thumb {
+        /* #progress now sits inside a .progress-wrap (#66 hover preview), so
+           these reach it as a descendant rather than a direct child. */
+        &:hover .center #progress::-webkit-slider-thumb {
             display: none;
             opacity: 0;
             visibility: hidden;
         }
 
-        &:hover > .center > #progress::-moz-range-thumb {
+        &:hover .center #progress::-moz-range-thumb {
             display: none;
             opacity: 0;
             visibility: hidden;
         }
 
-        &:hover > .center > #progress::-ms-thumb {
+        &:hover .center #progress::-ms-thumb {
             display: none;
             opacity: 0;
             visibility: hidden;
@@ -193,7 +195,9 @@ function handleFav() {
             user-select: none;
             pointer-events: none;
 
-            > #progress {
+            // #progress is wrapped in .progress-wrap (#66), so target it as a
+            // descendant instead of a direct child.
+            #progress {
                 height: 1px !important;
                 width: 100vw !important;
                 margin: unset;
