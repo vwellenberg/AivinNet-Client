@@ -3,6 +3,7 @@ import { Artist, Playlist, Track } from '@/interfaces'
 import { NotifType, Notification, useToast } from '@/stores/notification'
 import useAxios from './useAxios'
 import useFolder from '@/stores/pages/folder'
+import { recordRecentPlaylist } from '@/utils/recentPlaylists'
 
 const { new: newPlaylistUrl, base: basePlaylistUrl, artists: playlistArtistsUrl } = paths.api.playlist
 
@@ -92,6 +93,7 @@ export async function addItemToPlaylist(playlist: Playlist, props: {}) {
     }
 
     new Notification('Added to ' + playlist.name)
+    recordRecentPlaylist(playlist.id)
     return true
 }
 
