@@ -37,6 +37,7 @@ export interface Track extends AlbumDisc {
     copyright?: string
     master_index?: number
     help_text?: string
+    playcount?: number
     time?: string
     trend?: {
         trend: 'rising' | 'falling' | 'stable'
