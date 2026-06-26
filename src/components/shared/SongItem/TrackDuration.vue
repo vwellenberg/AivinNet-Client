@@ -84,7 +84,7 @@ defineEmits<{
         display: block;
 
         svg {
-            color: $red;
+            color: $brand-green;
         }
     }
 

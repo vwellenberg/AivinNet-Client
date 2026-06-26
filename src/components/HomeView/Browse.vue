@@ -24,7 +24,7 @@
 import {
   AlbumIcon,
   ArtistIcon,
-  HeartIcon,
+  BookmarkIcon,
 } from "@/icons";
 import { Routes } from "@/router";
 import { album_card_with } from "@/stores/content-width";
@@ -46,7 +46,7 @@ const browselist = [
   {
     title: "Fav. tracks",
     route: Routes.favoriteTracks,
-    icon: HeartIcon,
+    icon: BookmarkIcon,
     class: "favorite",
   },
   {
