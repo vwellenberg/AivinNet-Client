@@ -30,6 +30,7 @@ import updatePageTitle from "@/utils/updatePageTitle";
 
 import Tabs from "@/components/RightSideBar/Search/TabsWrapper.vue";
 import CardGridPage from "./CardGridPage.vue";
+import FolderResults from "@/components/RightSideBar/Search/FolderResults.vue";
 import TopResults from "./TopResults.vue";
 import TracksPage from "./tracks.vue";
 
@@ -38,7 +39,7 @@ const search = useSearchStore();
 
 const is_alt_layout = computed(() => settings.is_alt_layout || content_width.value < 1100);
 
-const pages = ["top", "tracks", "albums", "artists", "playlists"];
+const pages = ["top", "tracks", "albums", "artists", "playlists", "folders"];
 
 const route = useRoute();
 
@@ -78,6 +79,9 @@ const component = computed(() => {
           items: search.playlistCards,
         },
       };
+
+    case pages[5]:
+      return { component: FolderResults };
 
     default:
       return TracksPage;

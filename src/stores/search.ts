@@ -5,7 +5,7 @@ import { defineStore } from 'pinia'
 import { Routes, router } from '@/router'
 import { useDebounce } from '@vueuse/core'
 
-import { searchAlbums, searchArtists, searchTopResults, searchTracks } from '@/requests/searchMusic'
+import { searchAlbums, searchArtists, searchFolders, searchTopResults, searchTracks } from '@/requests/searchMusic'
 
 import useTabs from './tabs'
 import useLoader from './loader'
@@ -13,7 +13,7 @@ import useSettings from './settings'
 import usePlaylists from './pages/playlists'
 import { maxAbumCards } from './content-width'
 
-import { Album, Artist, Playlist, Track } from '../interfaces'
+import { Album, Artist, Folder, Playlist, Track } from '../interfaces'
 
 /** Lowercase + strip accents so "Tropico" matches "trópico" and vice-versa. */
 function normalize(text: string) {
@@ -61,6 +61,12 @@ export default defineStore('search', () => {
     const playlists = reactive({
         query: '',
         value: <Playlist[]>[],
+        more: false,
+    })
+
+    const folders = reactive({
+        query: '',
+        value: <Folder[]>[],
         more: false,
     })
 
@@ -161,6 +167,16 @@ export default defineStore('search', () => {
         })
     }
 
+    function fetchFolders(query: string) {
+        if (!query) return
+
+        searchFolders(query).then(res => {
+            folders.value = res.results
+            folders.more = res.more
+            folders.query = query
+        })
+    }
+
     async function loadTracks() {
         startLoading()
         const { results: moretracks, more } = await searchTracks(query.value, tracks.value.length)
@@ -182,6 +198,14 @@ export default defineStore('search', () => {
         const { results: moreartists, more } = await searchArtists(query.value, artists.value.length)
         artists.value = [...artists.value, ...moreartists]
         artists.more = more
+        return stopLoading()
+    }
+
+    async function loadFolders() {
+        startLoading()
+        const { results: morefolders, more } = await searchFolders(query.value, folders.value.length)
+        folders.value = [...folders.value, ...morefolders]
+        folders.more = more
         return stopLoading()
     }
 
@@ -232,6 +256,9 @@ export default defineStore('search', () => {
                 case 'playlists':
                     filterPlaylists(newQuery)
                     break
+                case 'folders':
+                    fetchFolders(newQuery)
+                    break
                 default:
                     fetchTracks(newQuery)
                     break
@@ -266,6 +293,10 @@ export default defineStore('search', () => {
                 case 'playlists':
                     filterPlaylists(current_query)
                     break
+                case 'folders':
+                    if (folders.query == current_query) break
+                    fetchFolders(current_query)
+                    break
                 default:
                     fetchTracks(current_query)
                     break
@@ -284,11 +315,13 @@ export default defineStore('search', () => {
         artists,
         playlists,
         playlistCards,
+        folders,
         query,
         currentTab,
         loadTracks,
         loadAlbums,
         loadArtists,
+        loadFolders,
         switchTab,
     }
 })
