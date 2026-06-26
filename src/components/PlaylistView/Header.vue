@@ -19,18 +19,6 @@
       boxShadow: isSmallPhone ? '' : colors.bg ? `0 .5rem 2rem ${colors.bg}` : '0 .5rem 2rem black',
     }"
   ></div>
-    <div
-      v-if="Number.isInteger(info.id)"
-      class="float"
-      :style="{
-        color: textColor,
-      }"
-      @click="pinPlaylist(info.id)"
-    >
-      <PinFillSvg v-if="info.pinned" />
-      <PinSvg v-else />
-    </div>
-
     <div v-if="!isSmallPhone && info.has_image" class="gradient rounded-lg"></div>
     <div v-if="info.has_image && useSqrImg" class="sqr_img">
       <img :src="(playlist.info.image as string)" class="rounded-sm" />
@@ -45,13 +33,10 @@
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
 
-import { togglePlaylistPin } from "@/helpers/pinPlaylist";
 import { isSmallPhone } from "@/stores/content-width";
 import usePStore from "@/stores/pages/playlist";
 import { getTextColor } from "@/utils/colortools/shift";
 
-import PinFillSvg from "@/assets/icons/pin.fill.svg";
-import PinSvg from "@/assets/icons/pin.svg";
 import BannerImages from "./Header/BannerImages.vue";
 import Info from "./Header/Info.vue";
 import LastUpdated from "./Header/LastUpdated.vue";
@@ -85,11 +70,6 @@ const textColor = computed(() => {
 
   return "";
 });
-
-function pinPlaylist(pid: number) {
-  // Shared helper keeps the sidebar list + this page in sync.
-  togglePlaylistPin(pid);
-}
 </script>
 
 <style lang="scss">
@@ -104,15 +84,6 @@ function pinPlaylist(pid: number) {
   .album-header-ambient {
     position: absolute;
     opacity: 0.25;
-  }
-
-  .float {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    transform: scale(0.75);
-    z-index: 100;
-    cursor: pointer;
   }
 
   &.use-sqr_img {
