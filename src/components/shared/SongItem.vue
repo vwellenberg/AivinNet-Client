@@ -32,9 +32,16 @@
             :hide_album="hide_album || false"
         />
         <TrackPlays v-if="showPlaysColumn" :playcount="track.playcount" />
+        <!--
+            When the Plays column is shown (artist Top Tracks, wide layout) the
+            play count is already visible, so suppress the duration's hover
+            help_text ("N plays") to avoid showing the same number twice. On
+            narrow layouts (no Plays column) help_text stays as the only way to
+            surface the count.
+        -->
         <TrackDuration
             :duration="track.duration || 0"
-            :help_text="track.help_text"
+            :help_text="showPlaysColumn ? undefined : track.help_text"
             :is_fav="is_fav"
             :showFavIcon="!isFavoritesPage"
             :showInlineFavIcon="settings.showInlineFavIcon"
