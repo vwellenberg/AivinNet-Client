@@ -10,6 +10,16 @@
       <button class="download-btn" @click="downloadPlaylist" title="Download as ZIP">
         <span v-html="DownloadIcon" class="icon"></span>
       </button>
+      <button
+        v-if="Number.isInteger(playlist.info.id)"
+        class="pin-btn"
+        :class="{ pinned: playlist.info.pinned }"
+        :title="playlist.info.pinned ? 'Unpin from library' : 'Pin to library'"
+        @click="pinPlaylist(playlist.info.id)"
+      >
+        <PinFillSvg v-if="playlist.info.pinned" />
+        <PinSvg v-else />
+      </button>
     </div>
     <div class="duration">
       {{ playlist.info.count.toLocaleString() + ` ${playlist.info.count == 1 ? "Track" : "Tracks"}` }}
@@ -33,7 +43,10 @@ import { getBaseUrl, paths } from "@/config";
 import { DownloadIcon } from "@/icons";
 
 import PlayBtnRect from "@/components/shared/PlayBtnRect.vue";
+import PinFillSvg from "@/assets/icons/pin.fill.svg";
+import PinSvg from "@/assets/icons/pin.svg";
 import usePStore from "@/stores/pages/playlist";
+import { togglePlaylistPin } from "@/helpers/pinPlaylist";
 import { balanceText } from "@/utils/balanceText";
 import { Ref, ref } from "vue";
 
@@ -50,6 +63,11 @@ function downloadPlaylist() {
     const a = document.createElement('a')
     a.href = getBaseUrl() + paths.api.download + `/playlist/${playlist.info.id}`
     a.click()
+}
+
+function pinPlaylist(pid: number) {
+  // Shared helper keeps the sidebar list + this page in sync.
+  togglePlaylistPin(pid);
 }
 </script>
 
@@ -113,6 +131,39 @@ function downloadPlaylist() {
         svg {
           width: 1.5rem;
           height: 1.5rem;
+        }
+      }
+    }
+
+    // Pin sits inline with the action buttons (matching the album header),
+    // styled like the neighbouring download button. Pinned state -> brand-green.
+    .pin-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      opacity: 0.7;
+      padding: 0.5rem;
+      border-radius: 50%;
+      color: white;
+      transition: opacity 0.15s, background 0.15s;
+
+      &:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+      &.pinned {
+        opacity: 1;
+        svg {
+          color: $brand-green;
         }
       }
     }
