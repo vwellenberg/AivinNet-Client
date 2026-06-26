@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { NotifType, useToast } from '../stores/notification'
 
-import HeartSvg from '../assets/icons/heart.svg'
+import BookmarkSvg from '../assets/icons/bookmark.svg'
 import ErrorSvg from '../assets/icons/toast/error.svg'
 import InfoSvg from '../assets/icons/toast/info.svg'
 import SuccessSvg from '../assets/icons/toast/ok.svg'
@@ -29,7 +29,7 @@ function getSvg(notif: NotifType) {
         case NotifType.Working:
             return WorkingSvg
         case NotifType.Favorite:
-            return HeartSvg
+            return BookmarkSvg
     }
 }
 </script>

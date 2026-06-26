@@ -38,7 +38,7 @@
             :route="'/favorites/artists'"
         />
 
-        <NoItems :flag="noFavs" :icon="HeartSvg" :title="'No favorites found'" :description="description" />
+        <NoItems :flag="noFavs" :icon="BookmarkSvg" :title="'No favorites found'" :description="description" />
     </div>
 </template>
 
@@ -53,13 +53,13 @@ import { Album, Artist, RecentFavResult, Track } from '@/interfaces'
 import { getAllFavs } from '@/requests/favorite'
 import updatePageTitle from '@/utils/updatePageTitle'
 
-import HeartSvg from '@/assets/icons/heart-no-color.svg'
+import BookmarkSvg from '@/assets/icons/bookmark.svg'
 import TopTracks from '@/components/ArtistView/TopTracks.vue'
 import CardScroller from '@/components/shared/CardScroller.vue'
 import GenericHeader from '@/components/shared/GenericHeader.vue'
 import NoItems from '@/components/shared/NoItems.vue'
 
-const description = `You can add tracks, albums and artists to your favorites by clicking the heart icon`
+const description = `You can add tracks, albums and artists to your favorites by clicking the + icon`
 
 const recentFavs: Ref<RecentFavResult[]> = ref([])
 const favAlbums: Ref<Album[]> = ref([])

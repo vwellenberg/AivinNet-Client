@@ -2,7 +2,7 @@ import { Routes } from "@/router";
 import useSearch from "@/stores/search";
 
 import FolderSvg from "@/assets/icons/folder-1.svg";
-import HeartSvg from "@/assets/icons/heart.svg";
+import BookmarkSvg from "@/assets/icons/bookmark.svg";
 import PlaylistSvg from "@/assets/icons/playlist-1.svg";
 import SearchSvg from "@/assets/icons/search.svg";
 import HomeSvg from "@/assets/icons/home.svg";
@@ -18,7 +18,7 @@ const folder = {
 const favorites = {
   name: "favorites",
   route_name: Routes.favorites,
-  icon: HeartSvg,
+  icon: BookmarkSvg,
 };
 
 const playlists = {

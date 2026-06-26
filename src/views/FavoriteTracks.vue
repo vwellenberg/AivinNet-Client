@@ -2,7 +2,7 @@
     <GenericTrackPagination
         :tracks="tracks"
         :desc="`You have ${trackCount} favorited track${trackCount == 1 ? '' : 's'}`"
-        :noitemsicon="HeartSvg"
+        :noitemsicon="BookmarkSvg"
         :more-items-loader="loadMore"
         @playThis="handlePlay"
     >
@@ -28,7 +28,7 @@ import { getFavTracks } from '@/requests/favorite'
 
 import GenericHeader from '@/components/shared/GenericHeader.vue'
 import GenericTrackPagination from '@/components/shared/GenericTrackPagination.vue'
-import HeartSvg from '@/assets/icons/heart.svg'
+import BookmarkSvg from '@/assets/icons/bookmark.svg'
 import { track_limit } from '@/stores/content-width'
 
 const trackCount = ref(0)

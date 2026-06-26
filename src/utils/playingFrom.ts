@@ -9,7 +9,7 @@ import { From } from '@/stores/queue/tracklist'
 import AlbumSvg from '@/assets/icons/album.svg'
 import ArtistSvg from '@/assets/icons/artist.svg'
 import FolderSvg from '@/assets/icons/folder.svg'
-import HeartSvg from '@/assets/icons/heart.fill.svg'
+import BookmarkSvg from '@/assets/icons/bookmark.fill.svg'
 import PlaylistSvg from '@/assets/icons/playlist.svg'
 import SearchSvg from '@/assets/icons/search.svg'
 import RadioSvg from '@/assets/icons/radio.svg'
@@ -94,7 +94,7 @@ export default (source: From): PlayingFrom => {
         case FromOptions.favorite:
             return {
                 name: 'Favorite tracks',
-                icon: HeartSvg,
+                icon: BookmarkSvg,
                 location: {
                     name: Routes.favoriteTracks,
                 },

@@ -2,8 +2,9 @@
     <button
         v-wave
         class="heart-button circular"
+        :class="{ 'is-fav': state }"
         :style="{
-            color: color ? getTextColor(color) : '',
+            color: state ? '' : color ? getTextColor(color) : '',
         }"
         @click="!no_emit && $emit('handleFav')"
     >
@@ -19,7 +20,7 @@
                 },
             }"
         >
-            <HeartFillSvg v-if="state" />
+            <CheckCircleSvg v-if="state" />
             <PlusSvg v-else />
         </Motion>
     </button>
@@ -28,7 +29,7 @@
 <script setup lang="ts">
 import { Motion } from 'motion/vue'
 
-import HeartFillSvg from '@/assets/icons/heart.fill.svg'
+import CheckCircleSvg from '@/assets/icons/check.circle.fill.svg'
 import PlusSvg from '@/assets/icons/plus.svg'
 
 import { getTextColor } from '@/utils/colortools/shift'
@@ -71,6 +72,12 @@ $bg: rgb(255, 255, 255);
     &:hover {
         background: transparent;
         border: none;
+    }
+
+    // Favorited state: brand-green check circle (drives the SVG's
+    // currentColor circle; the check itself is fixed white in the asset).
+    &.is-fav {
+        color: $brand-green;
     }
 }
 </style>
