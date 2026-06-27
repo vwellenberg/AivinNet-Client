@@ -69,7 +69,9 @@ const mobileTitle = computed(() => {
 <style lang="scss">
 .topnav {
     display: grid;
-    grid-template-columns: 1fr max-content;
+    // Left column hugs the logo/title; the right column spans the rest so the
+    // search group can centre and the avatar can sit in the far-right corner.
+    grid-template-columns: max-content 1fr;
 
     input {
         min-width: 6rem;
@@ -127,21 +129,24 @@ const mobileTitle = computed(() => {
 
     .right {
         display: flex;
-        justify-content: flex-end;
         gap: 1rem;
         align-items: center;
         width: 100%;
 
         @include allPhones {
             gap: unset;
-            justify-content: unset;
         }
 
+        // Spotify-style layout: the two auto margins (before the home button and
+        // before the avatar) split the free space evenly, centring the
+        // home + search group and pinning the avatar to the far-right corner so
+        // it no longer sits glued to the search bar.
         // Spotify-style round home button, sits just left of the search bar.
         .nav-home {
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-left: auto;
             width: 2.75rem;
             height: 2.75rem;
             border-radius: 50%;
@@ -158,6 +163,10 @@ const mobileTitle = computed(() => {
                 background-color: $gray4;
                 transform: scale(1.05);
             }
+        }
+
+        .avatar {
+            margin-left: auto;
         }
 
         .mobile-nav-title {

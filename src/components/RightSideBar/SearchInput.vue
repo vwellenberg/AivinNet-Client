@@ -121,12 +121,20 @@ function handleButton() {
 
     #ginner {
         width: 100%;
+        // Match the round home button's height so the bar fills the top nav
+        // (Spotify-style) instead of sitting small with empty padding above/below.
+        height: 2.75rem;
         display: flex;
         align-items: center;
         border-radius: 3rem;
         background-color: $gray5;
         outline: solid 2px transparent;
-        transition: outline-color 0.2s ease-out;
+        transition: background-color 0.2s ease-out, outline-color 0.2s ease-out;
+
+        // Spotify-style hover: brighten the bar on mouse-over.
+        &:hover {
+            background-color: $gray4;
+        }
 
         button {
             background: transparent;
