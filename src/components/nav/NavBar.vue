@@ -81,9 +81,13 @@ const mobileTitle = computed(() => {
     gap: 1rem;
     font-size: 14px;
 
-    &.use_links {
-        grid-template-columns: 1fr max-content 1fr;
-    }
+    // NOTE: The alternate layout (the default) used to switch to a 3-column
+    // `1fr max-content 1fr` grid here for a centred middle nav element that no
+    // longer exists. With only `.left` + `.right` in the DOM that collapsed
+    // `.right` into the middle `max-content` track, leaving the third column
+    // empty (dead space on the right) and starving the avatar's `margin-left:
+    // auto` of free space so it stayed glued to the search bar. Keep the base
+    // `max-content 1fr` grid in every layout so `.right` always spans the rest.
 
     .left {
         display: grid;
@@ -146,8 +150,8 @@ const mobileTitle = computed(() => {
             align-items: center;
             justify-content: center;
             margin-left: auto;
-            width: 2.75rem;
-            height: 2.75rem;
+            width: 3rem;
+            height: 3rem;
             border-radius: 50%;
             background-color: $gray;
             flex-shrink: 0;

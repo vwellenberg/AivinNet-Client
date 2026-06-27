@@ -107,8 +107,18 @@ function handleButton() {
 </style>
 
 <style lang="scss">
+// Give the search bar a wide, Spotify-style footprint in the top nav and let
+// the input fill it (it used to be pinned to a tiny fixed 150px).
+.right > .gsearch-input {
+    width: clamp(280px, 34vw, 460px);
+
+    @include allPhones {
+        width: 100%;
+    }
+}
+
 .right > .gsearch-input > #ginner > input {
-    width: 150px;
+    width: 100%;
 
     @include allPhones {
         width: 100%;
@@ -123,7 +133,7 @@ function handleButton() {
         width: 100%;
         // Match the round home button's height so the bar fills the top nav
         // (Spotify-style) instead of sitting small with empty padding above/below.
-        height: 2.75rem;
+        height: 3rem;
         display: flex;
         align-items: center;
         border-radius: 3rem;
