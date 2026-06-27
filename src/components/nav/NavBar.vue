@@ -137,11 +137,10 @@ const mobileTitle = computed(() => {
             gap: unset;
         }
 
-        // Spotify-style layout: the two auto margins (before the home button and
-        // before the avatar) split the free space evenly, centring the
-        // home + search group and pinning the avatar to the far-right corner so
-        // it no longer sits glued to the search bar.
-        // Spotify-style round home button, sits just left of the search bar.
+        // Spotify-style layout: the two auto margins (one before the round home
+        // button, one before the avatar) split the free space evenly, centring
+        // the home + search group and pinning the avatar to the far-right corner
+        // so it no longer sits glued to the search bar.
         .nav-home {
             display: flex;
             align-items: center;
