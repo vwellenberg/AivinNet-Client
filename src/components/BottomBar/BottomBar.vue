@@ -104,8 +104,8 @@ function handleFav() {
         width: 3rem;
         transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
 
-        // The white play circle must NOT get the grey hover background — it
-        // keeps its #fff and a Spotify-style scale-up (.play:hover in HotKeys).
+        // The green play circle must NOT get the grey hover background — it
+        // keeps its $brand-green fill and a Spotify-style scale-up (.play:hover in HotKeys).
         &:not(.play):hover {
             border: solid 1px $gray3 !important;
             background-color: $gray !important;
@@ -116,7 +116,7 @@ function handleFav() {
         }
 
         @include largePhones {
-            // All transport buttons stay square at 2.5rem so the white play
+            // All transport buttons stay square at 2.5rem so the green play
             // circle stays round. A former `&:nth-child(2) { width: 3.5rem }`
             // here only ever hit the play button (aux buttons are hidden at
             // mobile widths, making play the 2nd child) and stretched it into
@@ -167,12 +167,12 @@ function handleFav() {
         display: grid;
         grid-template-columns: max-content 1fr max-content;
         align-items: center;
-        // No fixed height: the row sizes to the white play circle (2.5rem) so
+        // No fixed height: the row sizes to the green play circle (2.5rem) so
         // its rounded edges are never clipped. A short fixed height + scaled
         // buttons + overflow:hidden used to crop the transport icons.
 
-        // Keep the prev/next glyph buttons transparent, but NOT the white
-        // play circle (it must keep its #fff background).
+        // Keep the prev/next glyph buttons transparent, but NOT the green
+        // play circle (it must keep its $brand-green background).
         button:not(.play) {
             background: transparent;
         }

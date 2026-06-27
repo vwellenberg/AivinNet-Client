@@ -90,7 +90,7 @@ const settings = useSettings()
         transform: rotate(180deg) scale(0.85);
     }
 
-    // play / pause — AivinNet-green circle with a white glyph.
+    // play / pause — AivinNet-green circle with a black glyph (Spotify look).
     .play {
         width: 2.5rem;
         height: 2.5rem;
@@ -105,9 +105,9 @@ const settings = useSettings()
             height: 1.8rem;
         }
 
-        // Both play (currentColor) and pause (#F2F2F2) paths -> white on green.
+        // Both play (currentColor) and pause (#F2F2F2) paths -> black on green.
         svg path {
-            fill: #fff;
+            fill: #0a0a0a;
         }
 
         // Optically centre the play triangle inside the circle.
