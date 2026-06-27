@@ -25,13 +25,12 @@ import {
   AlbumIcon,
   ArtistIcon,
   BookmarkIcon,
+  PlaylistIcon,
 } from "@/icons";
 import { Routes } from "@/router";
 import { album_card_with } from "@/stores/content-width";
 
-// INFO: Sidebar covers Home/Folders/Search/Favorites/Playlists/Stats/Settings.
-// Browse-Library here only shows entries NOT already in the sidebar
-// (avoids duplicates — sidebar is primary nav).
+// INFO: Library shortcuts on the home page.
 const browselist = [
   {
     title: "Albums",
@@ -42,6 +41,11 @@ const browselist = [
     title: "Artists",
     route: Routes.ArtistList,
     icon: ArtistIcon,
+  },
+  {
+    title: "Playlists",
+    route: Routes.playlists,
+    icon: PlaylistIcon,
   },
   {
     title: "Fav. tracks",
