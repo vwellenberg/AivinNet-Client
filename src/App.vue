@@ -168,10 +168,27 @@ onMounted(async () => {
 // Detect OS & browser agents and add class
 import { defineComponent } from "vue";
 import usePlayer from "./composables/usePlayer";
+
+// Reveal the scrollbar only while the user is actively scrolling. Scroll events
+// don't bubble, so we listen in the capture phase to catch inner scroll
+// containers too. The `is-scrolling` class is removed shortly after scrolling
+// stops, so the bar auto-hides again.
+let scrollHideTimer: ReturnType<typeof setTimeout> | undefined;
+function handleGlobalScroll() {
+    const el = document.documentElement;
+    el.classList.add("is-scrolling");
+    if (scrollHideTimer) clearTimeout(scrollHideTimer);
+    scrollHideTimer = setTimeout(() => el.classList.remove("is-scrolling"), 700);
+}
+
 export default defineComponent({
     name: "OsAndBrowserSpecificContent",
     mounted() {
         this.applyClassBasedOnAgent();
+        window.addEventListener("scroll", handleGlobalScroll, { capture: true, passive: true });
+    },
+    beforeUnmount() {
+        window.removeEventListener("scroll", handleGlobalScroll, true);
     },
     methods: {
         applyClassBasedOnAgent() {
