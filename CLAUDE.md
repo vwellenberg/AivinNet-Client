@@ -85,7 +85,7 @@ Definiert in `src/assets/scss/_variables.scss`. `$red` zeigt auf `$brand-red`.
 ## Architektur-Hinweise
 
 - `SearchInput :on_nav="true"` in `NavBar.vue` beibehalten — nie durch Router-Link ersetzen
-- Seiten-Verlauf (Album/Artist/PlaylistView): **zentral** über `pageGradient(colors.bg)` aus [src/utils/colortools/pageGradient.ts](src/utils/colortools/pageGradient.ts) — EIN gemeinsamer Spotify-Fade (vivider Top → `#121212`). Nicht pro View duplizieren. (Die alte `.page-ambient-gradient`-CSS-Klasse ist toter Code, wird nirgends gerendert.)
+- Seiten-Verlauf (Album/Artist/PlaylistView): **zentral** über `pageGradient(colors.bg)` aus [src/utils/colortools/pageGradient.ts](src/utils/colortools/pageGradient.ts) — EIN gemeinsamer Spotify-Fade (vivider Top → `#121212`). Nicht pro View duplizieren.
 - Logo-Ring (`::after` auf `.logo-orbit-wrapper`): `inset: 0`, kein Padding zwischen Ring und Icon
 - Vitest 0.x (nicht 1.x) — Vite 3 Kompatibilität
 

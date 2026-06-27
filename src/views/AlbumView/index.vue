@@ -270,15 +270,4 @@ onBeforeRouteLeave(() => {
         padding-top: 2rem;
     }
 }
-
-.page-ambient-gradient {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 35rem;
-    pointer-events: none;
-    z-index: 0;
-    transition: background 1s ease;
-}
 </style>
