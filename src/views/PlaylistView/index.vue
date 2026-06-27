@@ -114,7 +114,18 @@ const scrollerItems = computed(() => {
         }
     })
 
-    const body = playlist.tracks.length === 0 ? [getNoItemsComponent()] : tracks
+    // Only show the "No tracks in this playlist" empty state once the playlist
+    // has actually finished loading. On an in-place switch the route watch empties
+    // the list (resetTracks) before fetchAll(newPid) resolves; rendering NoItems
+    // in that transient window made the empty message flash on every switch.
+    // allLoaded is false while loading and true once it completes (a genuinely
+    // empty playlist has count===0 => allLoaded===true, so it still shows).
+    const body =
+        playlist.tracks.length > 0
+            ? tracks
+            : playlist.allLoaded
+              ? [getNoItemsComponent()]
+              : []
 
     // Show the infinite-scroll sentinel only after the first trackhash window
     // has been requested and more remain. Gating purely on !allLoaded rendered
