@@ -116,11 +116,20 @@ const scrollerItems = computed(() => {
 
     const body = playlist.tracks.length === 0 ? [getNoItemsComponent()] : tracks
 
-    // Show the infinite-scroll sentinel while more stored trackhashes remain to
-    // be loaded. Gate on allLoaded (not the filtered tracks.length, which an
-    // orphan-shortened first page or an active search could drop below the
-    // limit and wrongly hide the fetcher). Don't auto-load during a search.
-    if (!playlist.allLoaded && !playlist.query) {
+    // Show the infinite-scroll sentinel only after the first trackhash window
+    // has been requested and more remain. Gating purely on !allLoaded rendered
+    // the sentinel during the transient EMPTY window of a playlist switch: the
+    // route watch runs resetTracks() (allTracks=[], allLoaded=false,
+    // loadedHashCount=0) and only THEN awaits fetchAll(newPid). In that gap the
+    // sentinel mounts and its onMounted fires fetch_callback ->
+    // fetchAll(playlist.info.id) while info.id is STILL the previous playlist,
+    // racing the watch's fetchAll(newPid). Whichever resolves last wins, so the
+    // new playlist intermittently flashed "No tracks" / showed stale rows until
+    // a hard reload. Gating on loadedHashCount > 0 hides the sentinel until the
+    // switch's fetchAll has actually requested page 1 (cursor advanced, info.id
+    // now correct), which kills the race while still paginating an
+    // orphan-shortened OR all-orphan first page. Don't auto-load during a search.
+    if (playlist.loadedHashCount > 0 && !playlist.allLoaded && !playlist.query) {
         body.push({
             id: 'tracks-fetcher',
             size: 1,
