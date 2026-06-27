@@ -77,6 +77,8 @@ function handlePlay() {
   aspect-ratio: 1;
   padding: 0;
   background: $brand-green;
+  // Black play glyph on the green button (Spotify look); play.svg uses currentColor.
+  color: #0a0a0a;
   display: grid;
   place-items: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);

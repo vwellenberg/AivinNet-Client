@@ -90,10 +90,13 @@ defineEmits<{
     line-height: 1.2;
     margin-right: $medium;
 
-    // Favorite heart next to the title (Spotify-style), desktop only.
+    // Favorite check next to the title (Spotify-style), desktop only.
+    // Compact: the shared HeartSvg renders a 1.75rem glyph, too chunky for the
+    // bar. height + width !important square the hit-box (overriding HeartSvg's
+    // aspect-ratio: 1.5) so the trimmed 1.3rem glyph below stays contained.
     .np-fav {
-        height: 2rem !important;
-        width: 2rem !important;
+        height: 1.6rem !important;
+        width: 1.6rem !important;
         border: none !important;
         background-color: transparent !important;
         flex-shrink: 0;
@@ -101,6 +104,14 @@ defineEmits<{
         &:hover {
             background-color: transparent !important;
             opacity: 0.85;
+        }
+
+        // Smaller glyph — scoped to the title-side check ONLY, so the
+        // use_np_img cover-replacement heart and the mobile Actions heart
+        // keep their 1.75rem size.
+        div svg {
+            height: 1.3rem;
+            width: 1.3rem;
         }
     }
 
