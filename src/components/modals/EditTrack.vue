@@ -96,22 +96,15 @@ function save() {
     editTrackTags(props.track.trackhash, payload)
         .then(updated => {
             if (!updated) return
-            // Patch the visible row in place from the re-indexed track. Copy ONLY
-            // the edited + identity fields — NOT a blanket Object.assign — so the
-            // row's per-user/UI state (is_favorite, selection) is preserved: the
-            // backend migrates the favorite to the new trackhash, so the known
-            // state still holds, and SongItem's trackhash watcher would otherwise
-            // reset is_fav from the response. Known limitation: the same track
-            // shown in another view, and the now-playing highlight when editing
-            // the currently-playing track, only refresh on next navigation (the
-            // queue keeps the old hash).
-            props.track.title = updated.title
-            props.track.album = updated.album
-            props.track.artists = updated.artists
-            props.track.albumartists = updated.albumartists
-            props.track.track = updated.track
-            props.track.trackhash = updated.trackhash
-            if (updated.albumhash) props.track.albumhash = updated.albumhash
+            // Patch the visible row in place: the context menu handed us the
+            // store's reactive track object, so copying the re-indexed fields onto
+            // it updates the row without a refetch. The backend re-serialises
+            // is_favorite for the current user (the favorite is migrated to the
+            // new trackhash), so the favorite indicator stays correct. Known
+            // limitation: the same track shown in another view, and the
+            // now-playing highlight when editing the currently-playing track,
+            // refresh on next navigation (the queue keeps the old hash).
+            Object.assign(props.track, updated)
             emit('hideModal')
         })
         .finally(() => {
