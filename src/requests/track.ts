@@ -30,6 +30,11 @@ export async function editTrackTags(trackhash: string, tags: EditTrackTagsPayloa
         return data.track as Track
     }
 
+    if (status === 401) {
+        // useAxios already opens the login modal — don't stack a second toast.
+        return null
+    }
+
     if (status === 403) {
         new Notification('Only admins can edit track tags', NotifType.Error)
     } else if (status === 404) {

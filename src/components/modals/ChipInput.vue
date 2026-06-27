@@ -20,10 +20,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const props = defineProps<{
-    modelValue: string[]
-    placeholder?: string
-}>()
+const props = withDefaults(
+    defineProps<{
+        modelValue?: string[]
+        placeholder?: string
+    }>(),
+    { modelValue: () => [] }
+)
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string[]): void
