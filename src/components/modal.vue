@@ -34,6 +34,12 @@
                 @hideModal="hideModal"
                 @setTitle="setTitle"
             />
+            <EditTrack
+                v-if="modal.component == modal.options.editTrackTags"
+                v-bind="modal.props"
+                @hideModal="hideModal"
+                @setTitle="setTitle"
+            />
             <div v-if="modal.component == modal.options.deletePlaylist">
                 <ConfirmModal
                     :text="'Are you sure you want to permanently delete this playlist?'"
@@ -59,6 +65,7 @@ import ConfirmModal from './modals/ConfirmModal.vue'
 import CrudPage from './modals/CrudPage.vue'
 import NewPlaylist from './modals/NewPlaylist.vue'
 import RootDirsPrompt from './modals/RootDirsPrompt.vue'
+import EditTrack from './modals/EditTrack.vue'
 import SetRootDirs from './modals/SetRootDirs.vue'
 import Settings from './modals/Settings.vue'
 import UpdatePlaylist from './modals/updatePlaylist.vue'
