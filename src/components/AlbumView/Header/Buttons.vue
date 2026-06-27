@@ -7,15 +7,7 @@
       :color="colors.bg ? colors.bg : ''"
       @handleFav="handleFav"
     />
-    <button
-      class="pin"
-      :class="{ pinned: album.is_pinned }"
-      :title="album.is_pinned ? 'Unpin from library' : 'Pin to library'"
-      @click.prevent="handlePin"
-    >
-      <PinFillSvg v-if="album.is_pinned" />
-      <PinSvg v-else :style="{ color: textColor }" />
-    </button>
+    <PinButton :pinned="album.is_pinned" :color="textColor" @toggle="handlePin" />
     <button
       class="mb-cover"
       :class="{ loading: mbLoading }"
@@ -48,8 +40,7 @@ import useAlbumStore from "@/stores/pages/album";
 
 import MoreSvg from "@/assets/icons/more.svg";
 import DownloadSvg from "@/assets/icons/download.svg";
-import PinSvg from "@/assets/icons/pin.svg";
-import PinFillSvg from "@/assets/icons/pin.fill.svg";
+import PinButton from "@/components/shared/PinButton.vue";
 import HeartSvg from "@/components/shared/HeartSvg.vue";
 import PlayBtnRect from "@/components/shared/PlayBtnRect.vue";
 import favoriteHandler from "@/helpers/favoriteHandler";
@@ -112,23 +103,9 @@ async function fetchCover() {
   gap: $small;
 
   .options,
-  .mb-cover,
-  .pin {
+  .mb-cover {
     background-color: transparent;
     border: none;
-  }
-
-  .pin {
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-
-    &:hover { opacity: 0.7; }
-
-    svg { transform: scale(1.1); }
-
-    &.pinned svg {
-      color: $brand-green;
-    }
   }
 
   .options {
