@@ -82,7 +82,11 @@ const textColor = computed(() => {
   padding-bottom: 1rem;
 
   .album-header-ambient {
+    // Match the album header (AlbumView/main.vue): the ambient sits behind the
+    // page gradient instead of tinting a full-size box over the whole header.
+    width: 20rem;
     position: absolute;
+    z-index: -100 !important;
     opacity: 0.25;
   }
 
