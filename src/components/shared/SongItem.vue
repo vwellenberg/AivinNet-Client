@@ -232,7 +232,7 @@ const isFavoritesPage = route.path.startsWith('/favorites')
         }
 
         .options-and-duration .heart-icon {
-            display: block;
+            visibility: visible;
         }
 
         .thumbnail .album-art {

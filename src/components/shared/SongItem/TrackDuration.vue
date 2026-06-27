@@ -53,14 +53,18 @@ defineEmits<{
     }
 
     .heart-icon {
-        display: none;
+        // Reserve the slot (visibility, not display) so the duration keeps the
+        // same x-position regardless of favourite/hover state — stops the
+        // duration jumping left on hover and misaligning fav vs non-fav rows.
+        // (margin-right dropped: the flex `gap: 1rem` already spaces it; the
+        // extra $small made the heart->duration gap wider than the others.)
+        visibility: hidden;
         width: 28px;
         height: 28px;
         user-select: none;
         opacity: 0.6;
         transition: opacity 0.15s ease-out;
         transform: scale(0.8);
-        margin-right: $small;
         cursor: pointer;
 
         &:hover {
@@ -81,7 +85,7 @@ defineEmits<{
     }
 
     .heart-icon.is_fav {
-        display: block;
+        visibility: visible;
 
         svg {
             color: $brand-green;
