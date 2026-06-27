@@ -54,6 +54,7 @@ export const paths = {
             return this.favorites + '/remove'
         },
         artist: '/artist',
+        track: '/track',
         lyrics: '/lyrics',
         plugins: '/plugins',
         get mixes() {

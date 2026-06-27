@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+import { Track } from '@/interfaces'
+
 export enum ModalOptions {
     newPlaylist,
     page,
@@ -11,6 +13,7 @@ export enum ModalOptions {
     saveFolderAsPlaylist,
     login,
     settings,
+    editTrackTags,
 }
 
 export default defineStore('newModal', {
@@ -57,6 +60,9 @@ export default defineStore('newModal', {
         },
         showEditPlaylistModal() {
             this.showModal(ModalOptions.updatePlaylist)
+        },
+        showEditTrackTagsModal(track: Track) {
+            this.showModal(ModalOptions.editTrackTags, { track })
         },
         showDeletePlaylistModal(pid: number) {
             const props = {

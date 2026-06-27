@@ -6,11 +6,13 @@ import { Option } from '@/interfaces'
 import { openInFiles } from '@/requests/folders'
 import { addTracksToPlaylist, removeTracks } from '@/requests/playlists'
 
-import { AddToQueueIcon, AlbumIcon, ArtistIcon, DeleteIcon, DownloadIcon, FolderIcon, PlayNextIcon, PlusIcon } from '@/icons'
+import { AddToQueueIcon, AlbumIcon, ArtistIcon, DeleteIcon, DownloadIcon, FolderIcon, PencilIcon, PlayNextIcon, PlusIcon } from '@/icons'
 import { getBaseUrl, paths } from '@/config'
+import useModalStore from '@/stores/modal'
 import usePlaylistStore from '@/stores/pages/playlist'
 import useQueueStore from '@/stores/queue'
 import useTracklist from '@/stores/queue/tracklist'
+import { loggedInUserIsAdmin } from '@/settings/utils'
 import { getAddToPlaylistOptions, get_find_on_social } from './utils'
 
 /**
@@ -166,6 +168,12 @@ export default async (track: Track): Promise<Option[]> => {
         icon: DownloadIcon,
     }
 
+    const edit_tags: Option = {
+        label: 'Edit tags',
+        action: () => useModalStore().showEditTrackTagsModal(track),
+        icon: PencilIcon,
+    }
+
     const options: Option[] = [
         play_next,
         add_to_q,
@@ -178,6 +186,12 @@ export default async (track: Track): Promise<Option[]> => {
         get_find_on_social('track', `${track.title} ${track.artists[0].name}`),
         // del_track,
     ]
+
+    // Editing tags rewrites files on disk and is admin-only on the backend, so
+    // only surface it to admins (the backend still enforces 403 regardless).
+    if (loggedInUserIsAdmin()) {
+        options.push(edit_tags)
+    }
 
     if (route.name === Routes.playlist && on_playlist) {
         options.splice(0, 0, getRemoveFromPlaylistOption())
