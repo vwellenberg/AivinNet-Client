@@ -30,6 +30,7 @@ const imageRoutes = {
         medium: '/artist/medium/',
     },
     playlist: '/playlist/',
+    user: '/user/',
 }
 
 export const paths = {
@@ -183,6 +184,9 @@ export const paths = {
             get updateProfile() {
                 return this.base + '/profile/update'
             },
+            get updateProfileImage() {
+                return this.base + '/profile/image'
+            },
             get deleteUser() {
                 return this.base + '/profile/delete'
             },
@@ -231,6 +235,7 @@ export const paths = {
             medium: baseImgUrl + imageRoutes.artist.medium,
         },
         playlist: baseImgUrl + imageRoutes.playlist,
+        user: baseImgUrl + imageRoutes.user,
         mix: {
             medium: baseImgUrl + '/mix/medium/',
             small: baseImgUrl + '/mix/small/',
