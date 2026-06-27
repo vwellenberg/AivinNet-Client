@@ -10,15 +10,6 @@
     ]"
     :class="{ 'use-sqr_img': useSqrImg }"
   >
-  <div
-    v-if="!info.has_image || info.settings.square_img"
-    class="album-header-ambient rounded-lg"
-    style="height: 100%; width: 100%"
-    :style="{
-      // hide shadow on small screen
-      boxShadow: isSmallPhone ? '' : colors.bg ? `0 .5rem 2rem ${colors.bg}` : '0 .5rem 2rem black',
-    }"
-  ></div>
     <div v-if="!isSmallPhone && info.has_image" class="gradient rounded-lg"></div>
     <div v-if="info.has_image && useSqrImg" class="sqr_img">
       <img :src="(playlist.info.image as string)" class="rounded-sm" />
@@ -80,15 +71,6 @@ const textColor = computed(() => {
   background-position: center 50%;
   background-size: cover !important;
   padding-bottom: 1rem;
-
-  .album-header-ambient {
-    // Match the album header (AlbumView/main.vue): the ambient sits behind the
-    // page gradient instead of tinting a full-size box over the whole header.
-    width: 20rem;
-    position: absolute;
-    z-index: -100 !important;
-    opacity: 0.25;
-  }
 
   &.use-sqr_img {
     grid-template-columns: max-content 1fr;

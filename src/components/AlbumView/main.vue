@@ -1,15 +1,6 @@
 <template>
-    <div
-        class="album-header-ambient rounded-lg"
-        style="height: 100%; width: 100%"
-        :style="{
-            boxShadow:
-                // hide shadow on small screen
-                isSmallPhone ? '' : colors.bg ? `0 .5rem 2rem ${colors.bg}` : '0 .5rem 2rem black',
-        }"
-    ></div>
-    <!-- No solid background fill: let the centralized page gradient show through,
-         matching the playlist header (no "box"/kasten over the gradient). -->
+    <!-- Transparent header: the centralized page gradient shows through — no box
+         fill and no surrounding shadow — matching the artist & playlist headers. -->
     <div ref="albumheaderthing" class="a-header rounded-lg">
         <div class="big-img no-scroll" :class="`${isHeaderSmall ? 'imgSmall' : ''} shadow-lg rounded-sm`">
             <img :src="imguri.thumb.large + album.image + (store.coverVersion ? '?v=' + store.coverVersion : '')" class="rounded-sm" />
@@ -23,7 +14,7 @@ import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 
 import { paths } from '@/config'
-import { isHeaderSmall, isSmallPhone } from '@/stores/content-width'
+import { isHeaderSmall } from '@/stores/content-width'
 
 import useNavStore from '@/stores/nav'
 import useAlbumStore from '@/stores/pages/album'
@@ -37,7 +28,7 @@ const imguri = paths.images
 const nav = useNavStore()
 const store = useAlbumStore()
 
-const { info: album, colors } = storeToRefs(store)
+const { info: album } = storeToRefs(store)
 
 defineEmits<{
     // eslint-disable-next-line no-unused-vars
@@ -57,13 +48,6 @@ useVisibility(albumheaderthing, handleVisibilityState)
     position: absolute;
     top: -9999px;
     left: -9999px;
-}
-
-.album-header-ambient {
-    width: 20rem;
-    position: absolute;
-    z-index: -100 !important;
-    opacity: 0.25;
 }
 
 .a-header {
