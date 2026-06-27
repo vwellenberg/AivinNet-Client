@@ -1,34 +1,49 @@
 /* Total width */
 .designatedOS ::-webkit-scrollbar {
-    background-color: transparent;
+    background-color: $body;
     width: 12px;
 }
 
 /* Background of the scrollbar except button or resizer */
 .designatedOS ::-webkit-scrollbar-track {
-    background-color: transparent;
+    background-color: $body;
 }
 
-/* Scrollbar itself — hidden by default; the gutter stays reserved (no layout
-   shift) but the thumb only appears while the user hovers the scrollable area
-   or is actively scrolling (the global `is-scrolling` class, toggled in
-   App.vue). Note: ::-webkit-scrollbar pseudo-elements can't be transitioned,
-   so the reveal is instant. */
+/* Scrollbar itself */
 .designatedOS ::-webkit-scrollbar-thumb {
-    background-color: transparent;
-    border-radius: 16px;
-    border: 3px solid transparent;
-    background-clip: padding-box;
-}
-
-.designatedOS :hover::-webkit-scrollbar-thumb,
-.designatedOS.is-scrolling ::-webkit-scrollbar-thumb {
     background-color: $gray2;
-    border-color: $body;
+    border-radius: 16px;
+    border: 3px solid $body;
 }
 
-.designatedOS :hover::-webkit-scrollbar-thumb:hover,
-.designatedOS.is-scrolling ::-webkit-scrollbar-thumb:hover {
+.designatedOS ::-webkit-scrollbar-thumb:hover {
+    background-color: $gray1;
+}
+
+/* Main content scrollbar (the right-hand one) auto-hides: the thumb only shows
+   while the user is actively scrolling — App.vue sets a global `is-scrolling`
+   class on <html> and removes it ~700ms after scrolling stops. At rest the
+   track + thumb are transparent (clean, overlay-style), but the gutter stays
+   reserved (scrollbar-gutter: stable on the scrollers) so there's no layout
+   shift. Scoped to #acontent so the sidebars, modals and queue keep their
+   always-on scrollbars — only the main content bar the user asked about hides.
+   (::-webkit-scrollbar pseudo-elements can't be transitioned, so it's instant.) */
+.designatedOS #acontent ::-webkit-scrollbar,
+.designatedOS #acontent ::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.designatedOS #acontent ::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.designatedOS.is-scrolling #acontent ::-webkit-scrollbar-thumb {
+    background-color: $gray2;
+    border-color: transparent;
+}
+
+.designatedOS.is-scrolling #acontent ::-webkit-scrollbar-thumb:hover {
     background-color: $gray1;
 }
 
