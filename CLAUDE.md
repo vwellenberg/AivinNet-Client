@@ -52,7 +52,7 @@ Pro Aufgabe/Issue:
 2. **Implementieren** im Worktree (nie im Hauptverzeichnis auf `master`).
 3. **PR** öffnen → **Self-Review** (`/code-review`), Findings fixen, erneut prüfen — bis sauber.
 4. **CI grün abwarten** (Lint/Tests/Build).
-5. **Autonom (squash) mergen**, sobald Review sauber + CI grün — kein manuelles Gate/keine Rückfrage.
+5. **Autonom (squash) mergen**, sobald Review sauber: `gh pr merge --repo vwellenberg/AivinNet-Client --squash --delete-branch --auto` — `--auto` merged automatisch, sobald die Required Checks grün sind. Keine Rückfrage, kein Review-Zwang.
 6. **Deploy von `master`** + verifizieren (bei UI: Headless-Screenshot), dann **Worktree entfernen** (`git worktree remove`) + lokalen Branch löschen.
 
 - Kein `dev`-Branch (Branches gehen direkt von `master` aus).
@@ -65,7 +65,7 @@ Pro Aufgabe/Issue:
 
 ## CI
 
-GitHub Actions laufen (Lint/Tests/Build), **gaten aber den Merge nicht** (kein Branch-Protection-Enforcement) — Qualitäts-Gate ist das Self-Review oben:
+GitHub Actions laufen (Lint/Tests/Build) und **gaten den Merge** — Branch Protection auf `master` erzwingt diese drei Checks als Required (`strict:false`, kein Review-Zwang, `enforce_admins:false`). Zusätzliches Qualitäts-Gate ist das Self-Review oben:
 - **Lint** — ESLint (`yarn lint:check`)
 - **Tests** — Vitest (`yarn test`)
 - **Build** — Vite Build (`yarn build`)
