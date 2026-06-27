@@ -1,6 +1,6 @@
 <template>
     <div class="artist-page v-scroll-page" style="height: 100%; position: relative;"
-        :style="{ background: store.colors.bg ? `linear-gradient(180deg, ${store.colors.bg} 0%, ${store.colors.bg2 || store.colors.bg} 28%, #121212 62%)` : `linear-gradient(180deg, #2a2a2a 0%, #121212 45%)` }">
+        :style="{ background: pageGradient(store.colors.bg) }">
         <DynamicScroller
             id="artist-scroller"
             :items="scrollerItems"
@@ -36,6 +36,7 @@ import useTracklist from '@/stores/queue/tracklist'
 import { discographyAlbumTypes, dropSources } from '@/enums'
 import { Album, ScrollerItem, StatItem } from '@/interfaces'
 import { getArtistTracks } from '@/requests/artists'
+import { pageGradient } from '@/utils/colortools/pageGradient'
 
 import GenreBanner from '@/components/AlbumView/GenreBanner.vue'
 import ArtistAlbumsFetcher from '@/components/ArtistView/AlbumsFetcher.vue'

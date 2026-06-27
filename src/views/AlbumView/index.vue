@@ -1,6 +1,6 @@
 <template>
     <div class="album-virtual-scroller v-scroll-page" :class="{ isSmall }" style="height: 100%; position: relative;"
-        :style="{ background: album.colors.bg ? `linear-gradient(180deg, ${album.colors.bg} 0%, ${album.colors.bg2 || album.colors.bg} 28%, #121212 62%)` : `linear-gradient(180deg, #2a2a2a 0%, #121212 45%)` }">
+        :style="{ background: pageGradient(album.colors.bg) }">
         <DynamicScroller
             id="album-scroller"
             style="height: 100%"
@@ -34,6 +34,7 @@ import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
 
 import { Track } from '@/interfaces'
 
+import { pageGradient } from '@/utils/colortools/pageGradient'
 import useAlbumStore from '@/stores/pages/album'
 import useQueueStore from '@/stores/queue'
 import useTracklist from '@/stores/queue/tracklist'
