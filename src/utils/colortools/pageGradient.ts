@@ -1,4 +1,9 @@
-import { parseColor } from '@/utils/colortools'
+import { parseColor, darkenHex } from '@/utils/colortools'
+
+// AivinNet brand colours — mirror of scss/_variables.scss ($brand-green /
+// $brand-red). Kept here so the brand-tinted page fades have one TS source.
+export const BRAND_GREEN = '#1D9E75'
+export const BRAND_RED = '#FF284E'
 
 /**
  * Brightens a colour toward a vivid version by scaling its RGB channels while
@@ -28,4 +33,15 @@ function vividTop(color: string, factor = 2.3): string {
 export function pageGradient(bg?: string): string {
     if (!bg) return 'linear-gradient(180deg, #2a2a2a 0%, #121212 45%)'
     return `linear-gradient(180deg, ${vividTop(bg)} 0%, ${bg} 32%, #121212 72%)`
+}
+
+/**
+ * Brand-tinted page fade for the top-level library pages (Home, Favorites,
+ * Playlists, Stats) which have no cover to derive a colour from. Darkens the
+ * brand colour to the same gradient base the detail headers and the Now Playing
+ * fallback use, so the whole app shares one fade recipe. Defaults to the wavenet
+ * green; pass BRAND_RED for the energetic accent (Stats).
+ */
+export function brandGradient(color: string = BRAND_GREEN): string {
+    return pageGradient(darkenHex(color))
 }

@@ -1,5 +1,5 @@
 <template>
-    <div class="content-page favorites-page">
+    <div class="content-page favorites-page" :style="{ background: brandGradient() }">
         <GenericHeader>
             <template #name>Favorites</template>
             <template #description
@@ -54,6 +54,7 @@ import { getAllFavs } from '@/requests/favorite'
 import updatePageTitle from '@/utils/updatePageTitle'
 
 import BookmarkSvg from '@/assets/icons/bookmark.svg'
+import { brandGradient } from '@/utils/colortools/pageGradient'
 import TopTracks from '@/components/ArtistView/TopTracks.vue'
 import CardScroller from '@/components/shared/CardScroller.vue'
 import GenericHeader from '@/components/shared/GenericHeader.vue'

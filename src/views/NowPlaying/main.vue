@@ -46,7 +46,7 @@ import { isMedium, isSmall } from "@/stores/content-width";
 import Header from "@/components/NowPlaying/Header.vue";
 import SongItem from "@/components/shared/SongItem.vue";
 import updatePageTitle from "@/utils/updatePageTitle";
-import { pageGradient } from "@/utils/colortools/pageGradient";
+import { pageGradient, BRAND_GREEN } from "@/utils/colortools/pageGradient";
 import { darkenHex } from "@/utils/colortools";
 
 
@@ -59,7 +59,6 @@ const colors = useColorStore();
 // has no colour to tint with — greyscale art or the no-cover placeholder —
 // colors.bg is '' and we fall back to the brand green ($brand-green #1D9E75),
 // darkened to the same gradient base.
-const BRAND_GREEN = "#1D9E75";
 const gradientBg = computed(() => colors.bg || darkenHex(BRAND_GREEN, 16));
 
 function playFromQueue(index: number) {
