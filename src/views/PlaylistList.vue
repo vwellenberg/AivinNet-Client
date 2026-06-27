@@ -1,5 +1,5 @@
 <template>
-    <div id="p-view" class="content-page">
+    <div id="p-view" class="content-page" :style="{ background: brandGradient() }">
         <Header>
             <template #name>Playlists</template>
             <template #description>
@@ -47,6 +47,7 @@ import PlaylistSvg from '@/assets/icons/playlist-1.svg'
 import PlusSvg from '@/assets/icons/plus.svg'
 import PlaylistCardGroup from '@/components/PlaylistsList/PlaylistCardGroup.vue'
 import Header from '@/components/shared/GenericHeader.vue'
+import { brandGradient } from '@/utils/colortools/pageGradient'
 import NoItems from '@/components/shared/NoItems.vue'
 import useModalStore from '@/stores/modal'
 

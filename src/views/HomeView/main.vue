@@ -1,5 +1,5 @@
 <template>
-    <div class="homepageview content-page">
+    <div class="homepageview content-page" :style="{ background: brandGradient() }">
         <Browse />
         <PageItem
             v-for="item in home.homepageItems"
@@ -24,6 +24,7 @@ import updatePageTitle from '@/utils/updatePageTitle'
 
 import Browse from '@/components/HomeView/Browse.vue'
 import PageItem from '@/components/shared/CardScroller.vue'
+import { brandGradient } from '@/utils/colortools/pageGradient'
 
 const home = useHome()
 
