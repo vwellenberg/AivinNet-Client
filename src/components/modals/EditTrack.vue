@@ -27,6 +27,7 @@ import { onMounted, ref } from 'vue'
 import { Track } from '@/interfaces'
 import { editTrackTags, EditTrackTagsPayload } from '@/requests/track'
 import { NotifType, Notification } from '@/stores/notification'
+import useTracklist from '@/stores/queue/tracklist'
 
 import ChipInput from './ChipInput.vue'
 
@@ -93,18 +94,23 @@ function save() {
     }
 
     saving.value = true
-    editTrackTags(props.track.trackhash, payload)
+    const oldHash = props.track.trackhash
+    editTrackTags(oldHash, payload)
         .then(updated => {
             if (!updated) return
             // Patch the visible row in place: the context menu handed us the
             // store's reactive track object, so copying the re-indexed fields onto
             // it updates the row without a refetch. The backend re-serialises
             // is_favorite for the current user (the favorite is migrated to the
-            // new trackhash), so the favorite indicator stays correct. Known
-            // limitation: the same track shown in another view, and the
-            // now-playing highlight when editing the currently-playing track,
-            // refresh on next navigation (the queue keeps the old hash).
+            // new trackhash), so the favorite indicator stays correct.
             Object.assign(props.track, updated)
+            // Also patch any copies of this track in the play queue (it holds its
+            // own objects). This keeps the now-playing bar and the current-row
+            // highlight in sync — the queue's currenttrackhash is derived from the
+            // track object, and currentindex is untouched, so playback is not
+            // reloaded. A copy shown in a different, not-currently-mounted view
+            // still refreshes on next navigation.
+            useTracklist().retagTrack(oldHash, updated)
             emit('hideModal')
         })
         .finally(() => {
