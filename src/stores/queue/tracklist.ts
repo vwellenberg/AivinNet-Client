@@ -175,6 +175,17 @@ export default defineStore('tracklist', {
                 track.is_favorite = !track.is_favorite
             }
         },
+        // Apply an edited track's new tags to any copies already in the queue
+        // (matched by the pre-edit trackhash). currentindex is left untouched, so
+        // `currenttrack`/`currenttrackhash` simply re-derive — the now-playing bar
+        // and current-row highlight follow the new tags without reloading audio.
+        retagTrack(oldHash: string, updated: Track) {
+            this.tracklist.forEach(track => {
+                if (track.trackhash === oldHash) {
+                    Object.assign(track, updated)
+                }
+            })
+        },
         insertAfterCurrent(tracks: Track[]) {
             const { currentindex } = useQueue()
 
