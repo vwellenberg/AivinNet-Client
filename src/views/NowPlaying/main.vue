@@ -3,6 +3,8 @@
     v-if="$route.params.tab == 'home'"
     class="now-playing-view v-scroll-page"
     :class="{ isSmall, isMedium }"
+    style="position: relative"
+    :style="{ background: pageGradient(gradientBg) }"
   >
     <DynamicScroller
       :items="scrollerItems"
@@ -38,15 +40,27 @@ import { ScrollerItem } from "@/interfaces";
 
 import useQueueStore from "@/stores/queue";
 import useTracklist from "@/stores/queue/tracklist";
+import useColorStore from "@/stores/colors";
 import { isMedium, isSmall } from "@/stores/content-width";
 
 import Header from "@/components/NowPlaying/Header.vue";
 import SongItem from "@/components/shared/SongItem.vue";
 import updatePageTitle from "@/utils/updatePageTitle";
+import { pageGradient } from "@/utils/colortools/pageGradient";
+import { darkenHex } from "@/utils/colortools";
 
 
 const queue = useQueueStore();
 const store = useTracklist();
+const colors = useColorStore();
+
+// Spotify-style page fade like the Album/Playlist views, tinted by the current
+// track's cover (colors.bg, set per track in stores/player.ts). When the cover
+// has no colour to tint with — greyscale art or the no-cover placeholder —
+// colors.bg is '' and we fall back to the brand green ($brand-green #1D9E75),
+// darkened to the same gradient base.
+const BRAND_GREEN = "#1D9E75";
+const gradientBg = computed(() => colors.bg || darkenHex(BRAND_GREEN, 16));
 
 function playFromQueue(index: number) {
   queue.play(index);

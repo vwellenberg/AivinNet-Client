@@ -1,44 +1,7 @@
 import Vibrant from "node-vibrant";
 import listToRgbString from "./listToRgbString";
 import { darkenHex } from "./index";
-
-interface SwatchLite {
-  rgb: number[];
-  hsl: number[]; // [h, s, l] each 0..1
-  pop: number;
-}
-
-const SWATCH_NAMES = [
-  "Vibrant",
-  "DarkVibrant",
-  "LightVibrant",
-  "Muted",
-  "DarkMuted",
-  "LightMuted",
-];
-
-function collectSwatches(palette: any): SwatchLite[] {
-  const out: SwatchLite[] = [];
-  for (const name of SWATCH_NAMES) {
-    const sw = palette[name];
-    if (sw) {
-      out.push({ rgb: sw.getRgb(), hsl: sw.getHsl(), pop: sw.getPopulation() });
-    }
-  }
-  return out;
-}
-
-/**
- * Score used to pick the *dominant* colour (Spotify-style), NOT the most
- * saturated one. Population dominates so a big earthy tone wins over a tiny
- * vivid accent, but a mild saturation factor breaks ties toward the more
- * colourful option and away from near-greys.
- */
-function dominance(s: SwatchLite): number {
-  const sat = s.hsl[1];
-  const satFactor = 0.35 + 0.65 * Math.min(1, sat / 0.5);
-  return s.pop * satFactor;
-}
+import { collectSwatches, dominance } from "./swatches";
 
 /**
  * Assigns `colors.bg`, `colors.bg2` and `colors.btn` on the store.
