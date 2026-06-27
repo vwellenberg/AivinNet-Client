@@ -70,6 +70,24 @@ export async function updateUserProfile(user: any) {
     return res
 }
 
+export async function uploadProfileImage(formData: FormData) {
+    return await useAxios({
+        url: paths.api.auth.updateProfileImage,
+        method: 'PUT',
+        props: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    })
+}
+
+export async function removeProfileImage() {
+    return await useAxios({
+        url: paths.api.auth.updateProfileImage,
+        method: 'DELETE',
+    })
+}
+
 export async function addNewUser(user: any) {
     const res = await useAxios({
         url: paths.api.auth.addUser,

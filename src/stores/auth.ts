@@ -9,7 +9,9 @@ import {
     getLoggedInUser,
     loginUser,
     logoutUser,
+    removeProfileImage,
     updateUserProfile,
+    uploadProfileImage,
 } from '@/requests/auth'
 import { NotifType, useToast } from '@/stores/notification'
 
@@ -98,6 +100,40 @@ export default defineStore('authStore', {
                     this.user = res.data
                 }
                 this.showSuccess('Profile updated successfully!')
+                return true
+            }
+
+            this.showResMsgOrGenericError(res)
+            return false
+        },
+        async uploadAvatar(file: File) {
+            const formData = new FormData()
+            formData.append('image', file)
+
+            const res = await uploadProfileImage(formData)
+
+            if (res.status === 200) {
+                // Backend re-reads the user from the DB, so the response already
+                // carries the new image filename.
+                this.user = res.data
+                this.showSuccess('Profile picture updated!')
+                return true
+            }
+
+            if (res.status === 400) {
+                this.showError('Unsupported image')
+                return false
+            }
+
+            this.showResMsgOrGenericError(res)
+            return false
+        },
+        async removeAvatar() {
+            const res = await removeProfileImage()
+
+            if (res.status === 200) {
+                this.user = res.data
+                this.showSuccess('Profile picture removed')
                 return true
             }
 

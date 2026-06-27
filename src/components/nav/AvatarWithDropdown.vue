@@ -1,7 +1,7 @@
 <template>
     <div ref="avatarRef" class="avatar">
         <div class="img circular" @click="toggle">
-            <Avatar :name="auth.user.username || ''" :size="36" />
+            <Avatar :name="auth.user.username || ''" :size="36" :image="auth.user.image" />
         </div>
         <Transition name="profiledrop-fade">
             <ProfileDropdown v-if="isOpen" @close="close" />
