@@ -210,8 +210,14 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     // on wide layouts (the .with-plays class is toggled off on isSmall/isMedium
     // together with the TrackPlays child), so it never clashes with the
     // responsive grids in app-grid.scss.
+    //
+    // The duration column is wider here (10rem vs the default 7.5rem): on
+    // favorited rows the green check-circle is shown inline in that column, and
+    // at 7.5rem the check + duration + options overflowed left over the Plays
+    // number (justify-content: end). 10rem keeps the check inside its own column
+    // with enough headroom for the longest (HH:MM:SS) durations.
     &.with-plays {
-        grid-template-columns: 1.75rem 2.5fr 1.5fr 5rem 7.5rem;
+        grid-template-columns: 1.75rem 2.5fr 1.5fr 5rem 10rem;
     }
 
     &:hover {
