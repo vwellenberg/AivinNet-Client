@@ -116,6 +116,11 @@ onMounted(() => {
       overflow: auto;
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
+
+      // The chips scroll horizontally by touch/drag; never show the
+      // scrollbar (it otherwise overlaps the chips on mobile, where the
+      // desktop-only designatedOS hide rule never applied).
+      @include hideScrollbars;
     }
 
     @include allPhones {
@@ -132,9 +137,5 @@ onMounted(() => {
       padding-top: 0 !important;
     }
   }
-}
-
-.designatedOS .tabheaders::-webkit-scrollbar {
-  display: none;
 }
 </style>
