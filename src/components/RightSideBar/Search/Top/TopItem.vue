@@ -140,9 +140,10 @@ function showMenu(e: MouseEvent) {
         }
     }
 
-    // Touch devices can't hover — keep the play button reachable.
+    // Touch devices can't hover — keep the play button reachable. Match the
+    // base `.buttons .play-btn` specificity so this actually overrides it.
     @media (hover: none) {
-        .play-btn {
+        .buttons .play-btn {
             opacity: 1;
         }
     }
