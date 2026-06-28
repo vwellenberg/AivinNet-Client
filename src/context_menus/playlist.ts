@@ -32,8 +32,22 @@ export default async (playlist: Playlist) => {
   const moveToFolder: Option = {
     label: "Move to folder",
     children: async () => {
-      if (folderStore.folders.length === 0) {
-        return [{ label: "No folders yet", action: () => {} }] as Option[];
+      // Always offer to create a folder right here (so it works even with no
+      // folders yet); the new folder immediately receives this playlist.
+      const newFolder: Option = {
+        label: "New folder…",
+        action: async () => {
+          const name = window.prompt("Folder name")?.trim();
+          if (!name) return;
+          const folder = await folderStore.create(name);
+          if (folder) await folderStore.move(playlist.id, folder.id);
+        },
+      };
+
+      const items: Option[] = [newFolder];
+
+      if (folderStore.folderOf.has(playlist.id)) {
+        items.push({ label: "Remove from folder", action: () => folderStore.move(playlist.id, null) });
       }
 
       const folderOptions: Option[] = folderStore.sortedFolders.map((f) => ({
@@ -41,15 +55,11 @@ export default async (playlist: Playlist) => {
         action: () => folderStore.move(playlist.id, f.id),
       }));
 
-      if (folderStore.folderOf.has(playlist.id)) {
-        return [
-          { label: "Remove from folder", action: () => folderStore.move(playlist.id, null) },
-          { type: "separator" },
-          ...folderOptions,
-        ];
+      if (folderOptions.length) {
+        items.push({ type: "separator" }, ...folderOptions);
       }
 
-      return folderOptions;
+      return items;
     },
   };
 
