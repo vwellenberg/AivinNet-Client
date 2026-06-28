@@ -2,9 +2,13 @@
     <RouterLink :to="getRouterParams()" class="chartitem rounded-sm">
         <ArrowSvg class="trend" :class="item.trend?.trend" />
         <div class="index">{{ index }}</div>
-        <img :src="getItemImage(item)" class="chartimage" :class="name" />
+        <template v-if="isPlaylist">
+            <img v-if="playlistImage" :src="playlistImage" class="chartimage playlist" />
+            <div v-else class="chartimage playlist placeholder"><PlaylistSvg /></div>
+        </template>
+        <img v-else :src="getItemImage(item)" class="chartimage" :class="name" />
         <div class="iteminfo">
-            <div class="title" :title="item.name" v-if="isArtist">
+            <div class="title" :title="item.name" v-if="isArtist || isPlaylist">
                 {{ item.name }} <MasterFlag v-if="item.trend?.is_new" :text="item.trend?.is_new ? 'New' : ''" :bitrate="1900"/>
             </div>
             <div class="title" :title="item.title" v-if="isAlbumOrTrack">
@@ -16,7 +20,7 @@
                     :albumartists="item.albumartists"
                 />
             </div>
-            <div class="artist" v-if="isArtist">
+            <div class="artist" v-if="isArtist || isPlaylist">
                 {{ item.extra['playcount'] }} track plays
             </div>
         </div>
@@ -30,14 +34,15 @@
 import { computed } from 'vue'
 
 import { paths } from '@/config'
-import { Album, Artist, Track } from '@/interfaces'
+import { Album, Artist, Playlist, Track } from '@/interfaces'
 import ArrowSvg from '@/assets/icons/arrow.svg'
+import PlaylistSvg from '@/assets/icons/playlist-1.svg'
 import ArtistName from '../shared/ArtistName.vue'
 import { Routes } from '@/router'
 import MasterFlag from '../shared/MasterFlag.vue'
 
-type ChartName = 'artist' | 'album' | 'track'
-type ChartItem = Artist | Album | Track
+type ChartName = 'artist' | 'album' | 'track' | 'playlist'
+type ChartItem = Artist | Album | Track | Playlist
 
 const props = defineProps<{
     item: ChartItem
@@ -47,6 +52,16 @@ const props = defineProps<{
 
 const isArtist = computed(() => props.name === 'artist')
 const isAlbumOrTrack = computed(() => props.name === 'album' || props.name === 'track')
+const isPlaylist = computed(() => props.name === 'playlist')
+
+// Playlists may have no own image (image === "None"): fall back to the first
+// track cover, like the sidebar does. See CLAUDE.md "Playlist image=None".
+const playlistImage = computed(() => {
+    const item = props.item as Playlist
+    if (item.has_image) return paths.images.playlist + item.image
+    if (item.images && item.images.length) return paths.images.thumb.small + item.images[0].image
+    return ''
+})
 
 function getItemImage(item: ChartItem) {
     switch (props.name) {
@@ -63,6 +78,8 @@ function getRouterParams() {
     switch (props.name) {
         case 'artist':
             return { name: Routes.artist, params: { hash: props.item.artisthash } }
+        case 'playlist':
+            return { name: Routes.playlist, params: { pid: props.item.id } }
         default:
             return { name: Routes.album, params: { albumhash: props.item.albumhash } }
     }
@@ -90,6 +107,18 @@ function getRouterParams() {
 
     .chartimage.artist {
         border-radius: 50%;
+    }
+
+    .chartimage.playlist.placeholder {
+        width: 48px;
+        display: grid;
+        place-items: center;
+        background-color: $gray;
+
+        svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
     }
 
     .iteminfo {
