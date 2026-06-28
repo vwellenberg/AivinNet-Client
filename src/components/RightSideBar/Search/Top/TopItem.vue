@@ -171,7 +171,7 @@ function showMenu(e: MouseEvent) {
         font-size: 0.8rem;
         font-weight: 500;
         color: white;
-        background-color: $darkblue;
+        background-color: $brand-green;
         width: max-content;
         padding: 2px $small;
         text-transform: capitalize;
@@ -209,6 +209,39 @@ function showMenu(e: MouseEvent) {
         }
 
         flex-direction: column-reverse;
+    }
+
+    // Mobile: compact horizontal layout — cover on the left, badge/title/meta
+    // vertically centred beside it. Avoids the tall desktop card collapsing to
+    // a small cover with a large empty gap below it on phones.
+    @include largePhones {
+        grid-template-columns: max-content 1fr;
+        align-items: center;
+        min-width: unset;
+        max-width: 100%;
+        margin: 1rem 0;
+        padding: 0.85rem;
+
+        img {
+            width: 4.5rem;
+            height: 4.5rem;
+        }
+
+        .info {
+            // reserve room for the absolute play button on the right edge so a
+            // longer title wraps before it instead of running underneath.
+            padding-right: 4rem;
+
+            h3 {
+                margin-top: 0.3rem;
+                margin-bottom: 0.15rem;
+                font-size: 1.2rem;
+            }
+        }
+
+        .buttons {
+            padding: 0.85rem;
+        }
     }
 }
 </style>
