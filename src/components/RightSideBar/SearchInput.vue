@@ -230,6 +230,12 @@ function handleButton() {
         }
 
         @include allPhones {
+            // The 3rem desktop height (sized to the round home button) made the
+            // top bar taller on the Search view than on every other page, where
+            // the bar hugs the 36px avatar. On phones there is no pill here
+            // (transparent bg), so match the avatar height to keep the top bar a
+            // constant height across all views.
+            height: 2.25rem;
             border-radius: unset;
             background-color: transparent;
         }
