@@ -17,22 +17,14 @@
                 </form>
             </template>
             <template #right>
-                <!-- On mobile this action moves to a FAB (above the bottom bar);
-                     the in-view header collapses there. -->
+                <!-- On mobile the in-view header collapses; New Playlist lives as
+                     a contextual action in the top bar (see NavBar headerAction). -->
                 <button v-if="!isMobile" class="playlist-button" @click="showNewPlaylistModal()">
                     <PlusSvg /> New Playlist
                 </button>
             </template>
         </Header>
 
-        <button
-            v-if="isMobile"
-            class="new-playlist-fab"
-            title="New Playlist"
-            @click="showNewPlaylistModal()"
-        >
-            <PlusSvg />
-        </button>
         <PlaylistCardGroup v-if="!query && pinnedPlaylists.length" :playlists="pinnedPlaylists" :title="'Pinned'" />
         <PlaylistCardGroup
             v-if="playlists.length"
@@ -142,37 +134,6 @@ const playlists = computed(() => {
         svg {
             margin-bottom: 0;
         }
-    }
-}
-
-// Mobile "New Playlist" FAB — replaces the in-header button (which collapses on
-// mobile). Fixed above the bottom bar (player + nav, ~9.5rem tall) so it never
-// overlaps it. z-index above the bottom bar (50), below the modal (60).
-.new-playlist-fab {
-    position: fixed;
-    right: 1.25rem;
-    bottom: calc(9.5rem + 1rem);
-    z-index: 55;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 50%;
-    border: none;
-    background-color: $brand-green;
-    color: #0a0a0a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-    cursor: pointer;
-    transition: transform 0.15s ease;
-
-    svg {
-        height: 1.75rem;
-        width: 1.75rem;
-    }
-
-    &:active {
-        transform: scale(0.94);
     }
 }
 </style>
