@@ -133,7 +133,11 @@ export default defineStore('album', {
             this.similarAlbums = await getSimilarAlbums(this.info.albumartists[0].artisthash, maxAbumCards.value)
         },
         extractColors() {
-            const url = paths.images.thumb.small + this.info.image
+            // Use the medium (256²) thumbnail, not xsmall (64²): the gradient
+            // colour is extracted from this image, and a 64² cover is too small
+            // for a stable dominant-swatch pick — the quantiser flips between
+            // hues across browsers/loads (muddy brown vs teal vs near-black).
+            const url = paths.images.thumb.medium + this.info.image
             setColorsToStore(this, url)
         },
         resetQuery() {
