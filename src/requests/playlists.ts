@@ -8,6 +8,18 @@ import { recordRecentPlaylist } from '@/utils/recentPlaylists'
 const { new: newPlaylistUrl, base: basePlaylistUrl, artists: playlistArtistsUrl } = paths.api.playlist
 
 /**
+ * Persist the manual library-sidebar order of playlists (sets each one's
+ * settings.position to its index in `ids`).
+ */
+export async function reorderSidebarPlaylists(ids: number[]) {
+    return await useAxios({
+        url: `${basePlaylistUrl}/sidebar-order`,
+        method: 'POST',
+        props: { ids },
+    })
+}
+
+/**
  * Creates a new playlist on the server.
  * @param playlist_name The name of the playlist to create.
  */

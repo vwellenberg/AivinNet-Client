@@ -65,9 +65,16 @@
           </div>
         </div>
 
-        <!-- Ungrouped playlists (top level; dropping here removes from a folder) -->
+        <!-- Ungrouped playlists (top level): drag a pinned one onto another to
+             reorder; drop on the empty area to pull a playlist out of a folder. -->
         <div class="sidebar-toplevel" @dragover.prevent @drop="onDropToTop($event)">
-          <SidebarPlaylistItem v-for="pl in ungroupedPlaylists" :key="pl.id" :pl="pl" />
+          <SidebarPlaylistItem
+            v-for="pl in ungroupedPlaylists"
+            :key="pl.id"
+            :pl="pl"
+            @dragover.prevent
+            @drop.stop="onDropReorder(pl, $event)"
+          />
         </div>
       </div>
     </div>
@@ -166,6 +173,26 @@ function onDropOnItem(folderId: number, index: number, e: DragEvent) {
 function onDropToTop(e: DragEvent) {
   const pid = readDragPid(e);
   if (pid !== null) folderStore.move(pid, null);
+}
+// Reorder pinned top-level playlists by dropping one onto another.
+async function onDropReorder(targetPl: Playlist, e: DragEvent) {
+  const pid = readDragPid(e);
+  if (pid === null || pid === targetPl.id) return;
+
+  // If the dragged playlist came from a folder, pull it out to the top level.
+  if (folderStore.folderOf.has(pid)) await folderStore.move(pid, null);
+
+  const dragged = playlists.playlists.find((p) => p.id === pid);
+  // Manual ordering only applies among pinned top-level playlists.
+  if (!dragged?.pinned || !targetPl.pinned) return;
+
+  const order = ungroupedPlaylists.value.filter((p) => p.pinned).map((p) => p.id);
+  const from = order.indexOf(pid);
+  if (from !== -1) order.splice(from, 1);
+  const to = order.indexOf(targetPl.id);
+  order.splice(to < 0 ? order.length : to, 0, pid);
+
+  await playlists.reorderTopLevel(order);
 }
 async function onNewFolder() {
   const name = window.prompt("Folder name")?.trim();
