@@ -60,10 +60,20 @@ const colors = useColorStore();
   position: relative;
   width: 13rem;
 
+  // Block-level link + square block image so the card shrink-wraps the cover
+  // exactly and the Lauflicht rim traces the image edge. The inline link left a
+  // baseline gap that pushed the card taller than the cover.
+  a {
+    display: block;
+  }
+
   img {
     cursor: pointer;
     width: 100%;
     height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
   }
 }
 </style>

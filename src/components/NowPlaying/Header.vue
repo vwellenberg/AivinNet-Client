@@ -235,9 +235,13 @@ function handleFav() {
 
         img {
             width: 100%;
-            height: 100%;
+            // Square the cover deterministically so the .np-image box — and the
+            // Lauflicht rim drawn on it (inset:0) — hugs the image on every
+            // device. height:100% resolved against this auto-height parent, which
+            // is undefined: some devices left a gap so the rim missed the cover.
+            height: auto;
+            aspect-ratio: 1;
             max-width: 30rem;
-            // aspect-ratio: 1;
             object-fit: cover;
             display: block;
         }
