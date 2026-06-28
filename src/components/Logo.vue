@@ -49,9 +49,9 @@
     inset: -12px;
     border-radius: 50%;
     background: radial-gradient(circle,
-      rgba(29, 158, 117, 0.75) 12%,
-      rgba(29, 158, 117, 0.35) 30%,
-      rgba(29, 158, 117, 0.12) 55%,
+      rgba($brand-green, 0.75) 12%,
+      rgba($brand-green, 0.35) 30%,
+      rgba($brand-green, 0.12) 55%,
       transparent 80%);
     animation: logo-pulse 3.2s ease-in-out infinite;
     pointer-events: none;

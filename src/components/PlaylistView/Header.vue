@@ -15,7 +15,7 @@
       <img :src="(playlist.info.image as string)" class="rounded-sm" />
     </div>
     <BannerImages v-if="playlist.info.count && !info.has_image && useSqrImg" class="sqr_img rounded-sm" />
-    <Info :text-color="textColor" :btn_color="'#1D9E75'" /><!-- brand-green -->
+    <Info :text-color="textColor" :btn_color="BRAND_GREEN" />
     <LastUpdated />
   </div>
 </template>
@@ -27,6 +27,7 @@ import { computed } from "vue";
 import { isSmallPhone } from "@/stores/content-width";
 import usePStore from "@/stores/pages/playlist";
 import { getTextColor } from "@/utils/colortools/shift";
+import { BRAND_GREEN } from "@/utils/colortools/pageGradient";
 
 import BannerImages from "./Header/BannerImages.vue";
 import Info from "./Header/Info.vue";

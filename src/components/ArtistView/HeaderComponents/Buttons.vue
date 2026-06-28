@@ -1,6 +1,6 @@
 <template>
   <div class="artist-buttons">
-    <PlayBtnRect :source="playSources.artist" :bg_color="'#1D9E75'" /><!-- brand-green -->
+    <PlayBtnRect :source="playSources.artist" :bg_color="BRAND_GREEN" />
     <HeartSvg
       :state="artist.info.is_favorite"
       :color="
@@ -33,6 +33,7 @@ import useArtistPageStore from "@/stores/pages/artist";
 import MoreSvg from "@/assets/icons/more.svg";
 import HeartSvg from "@/components/shared/HeartSvg.vue";
 import PlayBtnRect from "@/components/shared/PlayBtnRect.vue";
+import { BRAND_GREEN } from "@/utils/colortools/pageGradient";
 
 defineProps<{
   useCircularImage?: boolean;

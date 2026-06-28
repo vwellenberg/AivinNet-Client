@@ -1,9 +1,11 @@
 import { parseColor, darkenHex } from '@/utils/colortools'
+import brandColors from '@/brand-colors.json'
 
-// AivinNet brand colours — mirror of scss/_variables.scss ($brand-green /
-// $brand-red). Kept here so the brand-tinted page fades have one TS source.
-export const BRAND_GREEN = '#1D9E75'
-export const BRAND_RED = '#FF284E'
+// AivinNet brand colours — re-exported from the single source of truth
+// (src/brand-colors.json, which also feeds SCSS $brand-green / $brand-red via
+// vite.config). Import these anywhere a brand colour is needed in TS/Vue.
+export const BRAND_GREEN = brandColors.green
+export const BRAND_RED = brandColors.red
 
 // The app page background the gradients fade into.
 const PAGE_BG = '#121212'

@@ -52,15 +52,16 @@
 import { maxSeekPercent } from '@/stores/player'
 import useQStore from '@/stores/queue'
 import { formatSeconds } from '@/utils'
+import { BRAND_GREEN } from '@/utils/colortools/pageGradient'
 import { computed, reactive, ref } from 'vue'
 
 const q = useQStore()
 
 const { duration: time } = q
 
-// Played portion in AivinNet brand green ($brand-green) — fixed, not tied to
-// the cover colour (#32).
-const accent = '#1D9E75'
+// Played portion in AivinNet brand green — fixed, not tied to the cover
+// colour (#32).
+const accent = BRAND_GREEN
 
 const wrap = ref<HTMLElement | null>(null)
 const input = ref<HTMLInputElement | null>(null)

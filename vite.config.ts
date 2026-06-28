@@ -9,6 +9,10 @@ import viteCompression from "vite-plugin-compression";
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 const path = require("path");
+// Single source of truth for the brand/accent colours. Injected into SCSS below
+// (so $brand-green / $brand-red derive from it) and imported in TS via
+// pageGradient.ts. Change the colour here once and rebuild.
+const brandColors = require("./src/brand-colors.json");
 
 export default defineConfig({
   base: "./",
@@ -135,7 +139,9 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "@/assets/scss/_variables.scss", "@/assets/scss/_mixins.scss";`,
+        // Feed the brand colours from the single JSON source into SCSS. These
+        // win over the `!default` fallbacks in _variables.scss.
+        additionalData: `$brand-green: ${brandColors.green}; $brand-red: ${brandColors.red}; @import "@/assets/scss/_variables.scss", "@/assets/scss/_mixins.scss";`,
       },
     },
   },
