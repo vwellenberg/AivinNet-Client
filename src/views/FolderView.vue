@@ -169,7 +169,10 @@ onMounted(() => {
 
     .scroller > div.vue-recycle-scroller__slot:first-child {
         padding: 1rem 0;
-        background-color: $body;
+        // Match the content surface (#acontent) so this sticky breadcrumb band
+        // blends in instead of showing a pure-black bar. $body (#000000) was
+        // darker than the #121212 content area and stood out as a black block.
+        background-color: #121212;
         position: sticky;
         top: 0;
         z-index: 1;
