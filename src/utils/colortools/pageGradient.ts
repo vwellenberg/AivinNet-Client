@@ -61,11 +61,10 @@ export function pageGradient(bg?: string): string {
  */
 export function brandGradient(color: string = BRAND_GREEN): string {
     const bg = darkenHex(color)
-    // ~50% softer than the detail-view fade: blend each tinted stop halfway to
-    // the page background, so the library pages get a subtle hint of brand
-    // colour instead of a strong wash. Stop positions match pageGradient() — only
-    // the intensity changes, not the shape.
-    const top = mixColor(vividTop(bg), PAGE_BG, 0.5)
-    const mid = mixColor(bg, PAGE_BG, 0.5)
-    return `linear-gradient(180deg, ${top} 0%, ${mid} 32%, ${PAGE_BG} 72%)`
+    // Very subtle brand hint on the library pages: blend each tinted stop ~72%
+    // toward the page background and fade out high up the page, so it reads as a
+    // faint top glow rather than a wash. (Tuned down twice per design review.)
+    const top = mixColor(vividTop(bg), PAGE_BG, 0.72)
+    const mid = mixColor(bg, PAGE_BG, 0.72)
+    return `linear-gradient(180deg, ${top} 0%, ${mid} 22%, ${PAGE_BG} 52%)`
 }
