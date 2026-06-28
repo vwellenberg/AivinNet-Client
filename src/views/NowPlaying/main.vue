@@ -57,8 +57,8 @@ const colors = useColorStore();
 // Spotify-style page fade like the Album/Playlist views, tinted by the current
 // track's cover (colors.bg, set per track in stores/player.ts). When the cover
 // has no colour to tint with — greyscale art or the no-cover placeholder —
-// colors.bg is '' and we fall back to the brand green ($brand-green #1D9E75),
-// darkened to the same gradient base.
+// colors.bg is '' and we fall back to the brand green (BRAND_GREEN), darkened
+// to the same gradient base.
 const gradientBg = computed(() => colors.bg || darkenHex(BRAND_GREEN, 16));
 
 function playFromQueue(index: number) {

@@ -12,7 +12,7 @@
     <div
       v-wave
       class="sidebar-songcard lauflicht-rim rounded-sm"
-      :style="{ '--np-accent': colors.theme1 || '#FF284E' }"
+      :style="{ '--np-accent': colors.theme1 || BRAND_RED }"
     >
       <router-link
         :to="{
@@ -40,6 +40,7 @@ import { Routes } from "@/router";
 import { paths } from "@/config";
 import useColorStore from "@/stores/colors";
 import useQueueStore from "@/stores/queue";
+import { BRAND_RED } from "@/utils/colortools/pageGradient";
 
 import Bitrate from "./Bitrate.vue";
 

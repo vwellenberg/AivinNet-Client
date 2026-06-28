@@ -1,6 +1,6 @@
 <template>
   <div class="album-buttons">
-    <PlayBtnRect :source="playSources.album" :bg_color="'#1D9E75'" /><!-- brand-green -->
+    <PlayBtnRect :source="playSources.album" :bg_color="BRAND_GREEN" />
 
     <HeartSvg
       :state="album.is_favorite"
@@ -37,6 +37,7 @@ import { storeToRefs } from "pinia";
 
 import { favType, playSources } from "@/enums";
 import useAlbumStore from "@/stores/pages/album";
+import { BRAND_GREEN } from "@/utils/colortools/pageGradient";
 
 import MoreSvg from "@/assets/icons/more.svg";
 import DownloadSvg from "@/assets/icons/download.svg";

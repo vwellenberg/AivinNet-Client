@@ -11,7 +11,7 @@
                 }"
                 title="Go to Album"
                 class="np-image lauflicht-rim"
-                :style="{ '--np-accent': colors.theme1 || '#FF284E' }"
+                :style="{ '--np-accent': colors.theme1 || BRAND_RED }"
             >
                 <img v-motion-fade class="rounded" :src="paths.images.thumb.large + queue.currenttrack?.image" />
             </RouterLink>
@@ -49,6 +49,7 @@ import { isMobile, isSmallPhone } from '@/stores/content-width'
 import useQueueStore from '@/stores/queue'
 import useColorStore from '@/stores/colors'
 import { formatSeconds } from '@/utils'
+import { BRAND_RED } from '@/utils/colortools/pageGradient'
 
 import Progress from '@/components/LeftSidebar/NP/Progress.vue'
 import Buttons from '../BottomBar/Right.vue'

@@ -1,8 +1,11 @@
 // colors
 
-// AivinNet brand colors
-$brand-red: #FF284E;
-$brand-green: #1D9E75;
+// AivinNet brand colors — single source of truth: src/brand-colors.json,
+// injected by vite.config (css.preprocessorOptions.scss.additionalData) so the
+// injected values win. The literals below are an inert `!default` fallback that
+// only applies if the SCSS is ever compiled without that injection.
+$brand-red: #FF284E !default;
+$brand-green: #1D9E75 !default;
 $brand-purple: #7F77DD;
 
 $highlight-blue: #006eff;
