@@ -37,7 +37,7 @@ defineEmits<{
     (e: 'changeGroup', group: string): void
 }>()
 
-const groups = ['artists', 'albums', 'tracks']
+const groups = ['artists', 'albums', 'tracks', 'playlists']
 const periods = ['week', 'month', 'year', 'alltime']
 </script>
 

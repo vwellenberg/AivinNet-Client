@@ -2,7 +2,7 @@
     <div class="stats-charts">
         <GenericHeader>
             <template #name>Charts</template>
-            <template #description>Your top artists, albums, and tracks</template>
+            <template #description>Your top artists, albums, tracks, and playlists</template>
         </GenericHeader>
         <br>
         <div class="chartitemgroupsgrid">

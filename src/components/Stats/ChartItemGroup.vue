@@ -35,7 +35,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 
 import { getChartItem } from '@/requests/stats'
-import { Artist, Album, Track } from '@/interfaces'
+import { Artist, Album, Track, Playlist } from '@/interfaces'
 import useSettings from '@/stores/settings'
 
 import ChartItem from './ChartItem.vue'
@@ -53,6 +53,7 @@ const items2: any = reactive({
     tracks: <Track[]>[],
     albums: <Album[]>[],
     artists: <Artist[]>[],
+    playlists: <Playlist[]>[],
 })
 
 const items = computed(() => {
