@@ -5,6 +5,23 @@ import { parseColor, darkenHex } from '@/utils/colortools'
 export const BRAND_GREEN = '#1D9E75'
 export const BRAND_RED = '#FF284E'
 
+// The app page background the gradients fade into.
+const PAGE_BG = '#121212'
+
+/**
+ * Linear blend between two colours. `t` = 0 returns `a`, `t` = 1 returns `b`.
+ * Accepts any form parseColor understands, returns `#rrggbb`.
+ */
+function mixColor(a: string, b: string, t: number): string {
+    const [ar, ag, ab] = parseColor(a)
+    const [br, bg, bb] = parseColor(b)
+    const toHex = (x: number, y: number) =>
+        Math.round(x + (y - x) * t)
+            .toString(16)
+            .padStart(2, '0')
+    return `#${toHex(ar, br)}${toHex(ag, bg)}${toHex(ab, bb)}`
+}
+
 /**
  * Brightens a colour toward a vivid version by scaling its RGB channels while
  * preserving hue. The scale factor is capped so the brightest channel never
@@ -43,5 +60,12 @@ export function pageGradient(bg?: string): string {
  * green; pass BRAND_RED for the energetic accent (Stats).
  */
 export function brandGradient(color: string = BRAND_GREEN): string {
-    return pageGradient(darkenHex(color))
+    const bg = darkenHex(color)
+    // ~50% softer than the detail-view fade: blend each tinted stop halfway to
+    // the page background, so the library pages get a subtle hint of brand
+    // colour instead of a strong wash. Stop positions match pageGradient() — only
+    // the intensity changes, not the shape.
+    const top = mixColor(vividTop(bg), PAGE_BG, 0.5)
+    const mid = mixColor(bg, PAGE_BG, 0.5)
+    return `linear-gradient(180deg, ${top} 0%, ${mid} 32%, ${PAGE_BG} 72%)`
 }
