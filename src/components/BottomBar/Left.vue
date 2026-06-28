@@ -129,6 +129,13 @@ defineEmits<{
 
         img {
             height: 100%;
+            width: auto;
+            aspect-ratio: 1;
+            object-fit: cover;
+            // Block-level so the inline baseline gap doesn't make .np-image
+            // taller than the cover — that gap let the Lauflicht rim miss the
+            // bottom edge instead of tracing all the way around.
+            display: block;
         }
 
         .expandicon {
