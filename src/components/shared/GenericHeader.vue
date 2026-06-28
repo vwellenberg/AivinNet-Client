@@ -71,10 +71,14 @@
         grid-template-columns: repeat(auto-fill, 100%);
     }
 
-    // On phones the page title is shown in the top bar (see NavBar mobileTitle),
-    // so hide the redundant in-view title here. The right-hand slot (e.g. the
-    // "New Playlist" button) stays.
+    // On phones the page title is shown in the top bar (see NavBar mobileTitle)
+    // and the description is hidden, so the in-view header is empty — hide the
+    // title and collapse the header's bottom padding so content starts right
+    // under the top bar instead of leaving a dead gap. (Page-level actions like
+    // "New Playlist" move to a mobile FAB rather than living in this header.)
     @include allPhones {
+        padding-bottom: 0;
+
         .title {
             display: none;
         }
