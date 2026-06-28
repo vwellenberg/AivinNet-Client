@@ -3,7 +3,12 @@
     <div class="scrollable">
       <Navigation />
       <div class="sidebar-library">
-        <div class="sidebar-library-title">Bibliothek</div>
+        <div class="sidebar-library-title">
+          <span>Library</span>
+          <button class="sidebar-newfolder" title="New folder" @click="onNewFolder">
+            <PlusSvg />
+          </button>
+        </div>
         <RouterLink
           v-for="al in pinnedAlbums.sortedAlbums"
           :key="al.albumhash"
@@ -25,35 +30,45 @@
             </button>
           </div>
           <span class="ellip">{{ al.title }}</span>
-          <PushPinSvg class="pl-pin" title="Angepinnt" />
+          <PushPinSvg class="pl-pin" title="Pinned" />
         </RouterLink>
-        <RouterLink
-          v-for="pl in playlists.sortedPlaylists"
-          :key="pl.id"
-          :to="{ name: Routes.playlist, params: { pid: pl.id } }"
-          class="sidebar-playlist-item"
-          :class="{ active: $route.params.pid == pl.id }"
-          @contextmenu.prevent="showPlaylistContextMenu($event, pl, ctxFlag)"
+
+        <!-- Playlist folders (flat, collapsible) -->
+        <div
+          v-for="folder in foldersWithPlaylists"
+          :key="'folder-' + folder.id"
+          class="sidebar-folder"
+          :class="{ 'drag-over': dragOverFolder === folder.id }"
+          @dragover.prevent="dragOverFolder = folder.id"
+          @dragleave="dragOverFolder = null"
+          @drop="onDropToFolder(folder.id, $event)"
         >
-          <div class="sidebar-pl-img rounded-sm">
-            <img v-if="pl.has_image" :src="imgBase + pl.image" />
-            <img v-else-if="pl.images && pl.images.length" :src="thumbBase + pl.images[0].image" />
-            <div v-else class="sidebar-pl-placeholder">
-              <PlaylistSvg />
-            </div>
-            <button
-              class="pl-play-overlay"
-              :class="{ playing: isCurrent(pl.id) }"
-              :title="isPlaying(pl.id) ? 'Pause' : 'Play'"
-              @click.prevent.stop="togglePlay(pl.id)"
-            >
-              <PauseSvg v-if="isPlaying(pl.id)" />
-              <PlaySvg v-else />
-            </button>
+          <div
+            class="sidebar-folder-header"
+            @click="folderStore.toggleCollapse(folder.id)"
+            @contextmenu.prevent="onFolderContextMenu($event, folder)"
+          >
+            <RightArrowSvg class="folder-chevron" :class="{ open: !folderStore.isCollapsed(folder.id) }" />
+            <FolderSvg class="folder-icon" />
+            <span class="ellip">{{ folder.name }}</span>
+            <span class="folder-count">{{ folder.playlists.length }}</span>
           </div>
-          <span class="ellip">{{ pl.name }}</span>
-          <PushPinSvg v-if="pl.pinned" class="pl-pin" title="Angepinnt" />
-        </RouterLink>
+          <div v-if="!folderStore.isCollapsed(folder.id)" class="sidebar-folder-items">
+            <SidebarPlaylistItem
+              v-for="(pl, idx) in folder.playlists"
+              :key="pl.id"
+              :pl="pl"
+              @dragover.prevent
+              @drop.stop="onDropOnItem(folder.id, idx, $event)"
+            />
+            <div v-if="!folder.playlists.length" class="sidebar-folder-empty">Drop playlists here</div>
+          </div>
+        </div>
+
+        <!-- Ungrouped playlists (top level; dropping here removes from a folder) -->
+        <div class="sidebar-toplevel" @dragover.prevent @drop="onDropToTop($event)">
+          <SidebarPlaylistItem v-for="pl in ungroupedPlaylists" :key="pl.id" :pl="pl" />
+        </div>
       </div>
     </div>
 
@@ -74,21 +89,28 @@ import usePStore from "@/stores/pages/playlists";
 import usePinnedAlbums from "@/stores/pages/pinnedAlbums";
 import { Routes } from '@/router'
 import { paths } from '@/config'
-import { Album } from "@/interfaces";
+import { Album, Playlist } from "@/interfaces";
 
 import Navigation from "@/components/LeftSidebar/NavButtons.vue";
 import SongCard from "./NP/SongCard.vue";
-import PlaylistSvg from "@/assets/icons/playlist-1.svg";
+import SidebarPlaylistItem from "./SidebarPlaylistItem.vue";
 import PlaySvg from "@/assets/icons/play.svg";
 import PauseSvg from "@/assets/icons/pause.svg";
 import PushPinSvg from "@/assets/icons/push-pin.svg";
+import FolderSvg from "@/assets/icons/folder.fill.svg";
+import RightArrowSvg from "@/assets/icons/right-arrow.svg";
+import PlusSvg from "@/assets/icons/plus.svg";
 import pkg from "../../../package.json";
 
 import useQueue from "@/stores/queue";
 import useTracklist from "@/stores/queue/tracklist";
-import { FromOptions } from "@/enums";
-import { playFromPlaylist, playFromAlbumCard } from "@/helpers/usePlayFrom";
-import { showPlaylistContextMenu, showAlbumContextMenu } from "@/helpers/contextMenuHandler";
+import useContextStore from "@/stores/context";
+import usePlaylistFolders from "@/stores/playlistFolders";
+import { PlaylistFolder } from "@/requests/playlistFolders";
+import { FromOptions, ContextSrc } from "@/enums";
+import { playFromAlbumCard } from "@/helpers/usePlayFrom";
+import { showAlbumContextMenu } from "@/helpers/contextMenuHandler";
+import { DeleteIcon } from "@/icons";
 
 const ctxFlag = ref(false);
 
@@ -99,9 +121,75 @@ const playlists = usePStore();
 const pinnedAlbums = usePinnedAlbums();
 const queue = useQueue();
 const tracklist = useTracklist();
-const imgBase = paths.images.playlist;
-// First album cover of the playlist, used when it has no dedicated image.
+// Album cover thumbnail base (pinned albums in the library list).
 const thumbBase = paths.images.thumb.small;
+
+const folderStore = usePlaylistFolders();
+const contextStore = useContextStore();
+
+const playlistMap = computed(() => {
+  const m = new Map<number, Playlist>();
+  for (const p of playlists.playlists) m.set(p.id, p);
+  return m;
+});
+
+// Folders (ordered) each with their resolved playlists; unknown/deleted ids are
+// dropped so stale references never render.
+const foldersWithPlaylists = computed(() =>
+  folderStore.sortedFolders.map(f => ({
+    ...f,
+    playlists: f.items.map(id => playlistMap.value.get(id)).filter((p): p is Playlist => !!p),
+  }))
+);
+
+// Playlists not in any folder render at the top level.
+const ungroupedPlaylists = computed(() =>
+  playlists.sortedPlaylists.filter(p => !folderStore.folderOf.has(p.id))
+);
+
+const dragOverFolder = ref<number | null>(null);
+
+function readDragPid(e: DragEvent): number | null {
+  const raw = e.dataTransfer?.getData("playlistid");
+  return raw ? parseInt(raw) : null;
+}
+function onDropToFolder(folderId: number, e: DragEvent) {
+  dragOverFolder.value = null;
+  const pid = readDragPid(e);
+  if (pid !== null) folderStore.move(pid, folderId);
+}
+function onDropOnItem(folderId: number, index: number, e: DragEvent) {
+  dragOverFolder.value = null;
+  const pid = readDragPid(e);
+  if (pid !== null) folderStore.move(pid, folderId, index);
+}
+function onDropToTop(e: DragEvent) {
+  const pid = readDragPid(e);
+  if (pid !== null) folderStore.move(pid, null);
+}
+async function onNewFolder() {
+  const name = window.prompt("Folder name")?.trim();
+  if (name) await folderStore.create(name);
+}
+function onFolderContextMenu(e: MouseEvent, folder: PlaylistFolder) {
+  const options = () => [
+    {
+      label: "Rename",
+      action: async () => {
+        const name = window.prompt("Rename folder", folder.name)?.trim();
+        if (name) await folderStore.rename(folder.id, name);
+      },
+    },
+    {
+      label: "Delete folder",
+      icon: DeleteIcon,
+      action: async () => {
+        await folderStore.remove(folder.id);
+      },
+    },
+  ];
+  contextStore.showContextMenu(e, options, ContextSrc.PHeader);
+}
 
 // Is the given album the one currently loaded in the player?
 function isCurrentAlbum(albumhash: string) {
@@ -118,24 +206,6 @@ function togglePlayAlbum(al: Album) {
     queue.playPause();
   } else {
     playFromAlbumCard(al.albumhash, al.title);
-  }
-}
-
-// Is the given playlist the one currently loaded in the player?
-function isCurrent(plId: number) {
-  return (
-    (tracklist.from as any)?.type === FromOptions.playlist &&
-    (tracklist.from as any)?.id === plId
-  );
-}
-function isPlaying(plId: number) {
-  return isCurrent(plId) && queue.playing;
-}
-function togglePlay(plId: number) {
-  if (isCurrent(plId)) {
-    queue.playPause();
-  } else {
-    playFromPlaylist(String(plId));
   }
 }
 
@@ -189,6 +259,7 @@ onMounted(() => {
   if (!pinnedAlbums.albums.length) {
     pinnedAlbums.fetchAll();
   }
+  folderStore.fetch();
 });
 
 onBeforeUnmount(teardown);
@@ -279,12 +350,106 @@ onBeforeUnmount(teardown);
   border-top: 1px solid $gray5;
 
   .sidebar-library-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     opacity: 0.5;
     padding: 0 $small 0.5rem;
     letter-spacing: 0.05em;
+
+    .sidebar-newfolder {
+      display: grid;
+      place-items: center;
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 50%;
+      color: inherit;
+      opacity: 0.8;
+      cursor: pointer;
+      transition: background-color 0.15s ease, opacity 0.15s ease;
+
+      svg {
+        width: 0.85rem;
+        height: 0.85rem;
+      }
+
+      &:hover {
+        background-color: $gray;
+        opacity: 1;
+      }
+    }
+  }
+
+  .sidebar-folder {
+    border-radius: $smaller;
+
+    &.drag-over {
+      background-color: rgba(255, 255, 255, 0.06);
+      outline: 1px dashed $gray2;
+    }
+
+    .sidebar-folder-header {
+      display: flex;
+      align-items: center;
+      gap: $small;
+      padding: 0.35rem $small;
+      border-radius: $smaller;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: background-color 0.15s;
+
+      &:hover {
+        background-color: $gray;
+      }
+
+      .folder-chevron {
+        flex-shrink: 0;
+        width: 0.7rem;
+        height: 0.7rem;
+        opacity: 0.7;
+        transition: transform 0.15s ease;
+
+        &.open {
+          transform: rotate(90deg);
+        }
+      }
+
+      .folder-icon {
+        flex-shrink: 0;
+        width: 1.05rem;
+        height: 1.05rem;
+        opacity: 0.85;
+      }
+
+      span.ellip {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .folder-count {
+        flex-shrink: 0;
+        font-size: 0.7rem;
+        font-weight: 500;
+        opacity: 0.5;
+      }
+    }
+
+    .sidebar-folder-items {
+      margin-left: 0.85rem;
+      padding-left: 0.4rem;
+      border-left: 1px solid $gray5;
+    }
+
+    .sidebar-folder-empty {
+      font-size: 0.75rem;
+      opacity: 0.4;
+      padding: 0.35rem $small;
+      font-style: italic;
+    }
   }
 
   .sidebar-playlist-item {
