@@ -395,6 +395,9 @@ onBeforeUnmount(teardown);
       display: flex;
       align-items: center;
       gap: $small;
+      // Match a playlist row's height exactly (2rem thumbnail + 2x0.35rem
+      // padding) so folders sit in the same rhythm as the other items.
+      min-height: 2.7rem;
       padding: 0.35rem $small;
       border-radius: $smaller;
       cursor: pointer;
