@@ -36,12 +36,7 @@ export default async (playlist: Playlist) => {
       // folders yet); the new folder immediately receives this playlist.
       const newFolder: Option = {
         label: "New folder…",
-        action: async () => {
-          const name = window.prompt("Folder name")?.trim();
-          if (!name) return;
-          const folder = await folderStore.create(name);
-          if (folder) await folderStore.move(playlist.id, folder.id);
-        },
+        action: () => modal.showFolderModal({ movePlaylistId: playlist.id }),
       };
 
       const items: Option[] = [newFolder];

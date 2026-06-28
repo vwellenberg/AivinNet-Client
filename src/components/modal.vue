@@ -22,6 +22,12 @@
                 @hideModal="hideModal"
                 @setTitle="setTitle"
             />
+            <FolderModal
+                v-if="modal.component == modal.options.folder"
+                v-bind="modal.props"
+                @hideModal="hideModal"
+                @setTitle="setTitle"
+            />
             <UpdatePlaylist
                 v-if="modal.component == modal.options.updatePlaylist"
                 v-bind="modal.props"
@@ -57,6 +63,7 @@ import { onMounted, onUnmounted, watch } from 'vue'
 
 import AuthLogin from './modals/AuthLogin.vue'
 import ConfirmModal from './modals/ConfirmModal.vue'
+import FolderModal from './modals/FolderModal.vue'
 import NewPlaylist from './modals/NewPlaylist.vue'
 import RootDirsPrompt from './modals/RootDirsPrompt.vue'
 import EditTrack from './modals/EditTrack.vue'
