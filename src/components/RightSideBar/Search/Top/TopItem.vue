@@ -140,6 +140,13 @@ function showMenu(e: MouseEvent) {
         }
     }
 
+    // Touch devices can't hover — keep the play button reachable.
+    @media (hover: none) {
+        .play-btn {
+            opacity: 1;
+        }
+    }
+
     .context-menu-button {
         transform: rotate(90deg);
         background-color: transparent;

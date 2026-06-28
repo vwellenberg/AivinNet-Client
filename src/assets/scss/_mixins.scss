@@ -88,4 +88,13 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  // Touch devices can't hover, so the reveal-on-hover affordance above is
+  // unreachable there. Keep the play button visible on those devices.
+  @media (hover: none) {
+    .play-btn {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
