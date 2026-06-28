@@ -161,6 +161,8 @@ export interface PlaylistSettings {
     has_gif: boolean
     square_img: boolean
     pinned: boolean
+    // Manual library-sidebar order; unset = sort alphabetically.
+    position?: number
 }
 
 export interface Playlist {

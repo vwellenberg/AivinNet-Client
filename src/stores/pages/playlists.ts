@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { Playlist } from "@/interfaces";
-import { getAllPlaylists } from "@/requests/playlists";
+import { getAllPlaylists, reorderSidebarPlaylists } from "@/requests/playlists";
 
 export default defineStore("playlists", {
   state: () => ({
@@ -8,12 +8,17 @@ export default defineStore("playlists", {
   }),
   getters: {
     /**
-     * Pinned playlists first, then the rest — each group alphabetical.
-     * Used by the library sidebar.
+     * Pinned playlists first; within a group by manual drag order
+     * (settings.position) and then alphabetically. Used by the library sidebar.
      */
     sortedPlaylists(): Playlist[] {
+      const pos = (p: Playlist) =>
+        typeof p.settings?.position === "number" ? p.settings.position : Number.MAX_SAFE_INTEGER;
       return [...this.playlists].sort((a, b) => {
         if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+        const pa = pos(a);
+        const pb = pos(b);
+        if (pa !== pb) return pa - pb;
         return a.name.localeCompare(b.name);
       });
     },
@@ -49,6 +54,20 @@ export default defineStore("playlists", {
       setTimeout(() => {
         this.playlists.unshift(playlist);
       }, 250);
+    },
+    /**
+     * Persist a new manual sidebar order for the given playlist ids and reflect
+     * it locally right away (settings.position = index).
+     */
+    async reorderTopLevel(ids: number[]) {
+      ids.forEach((id, index) => {
+        const pl = this.playlists.find((p) => p.id === id);
+        if (pl) {
+          if (!pl.settings) pl.settings = {} as any;
+          pl.settings.position = index;
+        }
+      });
+      await reorderSidebarPlaylists(ids);
     },
   },
 });
