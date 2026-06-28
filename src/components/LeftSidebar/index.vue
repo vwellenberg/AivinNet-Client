@@ -33,60 +33,72 @@
           <PushPinSvg class="pl-pin" title="Pinned" />
         </RouterLink>
 
-        <!-- Playlist folders (flat, collapsible) -->
-        <div
-          v-for="folder in foldersWithPlaylists"
-          :key="'folder-' + folder.id"
-          class="sidebar-folder"
-          :class="{ 'drag-over': dragOverFolder === folder.id }"
-          @dragover.prevent
-          @drop="onDropToFolder(folder.id, $event)"
-        >
-          <div
-            class="sidebar-folder-header"
-            :class="markerClass('folder', folder.id)"
-            draggable="true"
-            @dragstart="onFolderDragStart(folder.id, $event)"
-            @dragend="clearDrag"
-            @click="folderStore.toggleCollapse(folder.id)"
-            @contextmenu.prevent="onFolderContextMenu($event, folder)"
-            @dragover.prevent="onFolderHeaderDragOver(folder, $event)"
-            @drop.stop="onFolderHeaderDrop(folder, $event)"
-          >
-            <div class="folder-icon-slot">
-              <FolderSvg class="folder-icon" />
+        <!-- Manually-ordered zone: folders and pinned playlists, freely
+             interleaved (shared position space). -->
+        <div class="sidebar-toplevel" @dragover.prevent @drop="onDropToTopZone($event)">
+          <template v-for="entry in topZone" :key="entry.kind + '-' + entry.id">
+            <!-- Folder -->
+            <div
+              v-if="entry.kind === 'folder'"
+              class="sidebar-folder"
+              :class="{ 'drag-over': dragOverFolder === entry.id }"
+              @dragover.prevent
+              @drop="onDropToFolder(entry.id, $event)"
+            >
+              <div
+                class="sidebar-folder-header"
+                :class="markerClass('folder', entry.id)"
+                draggable="true"
+                @dragstart="onFolderDragStart(entry.id, $event)"
+                @dragend="clearDrag"
+                @click="folderStore.toggleCollapse(entry.id)"
+                @contextmenu.prevent="onFolderContextMenu($event, entry.folder)"
+                @dragover.prevent="onFolderHeaderDragOver(entry.folder, $event)"
+                @drop.stop="onFolderHeaderDrop(entry.folder, $event)"
+              >
+                <div class="folder-icon-slot">
+                  <FolderSvg class="folder-icon" />
+                </div>
+                <span class="ellip">{{ entry.folder.name }}</span>
+                <span class="folder-count">{{ entry.folder.playlists.length }}</span>
+                <RightArrowSvg class="folder-chevron" :class="{ open: !folderStore.isCollapsed(entry.id) }" />
+              </div>
+              <div v-if="!folderStore.isCollapsed(entry.id)" class="sidebar-folder-items">
+                <SidebarPlaylistItem
+                  v-for="pl in entry.folder.playlists"
+                  :key="pl.id"
+                  :pl="pl"
+                  :class="markerClass('pl', pl.id)"
+                  @dragstart="onPlDragStart(pl.id)"
+                  @dragend="clearDrag"
+                  @dragover.prevent="onItemDragOver(pl.id, $event)"
+                  @drop.stop="onDropInFolderAt(entry.folder, pl, $event)"
+                />
+                <div v-if="!entry.folder.playlists.length" class="sidebar-folder-empty">Drop playlists here</div>
+              </div>
             </div>
-            <span class="ellip">{{ folder.name }}</span>
-            <span class="folder-count">{{ folder.playlists.length }}</span>
-            <RightArrowSvg class="folder-chevron" :class="{ open: !folderStore.isCollapsed(folder.id) }" />
-          </div>
-          <div v-if="!folderStore.isCollapsed(folder.id)" class="sidebar-folder-items">
+
+            <!-- Pinned playlist -->
             <SidebarPlaylistItem
-              v-for="pl in folder.playlists"
-              :key="pl.id"
-              :pl="pl"
-              :class="markerClass('pl', pl.id)"
-              @dragstart="onPlDragStart(pl.id)"
+              v-else
+              :pl="entry.pl"
+              :class="markerClass('pl', entry.id)"
+              @dragstart="onPlDragStart(entry.id)"
               @dragend="clearDrag"
-              @dragover.prevent="onItemDragOver(pl.id, $event)"
-              @drop.stop="onDropInFolderAt(folder, pl, $event)"
+              @dragover.prevent="onItemDragOver(entry.id, $event)"
+              @drop.stop="onTopItemDrop(entry.pl, $event)"
             />
-            <div v-if="!folder.playlists.length" class="sidebar-folder-empty">Drop playlists here</div>
-          </div>
+          </template>
         </div>
 
-        <!-- Ungrouped playlists (top level): drag a pinned one onto another to
-             reorder; drop on the empty area to pull a playlist out of a folder. -->
-        <div class="sidebar-toplevel" @dragover.prevent @drop="onDropToTop($event)">
+        <!-- Remaining (un-pinned, un-grouped) playlists, alphabetical. -->
+        <div class="sidebar-bottom-zone" @dragover.prevent @drop="onDropToTop($event)">
           <SidebarPlaylistItem
-            v-for="pl in ungroupedPlaylists"
+            v-for="pl in bottomZone"
             :key="pl.id"
             :pl="pl"
-            :class="markerClass('pl', pl.id)"
             @dragstart="onPlDragStart(pl.id)"
             @dragend="clearDrag"
-            @dragover.prevent="onItemDragOver(pl.id, $event)"
-            @drop.stop="onDropReorderTop(pl, $event)"
           />
         </div>
       </div>
@@ -164,10 +176,36 @@ const foldersWithPlaylists = computed(() =>
   }))
 );
 
-// Playlists not in any folder render at the top level.
+// Playlists not in any folder.
 const ungroupedPlaylists = computed(() =>
   playlists.sortedPlaylists.filter(p => !folderStore.folderOf.has(p.id))
 );
+
+type TopEntry =
+  | {
+      kind: "folder";
+      id: number;
+      position: number;
+      folder: PlaylistFolder & { playlists: Playlist[] };
+    }
+  | { kind: "playlist"; id: number; position: number; pl: Playlist };
+
+// The manually-ordered zone: folders + pinned playlists interleaved by a shared
+// position. Folders-first only breaks ties (e.g. before the first reorder).
+const topZone = computed<TopEntry[]>(() => {
+  const entries: TopEntry[] = [];
+  for (const f of foldersWithPlaylists.value) {
+    entries.push({ kind: "folder", id: f.id, position: f.position ?? Number.MAX_SAFE_INTEGER, folder: f });
+  }
+  for (const p of ungroupedPlaylists.value) {
+    if (p.pinned) {
+      entries.push({ kind: "playlist", id: p.id, position: p.settings?.position ?? Number.MAX_SAFE_INTEGER, pl: p });
+    }
+  }
+  return entries.sort((a, b) => a.position - b.position || (a.kind === "folder" ? -1 : 1));
+});
+// Everything else (un-pinned, un-grouped) stays alphabetical below.
+const bottomZone = computed(() => ungroupedPlaylists.value.filter(p => !p.pinned));
 
 const dragOverFolder = ref<number | null>(null);
 // What is being dragged (set on dragstart — dataTransfer can't be read during
@@ -211,11 +249,37 @@ function onFolderDragStart(id: number, e: DragEvent) {
   if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
 }
 
-// playlist rows: show the line; drop reorders (within a folder or at top level)
+// playlist rows: show the line for any drag (a folder can also land before/after)
 function onItemDragOver(plId: number, e: DragEvent) {
-  if (dragging.value?.type !== "playlist") return;
+  if (!dragging.value) return;
   dragOverFolder.value = null;
   dropMarker.value = { kind: "pl", id: plId, edge: edgeFromEvent(e) };
+}
+
+// reorder the shared top zone, placing the dragged entry next to the target
+function reorderTopZone(
+  draggedKind: "folder" | "playlist",
+  draggedId: number,
+  targetKind: "folder" | "playlist",
+  targetId: number,
+  edge: "before" | "after"
+) {
+  const order = topZone.value
+    .map((en) => ({ kind: en.kind, id: en.id }))
+    .filter((en) => !(en.kind === draggedKind && en.id === draggedId));
+  let to = order.findIndex((en) => en.kind === targetKind && en.id === targetId);
+  if (to < 0) to = order.length;
+  if (edge === "after") to += 1;
+  order.splice(to, 0, { kind: draggedKind, id: draggedId });
+
+  const folderPos: { id: number; position: number }[] = [];
+  const plPos: { id: number; position: number }[] = [];
+  order.forEach((en, i) => {
+    if (en.kind === "folder") folderPos.push({ id: en.id, position: i });
+    else plPos.push({ id: en.id, position: i });
+  });
+  if (folderPos.length) folderStore.reorder(folderPos);
+  if (plPos.length) playlists.reorderTopLevel(plPos);
 }
 function onDropInFolderAt(folder: { id: number; items: number[] }, targetPl: Playlist, e: DragEvent) {
   const pid = readDragPid(e);
@@ -228,58 +292,74 @@ function onDropInFolderAt(folder: { id: number; items: number[] }, targetPl: Pla
   if (edge === "after") pos += 1;
   folderStore.move(pid, folder.id, pos);
 }
-async function onDropReorderTop(targetPl: Playlist, e: DragEvent) {
-  const pid = readDragPid(e);
+// drop a folder or playlist onto a pinned playlist in the top zone → interleave
+async function onTopItemDrop(targetPl: Playlist, e: DragEvent) {
+  void e;
+  const drag = dragging.value;
   const edge = dropMarker.value?.edge ?? "before";
   clearDrag();
-  if (pid === null || pid === targetPl.id) return;
+  if (!drag) return;
 
-  // If the dragged playlist came from a folder, pull it out to the top level.
+  if (drag.type === "folder") {
+    reorderTopZone("folder", drag.id, "playlist", targetPl.id, edge);
+    return;
+  }
+
+  const pid = drag.id;
+  if (pid === targetPl.id) return;
+  // Pull the playlist out of any folder first, then place it (only if pinned).
   if (folderStore.folderOf.has(pid)) await folderStore.move(pid, null);
-
   const dragged = playlists.playlists.find((p) => p.id === pid);
-  // Manual ordering only applies among pinned top-level playlists.
-  if (!dragged?.pinned || !targetPl.pinned) return;
-
-  const order = ungroupedPlaylists.value
-    .filter((p) => p.pinned)
-    .map((p) => p.id)
-    .filter((id) => id !== pid);
-  let to = order.indexOf(targetPl.id);
-  if (to < 0) to = order.length;
-  if (edge === "after") to += 1;
-  order.splice(to, 0, pid);
-  await playlists.reorderTopLevel(order);
+  if (dragged?.pinned) reorderTopZone("playlist", pid, "playlist", targetPl.id, edge);
 }
 
-// folder header: dragging a playlist drops INTO the folder; dragging a folder
-// reorders folders (with a before/after line).
+// Folder header: a dragged folder reorders (before/after). A dragged playlist
+// uses 3 zones — top/bottom edge = land before/after the folder, middle = drop
+// INTO the folder.
+function folderHeaderZone(e: DragEvent): "before" | "into" | "after" {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const y = e.clientY - rect.top;
+  if (y < rect.height * 0.28) return "before";
+  if (y > rect.height * 0.72) return "after";
+  return "into";
+}
 function onFolderHeaderDragOver(folder: PlaylistFolder, e: DragEvent) {
   if (dragging.value?.type === "folder") {
     dragOverFolder.value = null;
     dropMarker.value = { kind: "folder", id: folder.id, edge: edgeFromEvent(e) };
-  } else {
-    dropMarker.value = null;
-    dragOverFolder.value = folder.id;
-  }
-}
-function onFolderHeaderDrop(folder: PlaylistFolder, e: DragEvent) {
-  const draggedFolder = readDragFolderId(e);
-  const edge = dropMarker.value?.edge ?? "before";
-  if (draggedFolder !== null) {
-    clearDrag();
-    if (draggedFolder === folder.id) return;
-    const order = folderStore.sortedFolders.map((f) => f.id).filter((id) => id !== draggedFolder);
-    let to = order.indexOf(folder.id);
-    if (to < 0) to = order.length;
-    if (edge === "after") to += 1;
-    order.splice(to, 0, draggedFolder);
-    folderStore.reorder(order);
     return;
   }
-  const pid = readDragPid(e);
+  const zone = folderHeaderZone(e);
+  if (zone === "into") {
+    dropMarker.value = null;
+    dragOverFolder.value = folder.id;
+  } else {
+    dragOverFolder.value = null;
+    dropMarker.value = { kind: "folder", id: folder.id, edge: zone };
+  }
+}
+async function onFolderHeaderDrop(folder: PlaylistFolder, e: DragEvent) {
+  void e;
+  const drag = dragging.value;
+  const edge = dropMarker.value?.edge ?? "before";
+  const into = dragOverFolder.value === folder.id;
   clearDrag();
-  if (pid !== null) folderStore.move(pid, folder.id);
+  if (!drag) return;
+
+  if (drag.type === "folder") {
+    if (drag.id === folder.id) return;
+    reorderTopZone("folder", drag.id, "folder", folder.id, edge);
+    return;
+  }
+
+  const pid = drag.id;
+  if (into) {
+    folderStore.move(pid, folder.id);
+    return;
+  }
+  if (folderStore.folderOf.has(pid)) await folderStore.move(pid, null);
+  const dragged = playlists.playlists.find((p) => p.id === pid);
+  if (dragged?.pinned) reorderTopZone("playlist", pid, "folder", folder.id, edge);
 }
 
 // folder body / empty area: append a dragged playlist to the folder
@@ -289,6 +369,24 @@ function onDropToFolder(folderId: number, e: DragEvent) {
   clearDrag();
   if (pid !== null) folderStore.move(pid, folderId);
 }
+// drop in the top-zone empty space → append the dragged item to the end
+function onDropToTopZone(e: DragEvent) {
+  void e;
+  const drag = dragging.value;
+  clearDrag();
+  if (!drag) return;
+  const last = topZone.value[topZone.value.length - 1];
+  if (!last || (drag.id === last.id && drag.type === last.kind)) return;
+  if (drag.type === "folder") {
+    reorderTopZone("folder", drag.id, last.kind, last.id, "after");
+  } else {
+    const dragged = playlists.playlists.find(p => p.id === drag.id);
+    if (dragged?.pinned && !folderStore.folderOf.has(drag.id)) {
+      reorderTopZone("playlist", drag.id, last.kind, last.id, "after");
+    }
+  }
+}
+// bottom (un-pinned) zone: dropping here ungroups a playlist out of any folder
 function onDropToTop(e: DragEvent) {
   if (dragging.value?.type === "folder") return clearDrag();
   const pid = readDragPid(e);

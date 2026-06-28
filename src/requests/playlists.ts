@@ -8,14 +8,14 @@ import { recordRecentPlaylist } from '@/utils/recentPlaylists'
 const { new: newPlaylistUrl, base: basePlaylistUrl, artists: playlistArtistsUrl } = paths.api.playlist
 
 /**
- * Persist the manual library-sidebar order of playlists (sets each one's
- * settings.position to its index in `ids`).
+ * Persist the manual library-sidebar order of playlists by explicit position
+ * (shared with folder positions so the two interleave).
  */
-export async function reorderSidebarPlaylists(ids: number[]) {
+export async function reorderSidebarPlaylists(positions: { id: number; position: number }[]) {
     return await useAxios({
         url: `${basePlaylistUrl}/sidebar-order`,
         method: 'POST',
-        props: { ids },
+        props: { positions },
     })
 }
 

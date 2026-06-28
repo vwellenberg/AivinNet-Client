@@ -34,6 +34,6 @@ export async function movePlaylistToFolder(playlist_id: number, folder_id: numbe
     })
 }
 
-export async function reorderPlaylistFolders(ids: number[]) {
-    return await useAxios({ url: `${base}/reorder`, method: 'POST', props: { ids } })
+export async function reorderPlaylistFolders(positions: { id: number; position: number }[]) {
+    return await useAxios({ url: `${base}/reorder`, method: 'POST', props: { positions } })
 }
