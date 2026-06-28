@@ -21,6 +21,14 @@
                 <HomeSvg />
             </RouterLink>
             <SearchInput v-if="!isMobile || $route.name === Routes.search" :on_nav="true" />
+            <button
+                v-if="isMobile && headerAction"
+                class="mobile-header-action"
+                :title="headerAction.title"
+                @click="headerAction.handler"
+            >
+                <component :is="headerAction.icon" />
+            </button>
             <AvatarWithDropdown />
         </div>
     </div>
@@ -39,15 +47,29 @@ import { xl } from './../../composables/useBreakpoints'
 import SearchInput from '../RightSideBar/SearchInput.vue'
 import Logo from '@/components/Logo.vue'
 import HomeSvg from '@/assets/icons/home.svg'
+import PlusSvg from '@/assets/icons/plus.svg'
 import NavLinks from './NavLinks.vue'
 import NavTitles from './NavTitles.vue'
 import Folder from './Titles/Folder.vue'
 import AvatarWithDropdown from './AvatarWithDropdown.vue'
+import useModal from '@/stores/modal'
 
 const auth = useAuth()
 const settings = useSettings()
+const modal = useModal()
 const isSmall = computed(() => content_width.value < 800)
 const route = useRoute()
+
+// Per-route action shown on the right of the mobile top bar, filling the empty
+// space next to the avatar. Playlists → New Playlist (replaces the old FAB).
+const headerAction = computed(() => {
+    switch (route.name) {
+        case Routes.playlists:
+            return { icon: PlusSvg, title: 'New playlist', handler: () => modal.showNewPlaylistModal() }
+        default:
+            return null
+    }
+})
 
 const mobileTitle = computed(() => {
     const map: Record<string, string> = {
@@ -147,6 +169,43 @@ const mobileTitle = computed(() => {
 
         @include allPhones {
             gap: unset;
+
+            // Let the title's flex: 1 push the action + avatar to the right edge.
+            // The desktop auto-margin would otherwise absorb the free space and
+            // separate the action button from the avatar.
+            .avatar {
+                margin-left: 0;
+            }
+        }
+
+        // Per-route contextual action in the mobile top bar (e.g. New Playlist).
+        // Subtle filled circle sized to the 36px avatar so the two read as a pair.
+        .mobile-header-action {
+            flex-shrink: 0;
+            margin-right: $smaller;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            border: none;
+            background-color: $gray5;
+            color: $white;
+            cursor: pointer;
+            transition: background-color 0.15s ease, transform 0.15s ease;
+
+            svg {
+                width: 1.35rem;
+                height: 1.35rem;
+            }
+
+            &:hover {
+                background-color: $gray4;
+            }
+
+            &:active {
+                transform: scale(0.94);
+            }
         }
 
         // Spotify-style layout: the two auto margins (one before the round home
