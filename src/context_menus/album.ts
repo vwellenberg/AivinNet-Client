@@ -1,19 +1,15 @@
-import { router, Routes } from '@/router'
-
 import useAlbum from '@/stores/pages/album'
-import useCollection from '@/stores/pages/collections'
 import useTracklist from '@/stores/queue/tracklist'
 
 import { getAlbumTracks } from '@/requests/album'
-import { addOrRemoveItemFromCollection } from '@/requests/collections'
 import { addAlbumToPlaylist } from '@/requests/playlists'
 import { toggleAlbumPin } from '@/helpers/pinAlbum'
 import usePinnedAlbums from '@/stores/pages/pinnedAlbums'
 
-import { AddToQueueIcon, DeleteIcon, DownloadIcon, PlayNextIcon, PlusIcon, PushPinIcon } from '@/icons'
+import { AddToQueueIcon, DownloadIcon, PlayNextIcon, PlusIcon, PushPinIcon } from '@/icons'
 import { getBaseUrl, paths } from '@/config'
-import { Album, Collection, Option, Playlist, Track } from '@/interfaces'
-import { get_find_on_social, getAddToCollectionOptions, getAddToPlaylistOptions } from './utils'
+import { Album, Option, Playlist, Track } from '@/interfaces'
+import { get_find_on_social, getAddToPlaylistOptions } from './utils'
 
 export default async (album?: Album) => {
     const albumStore = useAlbum()
@@ -69,39 +65,6 @@ export default async (album?: Album) => {
         icon: PlusIcon,
     }
 
-    const addToPageAction = (page: Collection) => {
-        addOrRemoveItemFromCollection(page.id, album, 'album', 'add')
-    }
-
-    const add_to_page: Option = {
-        label: 'Add to Collection',
-        children: () =>
-            getAddToCollectionOptions(addToPageAction, {
-                collection: null,
-                hash: album.albumhash,
-                type: 'album',
-                extra: {},
-            }),
-        icon: PlusIcon,
-    }
-
-    const remove_from_page: Option = {
-        label: 'Remove item',
-        action: async () => {
-            const success = await addOrRemoveItemFromCollection(
-                parseInt(router.currentRoute.value.params.collection as string),
-                album,
-                'album',
-                'remove'
-            )
-
-            if (success) {
-                useCollection().removeLocalItem(album, 'album')
-            }
-        },
-        icon: DeleteIcon,
-    }
-
     const download_album = <Option>{
         label: 'Download as ZIP',
         action: () => {
@@ -123,7 +86,6 @@ export default async (album?: Album) => {
         play_next,
         add_to_queue,
         add_to_playlist,
-        ...[router.currentRoute.value.name === Routes.Page ? remove_from_page : add_to_page],
         pin,
         download_album,
         get_find_on_social('album', '', album),

@@ -90,9 +90,6 @@ export const paths = {
                 return this.base + '/artists'
             },
         },
-        collections: {
-            base: '/collections',
-        },
         search: {
             base: '/search',
             get top() {
