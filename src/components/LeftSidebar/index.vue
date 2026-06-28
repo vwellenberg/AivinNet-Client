@@ -39,14 +39,19 @@
           :key="'folder-' + folder.id"
           class="sidebar-folder"
           :class="{ 'drag-over': dragOverFolder === folder.id }"
-          @dragover.prevent="dragOverFolder = folder.id"
-          @dragleave="dragOverFolder = null"
+          @dragover.prevent
           @drop="onDropToFolder(folder.id, $event)"
         >
           <div
             class="sidebar-folder-header"
+            :class="markerClass('folder', folder.id)"
+            draggable="true"
+            @dragstart="onFolderDragStart(folder.id, $event)"
+            @dragend="clearDrag"
             @click="folderStore.toggleCollapse(folder.id)"
             @contextmenu.prevent="onFolderContextMenu($event, folder)"
+            @dragover.prevent="onFolderHeaderDragOver(folder, $event)"
+            @drop.stop="onFolderHeaderDrop(folder, $event)"
           >
             <div class="folder-icon-slot">
               <FolderSvg class="folder-icon" />
@@ -57,11 +62,14 @@
           </div>
           <div v-if="!folderStore.isCollapsed(folder.id)" class="sidebar-folder-items">
             <SidebarPlaylistItem
-              v-for="(pl, idx) in folder.playlists"
+              v-for="pl in folder.playlists"
               :key="pl.id"
               :pl="pl"
-              @dragover.prevent
-              @drop.stop="onDropOnItem(folder.id, idx, $event)"
+              :class="markerClass('pl', pl.id)"
+              @dragstart="onPlDragStart(pl.id)"
+              @dragend="clearDrag"
+              @dragover.prevent="onItemDragOver(pl.id, $event)"
+              @drop.stop="onDropInFolderAt(folder, pl, $event)"
             />
             <div v-if="!folder.playlists.length" class="sidebar-folder-empty">Drop playlists here</div>
           </div>
@@ -74,8 +82,11 @@
             v-for="pl in ungroupedPlaylists"
             :key="pl.id"
             :pl="pl"
-            @dragover.prevent
-            @drop.stop="onDropReorder(pl, $event)"
+            :class="markerClass('pl', pl.id)"
+            @dragstart="onPlDragStart(pl.id)"
+            @dragend="clearDrag"
+            @dragover.prevent="onItemDragOver(pl.id, $event)"
+            @drop.stop="onDropReorderTop(pl, $event)"
           />
         </div>
       </div>
@@ -159,28 +170,68 @@ const ungroupedPlaylists = computed(() =>
 );
 
 const dragOverFolder = ref<number | null>(null);
+// What is being dragged (set on dragstart — dataTransfer can't be read during
+// dragover) and where the drop line currently sits.
+const dragging = ref<{ type: "playlist" | "folder"; id: number } | null>(null);
+const dropMarker = ref<{ kind: "pl" | "folder"; id: number; edge: "before" | "after" } | null>(null);
 
 function readDragPid(e: DragEvent): number | null {
   const raw = e.dataTransfer?.getData("playlistid");
   return raw ? parseInt(raw) : null;
 }
-function onDropToFolder(folderId: number, e: DragEvent) {
+function readDragFolderId(e: DragEvent): number | null {
+  const raw = e.dataTransfer?.getData("folderid");
+  return raw ? parseInt(raw) : null;
+}
+// Which half of the row the cursor is over → drop before or after it.
+function edgeFromEvent(e: DragEvent): "before" | "after" {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  return e.clientY < rect.top + rect.height / 2 ? "before" : "after";
+}
+function markerClass(kind: "pl" | "folder", id: number) {
+  const m = dropMarker.value;
+  return {
+    "drop-before": !!m && m.kind === kind && m.id === id && m.edge === "before",
+    "drop-after": !!m && m.kind === kind && m.id === id && m.edge === "after",
+  };
+}
+function clearDrag() {
+  dragging.value = null;
+  dropMarker.value = null;
   dragOverFolder.value = null;
-  const pid = readDragPid(e);
-  if (pid !== null) folderStore.move(pid, folderId);
 }
-function onDropOnItem(folderId: number, index: number, e: DragEvent) {
+
+// drag sources
+function onPlDragStart(id: number) {
+  dragging.value = { type: "playlist", id };
+}
+function onFolderDragStart(id: number, e: DragEvent) {
+  dragging.value = { type: "folder", id };
+  e.dataTransfer?.setData("folderid", String(id));
+  if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+}
+
+// playlist rows: show the line; drop reorders (within a folder or at top level)
+function onItemDragOver(plId: number, e: DragEvent) {
+  if (dragging.value?.type !== "playlist") return;
   dragOverFolder.value = null;
-  const pid = readDragPid(e);
-  if (pid !== null) folderStore.move(pid, folderId, index);
+  dropMarker.value = { kind: "pl", id: plId, edge: edgeFromEvent(e) };
 }
-function onDropToTop(e: DragEvent) {
+function onDropInFolderAt(folder: { id: number; items: number[] }, targetPl: Playlist, e: DragEvent) {
   const pid = readDragPid(e);
-  if (pid !== null) folderStore.move(pid, null);
+  const edge = dropMarker.value?.edge ?? "before";
+  clearDrag();
+  if (pid === null) return;
+  const without = folder.items.filter((i) => i !== pid);
+  let pos = without.indexOf(targetPl.id);
+  if (pos < 0) pos = without.length;
+  if (edge === "after") pos += 1;
+  folderStore.move(pid, folder.id, pos);
 }
-// Reorder pinned top-level playlists by dropping one onto another.
-async function onDropReorder(targetPl: Playlist, e: DragEvent) {
+async function onDropReorderTop(targetPl: Playlist, e: DragEvent) {
   const pid = readDragPid(e);
+  const edge = dropMarker.value?.edge ?? "before";
+  clearDrag();
   if (pid === null || pid === targetPl.id) return;
 
   // If the dragged playlist came from a folder, pull it out to the top level.
@@ -190,13 +241,59 @@ async function onDropReorder(targetPl: Playlist, e: DragEvent) {
   // Manual ordering only applies among pinned top-level playlists.
   if (!dragged?.pinned || !targetPl.pinned) return;
 
-  const order = ungroupedPlaylists.value.filter((p) => p.pinned).map((p) => p.id);
-  const from = order.indexOf(pid);
-  if (from !== -1) order.splice(from, 1);
-  const to = order.indexOf(targetPl.id);
-  order.splice(to < 0 ? order.length : to, 0, pid);
-
+  const order = ungroupedPlaylists.value
+    .filter((p) => p.pinned)
+    .map((p) => p.id)
+    .filter((id) => id !== pid);
+  let to = order.indexOf(targetPl.id);
+  if (to < 0) to = order.length;
+  if (edge === "after") to += 1;
+  order.splice(to, 0, pid);
   await playlists.reorderTopLevel(order);
+}
+
+// folder header: dragging a playlist drops INTO the folder; dragging a folder
+// reorders folders (with a before/after line).
+function onFolderHeaderDragOver(folder: PlaylistFolder, e: DragEvent) {
+  if (dragging.value?.type === "folder") {
+    dragOverFolder.value = null;
+    dropMarker.value = { kind: "folder", id: folder.id, edge: edgeFromEvent(e) };
+  } else {
+    dropMarker.value = null;
+    dragOverFolder.value = folder.id;
+  }
+}
+function onFolderHeaderDrop(folder: PlaylistFolder, e: DragEvent) {
+  const draggedFolder = readDragFolderId(e);
+  const edge = dropMarker.value?.edge ?? "before";
+  if (draggedFolder !== null) {
+    clearDrag();
+    if (draggedFolder === folder.id) return;
+    const order = folderStore.sortedFolders.map((f) => f.id).filter((id) => id !== draggedFolder);
+    let to = order.indexOf(folder.id);
+    if (to < 0) to = order.length;
+    if (edge === "after") to += 1;
+    order.splice(to, 0, draggedFolder);
+    folderStore.reorder(order);
+    return;
+  }
+  const pid = readDragPid(e);
+  clearDrag();
+  if (pid !== null) folderStore.move(pid, folder.id);
+}
+
+// folder body / empty area: append a dragged playlist to the folder
+function onDropToFolder(folderId: number, e: DragEvent) {
+  if (dragging.value?.type === "folder") return clearDrag();
+  const pid = readDragPid(e);
+  clearDrag();
+  if (pid !== null) folderStore.move(pid, folderId);
+}
+function onDropToTop(e: DragEvent) {
+  if (dragging.value?.type === "folder") return clearDrag();
+  const pid = readDragPid(e);
+  clearDrag();
+  if (pid !== null) folderStore.move(pid, null);
 }
 function onNewFolder() {
   modal.showFolderModal();
@@ -293,6 +390,37 @@ onBeforeUnmount(teardown);
 </script>
 
 <style lang="scss">
+// Drag & drop: rows are positioned so the drop line can sit on their edge.
+.sidebar-playlist-item,
+.sidebar-folder-header {
+  position: relative;
+}
+
+// The drop indicator — a brand-coloured line showing where the item will land.
+.sidebar-playlist-item.drop-before::before,
+.sidebar-playlist-item.drop-after::after,
+.sidebar-folder-header.drop-before::before,
+.sidebar-folder-header.drop-after::after {
+  content: "";
+  position: absolute;
+  left: $small;
+  right: $small;
+  height: 2px;
+  border-radius: 2px;
+  background-color: $brand-green;
+  pointer-events: none;
+}
+
+.sidebar-playlist-item.drop-before::before,
+.sidebar-folder-header.drop-before::before {
+  top: -1px;
+}
+
+.sidebar-playlist-item.drop-after::after,
+.sidebar-folder-header.drop-after::after {
+  bottom: -1px;
+}
+
 .l-sidebar {
   grid-area: l-sidebar;
   display: grid;
