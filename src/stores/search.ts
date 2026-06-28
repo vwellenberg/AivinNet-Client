@@ -12,6 +12,7 @@ import useLoader from './loader'
 import useSettings from './settings'
 import usePlaylists from './pages/playlists'
 import { maxAbumCards } from './content-width'
+import { recordRecentSearch } from '@/utils/recentSearches'
 
 import { Album, Artist, Folder, Playlist, Track } from '../interfaces'
 
@@ -212,7 +213,22 @@ export default defineStore('search', () => {
     watch(
         () => debouncedQuery.value,
         newQuery => {
-            if (newQuery.trim() == '') return
+            // Clearing the query resets results so the page falls back to its
+            // idle / recent-searches state instead of showing stale matches.
+            if (newQuery.trim() == '') {
+                top_results.top_result = <Track>{}
+                top_results.tracks = []
+                top_results.albums = []
+                top_results.artists = []
+                top_results.playlists = []
+                tracks.value = []
+                albums.value = []
+                artists.value = []
+                folders.value = []
+                return
+            }
+
+            recordRecentSearch(newQuery)
 
             if (!settings.use_sidebar && route.value.name !== Routes.search) {
                 router.push({

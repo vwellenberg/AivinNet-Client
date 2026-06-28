@@ -1,58 +1,62 @@
 <template>
   <div class="search-page-top-results">
-    <NoItems
-      :title="'No results'"
-      :description="'We can\'t find any results for your search.'"
-      :icon="SearchSvg"
-      :flag="
-        (!search.top_results.top_result || !search.top_results.top_result.type) &&
-        !search.top_results.playlists.length
-      "
-    />
-    <RecentItems
-      v-if="search.top_results.playlists.length"
-      :title="'Playlists'"
-      :items="
-        search.top_results.playlists.map((i) => ({
-          type: 'playlist',
-          item: i,
-        }))
-      "
-    />
-    <div v-if="search.top_results.top_result && search.top_results.top_result.type" class="header">
-      <div class="top">
-        <h3>Top Result</h3>
-        <TopItem />
+    <!-- No query yet: invite the user with recent searches / an idle prompt -->
+    <RecentSearches v-if="!hasQuery" />
+
+    <template v-else>
+      <NoItems
+        :title="'No results'"
+        :description="'We can\'t find any results for your search.'"
+        :icon="SearchSvg"
+        :flag="noResults"
+      />
+      <RecentItems
+        v-if="search.top_results.playlists.length"
+        :title="'Playlists'"
+        :items="
+          search.top_results.playlists.map((i) => ({
+            type: 'playlist',
+            item: i,
+          }))
+        "
+      />
+      <div v-if="search.top_results.top_result && search.top_results.top_result.type" class="header">
+        <div class="top">
+          <h3>Top Result</h3>
+          <TopItem />
+        </div>
+        <div class="tracks">
+          <h3>Tracks</h3>
+          <TopTracks />
+        </div>
       </div>
-      <div class="tracks">
-        <h3>Tracks</h3>
-        <TopTracks />
-      </div>
-    </div>
-    <RecentItems
-      v-if="search.top_results.artists.length"
-      :title="'Artists'"
-      :items="
-        search.top_results.artists.map((i) => ({
-          type: 'artist',
-          item: i,
-        }))
-      "
-    />
-    <RecentItems
-      v-if="search.top_results.albums.length"
-      :title="'Albums'"
-      :items="
-        search.top_results.albums.map((i) => ({
-          type: 'album',
-          item: i,
-        }))
-      "
-    />
+      <RecentItems
+        v-if="search.top_results.artists.length"
+        :title="'Artists'"
+        :items="
+          search.top_results.artists.map((i) => ({
+            type: 'artist',
+            item: i,
+          }))
+        "
+      />
+      <RecentItems
+        v-if="search.top_results.albums.length"
+        :title="'Albums'"
+        :items="
+          search.top_results.albums.map((i) => ({
+            type: 'album',
+            item: i,
+          }))
+        "
+      />
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+
 import useSearchStore from "@/stores/search";
 
 import SearchSvg from "@/assets/icons/search.svg";
@@ -60,8 +64,16 @@ import TopItem from "@/components/RightSideBar/Search/Top/TopItem.vue";
 import TopTracks from "@/components/RightSideBar/Search/Top/TopTracks.vue";
 import RecentItems from "@/components/shared/CardScroller.vue";
 import NoItems from "@/components/shared/NoItems.vue";
+import RecentSearches from "./RecentSearches.vue";
 
 const search = useSearchStore();
+
+const hasQuery = computed(() => (search.query || "").trim().length > 0);
+const noResults = computed(
+  () =>
+    (!search.top_results.top_result || !search.top_results.top_result.type) &&
+    !search.top_results.playlists.length
+);
 </script>
 
 <style lang="scss">
