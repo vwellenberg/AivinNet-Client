@@ -169,10 +169,14 @@ onMounted(() => {
 
     .scroller > div.vue-recycle-scroller__slot:first-child {
         padding: 1rem 0;
-        // Match the content surface (#acontent) so this sticky breadcrumb band
-        // blends in instead of showing a pure-black bar. $body (#000000) was
-        // darker than the #121212 content area and stood out as a black block.
-        background-color: #121212;
+        // Translucent sticky breadcrumb band: let the content tint (album /
+        // now-playing gradient) show through with a blur instead of an opaque
+        // block, so it blends on any background — tinted or plain #121212. The
+        // dark scrim keeps content that scrolls underneath legible; the band
+        // can't be fully transparent because it's sticky and tracks pass behind it.
+        background-color: rgba(18, 18, 18, 0.3);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
         position: sticky;
         top: 0;
         z-index: 1;
