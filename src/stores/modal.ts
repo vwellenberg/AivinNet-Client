@@ -13,6 +13,7 @@ export enum ModalOptions {
     login,
     settings,
     editTrackTags,
+    folder,
 }
 
 export default defineStore('newModal', {
@@ -31,6 +32,9 @@ export default defineStore('newModal', {
         },
         showNewPlaylistModal(props: any = {}) {
             this.showModal(ModalOptions.newPlaylist, props)
+        },
+        showFolderModal(props: any = {}) {
+            this.showModal(ModalOptions.folder, props)
         },
         showSaveFolderAsPlaylistModal(path: string) {
             const playlist_name = path.split('/').pop()

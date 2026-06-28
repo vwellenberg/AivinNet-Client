@@ -114,6 +114,7 @@ import pkg from "../../../package.json";
 import useQueue from "@/stores/queue";
 import useTracklist from "@/stores/queue/tracklist";
 import useContextStore from "@/stores/context";
+import useModalStore from "@/stores/modal";
 import usePlaylistFolders from "@/stores/playlistFolders";
 import { PlaylistFolder } from "@/requests/playlistFolders";
 import { FromOptions, ContextSrc } from "@/enums";
@@ -135,6 +136,7 @@ const thumbBase = paths.images.thumb.small;
 
 const folderStore = usePlaylistFolders();
 const contextStore = useContextStore();
+const modal = useModalStore();
 
 const playlistMap = computed(() => {
   const m = new Map<number, Playlist>();
@@ -196,18 +198,14 @@ async function onDropReorder(targetPl: Playlist, e: DragEvent) {
 
   await playlists.reorderTopLevel(order);
 }
-async function onNewFolder() {
-  const name = window.prompt("Folder name")?.trim();
-  if (name) await folderStore.create(name);
+function onNewFolder() {
+  modal.showFolderModal();
 }
 function onFolderContextMenu(e: MouseEvent, folder: PlaylistFolder) {
   const options = () => [
     {
       label: "Rename",
-      action: async () => {
-        const name = window.prompt("Rename folder", folder.name)?.trim();
-        if (name) await folderStore.rename(folder.id, name);
-      },
+      action: () => modal.showFolderModal({ folder }),
     },
     {
       label: "Delete folder",
