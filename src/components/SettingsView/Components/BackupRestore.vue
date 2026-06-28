@@ -30,10 +30,6 @@
                         <div class="item__favorites">
                             {{ backup.favorites }} favorite{{ backup.favorites !== 1 ? 's' : '' }}
                         </div>
-                        •
-                        <div class="item__collections">
-                            {{ backup.collections }} collection{{ backup.collections !== 1 ? 's' : '' }}
-                        </div>
                     </div>
                 </div>
                 <div class="buttons">

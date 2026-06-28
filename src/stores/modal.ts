@@ -4,7 +4,6 @@ import { Track } from '@/interfaces'
 
 export enum ModalOptions {
     newPlaylist,
-    page,
     updatePlaylist,
     deletePlaylist,
     SetIP,
@@ -32,9 +31,6 @@ export default defineStore('newModal', {
         },
         showNewPlaylistModal(props: any = {}) {
             this.showModal(ModalOptions.newPlaylist, props)
-        },
-        showCollectionModal(props: any = {}) {
-            this.showModal(ModalOptions.page, props)
         },
         showSaveFolderAsPlaylistModal(path: string) {
             const playlist_name = path.split('/').pop()

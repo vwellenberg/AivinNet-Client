@@ -2,8 +2,7 @@ import modal from '@/stores/modal'
 import useArtist from '@/stores/pages/artist'
 
 import { SearchIcon } from '@/icons'
-import { Album, Collection, Option, Playlist } from '@/interfaces'
-import { getAllCollections } from '@/requests/collections'
+import { Album, Option, Playlist } from '@/interfaces'
 import { getAllPlaylists } from '@/requests/playlists'
 import { getRecentPlaylistIds } from '@/utils/recentPlaylists'
 
@@ -16,15 +15,6 @@ export function get_new_playlist_option(new_playlist_modal_props: any = {}): Opt
         label: 'New playlist',
         action: () => {
             modal().showNewPlaylistModal(new_playlist_modal_props)
-        },
-    }
-}
-
-export function get_new_collection_option(new_collection_modal_props: any = {}): Option {
-    return {
-        label: 'New Collection',
-        action: () => {
-            modal().showCollectionModal(new_collection_modal_props)
         },
     }
 }
@@ -78,33 +68,6 @@ export async function getAddToPlaylistOptions(addToPlaylist: action, new_playlis
  * @param new_playlist_modal_props Props to be passed to the modal when creating a new playlist
  * @returns A list of options to be used in a context menu
  */
-export async function getAddToCollectionOptions(
-    addToCollection: (collection: Collection) => void,
-    new_page_modal_props: any = {}
-) {
-    const new_page = get_new_collection_option(new_page_modal_props)
-    const data = await getAllCollections()
-
-    let items = [new_page]
-
-    if (data.length === 0) {
-        return items
-    }
-
-    let collections = <Option[]>[]
-
-    collections = data.map(collection => {
-        return <Option>{
-            label: collection.name,
-            action: () => {
-                addToCollection(collection)
-            },
-        }
-    })
-
-    return [...items, separator, ...collections]
-}
-
 export const get_find_on_social = (page = 'album', query = '', album?: Album) => {
     const is_album = page === 'album'
     const getAlbumSearchTerm = () => {
