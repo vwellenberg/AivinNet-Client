@@ -53,6 +53,7 @@ import { deletePlaylist as delPlaylist } from '@/requests/playlists'
 import useModalStore, { ModalOptions } from '@/stores/modal'
 import usePlaylistsStore from '@/stores/pages/playlists'
 import { useRouter } from 'vue-router'
+import { onMounted, onUnmounted, watch } from 'vue'
 
 import AuthLogin from './modals/AuthLogin.vue'
 import ConfirmModal from './modals/ConfirmModal.vue'
@@ -65,6 +66,40 @@ import UpdatePlaylist from './modals/updatePlaylist.vue'
 
 const modal = useModalStore()
 const router = useRouter()
+
+// Mobile/desktop: the browser/hardware Back button should close an open modal
+// (e.g. Settings) instead of navigating the app away. When a dismissable modal
+// opens we push a throwaway history entry; a Back press pops it and the popstate
+// handler closes the modal. When the modal is closed by other means (X /
+// backdrop) we pop our own entry so history stays clean. `pushed` guards against
+// double-pushes and feedback loops. The login modal is intentionally excluded —
+// it must not be dismissable.
+let pushed = false
+const isBackDismissable = () => modal.visible && modal.component !== ModalOptions.login
+
+watch(
+    () => modal.visible && modal.component,
+    () => {
+        if (isBackDismissable() && !pushed) {
+            history.pushState({ aivinnetModal: true }, '')
+            pushed = true
+        } else if (!modal.visible && pushed) {
+            pushed = false
+            if (history.state && history.state.aivinnetModal) history.back()
+        }
+    }
+)
+
+function onPopState() {
+    if (modal.visible && modal.component !== ModalOptions.login) {
+        // Back consumed our pushed entry; just close the modal (don't re-pop).
+        pushed = false
+        modal.hideModal()
+    }
+}
+
+onMounted(() => window.addEventListener('popstate', onPopState))
+onUnmounted(() => window.removeEventListener('popstate', onPopState))
 
 function setTitle(title: string) {
     modal.setTitle(title)
