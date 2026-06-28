@@ -56,18 +56,18 @@ export default defineStore("playlists", {
       }, 250);
     },
     /**
-     * Persist a new manual sidebar order for the given playlist ids and reflect
-     * it locally right away (settings.position = index).
+     * Persist explicit sidebar positions for playlists (shared space with
+     * folders) and reflect them locally right away.
      */
-    async reorderTopLevel(ids: number[]) {
-      ids.forEach((id, index) => {
+    async reorderTopLevel(positions: { id: number; position: number }[]) {
+      for (const { id, position } of positions) {
         const pl = this.playlists.find((p) => p.id === id);
         if (pl) {
           if (!pl.settings) pl.settings = {} as any;
-          pl.settings.position = index;
+          pl.settings.position = position;
         }
-      });
-      await reorderSidebarPlaylists(ids);
+      }
+      await reorderSidebarPlaylists(positions);
     },
   },
 });

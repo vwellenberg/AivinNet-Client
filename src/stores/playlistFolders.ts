@@ -92,10 +92,12 @@ export default defineStore('playlistFolders', {
 
             await movePlaylistToFolder(playlistId, folderId, position)
         },
-        async reorder(ids: number[]) {
-            this.folders.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
-            this.folders.forEach((f, i) => (f.position = i))
-            await reorderPlaylistFolders(ids)
+        async reorder(positions: { id: number; position: number }[]) {
+            for (const { id, position } of positions) {
+                const f = this.folders.find(f => f.id === id)
+                if (f) f.position = position
+            }
+            await reorderPlaylistFolders(positions)
         },
     },
 })
