@@ -48,10 +48,12 @@
             @click="folderStore.toggleCollapse(folder.id)"
             @contextmenu.prevent="onFolderContextMenu($event, folder)"
           >
-            <RightArrowSvg class="folder-chevron" :class="{ open: !folderStore.isCollapsed(folder.id) }" />
-            <FolderSvg class="folder-icon" />
+            <div class="folder-icon-slot">
+              <FolderSvg class="folder-icon" />
+            </div>
             <span class="ellip">{{ folder.name }}</span>
             <span class="folder-count">{{ folder.playlists.length }}</span>
+            <RightArrowSvg class="folder-chevron" :class="{ open: !folderStore.isCollapsed(folder.id) }" />
           </div>
           <div v-if="!folderStore.isCollapsed(folder.id)" class="sidebar-folder-items">
             <SidebarPlaylistItem
@@ -436,23 +438,34 @@ onBeforeUnmount(teardown);
         background-color: $gray;
       }
 
+      .folder-icon-slot {
+        // Same 2rem slot as a playlist thumbnail so the folder icon lines up
+        // with the other library items (no left-chevron indent).
+        flex-shrink: 0;
+        width: 2rem;
+        height: 2rem;
+        display: grid;
+        place-items: center;
+      }
+
+      .folder-icon {
+        width: 1.35rem;
+        height: 1.35rem;
+        opacity: 0.85;
+      }
+
       .folder-chevron {
+        // Expand/collapse affordance on the right; points right when collapsed,
+        // rotates down when open.
         flex-shrink: 0;
         width: 0.7rem;
         height: 0.7rem;
-        opacity: 0.7;
+        opacity: 0.6;
         transition: transform 0.15s ease;
 
         &.open {
           transform: rotate(90deg);
         }
-      }
-
-      .folder-icon {
-        flex-shrink: 0;
-        width: 1.05rem;
-        height: 1.05rem;
-        opacity: 0.85;
       }
 
       span.ellip {
