@@ -126,7 +126,9 @@ export default defineStore('playlist-tracks', {
 
             if (!this.info.images.length) return
 
-            const url = paths.images.thumb.small + this.info.images[1].image
+            // medium (256²) thumbnail for a stable gradient-colour extraction
+            // (xsmall is too small for a reliable dominant-swatch pick).
+            const url = paths.images.thumb.medium + this.info.images[1].image
             setColorsToStore(this, url)
         },
         setInitialBannerPos() {

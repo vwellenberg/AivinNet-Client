@@ -259,7 +259,9 @@ export const usePlayer = defineStore('player', () => {
         }
 
         updateMediaNotif()
-        colors.setTheme1Color(paths.images.thumb.small + queue.currenttrack.image)
+        // medium (256²) thumbnail for a stable gradient-colour extraction; the
+        // xsmall (64²) cover is too small for a reliable dominant-swatch pick.
+        colors.setTheme1Color(paths.images.thumb.medium + queue.currenttrack.image)
 
         if (router.currentRoute.value.name == Routes.Lyrics) {
             return lyrics.getLyrics()
