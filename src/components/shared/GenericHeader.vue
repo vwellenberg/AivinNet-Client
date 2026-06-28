@@ -71,6 +71,15 @@
         grid-template-columns: repeat(auto-fill, 100%);
     }
 
+    // On phones the page title is shown in the top bar (see NavBar mobileTitle),
+    // so hide the redundant in-view title here. The right-hand slot (e.g. the
+    // "New Playlist" button) stays.
+    @include allPhones {
+        .title {
+            display: none;
+        }
+    }
+
     h1 {
         font-size: 1.75rem;
     }
