@@ -61,5 +61,13 @@ defineEmits<{
             opacity: 1;
         }
     }
+
+    // Touch devices can't hover — keep "Play Disc" reachable (it's the only
+    // way to start a single disc; whole-album play lives in the header).
+    @media (hover: none) {
+        .play {
+            opacity: 1;
+        }
+    }
 }
 </style>
