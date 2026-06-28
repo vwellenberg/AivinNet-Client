@@ -52,6 +52,24 @@ import { menus } from "./navitems";
 
     &.active {
       background-color: $gray5;
+      position: relative;
+
+      // Brand-green accent bar on the active item (Spotify-style indicator).
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 1.25rem;
+        width: 4px;
+        border-radius: 0 4px 4px 0;
+        background-color: $brand-green;
+
+        @include allPhones {
+          display: none;
+        }
+      }
     }
 
     &:hover {
