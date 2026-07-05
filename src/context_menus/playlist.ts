@@ -1,9 +1,11 @@
 import { Option, Playlist } from "../interfaces";
 import { playFromPlaylist } from "@/helpers/usePlayFrom";
 import { togglePlaylistPin } from "@/helpers/pinPlaylist";
-import { DeleteIcon, PlayIcon, PushPinIcon } from "@/icons";
+import { AddToQueueIcon, DeleteIcon, PlayIcon, PushPinIcon } from "@/icons";
+import { getPlaylist } from "@/requests/playlists";
 import useModalStore from "@/stores/modal";
 import usePlaylistFolders from "@/stores/playlistFolders";
+import useTracklist from "@/stores/queue/tracklist";
 
 export default async (playlist: Playlist) => {
   const modal = useModalStore();
@@ -12,6 +14,16 @@ export default async (playlist: Playlist) => {
     label: "Play",
     icon: PlayIcon,
     action: () => playFromPlaylist(String(playlist.id)),
+  };
+
+  const addToQueue: Option = {
+    label: "Add to queue",
+    icon: AddToQueueIcon,
+    action: async () => {
+      const data = await getPlaylist(String(playlist.id), false, 0, -1);
+      if (!data) return;
+      useTracklist().addTracks(data.tracks);
+    },
   };
 
   const pin: Option = {
@@ -58,5 +70,5 @@ export default async (playlist: Playlist) => {
     },
   };
 
-  return [play, pin, moveToFolder, del];
+  return [play, addToQueue, pin, moveToFolder, del];
 };
