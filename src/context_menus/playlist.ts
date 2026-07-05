@@ -1,7 +1,7 @@
 import { Option, Playlist } from "../interfaces";
 import { playFromPlaylist } from "@/helpers/usePlayFrom";
 import { togglePlaylistPin } from "@/helpers/pinPlaylist";
-import { AddToQueueIcon, DeleteIcon, PlayIcon, PushPinIcon } from "@/icons";
+import { AddToQueueIcon, DeleteIcon, PlayIcon, PlayNextIcon, PushPinIcon } from "@/icons";
 import { getPlaylist } from "@/requests/playlists";
 import useModalStore from "@/stores/modal";
 import usePlaylistFolders from "@/stores/playlistFolders";
@@ -14,6 +14,16 @@ export default async (playlist: Playlist) => {
     label: "Play",
     icon: PlayIcon,
     action: () => playFromPlaylist(String(playlist.id)),
+  };
+
+  const playNext: Option = {
+    label: "Play next",
+    icon: PlayNextIcon,
+    action: async () => {
+      const data = await getPlaylist(String(playlist.id), false, 0, -1);
+      if (!data) return;
+      useTracklist().insertAfterCurrent(data.tracks);
+    },
   };
 
   const addToQueue: Option = {
@@ -70,5 +80,5 @@ export default async (playlist: Playlist) => {
     },
   };
 
-  return [play, addToQueue, pin, moveToFolder, del];
+  return [play, playNext, addToQueue, pin, moveToFolder, del];
 };
