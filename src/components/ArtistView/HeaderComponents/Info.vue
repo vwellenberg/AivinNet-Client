@@ -2,7 +2,7 @@
     <div
         class="artist-info"
         :style="{
-            color: !useCircularImage ? (artist.colors!.bg ? getTextColor(artist.colors!.bg) : undefined) : undefined,
+            color: !useCircularImage && bgColor ? getTextColor(bgColor) : undefined,
         }"
     >
         <section class="text">
@@ -34,10 +34,11 @@ import formatSeconds from '@/utils/useFormatSeconds'
 import Buttons from './Buttons.vue'
 
 defineProps<{
-    // `colors` is the artist page store's gradient state (stores/pages/artist.ts);
-    // the parent passes `store.info` (a plain Artist), so it is optional here.
-    artist: Artist & { colors?: { bg: string; bg2: string; btn: string } }
+    artist: Artist
     useCircularImage?: boolean
+    // The artist page store's gradient colour (colors.bg) — passed by the
+    // parent header, which derives it from the cover; '' until extracted.
+    bgColor?: string
 }>()
 </script>
 
