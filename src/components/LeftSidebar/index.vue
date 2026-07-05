@@ -413,7 +413,8 @@ async function getFolderTracks(folder: PlaylistFolder): Promise<Track[] | null> 
 }
 
 function onFolderContextMenu(e: MouseEvent, folder: PlaylistFolder) {
-  const options = () => [
+  // showContextMenu expects the options getter to return a Promise.
+  const options = async () => [
     {
       label: "Play",
       icon: PlayIcon,
