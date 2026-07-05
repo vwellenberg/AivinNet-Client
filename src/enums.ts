@@ -21,6 +21,7 @@ export enum NotifType {
 
 export enum FromOptions {
   playlist = "playlist",
+  playlistFolder = "playlistFolder",
   folder = "folder",
   album = "album",
   search = "search",

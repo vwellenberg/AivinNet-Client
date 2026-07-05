@@ -33,6 +33,8 @@ function getSource(source: From) {
       return `fo:${source.path}`;
     case FromOptions.playlist:
       return `pl:${source.id}`;
+    case FromOptions.playlistFolder:
+      return `pf:${source.id}`;
     case FromOptions.search:
       return `q:${source.query}`;
     case FromOptions.favorite:

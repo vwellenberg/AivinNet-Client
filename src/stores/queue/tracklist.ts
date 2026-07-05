@@ -7,9 +7,27 @@ import useQueue from '@/stores/queue'
 import useSettings from '@/stores/settings'
 
 import { FromOptions } from '@/enums'
-import { fromAlbum, fromArtist, fromFav, fromFolder, fromMix, fromPlaylist, fromSearch, Track } from '@/interfaces'
+import {
+    fromAlbum,
+    fromArtist,
+    fromFav,
+    fromFolder,
+    fromMix,
+    fromPlaylist,
+    fromPlaylistFolder,
+    fromSearch,
+    Track,
+} from '@/interfaces'
 
-export type From = fromFolder | fromAlbum | fromPlaylist | fromSearch | fromArtist | fromFav | fromMix
+export type From =
+    | fromFolder
+    | fromAlbum
+    | fromPlaylist
+    | fromPlaylistFolder
+    | fromSearch
+    | fromArtist
+    | fromFav
+    | fromMix
 
 function shuffle(tracks: Track[]) {
     const shuffled = tracks.slice()
@@ -69,6 +87,15 @@ export default defineStore('tracklist', {
                 type: FromOptions.playlist,
                 name: name,
                 id: pid,
+            }
+
+            this.setNewList(tracks)
+        },
+        setFromPlaylistFolder(name: string, id: number, tracks: Track[]) {
+            this.from = <fromPlaylistFolder>{
+                type: FromOptions.playlistFolder,
+                name: name,
+                id: id,
             }
 
             this.setNewList(tracks)
