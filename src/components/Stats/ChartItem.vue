@@ -1,6 +1,6 @@
 <template>
     <RouterLink :to="getRouterParams()" class="chartitem rounded-sm">
-        <ArrowSvg class="trend" :class="item.trend?.trend" />
+        <ArrowSvg class="trend" :class="trend?.trend" />
         <div class="index">{{ index }}</div>
         <template v-if="isPlaylist">
             <img v-if="playlistImage" :src="playlistImage" class="chartimage playlist" />
@@ -8,20 +8,20 @@
         </template>
         <img v-else :src="getItemImage(item)" class="chartimage" :class="name" />
         <div class="iteminfo">
-            <div class="title" :title="item.name" v-if="isArtist || isPlaylist">
-                {{ item.name }} <MasterFlag v-if="item.trend?.is_new" :text="item.trend?.is_new ? 'New' : ''" :bitrate="1900"/>
+            <div class="title" :title="asArtist.name" v-if="isArtist || isPlaylist">
+                {{ asArtist.name }} <MasterFlag v-if="trend?.is_new" :text="trend?.is_new ? 'New' : ''" :bitrate="1900"/>
             </div>
-            <div class="title" :title="item.title" v-if="isAlbumOrTrack">
-                {{ item.title }} <MasterFlag v-if="item.trend?.is_new" :text="item.trend?.is_new ? 'New' : ''" :bitrate="1900"/>
+            <div class="title" :title="asTrack.title" v-if="isAlbumOrTrack">
+                {{ asTrack.title }} <MasterFlag v-if="trend?.is_new" :text="trend?.is_new ? 'New' : ''" :bitrate="1900"/>
             </div>
             <div class="artist" v-if="isAlbumOrTrack">
                 <ArtistName
-                    :artists="item.artists ? item.artists : item.albumartists"
-                    :albumartists="item.albumartists"
+                    :artists="asTrack.artists ? asTrack.artists : asTrack.albumartists"
+                    :albumartists="asTrack.albumartists"
                 />
             </div>
             <div class="artist" v-if="isArtist || isPlaylist">
-                {{ item.extra['playcount'] }} track plays
+                {{ asArtist.extra['playcount'] }} track plays
             </div>
         </div>
         <div class="helptext">
@@ -54,6 +54,13 @@ const isArtist = computed(() => props.name === 'artist')
 const isAlbumOrTrack = computed(() => props.name === 'album' || props.name === 'track')
 const isPlaylist = computed(() => props.name === 'playlist')
 
+// The `name` prop (not a field on `item`) discriminates the union, but the
+// template's v-if branches can't narrow `item` from it — cast once here.
+const asArtist = computed(() => props.item as Artist)
+const asTrack = computed(() => props.item as Track)
+// Every chart payload may carry a trend; the Playlist interface just doesn't declare it.
+const trend = computed(() => (props.item as Track).trend)
+
 // Playlists may have no own image (image === "None"): fall back to the first
 // track cover, like the sidebar does. See CLAUDE.md "Playlist image=None".
 const playlistImage = computed(() => {
@@ -77,11 +84,11 @@ function getItemImage(item: ChartItem) {
 function getRouterParams() {
     switch (props.name) {
         case 'artist':
-            return { name: Routes.artist, params: { hash: props.item.artisthash } }
+            return { name: Routes.artist, params: { hash: (props.item as Artist).artisthash } }
         case 'playlist':
-            return { name: Routes.playlist, params: { pid: props.item.id } }
+            return { name: Routes.playlist, params: { pid: (props.item as Playlist).id } }
         default:
-            return { name: Routes.album, params: { albumhash: props.item.albumhash } }
+            return { name: Routes.album, params: { albumhash: (props.item as Album).albumhash } }
     }
 }
 </script>

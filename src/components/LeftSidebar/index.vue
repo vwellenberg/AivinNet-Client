@@ -15,7 +15,7 @@
           :to="{ name: Routes.album, params: { albumhash: al.albumhash } }"
           class="sidebar-playlist-item"
           :class="{ active: $route.params.albumhash == al.albumhash }"
-          @contextmenu.prevent="showAlbumContextMenu($event, ctxFlag, al)"
+          @contextmenu.prevent="onAlbumContextMenu($event, al)"
         >
           <div class="sidebar-pl-img rounded-sm">
             <img :src="thumbBase + al.image" />
@@ -454,6 +454,12 @@ function onFolderContextMenu(e: MouseEvent, folder: PlaylistFolder) {
     },
   ];
   contextStore.showContextMenu(e, options, ContextSrc.PHeader);
+}
+
+// Wrapper so the handler receives the actual Ref — in the template,
+// ctxFlag would be auto-unwrapped to a plain boolean.
+function onAlbumContextMenu(e: MouseEvent, al: Album) {
+  showAlbumContextMenu(e, ctxFlag, al);
 }
 
 // Is the given album the one currently loaded in the player?

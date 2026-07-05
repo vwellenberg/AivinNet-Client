@@ -8,7 +8,7 @@
         <div
             v-if="name === 'artist'"
             class="gradient"
-            :style="`background-image: linear-gradient(to right, transparent 0, ${item.color} 12rem, ${item.color} 100%)`"
+            :style="`background-image: linear-gradient(to right, transparent 0, ${asArtist.color} 12rem, ${asArtist.color} 100%)`"
         ></div>
         <div class="hashuno shadow-sm">
             1
@@ -21,23 +21,23 @@
                 </div>
                 <div class="artist" v-if="name !== 'artist'">
                     <ArtistName
-                    :artists="item.artists ? item.artists : item.albumartists"
-                    :albumartists="item.albumartists"
+                    :artists="asTrack.artists ? asTrack.artists : asTrack.albumartists"
+                    :albumartists="asTrack.albumartists"
                     />
                 </div>
-                <div class="title ellip">{{ name === 'artist' ? item.name : item.title }}</div>
+                <div class="title ellip">{{ name === 'artist' ? asArtist.name : asTrack.title }}</div>
             </div>
             <!-- <div class="index">
                 <ArrowSvg class="trend" :class="item.trend" /> 1
             </div> -->
         </div>
-        <PlayBtn />
+        <PlayBtn :source="null" />
     </div>
 </template>
 
 <script setup lang="ts">
 import Vibrant from 'node-vibrant'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { paths } from '@/config'
 import { Artist, Album, Track } from '@/interfaces'
@@ -56,7 +56,12 @@ const props = defineProps<{
     name: ChartName
 }>()
 
-const color = ref<string | null>(null)
+const color = ref<string>()
+
+// The `name` prop (not a field on `item`) discriminates the union, but the
+// template's branches can't narrow `item` from it — cast once here.
+const asArtist = computed(() => props.item as Artist)
+const asTrack = computed(() => props.item as Track)
 
 function getItemImage(item: ChartItem, size: 'small' | 'large' | 'medium' = 'large') {
     switch (props.name) {

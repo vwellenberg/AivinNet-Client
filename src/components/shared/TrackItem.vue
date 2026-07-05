@@ -36,7 +36,7 @@
       >
         <HeartSvg :state="is_fav" :no_emit="true" />
       </div>
-      <div v-if="isQueueTrack" class="remove-track" title="Remove from queue" @click.stop="player.removeByIndex(index)">
+      <div v-if="isQueueTrack" class="remove-track" title="Remove from queue" @click.stop="player.removeByIndex(index ?? 0)">
         <DelSvg />
       </div>
     </div>
