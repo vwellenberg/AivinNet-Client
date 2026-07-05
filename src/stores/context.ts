@@ -24,7 +24,7 @@ export default defineStore("context-menu", {
   actions: {
     showContextMenu(
       e: MouseEvent,
-      getContextOptions: () => Promise<Option[]>,
+      getContextOptions: () => Promise<Option[]> | Option[],
       src: ContextSrc
     ) {
       if (this.visible) {
@@ -40,7 +40,9 @@ export default defineStore("context-menu", {
         getBoundingClientRect: generateGetBoundingClientRect(e.x, e.y),
       } as VirtualElement;
 
-      getContextOptions()
+      // Promise.resolve so plain-array getters work too — a sync getter used
+      // to throw (".then is not a function") and silently show an empty menu.
+      Promise.resolve(getContextOptions())
         .then((options) => {
           this.options = options;
         })
