@@ -5,6 +5,7 @@
             params: res_type === 'artist' ? { hash: item.artisthash || ' ' } : { albumhash: item.albumhash || ' ' },
         }"
         class="top-result-item rounded"
+        @contextmenu.prevent="onContextMenu"
     >
         <img
             :src="
@@ -70,7 +71,11 @@ import { Routes } from '@/router'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 
-import { showTrackContextMenu as showContext } from '@/helpers/contextMenuHandler'
+import {
+    showAlbumContextMenu,
+    showArtistContextMenu,
+    showTrackContextMenu as showContext,
+} from '@/helpers/contextMenuHandler'
 import useSearchStore from '@/stores/search'
 
 import Moresvg from '@/assets/icons/more.svg'
@@ -101,6 +106,22 @@ const context_menu_showing = ref(false)
 
 function showMenu(e: MouseEvent) {
     showContext(e, item.value as Track, context_menu_showing)
+}
+
+// Right-click anywhere on the card opens the same menu the ⋮ button shows
+// (tracks), or the album/artist menu for those result types.
+function onContextMenu(e: MouseEvent) {
+    switch (res_type.value) {
+        case 'track':
+            showContext(e, item.value as Track, context_menu_showing)
+            break
+        case 'album':
+            showAlbumContextMenu(e, context_menu_showing, item.value as Album)
+            break
+        case 'artist':
+            showArtistContextMenu(e, context_menu_showing, item.value.artisthash, item.value.name)
+            break
+    }
 }
 </script>
 
