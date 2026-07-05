@@ -97,13 +97,15 @@ async function showChildren() {
         // return;
     }
 
-    const offsetModifier: Modifier<
-        'offset',
-        {
-            offset:
-                | [number, number]
-                | ((args: { placement: Placement; reference: Rect; popper: Rect }) => [number, number])
-        }
+    const offsetModifier: Partial<
+        Modifier<
+            'offset',
+            {
+                offset:
+                    | [number, number]
+                    | ((args: { placement: Placement; reference: Rect; popper: Rect }) => [number, number])
+            }
+        >
     > = {
         name: 'offset',
         options: {

@@ -21,6 +21,8 @@
 </template>
 
 <script setup lang="ts">
+import type { RouteParamsRaw } from "vue-router";
+
 import {
   AlbumIcon,
   ArtistIcon,
@@ -30,8 +32,18 @@ import {
 import { Routes } from "@/router";
 import { album_card_with } from "@/stores/content-width";
 
+// A library shortcut card. `icon` is a raw svg string rendered via `v-html`.
+interface BrowseItem {
+  title: string;
+  route: string;
+  icon: string;
+  class?: string;
+  params?: RouteParamsRaw;
+  action?: () => void;
+}
+
 // INFO: Library shortcuts on the home page.
-const browselist = [
+const browselist: BrowseItem[] = [
   {
     title: "Albums",
     route: Routes.AlbumList,

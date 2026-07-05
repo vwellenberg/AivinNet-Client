@@ -36,7 +36,7 @@
     /><br />
     <div v-if="artist.toShow.length" class="cards">
       <AlbumCard
-        v-for="album in artist.toShow.sort((a, b) => parseInt(b.date) - parseInt(a.date))"
+        v-for="album in artist.toShow.sort((a, b) => parseInt(String(b.date)) - parseInt(String(a.date)))"
         :key="album.albumhash"
         :album="album"
         :artist_page="true"

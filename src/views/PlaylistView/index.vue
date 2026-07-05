@@ -59,7 +59,7 @@ const route = useRoute()
 watch(() => route.params.pid, async (newPid, oldPid) => {
     if (newPid && newPid !== oldPid) {
         playlist.resetTracks()
-        await playlist.fetchAll(newPid as string)
+        await playlist.fetchAll(parseInt(newPid as string))
     }
 })
 

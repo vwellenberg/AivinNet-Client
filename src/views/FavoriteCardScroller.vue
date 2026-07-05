@@ -72,10 +72,10 @@ async function loadMore() {
         }
     }
 
-    if (itemtype.value == 'artist') {
-        artists.value.push(...(data.artists as Artist[]))
+    if ('artists' in data) {
+        artists.value.push(...data.artists)
     } else {
-        albums.value.push(...(data.albums as Album[]))
+        albums.value.push(...data.albums)
     }
 
     waitingForMore = false

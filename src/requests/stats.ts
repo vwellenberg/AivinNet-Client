@@ -10,11 +10,11 @@ export async function getChartItem(item: string, duration: string, limit: number
     return res
 }
 
-export async function getTopArtists(duration: number, limit: number, order_by: string) {
+export async function getTopArtists(duration: string, limit: number, order_by: string) {
     return await getChartItem('artists', duration, limit, order_by)
 }
 
-export async function getTopAlbums(duration: number, limit: number, order_by: string) {
+export async function getTopAlbums(duration: string, limit: number, order_by: string) {
     return await getChartItem('albums', duration, limit, order_by)
 }
 

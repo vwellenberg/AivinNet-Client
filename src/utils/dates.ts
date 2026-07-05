@@ -6,7 +6,7 @@ export function formatDate(timestamp: number, yearOnly = false) {
     // format date as Month day, year
     const date = new Date(timestamp * 1000)
 
-    const options = { year: 'numeric', month: 'long', day: 'numeric' }
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
 
     if (yearOnly) {
         return date.getFullYear()

@@ -9,6 +9,7 @@
     "generate-pwa-assets": "pwa-assets-generator --preset minimal public/logo-fill.light.svg",
     "lint": "eslint --ext .js,.vue,.ts --ignore-path .gitignore --fix src",
     "lint:check": "eslint --ext .js,.vue,.ts --ignore-path .gitignore src",
+    "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -40,22 +41,23 @@
     "@typescript-eslint/parser": "^6.3.0",
     "@vite-pwa/assets-generator": "^0.0.3",
     "@vitejs/plugin-vue": "^3.2.0",
+    "@vue/test-utils": "^2.4.6",
     "eslint": "^8.46.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-vue": "^9.17.0",
+    "jsdom": "^25.0.1",
     "sass": "^1.56.1",
     "sass-loader": "^13.2.0",
-    "typescript": "^5.0.4",
+    "typescript": "~5.8.3",
     "vite": "^3.0.4",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-node-polyfills": "^0.22.0",
     "vite-plugin-pwa": "^0.16.4",
     "vite-plugin-singlefile": "^0.13.5",
     "vite-svg-loader": "^4.0.0",
-    "vue-virtual-draglist": "^3.0.4",
-    "@vue/test-utils": "^2.4.6",
-    "jsdom": "^25.0.1",
-    "vitest": "^0.34.6"
+    "vitest": "^0.34.6",
+    "vue-tsc": "^2.1.10",
+    "vue-virtual-draglist": "^3.0.4"
   },
   "packageManager": "yarn@1.22.19"
 }

@@ -1,3 +1,5 @@
+import type { LocationQueryRaw, RouteParamsRaw } from "vue-router";
+
 import { Routes } from "@/router";
 import useSearch from "@/stores/search";
 
@@ -7,6 +9,20 @@ import PlaylistSvg from "@/assets/icons/playlist-1.svg";
 import SearchSvg from "@/assets/icons/search.svg";
 import HomeSvg from "@/assets/icons/home.svg";
 import ChartSvg from "@/assets/icons/chart.svg";
+
+// A sidebar/bottom-bar navigation entry. Only `separator: true` entries omit
+// the route fields; `icon` is `any` because that's what the `*.svg` module
+// declaration exports.
+interface NavItem {
+  name?: string;
+  route_name?: string;
+  params?: RouteParamsRaw;
+  query?: () => LocationQueryRaw;
+  icon?: any;
+  iconClass?: string;
+  separator?: boolean;
+  action?: () => void;
+}
 
 // `iconClass` lets NavButtons normalise the optical size of these mixed-source
 // icons (their artwork fills its viewBox by different amounts). See the
@@ -40,7 +56,7 @@ const home = {
   iconClass: "nav-ico-home",
 };
 
-export const menus = [
+export const menus: NavItem[] = [
   home,
   folder,
   {
@@ -64,4 +80,4 @@ export const menus = [
   },
 ];
 
-export const topnavitems = [home, folder, favorites, playlists];
+export const topnavitems: NavItem[] = [home, folder, favorites, playlists];

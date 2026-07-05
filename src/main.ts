@@ -1,4 +1,4 @@
-import { createApp } from "vue";
+import { createApp, type Plugin } from "vue";
 import { createPinia } from "pinia";
 
 import { MotionPlugin } from "@vueuse/motion";
@@ -28,7 +28,7 @@ pinia.use(piniaPluginPersistedstate);
 app.use(pinia);
 app.use(router);
 app.use(autoAnimatePlugin);
-app.use(VWave);
+app.use(VWave as Plugin);
 app.use(MotionPlugin);
 
 app.directive("tooltip", vTooltip);

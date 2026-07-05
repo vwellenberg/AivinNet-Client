@@ -74,6 +74,7 @@ export interface Album {
     time?: string
     is_favorite: boolean
     is_pinned?: boolean
+    is_single?: boolean
     genres: Genre[]
     versions: string[]
     trend?: {
@@ -318,6 +319,7 @@ export interface LyricsLine {
 export interface UserSimplified {
     id: number
     username: string
+    firstname?: string
 }
 
 export interface User extends UserSimplified {

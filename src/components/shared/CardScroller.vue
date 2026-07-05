@@ -65,7 +65,7 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-    playThis: (index: number) => void
+    playThis: [index: number]
 }>()
 
 const itemlist = computed(() => {

@@ -10,20 +10,24 @@ vi.mock('@/stores/player', () => ({
     getUrl: () => '',
 }))
 
+import { Track } from '@/interfaces'
 import useTracklist from '@/stores/queue/tracklist'
 
-const mk = (over: Partial<any> = {}) => ({
-    trackhash: '',
-    title: '',
-    album: '',
-    artists: [] as any[],
-    albumartists: [] as any[],
-    track: 0,
-    ...over,
-})
+const mk = (over: Partial<any> = {}) =>
+    ({
+        trackhash: '',
+        title: '',
+        album: '',
+        artists: [] as any[],
+        albumartists: [] as any[],
+        track: 0,
+        ...over,
+    } as unknown as Track)
 
 describe('tracklist.retagTrack', () => {
-    beforeEach(() => setActivePinia(createPinia()))
+    beforeEach(() => {
+        setActivePinia(createPinia())
+    })
 
     it('patches every queue copy matching the old hash and leaves others untouched', () => {
         const tl = useTracklist()

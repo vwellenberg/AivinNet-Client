@@ -2,10 +2,10 @@
     <RouterLink
         :to="{ name: Routes.playlist, params: { pid: pl.id } }"
         class="sidebar-playlist-item"
-        :class="{ active: $route.params.pid == pl.id }"
+        :class="{ active: $route.params.pid == String(pl.id) }"
         draggable="true"
         @dragstart="onDragStart"
-        @contextmenu.prevent="showPlaylistContextMenu($event, pl, ctxFlag)"
+        @contextmenu.prevent="onContextMenu"
     >
         <div class="sidebar-pl-img rounded-sm">
             <img v-if="pl.has_image" :src="imgBase + pl.image" />
@@ -71,5 +71,11 @@ function toggle() {
 function onDragStart(e: DragEvent) {
     e.dataTransfer?.setData('playlistid', String(props.pl.id))
     if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+}
+
+// Wrapper so the handler receives the actual Ref — in the template,
+// ctxFlag would be auto-unwrapped to a plain boolean.
+function onContextMenu(e: MouseEvent) {
+    showPlaylistContextMenu(e, props.pl, ctxFlag)
 }
 </script>
