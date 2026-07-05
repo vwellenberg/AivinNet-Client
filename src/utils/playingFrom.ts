@@ -62,6 +62,18 @@ export default (source: From): PlayingFrom => {
                 image: paths.images.playlist + source.id,
             }
 
+        case FromOptions.playlistFolder:
+            // Playlist folders live in the sidebar; the playlists page is the
+            // closest navigable surface.
+            return {
+                name: source.name,
+                icon: FolderSvg,
+                location: {
+                    name: Routes.playlists,
+                },
+                image: '',
+            }
+
         case FromOptions.search:
             return {
                 name: `Search for: "${source.query}"`,

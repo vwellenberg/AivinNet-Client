@@ -214,6 +214,13 @@ export interface fromPlaylist {
     id: number
 }
 
+// A sidebar playlist folder played as one unit (all its playlists in order).
+export interface fromPlaylistFolder {
+    type: FromOptions.playlistFolder
+    name: string
+    id: number
+}
+
 export interface fromSearch {
     type: FromOptions.search
     query: string

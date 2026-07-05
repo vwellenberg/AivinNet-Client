@@ -18,6 +18,8 @@ function getQueueName(from: From) {
       return from.name;
     case FromOptions.playlist:
       return `${from.name} 2.0`;
+    case FromOptions.playlistFolder:
+      return from.name;
     case FromOptions.search:
       return `Search results for ${from.query}`;
     case FromOptions.favorite:

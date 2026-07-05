@@ -121,7 +121,7 @@ import usePStore from "@/stores/pages/playlists";
 import usePinnedAlbums from "@/stores/pages/pinnedAlbums";
 import { Routes } from '@/router'
 import { paths } from '@/config'
-import { Album, Playlist } from "@/interfaces";
+import { Album, Playlist, Track } from "@/interfaces";
 
 import Navigation from "@/components/LeftSidebar/NavButtons.vue";
 import SongCard from "./NP/SongCard.vue";
@@ -143,7 +143,9 @@ import { PlaylistFolder } from "@/requests/playlistFolders";
 import { FromOptions, ContextSrc } from "@/enums";
 import { playFromAlbumCard } from "@/helpers/usePlayFrom";
 import { showAlbumContextMenu } from "@/helpers/contextMenuHandler";
-import { DeleteIcon } from "@/icons";
+import { AddToQueueIcon, DeleteIcon, PlayIcon, PlayNextIcon } from "@/icons";
+import { getPlaylist } from "@/requests/playlists";
+import { NotifType, useToast } from "@/stores/notification";
 
 const ctxFlag = ref(false);
 
@@ -396,8 +398,48 @@ function onDropToTop(e: DragEvent) {
 function onNewFolder() {
   modal.showFolderModal();
 }
+// All tracks of a folder: its playlists in folder order, each in full.
+// Returns null (with a toast) when the folder yields no tracks.
+async function getFolderTracks(folder: PlaylistFolder): Promise<Track[] | null> {
+  const results = await Promise.all(
+    folder.items.map((pid) => getPlaylist(String(pid), false, 0, -1))
+  );
+  const tracks = results.flatMap((r) => r?.tracks ?? []);
+  if (!tracks.length) {
+    useToast().showNotification("Folder has no tracks", NotifType.Error);
+    return null;
+  }
+  return tracks;
+}
+
 function onFolderContextMenu(e: MouseEvent, folder: PlaylistFolder) {
   const options = () => [
+    {
+      label: "Play",
+      icon: PlayIcon,
+      action: async () => {
+        const tracks = await getFolderTracks(folder);
+        if (!tracks) return;
+        tracklist.setFromPlaylistFolder(folder.name, folder.id, tracks);
+        queue.play();
+      },
+    },
+    {
+      label: "Play next",
+      icon: PlayNextIcon,
+      action: async () => {
+        const tracks = await getFolderTracks(folder);
+        if (tracks) tracklist.insertAfterCurrent(tracks);
+      },
+    },
+    {
+      label: "Add to queue",
+      icon: AddToQueueIcon,
+      action: async () => {
+        const tracks = await getFolderTracks(folder);
+        if (tracks) tracklist.addTracks(tracks);
+      },
+    },
     {
       label: "Rename",
       action: () => modal.showFolderModal({ folder }),
