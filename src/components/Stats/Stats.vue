@@ -71,6 +71,11 @@ defineOptions({
     gap: 1.5rem;
     padding: 1rem;
 
+    // The stat cards scroll horizontally by touch/drag; never show the
+    // scrollbar (it overlaps the cards on mobile — same treatment as the
+    // genre banner next to it and the search tab chips).
+    @include hideScrollbars;
+
     .left {
         display: flex;
         gap: 2rem;
