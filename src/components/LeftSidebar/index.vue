@@ -9,32 +9,8 @@
             <PlusSvg />
           </button>
         </div>
-        <RouterLink
-          v-for="al in pinnedAlbums.sortedAlbums"
-          :key="al.albumhash"
-          :to="{ name: Routes.album, params: { albumhash: al.albumhash } }"
-          class="sidebar-playlist-item"
-          :class="{ active: $route.params.albumhash == al.albumhash }"
-          @contextmenu.prevent="onAlbumContextMenu($event, al)"
-        >
-          <div class="sidebar-pl-img rounded-sm">
-            <img :src="thumbBase + al.image" />
-            <button
-              class="pl-play-overlay"
-              :class="{ playing: isCurrentAlbum(al.albumhash) }"
-              :title="isPlayingAlbum(al.albumhash) ? 'Pause' : 'Play'"
-              @click.prevent.stop="togglePlayAlbum(al)"
-            >
-              <PauseSvg v-if="isPlayingAlbum(al.albumhash)" />
-              <PlaySvg v-else />
-            </button>
-          </div>
-          <span class="ellip">{{ al.title }}</span>
-          <PushPinSvg class="pl-pin" title="Pinned" />
-        </RouterLink>
-
-        <!-- Manually-ordered zone: folders and pinned playlists, freely
-             interleaved (shared position space). -->
+        <!-- Manually-ordered zone: folders, pinned albums and pinned
+             playlists, freely interleaved (shared position space). -->
         <div class="sidebar-toplevel" @dragover.prevent @drop="onDropToTopZone($event)">
           <template v-for="entry in topZone" :key="entry.kind + '-' + entry.id">
             <!-- Folder -->
@@ -77,6 +53,35 @@
                 <div v-if="!entry.folder.playlists.length" class="sidebar-folder-empty">Drop playlists here</div>
               </div>
             </div>
+
+            <!-- Pinned album -->
+            <RouterLink
+              v-else-if="entry.kind === 'album'"
+              :to="{ name: Routes.album, params: { albumhash: entry.al.albumhash } }"
+              class="sidebar-playlist-item"
+              :class="[{ active: $route.params.albumhash == entry.al.albumhash }, markerClass('album', entry.id)]"
+              draggable="true"
+              @dragstart="onAlbumDragStart(entry.al.albumhash, $event)"
+              @dragend="clearDrag"
+              @dragover.prevent="onAlbumDragOver(entry.al.albumhash, $event)"
+              @drop.stop="onAlbumDrop(entry.al, $event)"
+              @contextmenu.prevent="onAlbumContextMenu($event, entry.al)"
+            >
+              <div class="sidebar-pl-img rounded-sm">
+                <img :src="thumbBase + entry.al.image" />
+                <button
+                  class="pl-play-overlay"
+                  :class="{ playing: isCurrentAlbum(entry.al.albumhash) }"
+                  :title="isPlayingAlbum(entry.al.albumhash) ? 'Pause' : 'Play'"
+                  @click.prevent.stop="togglePlayAlbum(entry.al)"
+                >
+                  <PauseSvg v-if="isPlayingAlbum(entry.al.albumhash)" />
+                  <PlaySvg v-else />
+                </button>
+              </div>
+              <span class="ellip">{{ entry.al.title }}</span>
+              <PushPinSvg class="pl-pin" title="Pinned" />
+            </RouterLink>
 
             <!-- Pinned playlist -->
             <SidebarPlaylistItem
@@ -190,21 +195,30 @@ type TopEntry =
       position: number;
       folder: PlaylistFolder & { playlists: Playlist[] };
     }
-  | { kind: "playlist"; id: number; position: number; pl: Playlist };
+  | { kind: "playlist"; id: number; position: number; pl: Playlist }
+  | { kind: "album"; id: string; position: number; al: Album };
 
-// The manually-ordered zone: folders + pinned playlists interleaved by a shared
-// position. Folders-first only breaks ties (e.g. before the first reorder).
+// Tie-break for entries that share a position (e.g. all MAX before the first
+// reorder): albums first, then folders, then playlists — preserving the
+// historical layout where pinned albums sat above the folder/playlist zone.
+const kindRank = { album: 0, folder: 1, playlist: 2 } as const;
+
+// The manually-ordered zone: folders + pinned albums + pinned playlists
+// interleaved by a shared position.
 const topZone = computed<TopEntry[]>(() => {
   const entries: TopEntry[] = [];
   for (const f of foldersWithPlaylists.value) {
     entries.push({ kind: "folder", id: f.id, position: f.position ?? Number.MAX_SAFE_INTEGER, folder: f });
+  }
+  for (const al of pinnedAlbums.sortedAlbums) {
+    entries.push({ kind: "album", id: al.albumhash, position: al.position ?? Number.MAX_SAFE_INTEGER, al });
   }
   for (const p of ungroupedPlaylists.value) {
     if (p.pinned) {
       entries.push({ kind: "playlist", id: p.id, position: p.settings?.position ?? Number.MAX_SAFE_INTEGER, pl: p });
     }
   }
-  return entries.sort((a, b) => a.position - b.position || (a.kind === "folder" ? -1 : 1));
+  return entries.sort((a, b) => a.position - b.position || kindRank[a.kind] - kindRank[b.kind]);
 });
 // Everything else (un-pinned, un-grouped) stays alphabetical below.
 const bottomZone = computed(() => ungroupedPlaylists.value.filter(p => !p.pinned));
@@ -212,8 +226,10 @@ const bottomZone = computed(() => ungroupedPlaylists.value.filter(p => !p.pinned
 const dragOverFolder = ref<number | null>(null);
 // What is being dragged (set on dragstart — dataTransfer can't be read during
 // dragover) and where the drop line currently sits.
-const dragging = ref<{ type: "playlist" | "folder"; id: number } | null>(null);
-const dropMarker = ref<{ kind: "pl" | "folder"; id: number; edge: "before" | "after" } | null>(null);
+const dragging = ref<{ type: "playlist" | "folder"; id: number } | { type: "album"; id: string } | null>(null);
+const dropMarker = ref<{ kind: "pl" | "folder" | "album"; id: number | string; edge: "before" | "after" } | null>(
+  null
+);
 
 function readDragPid(e: DragEvent): number | null {
   const raw = e.dataTransfer?.getData("playlistid");
@@ -228,7 +244,7 @@ function edgeFromEvent(e: DragEvent): "before" | "after" {
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
   return e.clientY < rect.top + rect.height / 2 ? "before" : "after";
 }
-function markerClass(kind: "pl" | "folder", id: number) {
+function markerClass(kind: "pl" | "folder" | "album", id: number | string) {
   const m = dropMarker.value;
   return {
     "drop-before": !!m && m.kind === kind && m.id === id && m.edge === "before",
@@ -250,6 +266,11 @@ function onFolderDragStart(id: number, e: DragEvent) {
   e.dataTransfer?.setData("folderid", String(id));
   if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
 }
+function onAlbumDragStart(albumhash: string, e: DragEvent) {
+  dragging.value = { type: "album", id: albumhash };
+  e.dataTransfer?.setData("albumhash", albumhash);
+  if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
+}
 
 // playlist rows: show the line for any drag (a folder can also land before/after)
 function onItemDragOver(plId: number, e: DragEvent) {
@@ -257,13 +278,19 @@ function onItemDragOver(plId: number, e: DragEvent) {
   dragOverFolder.value = null;
   dropMarker.value = { kind: "pl", id: plId, edge: edgeFromEvent(e) };
 }
+// album rows: same, with the album's own marker
+function onAlbumDragOver(albumhash: string, e: DragEvent) {
+  if (!dragging.value) return;
+  dragOverFolder.value = null;
+  dropMarker.value = { kind: "album", id: albumhash, edge: edgeFromEvent(e) };
+}
 
 // reorder the shared top zone, placing the dragged entry next to the target
 function reorderTopZone(
-  draggedKind: "folder" | "playlist",
-  draggedId: number,
-  targetKind: "folder" | "playlist",
-  targetId: number,
+  draggedKind: "folder" | "playlist" | "album",
+  draggedId: number | string,
+  targetKind: "folder" | "playlist" | "album",
+  targetId: number | string,
   edge: "before" | "after"
 ) {
   const order = topZone.value
@@ -276,12 +303,35 @@ function reorderTopZone(
 
   const folderPos: { id: number; position: number }[] = [];
   const plPos: { id: number; position: number }[] = [];
+  const albumPos: { albumhash: string; position: number }[] = [];
   order.forEach((en, i) => {
-    if (en.kind === "folder") folderPos.push({ id: en.id, position: i });
-    else plPos.push({ id: en.id, position: i });
+    if (en.kind === "folder") folderPos.push({ id: en.id as number, position: i });
+    else if (en.kind === "album") albumPos.push({ albumhash: en.id as string, position: i });
+    else plPos.push({ id: en.id as number, position: i });
   });
   if (folderPos.length) folderStore.reorder(folderPos);
   if (plPos.length) playlists.reorderTopLevel(plPos);
+  if (albumPos.length) pinnedAlbums.reorderTopLevel(albumPos);
+}
+
+// drop anything onto a pinned album row → interleave next to it
+async function onAlbumDrop(targetAl: Album, e: DragEvent) {
+  void e;
+  const drag = dragging.value;
+  const edge = dropMarker.value?.edge ?? "before";
+  clearDrag();
+  if (!drag) return;
+
+  if (drag.type === "album" && drag.id === targetAl.albumhash) return;
+
+  if (drag.type === "playlist") {
+    // Pull the playlist out of any folder first, then place it (only if pinned).
+    if (folderStore.folderOf.has(drag.id)) await folderStore.move(drag.id, null);
+    const dragged = playlists.playlists.find((p) => p.id === drag.id);
+    if (!dragged?.pinned) return;
+  }
+
+  reorderTopZone(drag.type, drag.id, "album", targetAl.albumhash, edge);
 }
 function onDropInFolderAt(folder: { id: number; items: number[] }, targetPl: Playlist, e: DragEvent) {
   const pid = readDragPid(e);
@@ -294,7 +344,7 @@ function onDropInFolderAt(folder: { id: number; items: number[] }, targetPl: Pla
   if (edge === "after") pos += 1;
   folderStore.move(pid, folder.id, pos);
 }
-// drop a folder or playlist onto a pinned playlist in the top zone → interleave
+// drop a folder, album or playlist onto a pinned playlist in the top zone → interleave
 async function onTopItemDrop(targetPl: Playlist, e: DragEvent) {
   void e;
   const drag = dragging.value;
@@ -302,8 +352,8 @@ async function onTopItemDrop(targetPl: Playlist, e: DragEvent) {
   clearDrag();
   if (!drag) return;
 
-  if (drag.type === "folder") {
-    reorderTopZone("folder", drag.id, "playlist", targetPl.id, edge);
+  if (drag.type === "folder" || drag.type === "album") {
+    reorderTopZone(drag.type, drag.id, "playlist", targetPl.id, edge);
     return;
   }
 
@@ -326,7 +376,9 @@ function folderHeaderZone(e: DragEvent): "before" | "into" | "after" {
   return "into";
 }
 function onFolderHeaderDragOver(folder: PlaylistFolder, e: DragEvent) {
-  if (dragging.value?.type === "folder") {
+  // Folders and albums can only land before/after a folder (no "into" zone —
+  // folders contain playlists only).
+  if (dragging.value?.type === "folder" || dragging.value?.type === "album") {
     dragOverFolder.value = null;
     dropMarker.value = { kind: "folder", id: folder.id, edge: edgeFromEvent(e) };
     return;
@@ -348,9 +400,9 @@ async function onFolderHeaderDrop(folder: PlaylistFolder, e: DragEvent) {
   clearDrag();
   if (!drag) return;
 
-  if (drag.type === "folder") {
-    if (drag.id === folder.id) return;
-    reorderTopZone("folder", drag.id, "folder", folder.id, edge);
+  if (drag.type === "folder" || drag.type === "album") {
+    if (drag.type === "folder" && drag.id === folder.id) return;
+    reorderTopZone(drag.type, drag.id, "folder", folder.id, edge);
     return;
   }
 
@@ -365,8 +417,9 @@ async function onFolderHeaderDrop(folder: PlaylistFolder, e: DragEvent) {
 }
 
 // folder body / empty area: append a dragged playlist to the folder
+// (folders and albums can't be dropped into a folder)
 function onDropToFolder(folderId: number, e: DragEvent) {
-  if (dragging.value?.type === "folder") return clearDrag();
+  if (dragging.value && dragging.value.type !== "playlist") return clearDrag();
   const pid = readDragPid(e);
   clearDrag();
   if (pid !== null) folderStore.move(pid, folderId);
@@ -379,8 +432,8 @@ function onDropToTopZone(e: DragEvent) {
   if (!drag) return;
   const last = topZone.value[topZone.value.length - 1];
   if (!last || (drag.id === last.id && drag.type === last.kind)) return;
-  if (drag.type === "folder") {
-    reorderTopZone("folder", drag.id, last.kind, last.id, "after");
+  if (drag.type === "folder" || drag.type === "album") {
+    reorderTopZone(drag.type, drag.id, last.kind, last.id, "after");
   } else {
     const dragged = playlists.playlists.find(p => p.id === drag.id);
     if (dragged?.pinned && !folderStore.folderOf.has(drag.id)) {
