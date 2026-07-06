@@ -75,6 +75,9 @@ export interface Album {
     is_favorite: boolean
     is_pinned?: boolean
     is_single?: boolean
+    // Explicit library-sidebar position of a pinned album (shared space with
+    // folders and pinned playlists); null until first reordered.
+    position?: number | null
     genres: Genre[]
     versions: string[]
     trend?: {

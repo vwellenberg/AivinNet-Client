@@ -153,4 +153,15 @@ export async function getPinnedAlbums(): Promise<Album[]> {
     return data?.albums ?? []
 }
 
+/**
+ * Set explicit sidebar positions for pinned albums (shared position space
+ * with folders and pinned playlists). Unlisted albums keep their position.
+ */
+export async function reorderPinnedAlbums(positions: { albumhash: string; position: number }[]) {
+    await useAxios({
+        url: albumUrl + '/pinned/order',
+        props: { positions },
+    })
+}
+
 export { getAlbumData as getAlbum, getAlbumArtists, getAlbumBio }
