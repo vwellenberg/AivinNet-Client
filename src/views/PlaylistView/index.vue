@@ -63,6 +63,11 @@ watch(() => route.params.pid, async (newPid, oldPid) => {
     }
 })
 
+// Only regular (numeric-id) playlists carry per-track added_at; the custom
+// "recentlyadded"/"recentlyplayed" playlists served through this view don't,
+// so they keep the plain layout without the "Date added" column.
+const supportsDateAdded = computed(() => /^\d+$/.test(route.params.pid as string))
+
 interface ScrollerItem {
     id: string | number
     component: typeof Header | typeof SongItem | typeof NoItems | typeof AlbumsFetcher
@@ -94,6 +99,9 @@ const scrollerItems = computed(() => {
         id: 'afterHeader',
         component: AfterHeader,
         size: 4 * 16,
+        props: {
+            show_date_added: supportsDateAdded.value,
+        },
     }
 
     const tracks = playlist.tracks.map(track => {
@@ -110,6 +118,7 @@ const scrollerItems = computed(() => {
                 is_last: track.index === playlist.tracks.length - 1,
                 droppable: !playlist.query,
                 source: dropSources.playlist,
+                show_date_added: supportsDateAdded.value,
             },
             size: 72,
         }
