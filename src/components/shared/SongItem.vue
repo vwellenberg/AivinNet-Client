@@ -235,11 +235,12 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     }
 
     // "Date added" column (playlist page): inserted between album and duration,
-    // same rationale as .with-plays above. 8.5rem fits the longest absolute
-    // date ("Sep 28, 2026"); the duration column keeps the 10rem headroom for
-    // the inline favorite check-circle.
+    // same rationale as .with-plays above. The date column fits the longest
+    // absolute date ("Sep 28, 2026"); the duration column keeps the 10rem
+    // headroom for the inline favorite check-circle. Shared with the
+    // AfterHeader caption row via $songlist-columns-with-date.
     &.with-date {
-        grid-template-columns: 1.75rem 2.5fr 1.5fr 8.5rem 10rem;
+        grid-template-columns: $songlist-columns-with-date;
     }
 
     &:hover {

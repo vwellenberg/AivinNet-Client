@@ -13,8 +13,13 @@ const props = defineProps<{
     timestamp?: number | null
 }>()
 
-const text = computed(() => (props.timestamp ? formatDateAdded(props.timestamp) : '—'))
-const tooltip = computed(() => (props.timestamp ? `Added on ${formatDate(props.timestamp)}` : 'Added before dates were tracked'))
+// Explicit null check (not truthiness): 0 is a valid unix timestamp.
+const hasDate = computed(() => props.timestamp != null)
+
+const text = computed(() => (hasDate.value ? formatDateAdded(props.timestamp as number) : '—'))
+const tooltip = computed(() =>
+    hasDate.value ? `Added on ${formatDate(props.timestamp as number)}` : 'Added before dates were tracked'
+)
 </script>
 
 <style lang="scss">

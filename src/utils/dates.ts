@@ -2,11 +2,11 @@
  * Formats a timestamp into a date string of the format "Month day, year"
  * @returns formatted date
  */
-export function formatDate(timestamp: number, yearOnly = false) {
+export function formatDate(timestamp: number, yearOnly = false, month: 'long' | 'short' = 'long') {
     // format date as Month day, year
     const date = new Date(timestamp * 1000)
 
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month, day: 'numeric' }
 
     if (yearOnly) {
         return date.getFullYear()
@@ -38,9 +38,5 @@ export function formatDateAdded(timestamp: number) {
     const weeks = Math.floor(days / 7)
     if (weeks < 4) return `${weeks} week${weeks === 1 ? '' : 's'} ago`
 
-    return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    })
+    return formatDate(timestamp, false, 'short') as string
 }

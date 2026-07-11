@@ -35,12 +35,12 @@ const showDateHeading = computed(() => Boolean(props.show_date_added) && !isSmal
     font-weight: 500;
     color: $gray1;
 
-    // Column-caption mode: mirror the .songlist-item.with-date grid so the
-    // "Date added" caption sits exactly above its column. The last (10rem)
-    // cell stays empty — it belongs to the duration column.
+    // Column-caption mode: same grid as .songlist-item.with-date (shared
+    // variable) so the "Date added" caption sits exactly above its column.
+    // The last (10rem) cell stays empty — it belongs to the duration column.
     &.with-date {
         display: grid;
-        grid-template-columns: 1.75rem 2.5fr 1.5fr 8.5rem 10rem;
+        grid-template-columns: $songlist-columns-with-date;
         gap: 1rem;
         padding: 0 0 0 $small;
 
