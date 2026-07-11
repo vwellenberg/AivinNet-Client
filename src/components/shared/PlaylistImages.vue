@@ -1,6 +1,6 @@
 <template>
     <div v-if="collage" class="playlist-collage no-scroll">
-        <img v-for="(img, i) in collage" :key="`${i}-${img}`" :src="base + img" />
+        <img v-for="(img, i) in collage" :key="`${i}-${img}`" :src="tileBase + img" />
     </div>
     <img v-else-if="first" :src="base + first" />
 </template>
@@ -26,6 +26,9 @@ const props = defineProps<{
 }>()
 
 const base = computed(() => paths.images.thumb[props.size])
+// Collage tiles render at half the surface's edge length, so one resolution
+// tier below the single-cover image is plenty (large card tile ≈ medium thumb).
+const tileBase = computed(() => paths.images.thumb[props.size === 'large' ? 'medium' : props.size])
 const collage = computed(() => getCollageImages(props.images))
 const first = computed(() => (props.images.length ? imageName(props.images[0]) : ''))
 </script>

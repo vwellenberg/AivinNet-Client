@@ -32,8 +32,9 @@ const playlist = usePStore()
         transition: all 0.2s ease-in-out;
     }
 
+    // The component's own aspect-ratio sizing is replaced by the square
+    // banner box, which already fixes both dimensions.
     .playlist-collage {
-        width: 100%;
         height: 100%;
     }
 }
