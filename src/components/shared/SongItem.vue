@@ -1,7 +1,13 @@
 <template>
     <div
         class="songlist-item rounded-sm"
-        :class="[{ current: isCurrent() }, { contexton: context_menu_showing }, { 'with-plays': showPlaysColumn }, dragOverClass]"
+        :class="[
+            { current: isCurrent() },
+            { contexton: context_menu_showing },
+            { 'with-plays': showPlaysColumn },
+            { 'with-date': showDateColumn },
+            dragOverClass,
+        ]"
         :draggable="droppable && source === dropSources.playlist"
         @dragstart="onDragStart"
         @dragover.prevent="onDragOver"
@@ -32,6 +38,7 @@
             :hide_album="hide_album || false"
         />
         <TrackPlays v-if="showPlaysColumn" :playcount="track.playcount" />
+        <TrackDateAdded v-if="showDateColumn" :timestamp="track.added_at" />
         <!--
             When the Plays column is shown (artist Top Tracks, wide layout) the
             play count is already visible, so suppress the duration's hover
@@ -65,6 +72,7 @@ import useQueueStore from '@/stores/queue'
 import { showDragStart } from '@/utils/songItemMethods'
 
 import TrackAlbum from './SongItem/TrackAlbum.vue'
+import TrackDateAdded from './SongItem/TrackDateAdded.vue'
 import TrackDuration from './SongItem/TrackDuration.vue'
 import TrackIndex from './SongItem/TrackIndex.vue'
 import TrackPlays from './SongItem/TrackPlays.vue'
@@ -85,12 +93,18 @@ const props = defineProps<{
     is_last?: boolean
     source: dropSources
     show_plays?: boolean
+    show_date_added?: boolean
 }>()
 
 // Plays column is opt-in (artist "Popular"/Top Tracks) and hidden on narrow
 // layouts. Gating both the class and the child on the same condition keeps the
 // grid column count in sync with the rendered children.
 const showPlaysColumn = computed(() => Boolean(props.show_plays) && !isSmall.value && !isMedium.value)
+
+// "Date added" column is opt-in (playlist page only — mixes and the custom
+// recently added/played playlists have no per-track added_at) and hidden on
+// narrow layouts, following the same pattern as the Plays column.
+const showDateColumn = computed(() => Boolean(props.show_date_added) && !isSmall.value && !isMedium.value)
 
 const is_fav = ref(props.track.is_favorite || false)
 
@@ -218,6 +232,14 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     // with enough headroom for the longest (HH:MM:SS) durations.
     &.with-plays {
         grid-template-columns: 1.75rem 2.5fr 1.5fr 5rem 10rem;
+    }
+
+    // "Date added" column (playlist page): inserted between album and duration,
+    // same rationale as .with-plays above. 8.5rem fits the longest absolute
+    // date ("Sep 28, 2026"); the duration column keeps the 10rem headroom for
+    // the inline favorite check-circle.
+    &.with-date {
+        grid-template-columns: 1.75rem 2.5fr 1.5fr 8.5rem 10rem;
     }
 
     &:hover {

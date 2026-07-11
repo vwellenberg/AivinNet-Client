@@ -43,6 +43,10 @@ export interface Track extends AlbumDisc {
         trend: 'rising' | 'falling' | 'stable'
         is_new: boolean
     }
+    // Unix timestamp of when the track was added to the playlist being viewed.
+    // Only present on playlist-page tracks; null for entries added before the
+    // backend started recording it (rendered as a placeholder).
+    added_at?: number | null
 }
 
 export interface Folder {
