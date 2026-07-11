@@ -14,4 +14,12 @@ const use_sidebar: Setting = {
   show_if: () => !settings().is_alt_layout,
 };
 
-export default [use_sidebar];
+const move_played_playlist_to_top: Setting = {
+  title: "Move recently played playlist to top",
+  desc: "Playing a playlist moves it to the top of its section in the library sidebar",
+  type: SettingType.binary,
+  state: () => settings().move_played_playlist_to_top,
+  action: () => settings().toggleMovePlayedPlaylistToTop(),
+};
+
+export default [use_sidebar, move_played_playlist_to_top];
