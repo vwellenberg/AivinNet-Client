@@ -9,7 +9,7 @@
     >
         <div class="sidebar-pl-img rounded-sm">
             <img v-if="pl.has_image" :src="imgBase + pl.image" />
-            <img v-else-if="pl.images && pl.images.length" :src="thumbBase + pl.images[0].image" />
+            <PlaylistImages v-else-if="pl.images && pl.images.length" :images="pl.images" size="small" />
             <div v-else class="sidebar-pl-placeholder">
                 <PlaylistSvg />
             </div>
@@ -41,6 +41,8 @@ import PlaySvg from '@/assets/icons/play.svg'
 import PauseSvg from '@/assets/icons/pause.svg'
 import PushPinSvg from '@/assets/icons/push-pin.svg'
 
+import PlaylistImages from '@/components/shared/PlaylistImages.vue'
+
 import useQueue from '@/stores/queue'
 import useTracklist from '@/stores/queue/tracklist'
 import { playFromPlaylist } from '@/helpers/usePlayFrom'
@@ -53,7 +55,6 @@ const tracklist = useTracklist()
 const ctxFlag = ref(false)
 
 const imgBase = paths.images.playlist
-const thumbBase = paths.images.thumb.small
 
 const isCurrent = computed(
     () => (tracklist.from as any)?.type === FromOptions.playlist && (tracklist.from as any)?.id === props.pl.id

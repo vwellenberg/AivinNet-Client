@@ -3,7 +3,13 @@
         <ArrowSvg class="trend" :class="trend?.trend" />
         <div class="index">{{ index }}</div>
         <template v-if="isPlaylist">
-            <img v-if="playlistImage" :src="playlistImage" class="chartimage playlist" />
+            <img v-if="asPlaylist.has_image" :src="playlistImageUrl" class="chartimage playlist" />
+            <PlaylistImages
+                v-else-if="asPlaylist.images && asPlaylist.images.length"
+                :images="asPlaylist.images"
+                size="small"
+                class="chartimage playlist"
+            />
             <div v-else class="chartimage playlist placeholder"><PlaylistSvg /></div>
         </template>
         <img v-else :src="getItemImage(item)" class="chartimage" :class="name" />
@@ -38,6 +44,7 @@ import { Album, Artist, Playlist, Track } from '@/interfaces'
 import ArrowSvg from '@/assets/icons/arrow.svg'
 import PlaylistSvg from '@/assets/icons/playlist-1.svg'
 import ArtistName from '../shared/ArtistName.vue'
+import PlaylistImages from '../shared/PlaylistImages.vue'
 import { Routes } from '@/router'
 import MasterFlag from '../shared/MasterFlag.vue'
 
@@ -61,14 +68,11 @@ const asTrack = computed(() => props.item as Track)
 // Every chart payload may carry a trend; the Playlist interface just doesn't declare it.
 const trend = computed(() => (props.item as Track).trend)
 
-// Playlists may have no own image (image === "None"): fall back to the first
-// track cover, like the sidebar does. See CLAUDE.md "Playlist image=None".
-const playlistImage = computed(() => {
-    const item = props.item as Playlist
-    if (item.has_image) return paths.images.playlist + item.image
-    if (item.images && item.images.length) return paths.images.thumb.small + item.images[0].image
-    return ''
-})
+// Playlists may have no own image (image === "None"): fall back to the track
+// covers (collage or single), like the sidebar does. See CLAUDE.md
+// "Playlist image=None".
+const asPlaylist = computed(() => props.item as Playlist)
+const playlistImageUrl = computed(() => paths.images.playlist + asPlaylist.value.image)
 
 function getItemImage(item: ChartItem) {
     switch (props.name) {
@@ -145,6 +149,10 @@ function getRouterParams() {
         border-radius: 0.25rem;
         height: 48px;
         width: auto;
+    }
+
+    .playlist-collage.chartimage {
+        width: 48px;
     }
     .trend {
         height: 1.25rem;
