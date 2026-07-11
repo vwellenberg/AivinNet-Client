@@ -74,6 +74,9 @@ export default defineStore('settings', {
         np_lauflicht_level: <'off' | 'subtle' | 'normal'>'subtle',
         use_sidebar: false,
         sidebar_width: 240,
+        // Library sidebar: playing a playlist bubbles it to the top of its
+        // group (pinned/un-pinned). On by default.
+        move_played_playlist_to_top: true,
 
         // stats
         statsgroup: 'artists',
@@ -139,6 +142,9 @@ export default defineStore('settings', {
         },
         toggleExtendWidth() {
             this.extend_width = !this.extend_width
+        },
+        toggleMovePlayedPlaylistToTop() {
+            this.move_played_playlist_to_top = !this.move_played_playlist_to_top
         },
         // context menu 👇
         setContextChildrenShowMode(mode: contextChildrenShowMode) {

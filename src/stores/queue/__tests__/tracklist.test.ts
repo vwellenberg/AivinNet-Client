@@ -9,9 +9,20 @@ vi.mock('@/stores/player', () => ({
     audioSource: {},
     getUrl: () => '',
 }))
+// The playlists store transitively imports the router (heavy view chain) —
+// stub it; the sidebar-recency hook only needs movePlayedToTop.
+const movePlayedToTop = vi.fn()
+vi.mock('@/stores/pages/playlists', () => ({
+    default: () => ({ movePlayedToTop }),
+}))
+// setNewList calls focusCurrentInSidebar — irrelevant here.
+vi.mock('@/stores/interface', () => ({
+    default: () => ({ focusCurrentInSidebar() {} }),
+}))
 
 import { Track } from '@/interfaces'
 import useTracklist from '@/stores/queue/tracklist'
+import useSettings from '@/stores/settings'
 
 const mk = (over: Partial<any> = {}) =>
     ({
@@ -56,5 +67,29 @@ describe('tracklist.retagTrack', () => {
 
         expect(tl.tracklist[0].trackhash).toBe('A')
         expect(tl.tracklist[0].title).toBe('A')
+    })
+})
+
+describe('tracklist.setFromPlaylist sidebar recency hook', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia())
+        movePlayedToTop.mockReset()
+    })
+
+    it('bubbles the played playlist when the setting is on (default)', () => {
+        const tl = useTracklist()
+        tl.setFromPlaylist('My List', 42, [mk({ trackhash: 'A' })])
+
+        expect(movePlayedToTop).toHaveBeenCalledTimes(1)
+        expect(movePlayedToTop).toHaveBeenCalledWith(42)
+    })
+
+    it('does nothing when the setting is off', () => {
+        useSettings().move_played_playlist_to_top = false
+
+        const tl = useTracklist()
+        tl.setFromPlaylist('My List', 42, [mk({ trackhash: 'A' })])
+
+        expect(movePlayedToTop).not.toHaveBeenCalled()
     })
 })

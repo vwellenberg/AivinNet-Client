@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 
 import useInterface from '@/stores/interface'
 import { NotifType, useToast } from '@/stores/notification'
+import usePlaylists from '@/stores/pages/playlists'
 import { usePlayer } from '@/stores/player'
 import useQueue from '@/stores/queue'
 import useSettings from '@/stores/settings'
@@ -90,6 +91,13 @@ export default defineStore('tracklist', {
             }
 
             this.setNewList(tracks)
+
+            // Library sidebar recency: bubble the played playlist to the top
+            // of its group (pinned/un-pinned). Fire-and-forget so playback
+            // never waits on the reorder request.
+            if (useSettings().move_played_playlist_to_top) {
+                void usePlaylists().movePlayedToTop(pid)
+            }
         },
         setFromPlaylistFolder(name: string, id: number, tracks: Track[]) {
             this.from = <fromPlaylistFolder>{
