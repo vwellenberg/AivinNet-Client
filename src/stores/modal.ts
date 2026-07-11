@@ -14,6 +14,7 @@ export enum ModalOptions {
     settings,
     editTrackTags,
     folder,
+    findCoverOnline,
 }
 
 export default defineStore('newModal', {
@@ -63,6 +64,9 @@ export default defineStore('newModal', {
         },
         showEditTrackTagsModal(track: Track) {
             this.showModal(ModalOptions.editTrackTags, { track })
+        },
+        showFindCoverOnlineModal(props: { type: 'playlist' | 'album'; id: number | string; query: string }) {
+            this.showModal(ModalOptions.findCoverOnline, props)
         },
         showDeletePlaylistModal(pid: number) {
             const props = {

@@ -40,6 +40,12 @@
                 @hideModal="hideModal"
                 @setTitle="setTitle"
             />
+            <FindCoverOnline
+                v-if="modal.component == modal.options.findCoverOnline"
+                v-bind="modal.props"
+                @hideModal="hideModal"
+                @setTitle="setTitle"
+            />
             <div v-if="modal.component == modal.options.deletePlaylist">
                 <ConfirmModal
                     :text="'Are you sure you want to permanently delete this playlist?'"
@@ -67,6 +73,7 @@ import FolderModal from './modals/FolderModal.vue'
 import NewPlaylist from './modals/NewPlaylist.vue'
 import RootDirsPrompt from './modals/RootDirsPrompt.vue'
 import EditTrack from './modals/EditTrack.vue'
+import FindCoverOnline from './modals/FindCoverOnline.vue'
 import SetRootDirs from './modals/SetRootDirs.vue'
 import Settings from './modals/Settings.vue'
 import UpdatePlaylist from './modals/updatePlaylist.vue'
