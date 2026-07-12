@@ -57,6 +57,7 @@ export const paths = {
         artist: '/artist',
         track: '/track',
         lyrics: '/lyrics',
+        coverart: '/coverart',
         plugins: '/plugins',
         get mixes() {
             return this.plugins + '/mixes'

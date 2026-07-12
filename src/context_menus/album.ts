@@ -6,9 +6,10 @@ import { addAlbumToPlaylist } from '@/requests/playlists'
 import { toggleAlbumPin } from '@/helpers/pinAlbum'
 import usePinnedAlbums from '@/stores/pages/pinnedAlbums'
 
-import { AddToQueueIcon, DownloadIcon, PlayNextIcon, PlusIcon, PushPinIcon } from '@/icons'
+import { AddToQueueIcon, DownloadIcon, PlayNextIcon, PlusIcon, PushPinIcon, SearchIcon } from '@/icons'
 import { getBaseUrl, paths } from '@/config'
 import { Album, Option, Playlist, Track } from '@/interfaces'
+import useModal from '@/stores/modal'
 import { get_find_on_social, getAddToPlaylistOptions } from './utils'
 
 export default async (album?: Album) => {
@@ -75,6 +76,23 @@ export default async (album?: Album) => {
         icon: DownloadIcon,
     }
 
+    const find_cover_online = <Option>{
+        label: 'Find cover online',
+        action: () => {
+            // The store fallback can briefly hold an empty album object.
+            if (!album.albumhash) return
+
+            const artist = album.albumartists && album.albumartists.length ? album.albumartists[0].name : ''
+
+            useModal().showFindCoverOnlineModal({
+                type: 'album',
+                id: album.albumhash,
+                query: `${album.title} ${artist}`.trim(),
+            })
+        },
+        icon: SearchIcon,
+    }
+
     const is_pinned = usePinnedAlbums().isPinned(album.albumhash) || !!album.is_pinned
     const pin: Option = {
         label: is_pinned ? 'Unpin from library' : 'Pin to library',
@@ -87,6 +105,7 @@ export default async (album?: Album) => {
         add_to_queue,
         add_to_playlist,
         pin,
+        find_cover_online,
         download_album,
         get_find_on_social('album', '', album),
     ]

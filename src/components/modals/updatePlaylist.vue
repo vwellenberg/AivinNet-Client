@@ -45,6 +45,11 @@
                 </div>
             </div>
         </div>
+        <button type="button" class="find-cover-online rounded-sm" @click="openFindCoverOnline">
+            <SearchIcon />
+            Find cover online
+        </button>
+
         <label v-if="playlist.has_image && !playlist.settings.square_img">Settings</label>
         <div v-if="image || playlist.has_image" class="banner-settings rounded-sm">
             <div>Show square cover image</div>
@@ -73,11 +78,13 @@ import { storeToRefs } from 'pinia'
 import { Ref, onMounted, ref } from 'vue'
 
 import { updatePlaylist } from '@/requests/playlists'
+import useModalStore from '@/stores/modal'
 import usePStore from '@/stores/pages/playlist'
 
 import DeleteIcon from '@/assets/icons/delete.svg'
 import ExpandSvg from '@/assets/icons/expand.svg'
 import ImageIcon from '@/assets/icons/image.svg'
+import SearchIcon from '@/assets/icons/search.svg'
 
 import Switch from '../SettingsView/Components/Switch.vue'
 
@@ -97,6 +104,14 @@ const emit = defineEmits<{
 }>()
 
 emit('setTitle', 'Update Playlist')
+
+function openFindCoverOnline() {
+    useModalStore().showFindCoverOnlineModal({
+        type: 'playlist',
+        id: playlist.value.id,
+        query: playlist.value.name,
+    })
+}
 
 function selectFiles() {
     const input = document.getElementById('update-pl-image-upload') as HTMLInputElement
@@ -186,6 +201,18 @@ function update_playlist(e: Event) {
         align-items: center;
         gap: $small;
         margin: $small 0 1rem 0;
+    }
+
+    .find-cover-online {
+        width: 100%;
+        gap: $smaller;
+        height: 2.75rem;
+        margin-bottom: 1rem;
+
+        svg {
+            transform: scale(0.75);
+            flex-shrink: 0;
+        }
     }
 
     #upload {
