@@ -205,12 +205,18 @@ function update_playlist(e: Event) {
 
     .find-cover-online {
         width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         gap: $smaller;
         height: 2.75rem;
         margin-bottom: 1rem;
 
         svg {
-            transform: scale(0.75);
+            // search.svg has no width/height attributes (only a viewBox), so
+            // without an explicit size it inflates to the button width.
+            height: 1.25rem;
+            width: 1.25rem;
             flex-shrink: 0;
         }
     }
