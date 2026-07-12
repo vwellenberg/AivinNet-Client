@@ -8,6 +8,9 @@
             class="scroller"
             style="height: 100%"
         >
+            <template #before>
+                <div class="page-gradient-decor" aria-hidden="true"></div>
+            </template>
             <template #default="{ item, index, active }">
                 <DynamicScrollerItem
                     :item="item"
