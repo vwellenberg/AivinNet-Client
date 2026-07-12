@@ -18,12 +18,15 @@
         />
 
         <label for="image">Image</label>
+        <!-- Deliberately no name attribute: with one, FormData(form) always
+             includes an EMPTY file part named "image", which fails backend
+             validation (422) on updates without a newly picked image. The
+             submit handler appends the picked file manually. -->
         <input
             id="update-pl-image-upload"
             ref="dropZoneRef"
             type="file"
             accept="image/*"
-            name="image"
             style="display: none"
             @change="handleUpload"
         />
