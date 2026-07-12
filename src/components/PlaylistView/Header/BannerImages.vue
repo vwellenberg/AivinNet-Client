@@ -5,17 +5,14 @@
       background: playlist.info.images.length ? (playlist.info.images[0] as any).color : undefined,
     }"
     >
-        <img
-            v-if="playlist.info.images.length"
-            :src="paths.images.thumb.medium + (playlist.info.images[0] as any).image"
-            class=""
-        />
+        <PlaylistImages v-if="playlist.info.images.length" :images="playlist.info.images" size="medium" />
     </div>
 </template>
 
 <script setup lang="ts">
-import { paths } from '@/config'
 import usePStore from '@/stores/pages/playlist'
+
+import PlaylistImages from '@/components/shared/PlaylistImages.vue'
 
 const playlist = usePStore()
 </script>
@@ -33,6 +30,12 @@ const playlist = usePStore()
         height: 100%;
         object-fit: cover;
         transition: all 0.2s ease-in-out;
+    }
+
+    // The component's own aspect-ratio sizing is replaced by the square
+    // banner box, which already fixes both dimensions.
+    .playlist-collage {
+        height: 100%;
     }
 }
 </style>

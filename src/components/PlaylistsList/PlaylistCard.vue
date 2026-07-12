@@ -1,10 +1,7 @@
 <template>
   <router-link :to="{ name: 'PlaylistView', params: { pid: playlist.id } }" class="p-card rounded no-scroll">
     <div v-if="!playlist.has_image && playlist.images.length" class="image rounded-sm no-scroll">
-      <img
-        :src="paths.images.thumb.large + (playlist.images[0]['image'] || playlist.images[0])"
-        class="rounded-sm"
-      />
+      <PlaylistImages :images="playlist.images" size="large" class="rounded-sm" />
       <PlayBtn :source="playSources.playlist" :playlist="playlist.id.toString()"/>
     </div>
     <div v-else class="image">
@@ -29,6 +26,7 @@ import { paths } from "../../config";
 import { Playlist } from "../../interfaces";
 import { playSources } from '@/enums'
 import PlayBtn from '../shared/PlayBtn.vue'
+import PlaylistImages from '../shared/PlaylistImages.vue'
 
 const imguri = paths.images.playlist;
 defineProps<{
