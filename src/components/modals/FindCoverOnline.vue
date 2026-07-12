@@ -94,9 +94,16 @@ async function runSearch() {
     if (!query || loading.value) return
 
     loading.value = true
-    results.value = await searchCoversOnline(query)
+    const res = await searchCoversOnline(query)
+    results.value = res ? res.results : null
     index.value = 0
     loading.value = false
+
+    // The server retries with shortened queries when the full one has no
+    // hits — reflect the query that actually produced the results.
+    if (res && res.results.length && res.query !== query) {
+        searchQuery.value = res.query
+    }
 }
 
 function shuffle() {

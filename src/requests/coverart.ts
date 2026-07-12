@@ -9,12 +9,19 @@ export interface CoverSuggestion {
     artist: string
 }
 
+export interface CoverSearchResult {
+    // The query that actually produced the results — the server retries with
+    // shortened variants when the full one has no hits.
+    query: string
+    results: CoverSuggestion[]
+}
+
 /**
  * Searches iTunes + Deezer (proxied by the server) for album covers
  * matching the query. Returns null when the request itself failed
  * (as opposed to a successful search with zero hits).
  */
-export async function searchCoversOnline(query: string): Promise<CoverSuggestion[] | null> {
+export async function searchCoversOnline(query: string): Promise<CoverSearchResult | null> {
     const { data, status } = await useAxios({
         url: `${paths.api.coverart}/search?q=${encodeURIComponent(query)}`,
         method: 'GET',
@@ -25,7 +32,7 @@ export async function searchCoversOnline(query: string): Promise<CoverSuggestion
         return null
     }
 
-    return data.results || []
+    return { query: data.query || query, results: data.results || [] }
 }
 
 /**
