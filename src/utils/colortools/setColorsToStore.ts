@@ -48,10 +48,17 @@ export default (store: any, img_url: string, btn_only: boolean = false) => {
       return;
     }
 
-    // Prefer the dominant *coloured* swatch; only fall back to greys if the
-    // cover is genuinely greyscale.
+    // Prefer the dominant *coloured* swatch — but only when colour actually
+    // carries a meaningful share of the cover. A near-monochrome cover (e.g.
+    // a b/w photo with a slight olive tint) still yields one saturated
+    // Vibrant swatch; picking it (and then boosting it for the gradient top)
+    // painted a loud colour behind a grey cover. Below the share threshold
+    // the cover counts as greyscale and the dominant grey wins.
+    const total = swatches.reduce((sum, s) => sum + dominance(s), 0);
     const colored = swatches.filter((s) => s.hsl[1] >= 0.15);
-    const pool = colored.length ? colored : swatches;
+    const coloredShare = total > 0 ? colored.reduce((sum, s) => sum + dominance(s), 0) / total : 0;
+
+    const pool = colored.length && coloredShare >= 0.25 ? colored : swatches;
     const primary = [...pool].sort((a, b) => dominance(b) - dominance(a))[0];
 
     // bg/bg2 are the dark, Spotify-style gradient colours (same hue, two
