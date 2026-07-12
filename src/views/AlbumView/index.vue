@@ -1,6 +1,6 @@
 <template>
     <div class="album-virtual-scroller v-scroll-page" :class="{ isSmall }" style="height: 100%; position: relative;"
-        :style="{ background: pageGradient(album.colors.bg) }">
+        :style="{ '--page-gradient': pageGradient(album.colors.bg) }">
         <DynamicScroller
             id="album-scroller"
             style="height: 100%"

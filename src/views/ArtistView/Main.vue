@@ -1,6 +1,6 @@
 <template>
     <div class="artist-page v-scroll-page" style="height: 100%; position: relative;"
-        :style="{ background: pageGradient(store.colors.bg) }">
+        :style="{ '--page-gradient': pageGradient(store.colors.bg) }">
         <DynamicScroller
             id="artist-scroller"
             :items="scrollerItems"

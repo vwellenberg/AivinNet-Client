@@ -1,6 +1,6 @@
 <template>
     <div class="folder-view v-scroll-page" style="height: 100%; position: relative;" :class="{ isSmall, isMedium }"
-        :style="{ background: pageGradient(playlist.colors.bg) }">
+        :style="{ '--page-gradient': pageGradient(playlist.colors.bg) }">
         <DynamicScroller
             id="contentscroller"
             :items="scrollerItems"
