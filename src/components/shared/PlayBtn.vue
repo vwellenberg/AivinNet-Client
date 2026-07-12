@@ -85,6 +85,9 @@ function handlePlay() {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
+    // The global button:hover paints $darkestblue — the play button must
+    // stay brand green and only scale (same affordance as the bottom bar).
+    background-color: $brand-green;
     transform: scale(1.06);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
   }
