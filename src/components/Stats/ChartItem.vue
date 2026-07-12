@@ -148,11 +148,11 @@ function getRouterParams() {
     .chartimage {
         border-radius: 0.25rem;
         height: 48px;
-        width: auto;
-    }
-
-    .playlist-collage.chartimage {
+        // Square crop: playlist banner thumbs are 250px HIGH with free
+        // aspect ratio — a landscape image rendered at width:auto blows up
+        // the chart row. Album covers are square anyway and unaffected.
         width: 48px;
+        object-fit: cover;
     }
     .trend {
         height: 1.25rem;
