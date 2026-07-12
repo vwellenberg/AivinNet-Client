@@ -16,18 +16,18 @@
             <Spinner />
         </div>
 
-        <div v-else-if="searched && !results.length" class="state-box no-results">
+        <div v-else-if="results && !results.length" class="state-box no-results">
             No results found — try renaming your search
         </div>
 
         <template v-else-if="current">
             <div class="preview rounded-sm">
-                <img :src="current.url" :alt="current.album" @error="dropCurrent" />
+                <img :src="current.url" :alt="current.album" @error="onImageError" />
             </div>
             <div class="meta">
                 <div class="album ellip">{{ current.album }}</div>
                 <div class="artist ellip">
-                    {{ current.artist }} · {{ sourceLabel }} · {{ index + 1 }}/{{ results.length }}
+                    {{ current.artist }} · {{ sourceLabel }} · {{ index + 1 }}/{{ resultCount }}
                 </div>
             </div>
             <div class="buttons">
@@ -43,10 +43,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, Ref } from 'vue'
 
 import { CoverSuggestion, saveOnlineCoverForAlbum, saveOnlineCoverForPlaylist, searchCoversOnline } from '@/requests/coverart'
-import { NotifType, Notification } from '@/stores/notification'
 import useAlbumStore from '@/stores/pages/album'
 import usePStore from '@/stores/pages/playlist'
 
@@ -66,13 +65,15 @@ const emit = defineEmits<{
 emit('setTitle', 'Find cover online')
 
 const searchQuery = ref(props.query)
-const results = ref<CoverSuggestion[]>([])
+// null = no completed search yet (initial state or the request failed);
+// [] = a successful search with zero hits.
+const results: Ref<CoverSuggestion[] | null> = ref(null)
 const index = ref(0)
 const loading = ref(false)
-const searched = ref(false)
 const saving = ref(false)
 
-const current = computed(() => results.value[index.value])
+const current = computed(() => (results.value ? results.value[index.value] : undefined))
+const resultCount = computed(() => (results.value ? results.value.length : 0))
 const sourceLabel = computed(() => {
     switch (current.value?.source) {
         case 'itunes':
@@ -95,18 +96,24 @@ async function runSearch() {
     results.value = await searchCoversOnline(query)
     index.value = 0
     loading.value = false
-    searched.value = true
 }
 
 function shuffle() {
-    if (!results.value.length) return
+    if (!results.value || !results.value.length) return
     index.value = (index.value + 1) % results.value.length
 }
 
 // The suggestion image failed to load in the browser: drop it from the
-// rotation instead of showing a broken preview.
-function dropCurrent() {
-    results.value.splice(index.value, 1)
+// rotation instead of showing a broken preview. The failing entry is
+// looked up by URL (the event may arrive after the user shuffled on).
+function onImageError(e: Event) {
+    if (!results.value) return
+
+    const failed = (e.target as HTMLImageElement).src
+    const i = results.value.findIndex(r => r.url === failed)
+
+    if (i === -1) return
+    results.value.splice(i, 1)
 
     if (index.value >= results.value.length) {
         index.value = 0
@@ -120,30 +127,27 @@ async function useImage() {
     const url = current.value.url
 
     if (props.type === 'playlist') {
-        const data = await saveOnlineCoverForPlaylist(props.id as number, url)
+        const ok = await saveOnlineCoverForPlaylist(props.id as number, url, usePStore())
         saving.value = false
 
-        if (!data) return
-
-        usePStore().updatePInfo(data)
-        new Notification('Playlist cover updated!', NotifType.Success)
-        emit('hideModal')
+        if (ok) emit('hideModal')
         return
     }
 
-    const ok = await saveOnlineCoverForAlbum(props.id as string, url)
+    const filename = await saveOnlineCoverForAlbum(props.id as string, url)
     saving.value = false
 
-    if (!ok) return
+    if (!filename) return
 
-    // Bust the browser cache on the album page so the new cover shows
-    // immediately (other views pick it up on their next fetch).
+    // If the album page currently shows this album, cache-bust its cover
+    // (same mechanism the MusicBrainz fetch uses) and refresh the page
+    // gradient colors. Other views pick the new cover up on their next fetch.
     const albumStore = useAlbumStore()
     if (albumStore.info.albumhash === props.id) {
-        albumStore.info.image = `${props.id}.webp?v=${Date.now()}`
+        albumStore.bumpCoverVersion()
+        albumStore.extractColors()
     }
 
-    new Notification('Album cover updated!', NotifType.Success)
     emit('hideModal')
 }
 </script>
@@ -167,12 +171,6 @@ async function useImage() {
             height: 2.75rem;
             padding: 0 1.25rem;
             font-weight: 500;
-            background-color: $gray4;
-            border: none;
-
-            &:hover {
-                background-color: $gray3;
-            }
         }
     }
 
@@ -223,17 +221,8 @@ async function useImage() {
         margin-top: $smaller;
 
         button {
-            padding: 1rem;
+            height: 2.75rem;
             font-weight: 500;
-            border: none;
-        }
-
-        .shuffle-btn {
-            background-color: $gray4;
-
-            &:hover {
-                background-color: $gray3;
-            }
         }
 
         .use-btn {
@@ -241,6 +230,9 @@ async function useImage() {
             color: $black;
 
             &:hover:not(:disabled) {
+                // Keep the primary look; the global button hover would
+                // otherwise swap the background to $darkestblue.
+                background-color: $white;
                 filter: brightness(0.85);
             }
 

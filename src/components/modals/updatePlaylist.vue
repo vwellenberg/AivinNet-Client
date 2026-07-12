@@ -205,23 +205,13 @@ function update_playlist(e: Event) {
 
     .find-cover-online {
         width: 100%;
-        display: flex;
         gap: $smaller;
-        place-items: center;
-        place-content: center;
-        font-weight: 500;
-        padding: $medium;
-        border: none;
-        background-color: $gray4;
+        height: 2.75rem;
         margin-bottom: 1rem;
 
         svg {
             transform: scale(0.75);
             flex-shrink: 0;
-        }
-
-        &:hover {
-            background-color: $gray3;
         }
     }
 

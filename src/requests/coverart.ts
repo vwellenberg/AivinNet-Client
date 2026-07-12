@@ -11,16 +11,18 @@ export interface CoverSuggestion {
 
 /**
  * Searches iTunes + Deezer (proxied by the server) for album covers
- * matching the query. Returns an empty list on failure.
+ * matching the query. Returns null when the request itself failed
+ * (as opposed to a successful search with zero hits).
  */
-export async function searchCoversOnline(query: string): Promise<CoverSuggestion[]> {
+export async function searchCoversOnline(query: string): Promise<CoverSuggestion[] | null> {
     const { data, status } = await useAxios({
         url: `${paths.api.coverart}/search?q=${encodeURIComponent(query)}`,
         method: 'GET',
     })
 
     if (status !== 200 || !data) {
-        return []
+        new Notification('Cover search failed', NotifType.Error)
+        return null
     }
 
     return data.results || []
@@ -28,9 +30,10 @@ export async function searchCoversOnline(query: string): Promise<CoverSuggestion
 
 /**
  * Asks the server to download the confirmed cover and save it as the
- * playlist image. Returns the updated playlist info, or null on failure.
+ * playlist image, then updates the playlist store (mirrors updatePlaylist).
+ * Returns true on success.
  */
-export async function saveOnlineCoverForPlaylist(pid: number, url: string) {
+export async function saveOnlineCoverForPlaylist(pid: number, url: string, pStore: any): Promise<boolean> {
     const { data, status } = await useAxios({
         url: `${paths.api.coverart}/playlist/${pid}`,
         props: { url },
@@ -39,27 +42,30 @@ export async function saveOnlineCoverForPlaylist(pid: number, url: string) {
 
     if (status !== 200 || !data || !data.data) {
         new Notification('Failed to save cover image', NotifType.Error)
-        return null
+        return false
     }
 
-    return data.data
+    pStore.updatePInfo(data.data)
+    new Notification('Playlist cover updated!', NotifType.Success)
+    return true
 }
 
 /**
  * Asks the server to download the confirmed cover and save it as the
- * album cover. Returns true on success.
+ * album cover. Returns the saved image filename, or null on failure.
  */
-export async function saveOnlineCoverForAlbum(albumhash: string, url: string): Promise<boolean> {
-    const { status } = await useAxios({
+export async function saveOnlineCoverForAlbum(albumhash: string, url: string): Promise<string | null> {
+    const { data, status } = await useAxios({
         url: `${paths.api.coverart}/album`,
         props: { albumhash, url },
         method: 'POST',
     })
 
-    if (status !== 200) {
+    if (status !== 200 || !data || !data.image) {
         new Notification('Failed to save cover image', NotifType.Error)
-        return false
+        return null
     }
 
-    return true
+    new Notification('Album cover updated!', NotifType.Success)
+    return data.image
 }

@@ -79,6 +79,9 @@ export default async (album?: Album) => {
     const find_cover_online = <Option>{
         label: 'Find cover online',
         action: () => {
+            // The store fallback can briefly hold an empty album object.
+            if (!album.albumhash) return
+
             const artist = album.albumartists && album.albumartists.length ? album.albumartists[0].name : ''
 
             useModal().showFindCoverOnlineModal({
