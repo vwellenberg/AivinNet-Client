@@ -6,7 +6,7 @@ import { Option } from '@/interfaces'
 import { openInFiles } from '@/requests/folders'
 import { addTracksToPlaylist, removeTracks } from '@/requests/playlists'
 
-import { AddToQueueIcon, AlbumIcon, ArtistIcon, DeleteIcon, DownloadIcon, FolderIcon, PencilIcon, PlayNextIcon, PlusIcon } from '@/icons'
+import { AddToQueueIcon, AlbumIcon, ArtistIcon, DeleteIcon, DownloadIcon, FolderIcon, PencilIcon, PlayNextIcon, PlusIcon, SearchIcon } from '@/icons'
 import { getBaseUrl, paths } from '@/config'
 import useModalStore from '@/stores/modal'
 import usePlaylistStore from '@/stores/pages/playlist'
@@ -174,6 +174,24 @@ export default async (track: Track): Promise<Option[]> => {
         icon: PencilIcon,
     }
 
+    const find_cover_online: Option = {
+        label: 'Find cover online',
+        action: () => {
+            if (!track.albumhash) return
+
+            const artist = track.albumartists?.length ? track.albumartists[0].name : (track.artists[0]?.name ?? '')
+
+            // Applies to the track's whole album; the confirm flow shows an
+            // undo toast.
+            useModalStore().showFindCoverOnlineModal({
+                type: 'album',
+                id: track.albumhash,
+                query: `${track.album} ${artist}`.trim(),
+            })
+        },
+        icon: SearchIcon,
+    }
+
     const options: Option[] = [
         play_next,
         add_to_q,
@@ -183,6 +201,7 @@ export default async (track: Track): Promise<Option[]> => {
         go_to_artist,
         open_in_explorer,
         download_track,
+        find_cover_online,
         get_find_on_social('track', `${track.title} ${track.artists[0].name}`),
         // del_track,
     ]

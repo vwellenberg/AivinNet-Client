@@ -1,13 +1,22 @@
 <template>
     <div v-if="notifStore.notifs" class="toasts">
-        <div v-for="notif in notifStore.notifs" :key="notif.text" class="new-notif rounded-sm" :class="notif.type">
+        <div
+            v-for="notif in notifStore.notifs"
+            :key="notif.id"
+            class="new-notif rounded-sm"
+            :class="[notif.type, { 'has-action': notif.action }]"
+        >
             <component :is="getSvg(notif.type)" class="notif-icon" />
             <div class="notif-text">{{ notif.text }}</div>
+            <button v-if="notif.action" type="button" class="notif-action rounded-sm" @click="runAction(notif)">
+                {{ notif.action.label }}
+            </button>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Notif } from '../interfaces'
 import { NotifType, useToast } from '../stores/notification'
 
 import BookmarkSvg from '../assets/icons/bookmark.svg'
@@ -17,6 +26,11 @@ import SuccessSvg from '../assets/icons/toast/ok.svg'
 import WorkingSvg from '../assets/icons/toast/working.svg'
 
 const notifStore = useToast()
+
+function runAction(notif: Notif) {
+    notifStore.dismiss(notif.id)
+    notif.action?.handler()
+}
 
 function getSvg(notif: NotifType) {
     switch (notif) {
@@ -68,6 +82,25 @@ function getSvg(notif: NotifType) {
 
     .notif-text {
         width: 100%;
+    }
+
+    &.has-action {
+        grid-template-columns: 2rem 3fr max-content;
+        padding-right: $medium;
+    }
+
+    .notif-action {
+        background-color: transparent;
+        border: 1px solid $gray4;
+        color: $white;
+        font-weight: 700;
+        padding: $smaller $small;
+        height: unset;
+        cursor: pointer;
+
+        &:hover {
+            background-color: $gray4;
+        }
     }
 
     @include smallestPhones {

@@ -45,9 +45,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref } from 'vue'
 
-import { CoverSuggestion, saveOnlineCoverForAlbum, saveOnlineCoverForPlaylist, searchCoversOnline } from '@/requests/coverart'
+import { CoverSuggestion, saveOnlineCoverForAlbum, saveOnlineCoverForPlaylist, searchCoversOnline, undoAlbumCover } from '@/requests/coverart'
 import useAlbumStore from '@/stores/pages/album'
 import usePStore from '@/stores/pages/playlist'
+import { Notification, NotifType } from '@/stores/notification'
 
 import Spinner from '@/components/shared/Spinner.vue'
 
@@ -134,21 +135,39 @@ async function useImage() {
         return
     }
 
-    const filename = await saveOnlineCoverForAlbum(props.id as string, url)
+    const albumhash = props.id as string
+    const filename = await saveOnlineCoverForAlbum(albumhash, url)
     saving.value = false
 
     if (!filename) return
 
-    // If the album page currently shows this album, cache-bust its cover
-    // (same mechanism the MusicBrainz fetch uses) and refresh the page
-    // gradient colors. Other views pick the new cover up on their next fetch.
+    refreshAlbumView(albumhash)
+
+    // Temporary toast with a one-level undo (the save snapshots the
+    // previous cover files server-side).
+    new Notification('Album cover updated', NotifType.Success, {
+        label: 'Undo',
+        handler: async () => {
+            const ok = await undoAlbumCover(albumhash)
+            if (!ok) return
+
+            refreshAlbumView(albumhash)
+            new Notification('Previous cover restored', NotifType.Success)
+        },
+    })
+
+    emit('hideModal')
+}
+
+// If the album page currently shows this album, cache-bust its cover
+// (same mechanism the MusicBrainz fetch uses) and refresh the page
+// gradient colors. Other views pick the new cover up on their next fetch.
+function refreshAlbumView(albumhash: string) {
     const albumStore = useAlbumStore()
-    if (albumStore.info.albumhash === props.id) {
+    if (albumStore.info.albumhash === albumhash) {
         albumStore.bumpCoverVersion()
         albumStore.extractColors()
     }
-
-    emit('hideModal')
 }
 </script>
 

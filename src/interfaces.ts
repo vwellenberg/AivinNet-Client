@@ -201,9 +201,16 @@ export interface Radio {
     genres: string[]
 }
 
+export interface NotifAction {
+    label: string
+    handler: () => void
+}
+
 export interface Notif {
+    id: number
     text: string
     type: NotifType
+    action?: NotifAction
 }
 
 export interface fromFolder {
