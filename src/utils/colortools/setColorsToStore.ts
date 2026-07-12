@@ -61,10 +61,24 @@ export default (store: any, img_url: string, btn_only: boolean = false) => {
     const pool = colored.length && coloredShare >= 0.25 ? colored : swatches;
     const primary = [...pool].sort((a, b) => dominance(b) - dominance(a))[0];
 
+    // Pull the pick toward the cover's population-weighted average colour.
+    // Vibrant's dominant swatch can be a niche saturated cluster (e.g. the
+    // maroon frame of an otherwise beige cover) that reads nothing like the
+    // artwork's overall tone — blending 40% toward the average keeps the hue
+    // family but mutes outliers, closer to Spotify's muted extracts.
+    const totalPop = swatches.reduce((sum, s) => sum + s.pop, 0);
+    const blended =
+      totalPop > 0
+        ? primary.rgb.map((v, i) => {
+            const avg = swatches.reduce((sum, s) => sum + s.rgb[i] * s.pop, 0) / totalPop;
+            return Math.round(v * 0.6 + avg * 0.4);
+          })
+        : primary.rgb;
+
     // bg/bg2 are the dark, Spotify-style gradient colours (same hue, two
     // lightness levels). Darkening here keeps the gradient and the header
     // text colour (which is derived from bg) perfectly in sync.
-    const primaryRgb = listToRgbString(primary.rgb);
+    const primaryRgb = listToRgbString(blended);
     store.colors.bg = darkenHex(primaryRgb, 16);
     store.colors.bg2 = darkenHex(primaryRgb, 12);
     })
