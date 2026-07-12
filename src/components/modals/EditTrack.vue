@@ -65,13 +65,11 @@ function save() {
     const ar = artists.value.map(a => a.trim()).filter(Boolean)
     const aa = albumartists.value.map(a => a.trim()).filter(Boolean)
 
-    // Mirror the backend's required-non-empty fields so we don't round-trip to a 400.
+    // Mirror the backend's required-non-empty fields so we don't round-trip to
+    // a 400. Album is optional: clearing it removes the tag and the indexer
+    // falls back to the filename.
     if (!t) {
         new Notification('Title is required', NotifType.Error)
-        return
-    }
-    if (!al) {
-        new Notification('Album is required', NotifType.Error)
         return
     }
     if (ar.length === 0) {
