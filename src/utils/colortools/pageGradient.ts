@@ -45,20 +45,20 @@ function vividTop(color: string, factor = 2.3): string {
  * vivid colour band only covers the header + action row, then a visibly
  * darker ledge takes over (Spotify layers rgba(0,0,0,.6) over the colour
  * below the header) and quickly settles into the page background (#121212).
- * The gradient is `fixed` to the viewport (like Spotify): the content
- * scrolls over it instead of dragging the colour along. Pixel stops are
- * therefore viewport coordinates (the ~60px topbar sits above the content
- * area). Pass the view's dominant `colors.bg`; falls back to a neutral dark
- * gradient when no colour is available.
+ * The gradient is anchored to the CONTENT (not the viewport): the colour
+ * band belongs to the header block and scrolls away with it, exactly like
+ * Spotify — deep in a long list the page is plain dark. Pixel stops are
+ * content coordinates from the top of the page. Pass the view's dominant
+ * `colors.bg`; falls back to a neutral dark gradient when no colour is
+ * available.
  *
  * Centralised here so all three views stay visually consistent — change the
- * fade once and it applies everywhere. The views apply this via the
- * `background` shorthand, which carries the `fixed` attachment along.
+ * fade once and it applies everywhere.
  */
 export function pageGradient(bg?: string): string {
-    if (!bg) return 'linear-gradient(180deg, #2a2a2a 0%, #121212 45%) fixed'
+    if (!bg) return 'linear-gradient(180deg, #2a2a2a 0%, #121212 45%)'
     const ledge = mixColor(bg, PAGE_BG, 0.45)
-    return `linear-gradient(180deg, ${vividTop(bg)} 0%, ${bg} 420px, ${ledge} 421px, ${PAGE_BG} 860px) fixed`
+    return `linear-gradient(180deg, ${vividTop(bg)} 0%, ${bg} 360px, ${ledge} 400px, ${PAGE_BG} 800px)`
 }
 
 /**
