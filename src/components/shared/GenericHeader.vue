@@ -19,7 +19,9 @@
 
 <style lang="scss">
 .generichead {
-    padding: 0 0 1rem $medium;
+    // Top padding: without it the page title (Playlists / Favorites /
+    // Charts …) sits flush against the top bar.
+    padding: 1.25rem 0 1rem $medium;
     height: max-content;
     align-items: center;
     overflow: hidden;
@@ -77,6 +79,7 @@
     // under the top bar instead of leaving a dead gap. (Page-level actions like
     // "New Playlist" move to a mobile FAB rather than living in this header.)
     @include allPhones {
+        padding-top: 0;
         padding-bottom: 0;
 
         .title {
