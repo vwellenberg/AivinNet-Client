@@ -262,6 +262,12 @@ $g-border: solid 1px $gray5;
 
     .songlist-item {
         grid-template-columns: 2fr 7.5rem !important;
+        // The index column is dropped on small layouts, so the thumbnail
+        // becomes the first cell — without extra padding it sits flush
+        // against the row edge (clearly visible on the highlighted
+        // currently-playing row).
+        padding-left: 1rem;
+        padding-right: $small;
 
         // disable hover on mobile
         &:hover {
