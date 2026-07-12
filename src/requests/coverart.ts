@@ -66,6 +66,24 @@ export async function saveOnlineCoverForAlbum(albumhash: string, url: string): P
         return null
     }
 
-    new Notification('Album cover updated!', NotifType.Success)
+    // Success feedback is the caller's job (it shows an undo toast).
     return data.image
+}
+
+/**
+ * Restores the album cover replaced by the last save (one level).
+ */
+export async function undoAlbumCover(albumhash: string): Promise<boolean> {
+    const { data, status } = await useAxios({
+        url: `${paths.api.coverart}/album/undo`,
+        props: { albumhash },
+        method: 'POST',
+    })
+
+    if (status !== 200 || !data || !data.success) {
+        new Notification('Nothing to undo', NotifType.Error)
+        return false
+    }
+
+    return true
 }
