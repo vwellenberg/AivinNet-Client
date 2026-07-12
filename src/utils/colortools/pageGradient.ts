@@ -41,17 +41,21 @@ function vividTop(color: string, factor = 2.3): string {
 
 /**
  * Single source of truth for the page background gradient of the detail views
- * (Album / Artist / Playlist). Spotify-style header fade: a brighter, vivid
- * accent at the very top that fades down through the header + action row into
- * the page background (#121212). Pass the view's dominant `colors.bg`; falls
- * back to a neutral dark gradient when no colour is available.
+ * (Album / Artist / Playlist). Spotify-style header fade with an edge: the
+ * vivid colour band only covers the header + action row, then a visibly
+ * darker ledge takes over (Spotify layers rgba(0,0,0,.6) over the colour
+ * below the header) and quickly settles into the page background (#121212).
+ * Fixed pixel stops keep the edge right under the header regardless of how
+ * long the page is. Pass the view's dominant `colors.bg`; falls back to a
+ * neutral dark gradient when no colour is available.
  *
  * Centralised here so all three views stay visually consistent — change the
  * fade once and it applies everywhere.
  */
 export function pageGradient(bg?: string): string {
     if (!bg) return 'linear-gradient(180deg, #2a2a2a 0%, #121212 45%)'
-    return `linear-gradient(180deg, ${vividTop(bg)} 0%, ${bg} 32%, #121212 72%)`
+    const ledge = mixColor(bg, PAGE_BG, 0.55)
+    return `linear-gradient(180deg, ${vividTop(bg)} 0%, ${bg} 300px, ${ledge} 301px, ${PAGE_BG} 620px)`
 }
 
 /**

@@ -124,12 +124,15 @@ export default defineStore('playlist-tracks', {
                 return
             }
 
-            if (!this.info.images.length) return
-
+            // Extract from images[0] — the cover the header actually shows
+            // (single cover, and the first collage tile). images[1] pulled the
+            // colour from a cover the user never sees on this page.
             // medium (256²) thumbnail for a stable gradient-colour extraction
             // (xsmall is too small for a reliable dominant-swatch pick).
-            const url = paths.images.thumb.medium + this.info.images[1].image
-            setColorsToStore(this, url)
+            const first = this.info.images[0]
+            if (!first?.image) return
+
+            setColorsToStore(this, paths.images.thumb.medium + first.image)
         },
         setInitialBannerPos() {
             this.info.settings.banner_pos = 50
