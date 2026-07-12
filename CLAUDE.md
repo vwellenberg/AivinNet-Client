@@ -50,6 +50,7 @@ Pro Aufgabe/Issue:
      - `test/` — nur Tests · `perf/` — Performance
    - Slug knapp + sprechend, optional Issue-Nr.: `fix/34-drawer-glow`, `feat/track-edit`.
 2. **Implementieren** im Worktree (nie im Hauptverzeichnis auf `master`).
+   - **Tests gehören in denselben PR (Pflicht):** Bugfix ⇒ **Regressionstest**, der den Bug reproduziert (vor dem Fix rot, danach grün) — kein Bugfix-PR ohne Test. Neue Store-/Util-/Request-Logik ⇒ Vitest in `src/**/__tests__/`. Realistische Fixtures verwenden (Backend-Formate wie `image`-Strings mit `?pathhash=`-Suffix, `image="None"` etc.). Reines CSS/Markup ist die Ausnahme — dort ersetzt die headless Screenshot-Verifikation (Schritt 6) den Test; Submit-/FormData-/Fetch-Logik ist NICHT „nur Markup".
 3. **PR** öffnen → **Self-Review** (`/code-review`), Findings fixen, erneut prüfen — bis sauber.
 4. **CI grün abwarten** (Lint/Tests/Build).
 5. **Autonom (squash) mergen**, sobald Review sauber: `gh pr merge --repo vwellenberg/AivinNet-Client --squash --delete-branch --auto` — `--auto` merged automatisch, sobald die Required Checks grün sind. Keine Rückfrage, kein Review-Zwang.
