@@ -10,7 +10,10 @@
     ]"
     :class="{ 'use-sqr_img': useSqrImg }"
   >
-    <div v-if="!isSmallPhone && info.has_image" class="gradient rounded-lg"></div>
+    <!-- Darkens the BANNER background image for text readability. In square
+         mode there is no banner background, so the overlay would just float
+         as a dark rounded box over the page gradient. -->
+    <div v-if="!isSmallPhone && info.has_image && !useSqrImg" class="gradient rounded-lg"></div>
     <div v-if="info.has_image && useSqrImg" class="sqr_img">
       <img :src="(playlist.info.image as string)" class="rounded-sm" />
     </div>

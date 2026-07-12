@@ -55,7 +55,7 @@ function vividTop(color: string, factor = 2.3): string {
 export function pageGradient(bg?: string): string {
     if (!bg) return 'linear-gradient(180deg, #2a2a2a 0%, #121212 45%)'
     const ledge = mixColor(bg, PAGE_BG, 0.45)
-    return `linear-gradient(180deg, ${vividTop(bg)} 0%, ${bg} 420px, ${ledge} 421px, ${PAGE_BG} 900px)`
+    return `linear-gradient(180deg, ${vividTop(bg)} 0%, ${bg} 360px, ${ledge} 361px, ${PAGE_BG} 800px)`
 }
 
 /**
