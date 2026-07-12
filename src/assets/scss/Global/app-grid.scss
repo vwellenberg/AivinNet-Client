@@ -230,6 +230,16 @@ $g-border: solid 1px $gray5;
 }
 
 .v-scroll-page {
+    // The page gradient lives on the SCROLLED content (the virtual
+    // scroller's full-height item wrapper), not on this static container:
+    // the colour band belongs to the header block and must scroll away with
+    // it, like Spotify. Views provide the gradient via --page-gradient.
+    background-color: #121212;
+
+    .vue-recycle-scroller__item-wrapper {
+        background: var(--page-gradient, none);
+    }
+
     .scroller {
         padding-right: $padright;
         height: 100%;
