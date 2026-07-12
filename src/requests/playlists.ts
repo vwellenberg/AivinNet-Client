@@ -218,10 +218,14 @@ export async function updatePlaylist(pid: number, playlist: FormData, pStore: an
         return
     }
 
-    if (data) {
-        pStore.updatePInfo(data.data)
-        new Notification('Playlist updated!')
+    if (status >= 400 || !data) {
+        // e.g. 422 validation errors — never fail silently.
+        new Notification('Failed to update playlist', NotifType.Error)
+        return
     }
+
+    pStore.updatePInfo(data.data)
+    new Notification('Playlist updated!')
 }
 
 /**

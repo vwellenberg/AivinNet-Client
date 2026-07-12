@@ -94,6 +94,10 @@ const { info: playlist } = storeToRefs(pStore)
 const pname = ref(playlist.value.name)
 const image: Ref<any> = ref(null)
 
+// Settings snapshot: toggles (e.g. "Show square cover image") mutate the
+// store in place, so changes are detected by comparing against this.
+const origSettings = JSON.stringify(playlist.value.settings)
+
 onMounted(() => {
     ;(document.getElementById('modal-playlist-name-input') as HTMLElement).focus()
 })
@@ -151,16 +155,22 @@ function update_playlist(e: Event) {
     const name = formData.get('name') as string
 
     const nameChanged = name !== playlist.value.name
-    const imgChanged = image.value !== undefined
+    const imgChanged = image.value != null
+    const settingsChanged = JSON.stringify(pStore.info.settings) !== origSettings
 
-    if (!nameChanged && !imgChanged) {
+    if (!nameChanged && !imgChanged && !settingsChanged) {
         emit('hideModal')
         return
     }
 
     clicked.value = true
 
-    formData.append('image', image.value)
+    // Only send the image when one was actually picked: appending null put
+    // the literal string "null" into the form field, which failed backend
+    // validation with a 422 — silently, so nothing ever saved.
+    if (imgChanged) {
+        formData.append('image', image.value)
+    }
     formData.append('settings', JSON.stringify(pStore.info.settings))
 
     if (name && name.toString().trim() !== '') {
