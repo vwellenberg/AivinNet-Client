@@ -1,13 +1,9 @@
 <template>
   <div class="album-buttons">
-    <PlayBtnRect :source="playSources.album" :bg_color="BRAND_GREEN" />
+    <PlayBtnRect :source="playSources.album" />
 
-    <HeartSvg
-      :state="album.is_favorite"
-      :color="colors.bg ? colors.bg : ''"
-      @handleFav="handleFav"
-    />
-    <PinButton :pinned="album.is_pinned" :color="textColor" @toggle="handlePin" />
+    <HeartSvg :state="album.is_favorite" @handleFav="handleFav" />
+    <PinButton :pinned="album.is_pinned" @toggle="handlePin" />
     <button
       class="mb-cover"
       :class="{ loading: mbLoading }"
@@ -15,18 +11,14 @@
       :disabled="mbLoading"
       @click.prevent="fetchCover"
     >
-      <DownloadSvg :style="{ color: textColor }" />
+      <DownloadSvg />
     </button>
     <button
       class="options"
       :class="{ context_menu_showing }"
       @click.prevent="showContextMenu"
     >
-      <MoreSvg
-        :style="{
-          color: textColor,
-        }"
-      />
+      <MoreSvg />
     </button>
   </div>
 </template>
@@ -37,7 +29,6 @@ import { storeToRefs } from "pinia";
 
 import { favType, playSources } from "@/enums";
 import useAlbumStore from "@/stores/pages/album";
-import { BRAND_GREEN } from "@/utils/colortools/pageGradient";
 
 import MoreSvg from "@/assets/icons/more.svg";
 import DownloadSvg from "@/assets/icons/download.svg";
@@ -51,11 +42,7 @@ import { fetchCoverFromMusicBrainz } from "@/requests/musicbrainz";
 import { NotifType, Notification } from "@/stores/notification";
 
 const store = useAlbumStore();
-const { info: album, colors } = storeToRefs(store);
-
-defineProps<{
-  textColor: string;
-}>();
+const { info: album } = storeToRefs(store);
 
 const context_menu_showing = ref(false);
 const mbLoading = ref(false);
@@ -107,6 +94,10 @@ async function fetchCover() {
   .mb-cover {
     background-color: transparent;
     border: none;
+
+    svg {
+      color: $candy-black;
+    }
   }
 
   .options {

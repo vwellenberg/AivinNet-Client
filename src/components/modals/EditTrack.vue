@@ -128,9 +128,9 @@ function save() {
     }
 
     .et-input {
-        border: none;
-        background-color: $gray5;
-        color: #fff;
+        border: $candy-border;
+        background-color: $candy-pink-soft;
+        color: $candy-text;
         width: 100%;
         padding: $small $medium;
         font-size: 14px;

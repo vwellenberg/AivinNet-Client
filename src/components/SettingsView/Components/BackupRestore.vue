@@ -110,7 +110,7 @@ async function deleteBackup(backup_dir: string) {
             gap: 1rem;
 
             padding: 1rem;
-            border: solid 1px $gray3;
+            border: $candy-border;
             align-items: center;
 
             .texts {
@@ -173,7 +173,7 @@ async function deleteBackup(backup_dir: string) {
         }
 
         svg:hover {
-            color: $red;
+            color: $candy-pink-deep;
         }
     }
 }

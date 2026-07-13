@@ -36,7 +36,6 @@ defineProps<{
 
 <style lang="scss">
 .p-card {
-  background-color: #2c2c2e45;
   display: grid;
   grid-template-rows: 1fr max-content;
   padding: $medium;
@@ -44,16 +43,19 @@ defineProps<{
   user-select: none;
   height: max-content;
   transition: background-color 0.2s ease-out;
+  @include candy-box($candy-pink, $candy-radius);
 
   .image {
     position: relative;
+    overflow: hidden;
+    border: $candy-border;
+    border-radius: $candy-radius-sm;
   }
 
   @include card-play-btn;
 
   &:hover {
-    background-color: $gray4 !important;
-    background-blend-mode: screen;
+    background-color: $candy-pink-deep !important;
   }
 
   img {
@@ -70,12 +72,13 @@ defineProps<{
     transition: all 0.25s ease;
 
     .p-name {
-      font-weight: 600;
+      font-weight: 700;
+      color: $candy-text;
     }
 
     .p-count {
       font-size: 0.75rem;
-      color: #ffffffbf;
+      color: $candy-text-muted;
       margin-top: $smaller;
     }
   }

@@ -4,9 +4,6 @@
             v-if="!on_sidebar"
             class="artist-header-ambient rounded-lg"
             :class="{ isSmallPhone }"
-            :style="{
-                boxShadow: !useCircularImage ? (colors.bg.length ? `0 .5rem 2rem ${colors.bg}` : undefined) : undefined,
-            }"
         ></div>
         <div
             ref="artistheader"
@@ -16,7 +13,7 @@
                 height: `${isSmallPhone ? '25rem' : containerHeight}`,
             }"
         >
-            <Info :artist="artist" :use-circular-image="useCircularImage" :bg-color="colors.bg" />
+            <Info :artist="artist" :use-circular-image="useCircularImage" />
             <div
                 class="artist-img no-select"
                 :style="{
@@ -25,19 +22,10 @@
             >
                 <img id="artist-avatar" :src="paths.images.artist.large + artist.image" @load="store.setBgColor" />
             </div>
-            <div
-                v-if="!useCircularImage"
-                class="gradient"
-                :style="{
-                    backgroundImage: colors.bg
-                        ? `linear-gradient(${gradientDirection}, transparent ${
-                              isSmall ? 60 : gradientTransparentWidth - (width < 700 ? 40 : width < 900 ? 20 : 10)
-                          }%,
-        ${colors.bg} ${gradientWidth}%,
-        ${colors.bg} 100%)`
-                        : '',
-                }"
-            ></div>
+            <!-- Small-phone only: the photo fills the header and the title sits on
+                 it, so a plain dark bottom scrim keeps the text legible. Wide
+                 layouts show the photo beside the text on flat pink (no overlay). -->
+            <div v-if="!useCircularImage && isSmallPhone" class="gradient"></div>
         </div>
     </div>
 </template>
@@ -52,11 +40,9 @@ import { onBeforeRouteUpdate } from 'vue-router'
 import { paths } from '@/config'
 import updatePageTitle from '@/utils/updatePageTitle'
 
-import { isSmall } from '@/stores/content-width'
 import useArtistStore from '@/stores/pages/artist'
 import Info from './HeaderComponents/Info.vue'
 
-const image_width_px = 450
 const store = useArtistStore()
 const settings = useSettingsStore()
 
@@ -64,7 +50,7 @@ const props = defineProps<{
     on_sidebar?: boolean
 }>()
 
-const { info: artist, colors } = storeToRefs(store)
+const { info: artist } = storeToRefs(store)
 
 function updateTitle() {
     props.on_sidebar ? () => {} : updatePageTitle(artist.value.name)
@@ -76,16 +62,8 @@ onBeforeRouteUpdate(() => updateTitle())
 const artistheader: Ref<HTMLElement | null> = ref(null)
 const { width } = useElementSize(artistheader)
 
-const gradientTransparentWidth = computed(() => Math.floor((image_width_px / (width.value || 1)) * 100))
-
 const isSmallPhone = computed(() => width.value <= 660)
 const useCircularImage = computed(() => !isSmallPhone.value && settings.useCircularArtistImg)
-
-const gradientDirection = computed(() => (isSmallPhone.value ? '210deg' : 'to left'))
-
-const gradientWidth = computed(() => {
-    return isSmallPhone.value ? '80' : Math.min(gradientTransparentWidth.value, 50)
-})
 
 const containerHeight = computed(() => {
     return useCircularImage.value ? '13rem' : '18rem'
@@ -110,6 +88,21 @@ const containerHeight = computed(() => {
     display: grid;
     grid-template-columns: 1fr 450px;
     position: relative;
+
+    // Candy banner: the artist photo is a bordered, rounded image (the circular
+    // mode overrides the radius to 50% below but keeps the same 2px border).
+    .artist-img img {
+        border: $candy-border;
+        border-radius: $candy-radius;
+    }
+
+    // Small-phone overlay: the photo fills the header and the title sits on it,
+    // so the text switches to white for legibility over the dark scrim.
+    &.isSmallPhone .artist-info,
+    &.isSmallPhone .artist-info .stats,
+    &.isSmallPhone .artist-info .card-title {
+        color: $candy-white;
+    }
 
     .artist-img {
         display: flex;
@@ -142,15 +135,14 @@ const containerHeight = computed(() => {
         }
     }
 
+    // Plain dark bottom scrim over the photo (small-phone overlay only).
     .gradient {
         position: absolute;
-        background-image: linear-gradient(to left, transparent 10%, $gray 50%, $gray 100%);
+        inset: 0;
         height: 100%;
         width: 100%;
-
-        &.isSmallPhone {
-            background-image: linear-gradient(210deg, transparent 20%, $gray 80%, $gray 100%);
-        }
+        pointer-events: none;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.35) 0%, transparent 50%);
     }
 
     &.isSmallPhone {

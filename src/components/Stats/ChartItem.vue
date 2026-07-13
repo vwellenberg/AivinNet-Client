@@ -112,7 +112,7 @@ function getRouterParams() {
     .index {
         font-size: 1.25rem;
         font-weight: 900;
-        color: $gray2;
+        color: $candy-text-muted;
         text-align: right;
     }
 
@@ -124,7 +124,7 @@ function getRouterParams() {
         width: 48px;
         display: grid;
         place-items: center;
-        background-color: $gray;
+        background-color: $candy-pink-soft;
 
         svg {
             width: 1.5rem;
@@ -140,7 +140,7 @@ function getRouterParams() {
 
         .artist {
             font-size: 0.85rem;
-            color: $gray1;
+            color: $candy-text-muted;
             margin-top: 0.2rem;
         }
     }
@@ -160,21 +160,21 @@ function getRouterParams() {
 
     .trend.rising {
         transform: rotate(90deg);
-        color: rgb(75, 170, 67);
+        color: $candy-text;
     }
 
     .trend.falling {
         transform: rotate(-90deg);
-        color: $red;
+        color: $candy-text;
     }
 
     .is_new {
-        color: $orange;
+        color: $candy-text;
     }
 
     .helptext {
         font-size: 0.75rem;
-        color: $gray2;
+        color: $candy-text-muted;
         text-align: right;
         text-transform: uppercase;
         font-weight: bold;

@@ -131,19 +131,22 @@ function handleButton() {
 
     #ginner {
         width: 100%;
-        // Match the round home button's height so the bar fills the top nav
+        // Match the square home button's height so the bar fills the top nav
         // (Spotify-style) instead of sitting small with empty padding above/below.
         height: 3rem;
         display: flex;
         align-items: center;
-        border-radius: 3rem;
-        background-color: $gray5;
-        outline: solid 2px transparent;
-        transition: background-color 0.2s ease-out, outline-color 0.2s ease-out;
+        @include candy-box($candy-pink-soft, $candy-radius-pill);
+        color: $candy-text;
+        transition: background-color 0.2s ease-out;
 
-        // Spotify-style hover: brighten the bar on mouse-over.
         &:hover {
-            background-color: $gray4;
+            background-color: $candy-pink;
+        }
+
+        input::placeholder {
+            color: $candy-text-faint;
+            opacity: 1;
         }
 
         button {
@@ -154,14 +157,14 @@ function handleButton() {
             padding: 0;
             margin-left: 6px;
             margin-right: $smaller;
-            border-radius: 3rem;
+            border-radius: $candy-radius-pill;
             cursor: pointer;
             flex-shrink: 0;
-            color: $white;
+            color: $candy-black;
 
             &:hover {
                 transition: all 0.2s ease;
-                background-color: $gray2;
+                background-color: $candy-pink-deep;
             }
 
             @include allPhones {
@@ -206,7 +209,7 @@ function handleButton() {
             flex-shrink: 0;
 
             &:hover {
-                background-color: $gray;
+                background-color: $candy-pink-deep;
             }
 
             svg {
@@ -230,12 +233,13 @@ function handleButton() {
         }
 
         @include allPhones {
-            // The 3rem desktop height (sized to the round home button) made the
+            // The 3rem desktop height (sized to the square home button) made the
             // top bar taller on the Search view than on every other page, where
             // the bar hugs the 36px avatar. On phones there is no pill here
-            // (transparent bg), so match the avatar height to keep the top bar a
-            // constant height across all views.
+            // (transparent bg, no border), so match the avatar height to keep
+            // the top bar a constant height across all views.
             height: 2.25rem;
+            border: none;
             border-radius: unset;
             background-color: transparent;
         }
@@ -246,11 +250,13 @@ function handleButton() {
     }
 }
 
-.search-focused {
-    outline: solid 2px #fff;
+// Focus: the border stays black; the fill swaps to white so the focused
+// state is visible on the white top bar (replaces the old white outline ring).
+#ginner.search-focused {
+    background-color: $candy-white;
 
     @include allPhones {
-        outline: none;
+        background-color: transparent;
     }
 }
 </style>

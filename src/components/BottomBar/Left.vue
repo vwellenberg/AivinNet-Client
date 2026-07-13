@@ -22,12 +22,7 @@
                 <ExpandSvg />
             </div>
         </RouterLink>
-        <div
-            class="track-info"
-            :style="{
-                color: getShift(colors.theme1, [0, -170]),
-            }"
-        >
+        <div class="track-info">
             <div v-tooltip class="title">
                 <span class="ellip">
                     {{ queue.currenttrack?.title || 'Hello there' }}
@@ -56,9 +51,7 @@
 <script setup lang="ts">
 import { paths } from '@/config'
 import { Routes } from '@/router'
-import { getShift } from '@/utils/colortools/shift'
 
-import useColorStore from '@/stores/colors'
 import { isLargerMobile, isMobile } from '@/stores/content-width'
 import useQStore from '@/stores/queue'
 import useSettingsStore from '@/stores/settings'
@@ -73,7 +66,6 @@ import ExplicitIcon from '@/assets/icons/explicit.svg'
 
 const queue = useQStore()
 const settings = useSettingsStore()
-const colors = useColorStore()
 
 defineEmits<{
     (e: 'handleFav'): void
@@ -136,6 +128,8 @@ defineEmits<{
             // taller than the cover — that gap let the Lauflicht rim miss the
             // bottom edge instead of tracing all the way around.
             display: block;
+            border: $candy-border;
+            border-radius: $candy-radius-sm;
         }
 
         .expandicon {
@@ -196,14 +190,14 @@ defineEmits<{
         max-width: 15rem;
 
         .title {
-            color: $white;
+            color: $candy-text;
             display: flex;
             align-items: center;
             margin-bottom: 2px;
         }
 
         .artistname {
-            opacity: 0.75;
+            color: $candy-text-muted;
 
             a {
                 font-size: 0.8rem;

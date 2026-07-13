@@ -89,7 +89,7 @@ async function saveMix() {
         font-weight: 600;
         text-transform: capitalize;
         font-size: 14px;
-        color: $gray1;
+        color: $candy-text-muted;
     }
 
     .header_title {
@@ -101,7 +101,7 @@ async function saveMix() {
         font-size: 1rem;
         font-weight: 500;
         margin-top: $smaller;
-        color: $brown;
+        color: $candy-text-muted;
     }
 
     .bunchofstuff {

@@ -68,6 +68,8 @@ useVisibility(albumheaderthing, handleVisibilityState)
             height: 16rem;
             max-width: 16rem;
             object-fit: contain;
+            border: $candy-border;
+            border-radius: $candy-radius-sm;
         }
     }
 

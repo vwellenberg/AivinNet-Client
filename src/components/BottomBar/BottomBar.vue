@@ -99,16 +99,18 @@ function handleFav() {
     }
 
     button {
+        // Transport icon buttons are borderless + transparent on the white bar
+        // (override the global candy button base locally); black glyphs, with a
+        // soft-pink rounded fill on hover. The play/pause button is the exception
+        // (its pink candy-box lives in HotKeys) and is excluded from the hover.
         background: transparent;
+        border: none;
         border-radius: $small;
         width: 3rem;
         transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
 
-        // The green play circle must NOT get the grey hover background — it
-        // keeps its $brand-green fill and a Spotify-style scale-up (.play:hover in HotKeys).
         &:not(.play):hover {
-            border: solid 1px $gray3 !important;
-            background-color: $gray !important;
+            background-color: $candy-pink-soft;
         }
 
         @include allPhones {
@@ -171,8 +173,8 @@ function handleFav() {
         // its rounded edges are never clipped. A short fixed height + scaled
         // buttons + overflow:hidden used to crop the transport icons.
 
-        // Keep the prev/next glyph buttons transparent, but NOT the green
-        // play circle (it must keep its $brand-green background).
+        // Keep the prev/next glyph buttons transparent, but NOT the play/pause
+        // button (it keeps its pink candy-box fill from HotKeys).
         button:not(.play) {
             background: transparent;
         }
@@ -207,7 +209,7 @@ function handleFav() {
         .time {
             font-weight: 500;
             font-size: $medium;
-            color: rgba(255, 255, 255, 0.66); // muted, Spotify-style time text
+            color: $candy-text;
 
             .numbers {
                 // Plain time text, no pill/box background (Spotify).

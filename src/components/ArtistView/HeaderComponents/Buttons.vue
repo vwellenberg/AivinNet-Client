@@ -1,17 +1,7 @@
 <template>
   <div class="artist-buttons">
-    <PlayBtnRect :source="playSources.artist" :bg_color="BRAND_GREEN" />
-    <HeartSvg
-      :state="artist.info.is_favorite"
-      :color="
-        !useCircularImage
-          ? artist.info.color
-            ? artist.info.color
-            : ''
-          : ''
-      "
-      @handleFav="handleFav"
-    />
+    <PlayBtnRect :source="playSources.artist" />
+    <HeartSvg :state="artist.info.is_favorite" @handleFav="handleFav" />
     <button
       class="options"
       :class="{ context_menu_showing }"
@@ -33,7 +23,6 @@ import useArtistPageStore from "@/stores/pages/artist";
 import MoreSvg from "@/assets/icons/more.svg";
 import HeartSvg from "@/components/shared/HeartSvg.vue";
 import PlayBtnRect from "@/components/shared/PlayBtnRect.vue";
-import { BRAND_GREEN } from "@/utils/colortools/pageGradient";
 
 defineProps<{
   useCircularImage?: boolean;

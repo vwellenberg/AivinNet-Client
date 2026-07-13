@@ -3,11 +3,6 @@
     v-if="bitrate > 1024"
     class="master-flag"
     :title="!text ? 'Master audio bitrate - ' + `${bitrate} Kbps` : ''"
-    :style="{
-      backgroundColor: bg_color ? (fill ? bg_color : 'transparent') : 'rgba(184, 108, 21, 0.281)',
-      color: text_color ? (fill ? text_color : '') : 'rgb(255, 153, 0)',
-      border: !fill ? `1px solid ${bg_color}` : 'none',
-    }"
     >{{ text ? text : "M" }}</span
   >
 </template>
@@ -28,8 +23,10 @@ defineProps<{
   font-weight: 600;
   margin-left: $smaller;
   padding: 2px 5px;
-  border-radius: 4px;
-  opacity: 0.75;
+  border-radius: $candy-radius-pill;
   text-transform: uppercase;
+  background-color: $candy-lavender;
+  border: 1px solid $candy-black;
+  color: $candy-black;
 }
 </style>

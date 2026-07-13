@@ -1,10 +1,5 @@
 <template>
-  <div
-    class="genres-banner"
-    :style="{
-      color: color ? getShift(color, [100, -100]) : '',
-    }"
-  >
+  <div class="genres-banner">
     <div class="scrollable">
       <div class="rounded pad-sm genre-pill">
         {{ genres.length ? "Genres" : "No genres" }}
@@ -13,9 +8,6 @@
         v-for="genre in genres"
         :key="genre.genrehash"
         class="genre-pill rounded pad-sm"
-        :style="{
-          backgroundColor: color,
-        }"
       >
         {{ genre.name }}
       </div>
@@ -26,9 +18,7 @@
 <script setup lang="ts">
 import useAlbumStore from "@/stores/pages/album";
 import useArtistStore from "@/stores/pages/artist";
-import { computed, onMounted } from "vue";
-
-import { getShift } from "@/utils/colortools/shift";
+import { computed } from "vue";
 
 const album = useAlbumStore();
 const store = useArtistStore();
@@ -39,10 +29,6 @@ const props = defineProps<{
 
 const genres = computed(() => {
   return props.source === "album" ? album.info.genres : store.info.genres;
-});
-
-const color = computed(() => {
-  return props.source === "album" ? album.colors.btn : "";
 });
 
 // const hookAction = async () => {
@@ -78,7 +64,10 @@ const color = computed(() => {
   }
 
   .genre-pill {
-    background-color: $gray5;
+    background-color: $candy-lavender;
+    border: 1px solid $candy-black;
+    border-radius: $candy-radius-pill;
+    color: $candy-black;
     min-width: 4rem;
     text-align: center;
     padding: $small 1rem;
@@ -86,14 +75,14 @@ const color = computed(() => {
     transition: background-color 0.2s ease-out, color 0.2s ease-out;
 
     &:first-child {
-      background-color: white;
-      color: black;
+      background-color: $candy-white;
+      color: $candy-black;
       pointer-events: none;
     }
 
     &:hover {
-      background-color: $pink !important;
-      color: $white;
+      background-color: $candy-pink-deep !important;
+      color: $candy-black;
     }
   }
 }

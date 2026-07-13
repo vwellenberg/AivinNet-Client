@@ -3,11 +3,10 @@
     <div
       v-if="queue.currenttrack"
       id="lyricscontent"
-      :style="{ background: bgColor }"
       class="content-page rounded"
       @wheel.passive="onScroll"
     >
-      <LyricsHead :bg-color="bgColor" />
+      <LyricsHead />
       <div v-if="lyrics.synced" class="synced">
         <div id="lyricsline--1"></div>
         <div
@@ -46,30 +45,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { onMounted } from "vue";
 
-import useColors from "@/stores/colors";
 import useLyrics from "@/stores/lyrics";
 import useQueue from "@/stores/queue";
 import useSettings from "@/stores/settings";
-
-import { getShift } from "@/utils/colortools/shift";
 
 import LyricsHead from "./Head.vue";
 import PluginFind from "./Plugins/Find.vue";
 
 const queue = useQueue();
 const lyrics = useLyrics();
-const colors = useColors();
 const settings = useSettings();
 
 const onScroll = (e: Event) => {
   lyrics.setUserScrolled(true);
 };
-
-const bgColor = computed(() => {
-  return getShift(colors.theme2, [-20, -20]);
-});
 
 function fetchLyrics() {
   lyrics.getLyrics();
@@ -93,7 +84,6 @@ onMounted(() => {
   padding-bottom: 4rem;
   height: 100%;
   overflow: scroll;
-  background-color: rgb(122, 122, 122);
   scroll-margin-top: 15rem;
   font-weight: 700;
   font-size: 3rem;
@@ -107,29 +97,30 @@ onMounted(() => {
   }
 
   .nolyrics {
-    color: rgba(255, 255, 255, 0.521);
+    color: $candy-text-muted;
     margin-bottom: 1rem;
   }
 
   .line {
     margin-top: 1rem;
-    color: #000;
+    color: $candy-text-muted;
     cursor: pointer;
     width: fit-content;
     opacity: 1;
     transition: opacity 2s ease-in-out;
 
     &:hover {
-      color: white;
+      color: $candy-black;
     }
   }
 
   .currentLine {
-    color: white;
+    color: $candy-black;
+    font-weight: 700;
   }
 
   .seenLine {
-    color: rgba(255, 255, 255, 0.774);
+    color: $candy-text-faint;
   }
 
   #lyricsline--1 {

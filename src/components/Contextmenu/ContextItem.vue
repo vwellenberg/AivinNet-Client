@@ -201,9 +201,9 @@ function runChildAction(action: () => void) {
         width: 12rem;
         z-index: 10;
         transform: scale(0);
-        background-color: $context;
+        @include candy-box($candy-white, $candy-radius);
+        color: $candy-text;
         padding: $small $smaller;
-        border: solid 1px $gray3;
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.25s ease-out, visibility 0.25s ease-out;
@@ -240,7 +240,7 @@ function runChildAction(action: () => void) {
     }
 
     &:hover {
-        background: $darkestblue;
+        background: $candy-pink-soft;
     }
 
     .icon {

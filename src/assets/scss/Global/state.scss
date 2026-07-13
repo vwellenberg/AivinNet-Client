@@ -7,7 +7,8 @@
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background-color: $white;
+  background-color: $candy-white;
+  border: $candy-border;
   transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
 
   &.active {

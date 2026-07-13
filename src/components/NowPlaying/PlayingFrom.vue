@@ -93,19 +93,19 @@ function showContextMenu(e: MouseEvent) {
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: $gray;
-        border: solid 1px $gray4;
+        background-color: $candy-pink-soft;
+        border: 1px solid $candy-black;
 
         svg {
             width: 1.5rem;
-            color: rgb(202, 197, 197);
+            color: $candy-black;
         }
     }
 
     .type {
         text-transform: capitalize;
         font-size: 0.8rem;
-        color: $gray1;
+        color: $candy-text-muted;
         font-weight: 500;
     }
 

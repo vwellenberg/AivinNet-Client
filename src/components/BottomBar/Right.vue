@@ -72,11 +72,10 @@ defineEmits<{
         height: 3rem !important;
         width: 3rem !important;
         background-color: transparent;
-        border: solid 1px transparent;
+        border: none;
 
         &:hover {
-            border: solid 1px $gray3 !important;
-            background-color: $gray !important;
+            background-color: $candy-pink-soft;
         }
 
         // Normalize every control icon (repeat, shuffle, lyrics, volume speaker)
@@ -100,8 +99,17 @@ defineEmits<{
         }
     }
 
-    .heart-button {
-        border: solid 1px $gray4 !important;
+    // Repeat active (mode != none): pink-deep rounded fill marks the "on" state.
+    button.repeat:not(.repeat-disabled) {
+        background-color: $candy-pink-deep;
+    }
+
+    // The transport glyphs (repeat, shuffle, lyrics) hardcode a light fill in
+    // their SVG assets — force them black on the light surface. The favorite
+    // check is excluded: its circle is currentColor-driven (see HeartSvg) and
+    // its check mark is a separate white-stroked path that must stay white.
+    > button:not(.heart-button) svg path {
+        fill: $candy-black;
     }
 }
 </style>

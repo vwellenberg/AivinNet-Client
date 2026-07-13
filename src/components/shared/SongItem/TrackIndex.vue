@@ -72,7 +72,7 @@ defineEmits<{
     svg {
       width: 1.05rem;
       height: auto;
-      fill: $brand-green;
+      fill: $candy-black;
     }
 
     @for $i from 1 through 9 {

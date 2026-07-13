@@ -35,7 +35,7 @@ const optionsWithActive = computed(() => {
 <style lang="scss">
 .setting-select {
     display: flex;
-    background-color: $gray3;
+    @include candy-box($candy-white, $candy-radius-sm);
 
     .option {
         font-weight: 500;
@@ -45,10 +45,14 @@ const optionsWithActive = computed(() => {
         min-width: 4rem;
         text-align: center;
         transition: background-color 0.2s ease-out;
+
+        &:hover:not(.active) {
+            background-color: $candy-pink-soft;
+        }
     }
 
     .option.active {
-        background-color: $darkestblue;
+        background-color: $candy-pink-deep;
     }
 }
 </style>

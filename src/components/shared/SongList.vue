@@ -59,10 +59,6 @@ const itemHeight = 64
     padding-bottom: 2rem;
 }
 
-.queue-view-virtual-scroller.is_queue {
-    .songlist-item.current {
-        background-color: $darkestblue !important;
-        border: none;
-    }
-}
+// The queue view uses the shared candy current-row treatment from
+// SongItem.vue (pink fill, black border, stripe accent) — no override.
 </style>

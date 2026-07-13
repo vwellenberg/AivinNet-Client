@@ -154,10 +154,11 @@ function deletePlaylist() {
 
     input[type='search'] {
         margin: $small 0;
-        border: none;
-        background-color: $gray5;
+        border: $candy-border;
+        border-radius: $candy-radius-sm;
+        background-color: $candy-pink-soft;
 
-        color: #fff;
+        color: $candy-text;
         width: 100%;
         padding: $small $medium;
         font-size: 14px;
@@ -184,7 +185,9 @@ function deletePlaylist() {
         max-height: calc(100% - 4rem);
         padding: 2rem 1.25rem;
         position: relative;
-        background-color: $black;
+        @include candy-box($candy-white, $candy-radius);
+        @include candy-shadow(6px, 6px);
+        color: $candy-text;
 
         @include allPhones {
             width: calc(100% - 2rem);

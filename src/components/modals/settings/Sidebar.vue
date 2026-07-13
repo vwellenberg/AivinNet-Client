@@ -55,8 +55,8 @@ defineEmits<{
 
 <style lang="scss">
 .settingssidebar {
-    border-right: solid 1px $gray4;
-    background-color: $gray;
+    border-right: $candy-border;
+    background-color: $candy-pink-soft;
     padding: 1.5rem;
 
     display: grid;
@@ -113,7 +113,7 @@ defineEmits<{
         display: flex;
         align-items: center;
         gap: $medium;
-        color: rgb(156, 156, 156);
+        color: $candy-text-muted;
         font-weight: 500;
         font-size: 14px;
         margin-top: $smaller;
@@ -134,16 +134,16 @@ defineEmits<{
         }
 
         &:hover {
-            background-color: $gray5;
+            background-color: $candy-pink-deep;
         }
 
         &.active {
-            background-color: $gray5;
-            color: $white;
+            background-color: $candy-white;
+            color: $candy-text;
             font-weight: bold;
 
             svg {
-                color: $white;
+                color: $candy-text;
             }
         }
 
@@ -158,7 +158,7 @@ defineEmits<{
             top: -$small;
             left: 0;
 
-            background-color: $gray5;
+            background-color: $separator;
             width: 100%;
         }
     }

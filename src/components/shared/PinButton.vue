@@ -3,7 +3,6 @@
     class="pin-button circular"
     :class="{ pinned }"
     :title="pinned ? 'Unpin from library' : 'Pin to library'"
-    :style="{ color: pinned ? '' : color || '' }"
     @click.prevent="$emit('toggle')"
   >
     <PinFillSvg v-if="pinned" />
@@ -17,7 +16,8 @@ import PinFillSvg from '@/assets/icons/pin.fill.svg'
 
 defineProps<{
   pinned: boolean | undefined
-  // Icon colour in the unpinned state (header text colour); pinned is always brand-green.
+  // Legacy prop (unpinned icon colour) kept for API compatibility; the candy
+  // design always renders the icon black, so this is no longer applied.
   color?: string
 }>()
 
@@ -41,7 +41,7 @@ defineEmits<{
 
   &:hover {
     opacity: 1;
-    background: rgba(255, 255, 255, 0.1);
+    background: $candy-pink-soft;
   }
 
   svg {
@@ -54,7 +54,7 @@ defineEmits<{
     opacity: 1;
 
     svg {
-      color: $brand-green;
+      color: $candy-black;
     }
   }
 }

@@ -59,7 +59,7 @@ export default defineConfig({
         name: "AivinNet",
         short_name: "AivinNet",
         description: "AivinNet — selbst-gehosteter Musik-Player",
-        theme_color: "#111",
+        theme_color: brandColors.candy.pink,
         icons: [
           {
             src: "pwa-192x192.png",
@@ -121,7 +121,7 @@ export default defineConfig({
         ],
         start_url: "/",
         display: "standalone",
-        background_color: "rgba(0, 0, 0, 0.95)",
+        background_color: brandColors.candy.pink,
       },
     }),
     viteCompression({
@@ -139,9 +139,16 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        // Feed the brand colours from the single JSON source into SCSS. These
-        // win over the `!default` fallbacks in _variables.scss.
-        additionalData: `$brand-green: ${brandColors.green}; $brand-red: ${brandColors.red}; @import "@/assets/scss/_variables.scss", "@/assets/scss/_mixins.scss";`,
+        // Feed the brand + candy colours from the single JSON source into
+        // SCSS. These win over the `!default` fallbacks in _variables.scss
+        // and _candy.scss.
+        additionalData:
+          `$brand-green: ${brandColors.green}; $brand-red: ${brandColors.red}; ` +
+          `$candy-pink: ${brandColors.candy.pink}; $candy-pink-soft: ${brandColors.candy.pinkSoft}; ` +
+          `$candy-pink-deep: ${brandColors.candy.pinkDeep}; $candy-white: ${brandColors.candy.white}; ` +
+          `$candy-lavender: ${brandColors.candy.lavender}; $candy-black: ${brandColors.candy.black}; ` +
+          `$candy-text-muted: ${brandColors.candy.textMuted}; ` +
+          `@import "@/assets/scss/_variables.scss", "@/assets/scss/_mixins.scss", "@/assets/scss/_candy.scss";`,
       },
     },
   },

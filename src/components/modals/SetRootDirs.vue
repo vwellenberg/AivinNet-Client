@@ -124,7 +124,8 @@ onMounted(() => {
 
 <style lang="scss">
 .bread-nav {
-  background-color: $gray4;
+  background-color: $candy-pink;
+  border: $candy-border;
   padding: $smaller;
   padding-right: 0;
   width: max-content;
@@ -213,11 +214,11 @@ onMounted(() => {
   }
 
   .f-item {
-    background-color: $gray5;
+    background-color: $candy-pink-soft;
     transition: background-color 0.2s ease-out;
 
     &:hover {
-      background-color: $gray3;
+      background-color: $candy-pink-deep;
     }
 
     > svg {
@@ -226,11 +227,11 @@ onMounted(() => {
   }
 
   .f-item.selected {
-    background-color: #234ece;
+    background-color: $candy-lavender;
   }
 
   .f-item.selected > svg {
-    color: $white;
+    color: $candy-black;
   }
 }
 </style>

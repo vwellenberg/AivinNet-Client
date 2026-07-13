@@ -70,7 +70,8 @@ context.$subscribe((mutation, state) => {
   z-index: 1000 !important;
   height: min-content;
   padding: $small;
-  background: $context;
+  @include candy-box($candy-white, $candy-radius);
+  color: $candy-text;
   transform-origin: top left;
   font-size: 0.875rem;
   font-weight: 500;
@@ -87,12 +88,12 @@ context.$subscribe((mutation, state) => {
   }
 
   .critical {
-    color: $red;
+    color: $candy-text;
     transition: background-color 0.2s ease-out, color 0.2s ease-out;
 
     &:hover {
-      background-color: $red;
-      color: $white;
+      background-color: $candy-pink-deep;
+      color: $candy-text;
     }
   }
 }

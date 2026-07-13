@@ -6,8 +6,8 @@
   .tab {
     height: 2rem;
     text-transform: capitalize;
-    background-color: $gray5;
-    border: none;
+    @include candy-box($candy-pink-soft, $candy-radius-pill);
+    color: $candy-text;
 
     transition: background-color 0.3s ease, color 0.3s ease;
     padding: 0 $medium;
@@ -16,7 +16,7 @@
   }
 
   .activetab {
-    background-color: white;
-    color: $gray;
+    background-color: $candy-pink-deep;
+    color: $candy-text;
   }
 }

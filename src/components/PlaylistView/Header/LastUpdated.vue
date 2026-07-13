@@ -49,7 +49,7 @@ function deletePlaylist() {
 
     .edit > span {
         cursor: pointer;
-        color: $brown;
+        color: inherit;
     }
 
     svg {

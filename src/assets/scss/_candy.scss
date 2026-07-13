@@ -1,0 +1,50 @@
+// ============================================================================
+// "Candy Brutalism" design tokens — the single SCSS source for the redesign.
+//
+// Palette values are injected from src/brand-colors.json via vite.config
+// (css.preprocessorOptions.scss.additionalData) so JSON stays the single
+// source of truth shared with TypeScript. The literals below are inert
+// `!default` fallbacks for tooling that compiles without the injection.
+//
+// Design language: light pink surfaces, white panels, 2px black borders on
+// every element, generous radii, flat colors (no gradients, no blurred
+// shadows — only hard offset shadows), black text, candy-stripe accents.
+// ============================================================================
+
+// Surfaces
+$candy-pink: #f5c6ce !default; // page background, cards, buttons
+$candy-pink-soft: #f9d7dc !default; // input fills, hover on white panels
+$candy-pink-deep: #efa9b6 !default; // hover/active on pink, stripe tone
+$candy-white: #ffffff !default; // panels: bars, sidebars, queue, modals
+$candy-lavender: #cdbcf4 !default; // secondary accent (badges, pills)
+$candy-black: #111111 !default; // borders, text, icons
+
+// Text
+$candy-text: $candy-black;
+$candy-text-muted: #8a5560 !default; // subtitles (artist names etc.)
+$candy-text-faint: rgba(17, 17, 17, 0.45); // placeholders, disabled
+
+// Structure
+$candy-border-w: 2px;
+$candy-border: $candy-border-w solid $candy-black;
+$candy-radius: 14px; // cards, panels, modals
+$candy-radius-sm: 10px; // buttons, inputs, thumbnails
+$candy-radius-pill: 999px; // pills, sliders
+
+// Hard offset shadow — the only allowed "shadow" in this design. Use
+// sparingly: floating chrome only (modals, context menus, toasts).
+@mixin candy-shadow($x: 4px, $y: 4px) {
+  box-shadow: $x $y 0 $candy-black;
+}
+
+// Diagonal candy stripes — seek bar fill, currently-playing accents.
+@mixin candy-stripes($a: $candy-pink-deep, $b: $candy-white, $w: 10px) {
+  background: repeating-linear-gradient(-45deg, $a 0 $w, $b $w $w * 2);
+}
+
+// The standard bordered surface.
+@mixin candy-box($bg: $candy-pink, $radius: $candy-radius) {
+  background-color: $bg;
+  border: $candy-border;
+  border-radius: $radius;
+}

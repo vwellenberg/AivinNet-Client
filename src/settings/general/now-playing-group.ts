@@ -15,7 +15,7 @@ const disable_np_img: Setting = {
 
 const npLauflicht: Setting = {
     title: 'Now Playing glow',
-    desc: 'Animated brand light around the Now Playing artwork (green glimmer + running comet). Pick how intense it is.',
+    desc: 'Animated brand light around the Now Playing artwork (pink glow + running comet). Pick how intense it is.',
     type: SettingType.select,
     options: [
         { title: 'Off', value: 'off' },

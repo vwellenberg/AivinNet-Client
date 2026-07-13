@@ -244,7 +244,8 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     }
 
     &:hover {
-        background-color: $gray;
+        background-color: $candy-white;
+        border-radius: $candy-radius-sm;
 
         .song-duration.has_help_text {
             opacity: 0;
@@ -273,19 +274,35 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 }
 
 .songlist-item.current {
-    background-color: $gray;
+    background-color: $candy-pink;
+    border: $candy-border;
+    border-radius: $candy-radius-sm;
+    overflow: hidden;
+
+    // Signature candy accent: a diagonal candy-stripe strip along the bottom
+    // edge of the currently-playing row.
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 6px;
+        pointer-events: none;
+        @include candy-stripes($candy-pink-deep, $candy-white, 8px);
+    }
 }
 
 .songlist-item.contexton {
-    background-color: $gray4 !important;
+    background-color: $candy-pink-soft !important;
 }
 
 .songlist-item.drag-over-top {
-    border-top: 2px solid $blue;
+    border-top: 2px solid $candy-black;
 }
 
 .songlist-item.drag-over-bottom {
-    border-bottom: 2px solid $blue;
+    border-bottom: 2px solid $candy-black;
 }
 
 .songlist-item[draggable="true"] {

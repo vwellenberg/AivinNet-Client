@@ -53,7 +53,7 @@ function showMenu(e: MouseEvent) {
 
   .artist {
     font-size: 0.8rem;
-    color: $gray1;
+    color: $candy-text-muted;
   }
 
   .actions {
@@ -67,28 +67,28 @@ function showMenu(e: MouseEvent) {
       transition: background-color 0.2s ease-out;
 
       &:hover {
-        background-color: $gray3;
+        background-color: $candy-pink-soft;
         cursor: pointer;
       }
     }
 
     svg.context_menu_showing {
-      background-color: $gray3;
+      background-color: $candy-pink-soft;
     }
   }
 
   .heart-button {
-    background-color: $gray;
+    background-color: transparent;
     transition: background-color 0.2s ease-out;
 
     &:hover {
-      background-color: $gray4;
+      background-color: $candy-pink-soft;
     }
   }
 
   .author {
     & > * {
-      color: $gray1 !important;
+      color: $candy-text-muted !important;
     }
   }
 }

@@ -89,7 +89,7 @@ onClickOutside(dropOptionsRef, e => {
         font-size: 12px !important;
 
         background-color: transparent;
-        outline: solid 1px $gray5;
+        outline: solid 1px $candy-black;
 
         svg {
             transform: rotate(90deg) scale(0.65);
@@ -100,7 +100,7 @@ onClickOutside(dropOptionsRef, e => {
         }
 
         &.showDropDown {
-            outline: solid 1px $gray2;
+            outline: solid 2px $candy-black;
         }
     }
 
@@ -112,7 +112,7 @@ onClickOutside(dropOptionsRef, e => {
         z-index: 10;
 
         .options {
-            background-color: $gray;
+            @include candy-box($candy-white, $candy-radius);
             position: absolute;
             top: 120%;
             padding: $small;
@@ -128,7 +128,7 @@ onClickOutside(dropOptionsRef, e => {
             transition: background-color 0.2s ease-out;
 
             &:hover {
-                background-color: $gray5;
+                background-color: $candy-pink-soft;
             }
 
             &:last-child {
@@ -137,7 +137,7 @@ onClickOutside(dropOptionsRef, e => {
         }
 
         .current {
-            background-color: $gray4;
+            background-color: $candy-pink;
         }
     }
 }

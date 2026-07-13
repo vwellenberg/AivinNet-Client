@@ -101,8 +101,8 @@ const browselist: BrowseItem[] = [
   .browseitem {
     font-weight: 500;
     padding: 1.25rem 1rem;
-    background-color: $gray;
-    color: $white;
+    @include candy-box($candy-pink, $candy-radius-sm);
+    color: $candy-text;
     transition: background-color 0.2s ease-out;
 
     display: grid;
@@ -116,12 +116,12 @@ const browselist: BrowseItem[] = [
 
     svg {
       height: 1.75rem;
-      color: $gray1;
+      color: $candy-black;
     }
   }
 
   .settings svg {
-    color: $brown;
+    color: $candy-black;
   }
 
   .reload svg {
@@ -130,7 +130,7 @@ const browselist: BrowseItem[] = [
   }
 
   .browseitem:hover {
-    background-color: $gray5;
+    background-color: $candy-pink-deep;
   }
 }
 </style>

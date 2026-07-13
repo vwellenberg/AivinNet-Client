@@ -26,7 +26,7 @@ defineProps<{
 .song-album {
     max-width: max-content;
     max-width: calc(100% - 10px);
-    color: inherit;
+    color: $candy-text-muted;
     cursor: pointer !important;
 
     &:hover {

@@ -205,9 +205,8 @@ function refreshAlbumView(albumhash: string) {
         place-items: center;
         aspect-ratio: 1;
         width: 100%;
-        background-color: $gray5;
-        border-radius: $small;
-        color: $gray1;
+        @include candy-box($candy-pink-soft, $candy-radius-sm);
+        color: $candy-text-muted;
         font-weight: 500;
         padding: 1rem;
         text-align: center;
@@ -217,7 +216,7 @@ function refreshAlbumView(albumhash: string) {
         aspect-ratio: 1;
         width: 100%;
         overflow: hidden;
-        background-color: $gray5;
+        @include candy-box($candy-pink-soft, $candy-radius-sm);
 
         img {
             width: 100%;
@@ -252,16 +251,6 @@ function refreshAlbumView(albumhash: string) {
         }
 
         .use-btn {
-            background-color: $white;
-            color: $black;
-
-            &:hover:not(:disabled) {
-                // Keep the primary look; the global button hover would
-                // otherwise swap the background to $darkestblue.
-                background-color: $white;
-                filter: brightness(0.85);
-            }
-
             &:disabled {
                 opacity: 0.6;
             }

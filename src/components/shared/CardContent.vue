@@ -14,37 +14,30 @@ defineProps<{
 </script>
 
 <style lang="scss">
-@keyframes placeholderAnimate {
-    0% {
-        background-position: -650px 0;
+@keyframes candyPulse {
+    0%,
+    100% {
+        opacity: 1;
     }
 
-    100% {
-        background-position: 650px 0;
+    50% {
+        opacity: 0.55;
     }
 }
 
 
 .card-placeholder {
-    // border: solid 1px;
     padding: $medium;
 
     .holder {
-        background-color: $gray;
-        animation-duration: 1.7s;
-        animation-fill-mode: forwards;
-        animation-iteration-count: infinite;
-        animation-timing-function: linear;
-        animation-name: placeholderAnimate;
-        // background: #f6f7f8; // Fallback
-        background: linear-gradient(to right, $gray 2%, $gray5 18%, $gray 33%);
-        background-size: 1300px;
+        background-color: $candy-pink-soft;
+        animation: candyPulse 1.7s ease-in-out infinite;
     }
 
     .image {
         width: 100%;
         aspect-ratio: 1;
-        background-color: $gray;
+        background-color: $candy-pink-soft;
     }
 
     .help,

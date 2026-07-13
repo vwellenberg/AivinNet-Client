@@ -1,15 +1,5 @@
 <template>
-    <div
-        class="chartitem chartitemhashuno rounded"
-        :style="{
-            backgroundColor: name === 'artist' ? '' : color,
-        }"
-    >
-        <div
-            v-if="name === 'artist'"
-            class="gradient"
-            :style="`background-image: linear-gradient(to right, transparent 0, ${asArtist.color} 12rem, ${asArtist.color} 100%)`"
-        ></div>
+    <div class="chartitem chartitemhashuno rounded">
         <div class="hashuno shadow-sm">
             1
         </div>
@@ -36,14 +26,11 @@
 </template>
 
 <script setup lang="ts">
-import Vibrant from 'node-vibrant'
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 
 import { paths } from '@/config'
 import { Artist, Album, Track } from '@/interfaces'
-import listToRgbString from '@/utils/colortools/listToRgbString'
 
-import ArrowSvg from '@/assets/icons/arrow.svg'
 import ArtistName from '../shared/ArtistName.vue'
 import PlayBtn from '../shared/PlayBtn.vue'
 
@@ -55,8 +42,6 @@ const props = defineProps<{
     index: number
     name: ChartName
 }>()
-
-const color = ref<string>()
 
 // The `name` prop (not a field on `item`) discriminates the union, but the
 // template's branches can't narrow `item` from it — cast once here.
@@ -73,20 +58,12 @@ function getItemImage(item: ChartItem, size: 'small' | 'large' | 'medium' = 'lar
             return paths.images.thumb[size] + item.image
     }
 }
-
-onMounted(() => {
-    if (props.name === 'artist') return
-    const imageurl = getItemImage(props.item)
-    const vibrant = new Vibrant(imageurl)
-
-    vibrant.getPalette().then(palette => {
-        color.value = listToRgbString(palette.DarkMuted?.getRgb())
-    })
-})
 </script>
 
 <style lang="scss">
 .chartitemhashuno {
+    @include candy-box($candy-lavender, $candy-radius);
+    color: $candy-text;
     display: grid;
     grid-template-columns: max-content 1fr max-content !important;
     align-items: flex-end !important;
@@ -96,8 +73,9 @@ onMounted(() => {
     position: relative;
 
     .hashuno {
-        background-color: #fff;
-        color: #000;
+        background-color: $candy-white;
+        color: $candy-black;
+        border: $candy-border;
 
         position: absolute;
         bottom: -1rem;
@@ -125,11 +103,11 @@ onMounted(() => {
         .index {
             font-size: 5rem;
             font-weight: 900;
-            color: #fff;
+            color: $candy-text;
         }
 
         .trend {
-            color: $gray1;
+            color: $candy-text-muted;
             height: 1.5rem;
         }
 
@@ -154,14 +132,6 @@ onMounted(() => {
         object-fit: cover;
         margin-left: -1rem;
         margin-top: -1rem;
-    }
-
-    .gradient {
-        height: 100%;
-        width: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
     }
 }
 </style>

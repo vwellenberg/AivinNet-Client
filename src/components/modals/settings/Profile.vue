@@ -190,8 +190,8 @@ onMounted(async () => {
                 align-items: center;
                 justify-content: center;
                 border-radius: 50%;
-                background-color: rgba(0, 0, 0, 0.55);
-                color: $white;
+                background-color: $candy-pink-deep;
+                color: $candy-black;
                 font-size: 0.8rem;
                 font-weight: 600;
                 opacity: 0;
@@ -246,26 +246,24 @@ onMounted(async () => {
             width: 100%;
             padding: 0.5rem;
             margin: 0.5rem 0;
-            border: solid 1px $gray5;
-            border-radius: $small;
-            border: none;
-            background-color: $gray5;
+            border: $candy-border;
+            border-radius: $candy-radius-sm;
+            background-color: $candy-pink-soft;
             height: 2.75rem;
             font-size: 1rem;
             padding: 1rem;
-            color: $white;
+            color: $candy-text;
 
             &:focus {
-                outline: solid 2px $white;
+                outline: solid 2px $candy-black;
             }
         }
 
         .error {
-            color: $red;
+            color: $candy-text;
         }
 
         button {
-            background: $darkblue;
             padding: $medium 1.5rem;
             margin: 1rem auto;
         }

@@ -25,6 +25,8 @@
   }
 }
 
+// Flat candy treatment: the pixel-art planet sits in a black rounded square
+// (no glow — flat design has no gradients or pulses).
 .logo-orbit-wrapper {
   position: relative;
   width: 2.25rem;
@@ -33,35 +35,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: visible;
+  background-color: $candy-black;
+  border-radius: $candy-radius-sm;
+  padding: 0.25rem;
 
   .logo-img {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
-    position: relative;
-    z-index: 1;
   }
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: -12px;
-    border-radius: 50%;
-    background: radial-gradient(circle,
-      rgba($brand-green, 0.75) 12%,
-      rgba($brand-green, 0.35) 30%,
-      rgba($brand-green, 0.12) 55%,
-      transparent 80%);
-    animation: logo-pulse 3.2s ease-in-out infinite;
-    pointer-events: none;
-    transform-origin: center;
-    will-change: transform, opacity;
-  }
-}
-
-@keyframes logo-pulse {
-  0%, 100% { transform: scale(1);   opacity: 0.95; }
-  50%      { transform: scale(1.7); opacity: 0;    }
 }
 </style>

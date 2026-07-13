@@ -48,6 +48,7 @@ defineEmits<{
   cursor: pointer;
   height: max-content;
   transition: background-color 0.2s ease-out;
+  @include candy-box($candy-pink, $candy-radius);
 
   .image {
     position: relative;
@@ -57,25 +58,27 @@ defineEmits<{
   @include card-play-btn;
 
   &:hover {
-    background-color: $gray4;
+    background-color: $candy-pink-deep;
   }
 
   .ttitle {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.95rem;
+    color: $candy-text;
   }
 
   img {
     width: 100%;
     aspect-ratio: 1;
     object-fit: cover;
+    border: $candy-border;
+    border-radius: $candy-radius-sm;
   }
 
   .artist {
     font-size: 0.8rem;
-    font-weight: 700;
-    opacity: 0.86;
-    opacity: 0.75;
+    font-weight: 500;
+    color: $candy-text-muted;
   }
 }
 </style>

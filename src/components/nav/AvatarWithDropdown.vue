@@ -51,23 +51,19 @@ onClickOutside(avatarRef, () => {
 
     .img {
         height: 36px;
+        transition: transform 0.15s ease;
 
-        &::after {
-            content: '';
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: #00000000;
-            border-radius: 5rem;
-            transition: all 0.75s ease-out;
+        // White circle with the candy border; the image/generated avatar
+        // fills it (border-box, so the visible artwork sits inside the ring).
+        img,
+        svg {
+            border: $candy-border;
+            border-radius: 50%;
+            background-color: $candy-white;
         }
 
         &:hover {
-            &::after {
-                background-color: $brown;
-            }
+            transform: scale(1.05);
         }
     }
 

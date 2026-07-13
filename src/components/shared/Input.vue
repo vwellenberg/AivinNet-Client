@@ -66,7 +66,7 @@ function toggleShowPassword() {
         svg {
             width: 1.25rem;
             aspect-ratio: 1;
-            color: rgb(184, 184, 184);
+            color: $candy-text-muted;
         }
     }
 
@@ -79,17 +79,16 @@ function toggleShowPassword() {
         width: 100%;
         padding: 0.5rem;
         margin: 0.5rem 0;
-        border: solid 1px $gray5;
-        border-radius: $small;
-        border: none;
-        background-color: $gray5;
+        border: $candy-border;
+        border-radius: $candy-radius-sm;
+        background-color: $candy-pink-soft;
         height: 2.75rem;
         font-size: 1rem;
         padding: 1rem;
-        color: $white;
+        color: $candy-text;
 
         &:focus {
-            outline: solid 2px $white;
+            outline: solid 2px $candy-black;
         }
     }
 }

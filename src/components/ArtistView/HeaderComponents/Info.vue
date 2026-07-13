@@ -1,10 +1,5 @@
 <template>
-    <div
-        class="artist-info"
-        :style="{
-            color: !useCircularImage && bgColor ? getTextColor(bgColor) : undefined,
-        }"
-    >
+    <div class="artist-info">
         <section class="text">
             <div class="card-title">Artist</div>
             <div class="artist-name" :class="`${useCircularImage ? 'ellip' : 'ellip2'}`" :title="artist.name">
@@ -27,8 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import { getTextColor } from '@/utils/colortools/shift'
-
 import { Artist } from '@/interfaces'
 import formatSeconds from '@/utils/useFormatSeconds'
 import Buttons from './Buttons.vue'
@@ -36,9 +29,6 @@ import Buttons from './Buttons.vue'
 defineProps<{
     artist: Artist
     useCircularImage?: boolean
-    // The artist page store's gradient colour (colors.bg) — passed by the
-    // parent header, which derives it from the cover; '' until extracted.
-    bgColor?: string
 }>()
 </script>
 
@@ -75,6 +65,7 @@ defineProps<{
     .stats {
         font-size: small;
         font-weight: 700;
+        color: $candy-text-muted;
     }
 }
 </style>

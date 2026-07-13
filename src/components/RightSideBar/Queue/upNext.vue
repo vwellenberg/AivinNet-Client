@@ -36,12 +36,12 @@ const queue = useQueueStore();
     gap: $small;
     display: grid;
     width: 20rem;
-    background-color: rgba(255, 255, 255, 0.048);
+    @include candy-box($candy-pink-soft, $candy-radius-sm);
     cursor: pointer;
 
     &:hover {
       transition: all 0.25s ease;
-      background-color: $gray4;
+      background-color: $candy-pink;
     }
 
     img {

@@ -44,7 +44,7 @@ async function submit(newValue: number) {
 <style lang="scss">
 .freenuminput {
     height: 2rem;
-    border: solid 1px $gray4;
+    border: $candy-border;
     position: relative;
 
     input {
@@ -63,8 +63,8 @@ async function submit(newValue: number) {
         left: -2rem;
         top: 6px;
 
-        border-color: $gray5;
-        border-top-color: #fff;
+        border-color: $candy-pink-soft;
+        border-top-color: $candy-black;
     }
 
     input::-webkit-outer-spin-button,

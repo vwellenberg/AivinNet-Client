@@ -62,6 +62,8 @@ defineEmits<{
       object-fit: contain;
       cursor: pointer;
       z-index: 20;
+      border: 1px solid $candy-black;
+      border-radius: $candy-radius-sm;
       transition: filter 0.15s ease;
     }
 
@@ -108,9 +110,13 @@ defineEmits<{
       align-items: center;
     }
 
+    .title {
+      font-weight: 600;
+    }
+
     // Highlight the title of the currently-playing track (issue #67).
     .title.is-current {
-      color: $brand-green;
+      color: $candy-text;
     }
   }
 }

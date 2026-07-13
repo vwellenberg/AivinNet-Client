@@ -13,7 +13,8 @@ defineProps<{
 <style lang="scss">
 .switch {
   height: 1.5rem;
-  background-color: rgb(109, 108, 108);
+  background-color: $candy-pink-soft;
+  border: 1px solid $candy-black;
   width: 2.5rem;
   padding: $smaller;
   position: relative;
@@ -24,18 +25,19 @@ defineProps<{
     transition: all 0.25s ease;
     height: 1rem;
     aspect-ratio: 1;
-    background-color: rgb(226, 226, 226);
+    background-color: $candy-white;
+    border: 1px solid $candy-black;
     position: absolute;
     left: $smaller;
   }
 }
 
 .toggled {
-  background-color: $darkestblue;
+  background-color: $candy-pink-deep;
   transition-delay: 0.15s;
 
   .circle {
-    background-color: white;
+    background-color: $candy-white;
     left: calc((100% - ($smaller + 1rem)));
   }
 }

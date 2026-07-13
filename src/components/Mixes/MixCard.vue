@@ -38,9 +38,12 @@ defineProps<{
 <style lang="scss">
 .mixcard {
     padding: $medium;
+    height: max-content;
+    transition: background-color 0.2s ease-out;
+    @include candy-box($candy-pink, $candy-radius);
 
     &:hover {
-        background-color: $gray;
+        background-color: $candy-pink-deep;
         cursor: pointer;
     }
 
@@ -49,13 +52,14 @@ defineProps<{
 
         .title {
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
+            color: $candy-text;
         }
 
         .description {
             font-size: 0.8rem;
             font-weight: 500;
-            color: $gray1;
+            color: $candy-text-muted;
             margin-top: $smaller;
         }
     }

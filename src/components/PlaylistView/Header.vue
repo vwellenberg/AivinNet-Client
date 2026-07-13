@@ -18,7 +18,7 @@
       <img :src="(playlist.info.image as string)" class="rounded-sm" />
     </div>
     <BannerImages v-if="playlist.info.count && !info.has_image && useSqrImg" class="sqr_img rounded-sm" />
-    <Info :text-color="textColor" :btn_color="BRAND_GREEN" />
+    <Info />
     <LastUpdated />
   </div>
 </template>
@@ -29,8 +29,6 @@ import { computed } from "vue";
 
 import { isSmallPhone } from "@/stores/content-width";
 import usePStore from "@/stores/pages/playlist";
-import { getTextColor } from "@/utils/colortools/shift";
-import { BRAND_GREEN } from "@/utils/colortools/pageGradient";
 
 import BannerImages from "./Header/BannerImages.vue";
 import Info from "./Header/Info.vue";
@@ -38,7 +36,7 @@ import LastUpdated from "./Header/LastUpdated.vue";
 
 const playlist = usePStore();
 
-const { info, colors } = storeToRefs(playlist);
+const { info } = storeToRefs(playlist);
 
 const bg = computed(() => {
   // hide background on small screen
@@ -56,15 +54,6 @@ const bg = computed(() => {
 });
 
 const useSqrImg = computed(() => !playlist.info.has_image || !bg.value.startsWith("url"));
-
-const textColor = computed(() => {
-  if (colors.value.bg !== "") {
-    // @ts-ignore
-    return getTextColor(colors.value.bg);
-  }
-
-  return "";
-});
 </script>
 
 <style lang="scss">
@@ -75,6 +64,18 @@ const textColor = computed(() => {
   background-position: center 50%;
   background-size: cover !important;
   padding-bottom: 1rem;
+
+  // Banner-image mode: the playlist photo is the banner. Give it the candy
+  // border + radius and put the title/meta/controls in white over the photo.
+  &:not(.use-sqr_img) {
+    border: $candy-border;
+    border-radius: $candy-radius;
+
+    .playlist-info,
+    .last-updated {
+      color: $candy-white;
+    }
+  }
 
   &.use-sqr_img {
     grid-template-columns: max-content 1fr;
@@ -126,14 +127,22 @@ const textColor = computed(() => {
     }
   }
 
+  // Border only the single square cover (direct child img), not each tile of
+  // the BannerImages collage (whose imgs are nested deeper).
+  .sqr_img > img {
+    border: $candy-border;
+    border-radius: $candy-radius-sm;
+  }
+
+  // Plain dark scrim over the banner photo so text stays legible.
   .gradient {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: $black;
-    opacity: 0.5;
+    background: rgba(0, 0, 0, 0.35);
+    pointer-events: none;
   }
 
   @include largePhones {

@@ -1,4 +1,4 @@
-$g-border: solid 1px $gray5;
+$g-border: solid $candy-border-w $candy-black;
 
 #app-grid {
     display: grid;
@@ -39,8 +39,10 @@ $g-border: solid 1px $gray5;
     overflow: hidden;
     margin-right: $margright;
     z-index: 0;
-    background-color: #121212;
-    border-radius: 8px 8px 0 0;
+    background-color: $candy-pink;
+    border: $candy-border;
+    border-bottom: none;
+    border-radius: $candy-radius $candy-radius 0 0;
 }
 
 .topnav {
@@ -48,8 +50,9 @@ $g-border: solid 1px $gray5;
     height: $navheight;
     padding: 1rem $padleft;
     padding-right: $padright;
-    // Continuous black top bar (Spotify-style), spans the full width.
-    background-color: #000000;
+    // Continuous white top bar with the candy border underneath.
+    background-color: $candy-white;
+    border-bottom: $candy-border;
 
     @include allPhones {
         display: flex;
@@ -58,16 +61,16 @@ $g-border: solid 1px $gray5;
         padding: 6px 8px;
         margin: $medium 1rem;
         border-radius: 5rem;
-        background-color: $gray;
+        background-color: $candy-white;
+        border: $candy-border;
     }
 }
 
 .b-bar {
     grid-area: bottombar;
     border-top: $g-border;
-    // Solid dark bar (Spotify-style); was translucent which let the vivid
-    // page gradient bleed red through the controls.
-    background-color: #181818;
+    // Solid white player bar with the candy border on top.
+    background-color: $candy-white;
     position: relative;
     z-index: 50;
 }
@@ -237,7 +240,9 @@ $g-border: solid 1px $gray5;
     // --page-gradient. The decor is absolutely positioned so it spans the
     // scroller's full padding box — painting the item wrapper instead left
     // unpainted bands where the scroller has horizontal padding.
-    background-color: #121212;
+    // Candy design: flat pink (pageGradient() now returns the same flat
+    // colour, so the decor is invisible — kept for a future re-theme).
+    background-color: $candy-pink;
 
     .page-gradient-decor {
         position: absolute;

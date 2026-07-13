@@ -88,7 +88,7 @@ defineEmits<{
         visibility: visible;
 
         svg {
-            color: $brand-green;
+            color: $candy-pink-deep;
         }
     }
 

@@ -29,8 +29,16 @@ defineProps<{
         gap: 1rem;
     }
 
+    .cancel {
+        background-color: $candy-white;
+
+        &:hover {
+            background-color: $candy-pink-soft;
+        }
+    }
+
     .confirm {
-        background: $red;
+        background-color: $candy-pink-deep;
     }
 }
 </style>

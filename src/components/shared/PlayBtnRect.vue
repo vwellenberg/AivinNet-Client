@@ -1,15 +1,11 @@
 <template>
-    <!-- Green primary CTA with a black glyph + label (Spotify look). All call
-         sites pass a bright bg (green headers / white Mixes), so black always
-         reads. Deliberately reverses #53 (white-on-green via getTextColor). -->
+    <!-- Primary "Play" CTA: a bold black candy button with white label + glyph.
+         The bg_color prop (green/white/cover-derived from call sites) is
+         deliberately ignored so every header CTA shares one consistent look;
+         the prop stays in the API to avoid breaking callers. -->
     <button
         v-wave
         class="playbtnrect shadow-sm circular btn-active"
-        :style="{
-            backgroundColor: bg_color ? bg_color : '',
-            borderColor: bg_color ? bg_color : '',
-            color: bg_color ? '#0a0a0a' : '',
-        }"
         @click="playFrom(source)"
     >
         <playBtnSvg />
@@ -30,12 +26,17 @@ defineProps<{
 </script>
 
 <style lang="scss">
-.playbtnrect {
+// `button.` prefix so the black fill/border/radius win over the global button
+// base, .btn-active (pink-deep) and .circular (pill) without !important.
+button.playbtnrect {
     width: 6rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: $white;
+    background-color: $candy-black;
+    color: $candy-white;
+    border: $candy-border;
+    border-radius: $candy-radius-sm;
     padding-right: 1rem;
     // Quick scale on hover/press — matches the bottom-bar play button.
     transition: transform 0.1s ease;
@@ -45,6 +46,7 @@ defineProps<{
     }
 
     &:hover {
+        background-color: $candy-black;
         transform: scale(1.06);
     }
 

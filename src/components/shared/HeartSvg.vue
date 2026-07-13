@@ -3,9 +3,6 @@
         v-wave
         class="heart-button circular"
         :class="{ 'is-fav': state }"
-        :style="{
-            color: state ? '' : color ? getTextColor(color) : '',
-        }"
         @click="!no_emit && $emit('handleFav')"
     >
         <Motion
@@ -32,8 +29,6 @@ import { Motion } from 'motion/vue'
 import CheckCircleSvg from '@/assets/icons/check.circle.fill.svg'
 import PlusSvg from '@/assets/icons/plus.svg'
 
-import { getTextColor } from '@/utils/colortools/shift'
-
 defineProps<{
     state: Boolean | undefined
     no_emit?: Boolean
@@ -47,16 +42,15 @@ defineEmits<{
 </script>
 
 <style lang="scss">
-$bg: rgb(255, 255, 255);
-
 .heart-button {
     line-height: normal;
     align-items: center;
     gap: $smaller;
     border: none;
-    color: $bg;
+    // Unfavorited: black outline glyph (the plus) on a transparent button.
+    color: $candy-black;
     aspect-ratio: 1.5;
-    background: rgba(255, 255, 255, 0.13);
+    background: transparent;
 
     div {
         height: max-content;
@@ -70,14 +64,14 @@ $bg: rgb(255, 255, 255);
     }
 
     &:hover {
-        background: transparent;
+        background: $candy-pink-soft;
         border: none;
     }
 
-    // Favorited state: brand-green check circle (drives the SVG's
-    // currentColor circle; the check itself is fixed white in the asset).
+    // Favorited state: black check circle (drives the SVG's currentColor
+    // circle; the check itself is fixed white in the asset).
     &.is-fav {
-        color: $brand-green;
+        color: $candy-black;
     }
 }
 </style>

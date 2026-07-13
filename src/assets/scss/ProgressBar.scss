@@ -3,54 +3,58 @@ input[type='range'] {
     appearance: none;
     margin-right: 15px;
     width: calc(100% - 2px);
-    height: 0.3rem;
-    border-radius: 5px;
-    background: $gray4;
+    height: 0.6rem;
+    border-radius: $candy-radius-pill;
+    background: $candy-pink;
+    border: $candy-border-w solid $candy-black;
     background-size: 100% 100%;
     cursor: pointer;
 
     &::-webkit-slider-thumb {
         -webkit-appearance: none;
 
-        height: 0;
-        width: 0.8rem;
+        height: 1.1rem;
+        width: 1.1rem;
         border-radius: 50%;
-        background: white;
+        background: $candy-white;
+        border: $candy-border-w solid $candy-black;
+        margin-top: -0.35rem;
     }
 
     &::-moz-range-thumb {
         -webkit-appearance: none;
         appearance: none;
 
-        height: 0;
+        height: 1.1rem;
+        width: 1.1rem;
         border-radius: 50%;
-        background: white;
-        border: none;
+        background: $candy-white;
+        border: $candy-border-w solid $candy-black;
     }
 
     &::-ms-thumb {
         -webkit-appearance: none;
         appearance: none;
 
-        height: 0;
-        width: 0.8rem;
+        height: 1.1rem;
+        width: 1.1rem;
         border-radius: 50%;
-        background: white;
-        border: none;
+        background: $candy-white;
+        border: $candy-border-w solid $candy-black;
     }
 }
 
 /* Input Thumb */
 input[type='range']::-webkit-slider-thumb:hover {
-    background: $accent;
+    background: $candy-pink-soft;
 }
 
 input[type='range']::-moz-range-thumb:hover {
-    background: $accent;
+    background: $candy-pink-soft;
 }
 
 input[type='range']::-ms-thumb:hover {
-    background: $accent;
+    background: $candy-pink-soft;
 }
 
 /* Input Track */

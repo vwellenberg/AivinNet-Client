@@ -36,7 +36,7 @@ const settings = useSettingsStore();
 }
 
 .f-item:hover {
-  background-color: $gray4;
+  background-color: $candy-pink-deep;
 }
 
 .f-container.list-mode > #f-items {
@@ -49,6 +49,7 @@ const settings = useSettingsStore();
     height: 3.25rem;
     border-radius: $small;
     background-color: transparent;
+    border: none;
     padding-left: $small;
     transition: background-color 0.2s ease-out;
 
@@ -65,7 +66,7 @@ const settings = useSettingsStore();
     }
 
     &:hover {
-      background-color: $gray !important;
+      background-color: $candy-pink-soft !important;
     }
   }
 }

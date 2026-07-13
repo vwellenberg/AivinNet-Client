@@ -68,53 +68,18 @@ const handleMouseWheel = (event: WheelEvent) => {
         }
     }
 
-    // Always-visible horizontal volume slider (Spotify-style).
+    // Horizontal volume slider. Track pill, 2px black border and the white
+    // bordered thumb all come from the global candy range styling
+    // (ProgressBar.scss). Only the played-volume fill is painted here — a flat
+    // deeper-pink band (no stripes for volume) clipped by the inline
+    // background-size from the current volume level.
     .volume-slider {
-        -webkit-appearance: none;
-        appearance: none;
         width: 6rem;
         min-width: 4rem;
-        height: 4px;
-        border-radius: 2px;
-        cursor: pointer;
-        outline: none;
-        background-color: $gray4;
-        background-image: linear-gradient(#fff, #fff);
+        margin-right: 0; // neutralise the global range's 15px right margin
+        background-image: linear-gradient($candy-pink-deep, $candy-pink-deep);
         background-repeat: no-repeat;
         // background-size set inline from the current volume.
-
-        &::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            height: 12px;
-            width: 12px;
-            border-radius: 50%;
-            background: #fff;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.15s ease;
-        }
-
-        &::-moz-range-thumb {
-            height: 12px;
-            width: 12px;
-            border: none;
-            border-radius: 50%;
-            background: #fff;
-            cursor: pointer;
-            opacity: 0;
-        }
-
-        &:hover {
-            background-image: linear-gradient($brand-green, $brand-green);
-
-            &::-webkit-slider-thumb {
-                opacity: 1;
-            }
-            &::-moz-range-thumb {
-                opacity: 1;
-            }
-        }
     }
 
     @include allPhones {

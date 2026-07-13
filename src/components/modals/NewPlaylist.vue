@@ -172,13 +172,6 @@ function create(e: Event) {
     margin: 0 auto;
     width: 8rem;
     padding: 1.25rem;
-    // font-weight: normal;
-    background-color: $white;
-    color: $black;
-
-    &:hover {
-      color: $white;
-    }
   }
 }
 </style>

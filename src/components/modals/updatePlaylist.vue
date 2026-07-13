@@ -198,8 +198,8 @@ function update_playlist(e: Event) {
     }
 
     .boxed {
-        border: solid 2px $gray4;
-        color: $gray1;
+        border: $candy-border;
+        color: $candy-text-muted;
         place-items: center;
         display: grid;
         grid-template-columns: 1fr max-content;
@@ -208,7 +208,7 @@ function update_playlist(e: Event) {
     .banner-settings {
         font-weight: 500;
         padding: 1rem;
-        background-color: $gray5;
+        @include candy-box($candy-pink-soft, $candy-radius-sm);
         display: grid;
         grid-template-columns: 1fr max-content;
         align-items: center;
@@ -263,7 +263,7 @@ function update_playlist(e: Event) {
             place-items: center;
             place-content: center;
             border-radius: $small;
-            border: dashed 1px $gray4;
+            border: dashed 2px $candy-black;
             cursor: pointer;
             padding: $medium;
 
@@ -277,7 +277,7 @@ function update_playlist(e: Event) {
             position: absolute;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.521);
+            background-color: $candy-text-faint;
             border-radius: $small;
             transition: all 0.2s ease-out;
             display: flex;
@@ -287,16 +287,17 @@ function update_playlist(e: Event) {
 
             svg {
                 transform: scale(1);
-                color: rgb(255, 255, 255);
+                color: $candy-white;
                 transition: transform 0.2s ease-out;
             }
 
             &:hover {
-                background-color: $red;
+                background-color: $candy-pink-deep;
 
                 svg {
                     transform: scale(1.25);
                     transform-origin: center;
+                    color: $candy-black;
                 }
             }
         }
@@ -321,8 +322,8 @@ function update_playlist(e: Event) {
                 aspect-ratio: 1;
                 height: 2rem;
                 width: 2rem;
-                border: none;
-                background-color: $gray4;
+                border: $candy-border;
+                background-color: $candy-pink;
                 padding: 0;
 
                 &:first-child {
@@ -334,7 +335,7 @@ function update_playlist(e: Event) {
                 }
 
                 &:hover {
-                    background-color: $blue;
+                    background-color: $candy-pink-deep;
                 }
             }
         }
