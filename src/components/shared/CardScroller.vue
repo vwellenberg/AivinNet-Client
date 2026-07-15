@@ -160,9 +160,9 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
         }
     }
 
-    .p-card {
-        background-color: transparent;
-    }
+    // Playlist cards keep their white candy-box here — the old dark design
+    // flattened them to transparent inside scroller rows, which let the page
+    // ground (indigo in dark) bleed through the card.
 
     .rinfo {
         padding: 0 $medium;
