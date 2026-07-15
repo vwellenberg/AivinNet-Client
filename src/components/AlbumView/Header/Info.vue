@@ -65,6 +65,8 @@ onBeforeRouteUpdate(() => {
       font-size: 14px;
       font-weight: 700;
       text-transform: capitalize;
+      // Header text sits on the page ground -> theme-aware.
+      color: $mem-content-muted;
     }
 
     .title {
@@ -72,6 +74,7 @@ onBeforeRouteUpdate(() => {
       font-weight: 700;
       width: fit-content;
       cursor: text;
+      color: $mem-content-text;
     }
 
     .artist {

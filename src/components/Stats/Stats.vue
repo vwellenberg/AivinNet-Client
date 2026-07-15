@@ -90,7 +90,8 @@ defineOptions({
     display: flex;
     align-items: center;
     gap: $small;
-    color: $gray1;
+    // Date range caption sits on the page ground -> theme-aware muted.
+    color: $mem-content-muted;
     padding: 1rem;
     text-transform: uppercase;
     font-size: 0.75rem;

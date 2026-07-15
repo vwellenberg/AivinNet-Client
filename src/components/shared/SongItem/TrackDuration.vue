@@ -88,8 +88,11 @@ defineEmits<{
         visibility: visible;
 
         svg {
-            // Match the standard favorited check-circle (HeartSvg): ink.
-            color: $mem-ink;
+            // Inline favorited check-circle. It sits on the page ground, so use
+            // the theme-aware content colour (ink on paper, white on indigo) —
+            // plain ink would nearly vanish on the dark indigo ground. Filled
+            // rows re-pin ink in SongItem.vue.
+            color: $mem-content-text;
         }
     }
 
@@ -97,6 +100,9 @@ defineEmits<{
         font-size: small;
         font-variant-numeric: tabular-nums;
         text-align: left;
+        // On the page ground -> theme-aware muted. Filled rows re-pin
+        // ink-muted in SongItem.vue.
+        color: $mem-content-muted;
 
         @include mediumPhones {
             display: none;
@@ -131,7 +137,10 @@ defineEmits<{
         transition: background-color 0.2s ease-out;
 
         svg {
-            stroke: $gray1;
+            // Always-visible options glyph on the page ground -> theme-aware
+            // muted so it stays legible on the dark indigo ground. Filled rows
+            // re-pin ink-muted in SongItem.vue.
+            stroke: $mem-content-muted;
         }
 
         &:hover {

@@ -67,6 +67,8 @@ export default defineStore('settings', {
         use_legacy_streaming_endpoint: false,
 
         // layout
+        // Memphis theme: 'light' = grid paper, 'dark' = classic-90s indigo.
+        theme: <'light' | 'dark'>'light',
         // INFO: Default to alternate layout from v2.0.0
         layout: 'alternate',
         use_np_img: false,
@@ -112,6 +114,13 @@ export default defineStore('settings', {
         },
         setArtistSeparators(separators: string[]) {
             this.separators = separators
+        },
+        // theme 👇
+        setTheme(theme: 'light' | 'dark') {
+            this.theme = theme
+        },
+        toggleTheme() {
+            this.theme = this.theme === 'light' ? 'dark' : 'light'
         },
         // now playing 👇
         toggleUseNPImg() {

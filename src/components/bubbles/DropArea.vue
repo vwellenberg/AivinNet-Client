@@ -8,7 +8,8 @@
 
 <style lang="scss">
 .bin-drop-area {
-  color: $mem-ink;
+  // Drop target renders over an arbitrary page ground -> theme-aware.
+  color: $mem-content-text;
   padding: $medium;
   border-radius: $small;
   height: 5rem;

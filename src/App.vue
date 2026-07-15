@@ -97,6 +97,16 @@ watch(
     { immediate: true }
 );
 
+// Memphis theme: body.theme-dark flips the --mem-* custom properties
+// (Global/index.scss) to the classic-90s indigo dark look.
+watch(
+    () => settings.theme,
+    (theme) => {
+        document.body.classList.toggle("theme-dark", theme === "dark");
+    },
+    { immediate: true }
+);
+
 router.afterEach(() => {
     (document.getElementById("acontent") as HTMLElement).scrollTo(0, 0);
 });

@@ -88,5 +88,16 @@ onBeforeUnmount(() => {
 .queue-virtual-scroller {
   height: 100%;
   overflow: hidden;
+
+  // The queue is a white panel, so the "No songs in queue" empty state must
+  // keep ink text (NoItems defaults to the theme-aware ground colour, which
+  // would go white-on-white here in dark mode).
+  .nothing {
+    color: $candy-text;
+
+    p {
+      color: $candy-text-muted;
+    }
+  }
 }
 </style>

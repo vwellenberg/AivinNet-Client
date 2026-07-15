@@ -89,6 +89,9 @@ const browselist: BrowseItem[] = [
     font-size: 1.15rem;
     margin-bottom: 1rem;
     padding-left: 0.25rem;
+    // "Browse Library" heading sits on the page ground -> theme-aware.
+    // (The .browseitem tiles below are white candy-boxes -> stay ink.)
+    color: $mem-content-text;
   }
 
   .browselist {

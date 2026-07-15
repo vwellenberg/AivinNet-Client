@@ -27,11 +27,14 @@ defineProps<{
   max-width: 25rem;
   margin: 0 auto;
   display: grid;
-  color: $candy-text;
+  // Empty states are shown mostly at page level (over the page ground), so use
+  // theme-aware colours. The few white-panel hosts (queue, right-sidebar
+  // search) re-pin ink via local overrides in those components.
+  color: $mem-content-text;
 
   p {
     word-break: break-word;
-    color: $candy-text-muted;
+    color: $mem-content-muted;
   }
 
   .nothingtitle {

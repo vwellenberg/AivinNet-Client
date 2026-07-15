@@ -133,7 +133,8 @@ onMounted(async () => {
         font-weight: 900;
 
         margin: $medium 1.2rem;
-        color: $candy-text-muted;
+        // Scrobble summary row renders on the page ground -> theme-aware muted.
+        color: $mem-content-muted;
 
         .date {
             display: flex;
@@ -146,7 +147,7 @@ onMounted(async () => {
         }
 
         .scrobbleinfo-trend {
-            color: $candy-text-muted;
+            color: $mem-content-muted;
             display: flex;
             align-items: center;
             gap: $small;
@@ -158,12 +159,12 @@ onMounted(async () => {
 
         .trend.rising {
             transform: rotate(90deg);
-            color: $candy-text;
+            color: $mem-content-text;
         }
 
         .trend.falling {
             transform: rotate(-90deg);
-            color: $candy-text;
+            color: $mem-content-text;
         }
     }
 }

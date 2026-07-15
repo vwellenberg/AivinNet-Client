@@ -97,30 +97,31 @@ onMounted(() => {
   }
 
   .nolyrics {
-    color: $candy-text-muted;
+    // Lyric lines and messages sit on the page ground -> theme-aware.
+    color: $mem-content-muted;
     margin-bottom: 1rem;
   }
 
   .line {
     margin-top: 1rem;
-    color: $candy-text-muted;
+    color: $mem-content-muted;
     cursor: pointer;
     width: fit-content;
     opacity: 1;
     transition: opacity 2s ease-in-out;
 
     &:hover {
-      color: $candy-black;
+      color: $mem-content-text;
     }
   }
 
   .currentLine {
-    color: $candy-black;
+    color: $mem-content-text;
     font-weight: 700;
   }
 
   .seenLine {
-    color: $candy-text-faint;
+    color: $mem-content-faint;
   }
 
   #lyricsline--1 {

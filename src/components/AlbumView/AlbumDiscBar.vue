@@ -35,6 +35,10 @@ defineEmits<{
     .disc_number {
         font-size: $medium;
         font-weight: 500;
+        // Disc divider caption + its "Play Disc" hover action sit on the page
+        // ground -> theme-aware (opacity provides the muting). The nested
+        // .play span/svg inherit this colour.
+        color: $mem-content-text;
         opacity: 0.75;
         display: flex;
     }

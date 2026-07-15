@@ -13,5 +13,10 @@
     "blush": "#F5C6CE",
     "blushSoft": "#FBE3E7",
     "textMuted": "#6D6A62"
+  },
+  "memphisDark": {
+    "ground": "#4547C9",
+    "contentText": "#FFFFFF",
+    "contentMuted": "#D9D9F2"
   }
 }
