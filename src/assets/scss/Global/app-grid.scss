@@ -48,7 +48,10 @@ $g-border: solid $candy-border-w $candy-black;
 .topnav {
     grid-area: nav;
     height: $navheight;
-    padding: 1rem $padleft;
+    // No vertical padding: the 3rem children (search pill, home button) are
+    // taller than the padded content box would be — they'd overflow downward
+    // and sit visibly below center. The grid centers them instead (NavBar.vue).
+    padding: 0 $padleft;
     padding-right: $padright;
     // Continuous white top bar with the candy border underneath.
     background-color: $candy-white;
