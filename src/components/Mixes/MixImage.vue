@@ -57,6 +57,11 @@ function getImageUrl(image: any, is_extra: boolean = false) {
         z-index: 1;
         left: $small;
         color: $candy-text;
+        // Candy plate behind the label — the overlay sits on the artist-photo
+        // collage, which can be arbitrarily dark; black text needs a surface.
+        @include candy-box($candy-pink-soft, $candy-radius-sm);
+        border-width: 1px;
+        padding: $smaller $small;
 
         .type {
             font-size: 0.9rem;

@@ -23,6 +23,7 @@
 import { Ref, onMounted, ref } from 'vue'
 import QRCodeStyling from 'qr-code-styling'
 import { sendPairRequest } from '@/requests/auth'
+import { CANDY } from '@/utils/colortools/pageGradient'
 
 const qrLoaded = ref(false)
 // @ts-expect-error
@@ -38,7 +39,7 @@ async function renderQrCode(code: string) {
         data: data,
         image: '/logo-fill.light.svg',
         dotsOptions: {
-            color: '#111111',
+            color: CANDY.black,
             type: 'extra-rounded',
         },
         backgroundOptions: {

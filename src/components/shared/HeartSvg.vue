@@ -32,7 +32,6 @@ import PlusSvg from '@/assets/icons/plus.svg'
 defineProps<{
     state: Boolean | undefined
     no_emit?: Boolean
-    color?: string
 }>()
 
 defineEmits<{

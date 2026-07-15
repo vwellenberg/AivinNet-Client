@@ -1,7 +1,7 @@
 <template>
   <div class="playlist-info">
     <div class="btns">
-      <PlayBtnRect :source="playSources.playlist" :bg_color="btn_color" />
+      <PlayBtnRect :source="playSources.playlist" />
       <button class="download-btn" @click="downloadPlaylist" title="Download as ZIP">
         <span v-html="DownloadIcon" class="icon"></span>
       </button>
@@ -40,10 +40,6 @@ import { balanceText } from "@/utils/balanceText";
 import { Ref, ref } from "vue";
 
 const playlist = usePStore();
-
-defineProps<{
-  btn_color?: string;
-}>();
 
 const test_elem: Ref<HTMLElement | null> = ref(null);
 

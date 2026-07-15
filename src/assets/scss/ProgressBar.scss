@@ -13,12 +13,18 @@ input[type='range'] {
     &::-webkit-slider-thumb {
         -webkit-appearance: none;
 
+        // The global `* { box-sizing: border-box }` reset does NOT reach
+        // pseudo-elements — set it here so the 2px border stays inside the
+        // 1.1rem circle and the centering math below holds on WebKit.
+        box-sizing: border-box;
         height: 1.1rem;
         width: 1.1rem;
         border-radius: 50%;
         background: $candy-white;
         border: $candy-border-w solid $candy-black;
-        margin-top: -0.35rem;
+        // Center on the track: (track content 0.6rem - 2*2px ≈ 5.6px
+        // minus thumb 17.6px) / 2 = -6px.
+        margin-top: -0.375rem;
     }
 
     &::-moz-range-thumb {

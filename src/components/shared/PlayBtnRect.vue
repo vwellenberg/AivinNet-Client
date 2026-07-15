@@ -1,8 +1,6 @@
 <template>
-    <!-- Primary "Play" CTA: a bold black candy button with white label + glyph.
-         The bg_color prop (green/white/cover-derived from call sites) is
-         deliberately ignored so every header CTA shares one consistent look;
-         the prop stays in the API to avoid breaking callers. -->
+    <!-- Primary "Play" CTA: a bold black candy button with white label + glyph,
+         one consistent look on every header. -->
     <button
         v-wave
         class="playbtnrect shadow-sm circular btn-active"
@@ -21,7 +19,6 @@ import { playFrom } from '@/helpers/usePlayFrom'
 
 defineProps<{
     source: playSources
-    bg_color?: string
 }>()
 </script>
 

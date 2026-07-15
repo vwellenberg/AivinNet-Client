@@ -16,9 +16,6 @@ import PinFillSvg from '@/assets/icons/pin.fill.svg'
 
 defineProps<{
   pinned: boolean | undefined
-  // Legacy prop (unpinned icon colour) kept for API compatibility; the candy
-  // design always renders the icon black, so this is no longer applied.
-  color?: string
 }>()
 
 defineEmits<{

@@ -2,6 +2,7 @@
   <span
     v-if="bitrate > 1024"
     class="master-flag"
+    :class="{ fill }"
     :title="!text ? 'Master audio bitrate - ' + `${bitrate} Kbps` : ''"
     >{{ text ? text : "M" }}</span
   >
@@ -11,8 +12,6 @@
 defineProps<{
   bitrate: number;
   text?: string;
-  bg_color?: string;
-  text_color?: string;
   fill?: boolean;
 }>();
 </script>
@@ -28,5 +27,10 @@ defineProps<{
   background-color: $candy-lavender;
   border: 1px solid $candy-black;
   color: $candy-black;
+
+  // Highlighted variant (e.g. the primary version chip on album headers).
+  &.fill {
+    background-color: $candy-pink-deep;
+  }
 }
 </style>

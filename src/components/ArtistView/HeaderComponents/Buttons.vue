@@ -24,10 +24,6 @@ import MoreSvg from "@/assets/icons/more.svg";
 import HeartSvg from "@/components/shared/HeartSvg.vue";
 import PlayBtnRect from "@/components/shared/PlayBtnRect.vue";
 
-defineProps<{
-  useCircularImage?: boolean;
-}>();
-
 const artist = useArtistPageStore();
 const context_menu_showing = ref(false);
 

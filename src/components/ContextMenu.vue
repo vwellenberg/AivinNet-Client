@@ -89,6 +89,9 @@ context.$subscribe((mutation, state) => {
 
   .critical {
     color: $candy-text;
+    // No red in the candy palette — bold weight marks destructive entries
+    // at rest, the deeper pink hover marks them on approach.
+    font-weight: 700;
     transition: background-color 0.2s ease-out, color 0.2s ease-out;
 
     &:hover {

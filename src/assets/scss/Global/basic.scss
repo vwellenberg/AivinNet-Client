@@ -136,7 +136,7 @@ button {
 }
 
 .separator {
-  border-top: 1px rgba(17, 17, 17, 0.25) solid;
+  border-top: 1px $separator solid;
   color: transparent;
   margin: $small 0 $small 0;
   opacity: 1;

@@ -11,7 +11,7 @@
                 {{ mix.trackcount }} track{{ mix.trackcount === 1 ? '' : 's' }} ▸ {{ mix.duration }}
             </div>
             <div class="buttons">
-                <PlayBtnRect :source="playSources.mix" :bg_color="'#fff'" @click.prevent="$emit('playThis')" />
+                <PlayBtnRect :source="playSources.mix" @click.prevent="$emit('playThis')" />
                 <button class="savebtn" :title="saved ? 'Saved Mix' : 'Save Mix'" @click="saveMix">
                     <SaveFilledSvg v-if="saved" />
                     <SaveSvg v-else />
