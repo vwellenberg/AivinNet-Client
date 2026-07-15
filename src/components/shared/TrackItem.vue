@@ -109,23 +109,23 @@ onBeforeUnmount(() => {
 .track-item.currentInQueue {
   position: relative;
   overflow: hidden;
-  background-color: $candy-pink;
+  background-color: $mem-yellow;
   border: $candy-border;
   border-radius: $candy-radius-sm;
   // Absorb the 2px border into the queue's fixed 64px row slot.
   padding-top: calc(#{$small} - #{$candy-border-w});
   padding-bottom: calc(#{$small} - #{$candy-border-w});
 
-  // Signature candy accent: candy-stripe strip along the bottom edge.
+  // Signature memphis accent: bunting-style zigzag strip along the bottom edge.
   &::after {
     content: "";
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 6px;
+    height: 9px;
     pointer-events: none;
-    @include candy-stripes($candy-pink-deep, $candy-white, 8px);
+    @include mem-zigzag($mem-ink);
   }
 }
 

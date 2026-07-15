@@ -68,16 +68,15 @@ const handleMouseWheel = (event: WheelEvent) => {
         }
     }
 
-    // Horizontal volume slider. Track pill, 2px black border and the white
-    // bordered thumb all come from the global candy range styling
-    // (ProgressBar.scss). Only the played-volume fill is painted here — a flat
-    // deeper-pink band (no stripes for volume) clipped by the inline
-    // background-size from the current volume level.
+    // Horizontal volume slider. Track pill, 2px ink border and the white
+    // bordered thumb all come from the global range styling (ProgressBar.scss).
+    // Only the played-volume fill is painted here — a flat teal band clipped by
+    // the inline background-size from the current volume level.
     .volume-slider {
         width: 6rem;
         min-width: 4rem;
         margin-right: 0; // neutralise the global range's 15px right margin
-        background-image: linear-gradient($candy-pink-deep, $candy-pink-deep);
+        background-image: linear-gradient($mem-teal, $mem-teal);
         background-repeat: no-repeat;
         // background-size set inline from the current volume.
     }

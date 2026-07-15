@@ -88,7 +88,8 @@ defineEmits<{
         visibility: visible;
 
         svg {
-            color: $candy-pink-deep;
+            // Match the standard favorited check-circle (HeartSvg): ink.
+            color: $mem-ink;
         }
     }
 

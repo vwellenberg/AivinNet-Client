@@ -169,10 +169,11 @@ onMounted(() => {
 
     .scroller > div.vue-recycle-scroller__slot:first-child {
         padding: 1rem 0;
-        // Opaque sticky breadcrumb band on the flat pink surface — tracks pass
-        // behind it, so it can't be transparent. Candy brutalism is flat: no
-        // blur, a hard bottom border marks the edge.
-        background-color: $candy-pink;
+        // Opaque sticky breadcrumb band over the grid-paper ground — tracks pass
+        // behind it, so it must be opaque paper (not transparent, or the grid
+        // would show through). The design is flat: no blur, a hard ink bottom
+        // border marks the edge.
+        background-color: $mem-paper;
         border-bottom: $candy-border;
         position: sticky;
         top: 0;

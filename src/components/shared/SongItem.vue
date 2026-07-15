@@ -274,12 +274,12 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 }
 
 .songlist-item.current {
-    background-color: $candy-pink;
+    background-color: $mem-yellow;
     border: $candy-border;
     border-radius: $candy-radius-sm;
     overflow: hidden;
 
-    // Signature candy accent: a diagonal candy-stripe strip along the bottom
+    // Signature memphis accent: a bunting-style zigzag strip along the bottom
     // edge of the currently-playing row.
     &::after {
         content: "";
@@ -287,9 +287,9 @@ const isFavoritesPage = route.path.startsWith('/favorites')
         left: 0;
         right: 0;
         bottom: 0;
-        height: 6px;
+        height: 9px;
         pointer-events: none;
-        @include candy-stripes($candy-pink-deep, $candy-white, 8px);
+        @include mem-zigzag($mem-ink);
     }
 }
 

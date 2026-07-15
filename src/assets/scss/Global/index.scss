@@ -25,7 +25,7 @@ html {
     cursor: default !important;
     overflow: hidden;
     color: $candy-text;
-    background-color: $candy-pink;
+    background-color: $mem-paper;
 
     & > * {
         overflow: visible !important;
@@ -57,7 +57,7 @@ body {
     width: 100dvw;
     overflow: hidden;
     margin: 0;
-    background-color: $candy-pink;
+    background-color: $mem-paper;
     color-scheme: light;
 
     #app {
