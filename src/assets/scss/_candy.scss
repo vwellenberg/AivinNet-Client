@@ -88,9 +88,11 @@ $candy-radius-pill: 999px; // pills, sliders
 
 // Zigzag accent strip (replaces the candy stripes) — give the host element a
 // fixed height (~8-10px) and this paints a bunting-style zigzag edge.
+// The `position / size` slashes are interpolated so Sass doesn't parse them
+// as division.
 @mixin mem-zigzag($color: $mem-ink, $h: 9px, $w: 14px) {
-  background: linear-gradient(-45deg, transparent 72%, $color 0) 0 0 / $w $h repeat-x,
-    linear-gradient(45deg, transparent 72%, $color 0) ($w * 0.5) 0 / $w $h repeat-x;
+  background: linear-gradient(-45deg, transparent 72%, $color 0) 0 0 #{"/"} #{$w} #{$h} repeat-x,
+    linear-gradient(45deg, transparent 72%, $color 0) #{$w * 0.5} 0 #{"/"} #{$w} #{$h} repeat-x;
 }
 
 // DEPRECATED (candy design): diagonal candy stripes. Superseded by
