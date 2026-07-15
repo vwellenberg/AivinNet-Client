@@ -130,8 +130,10 @@ onBeforeUnmount(() => {
 }
 
 .contexton {
-  background-color: $gray4;
-  color: $white !important;
+  background-color: $candy-pink-soft;
+  // Same ink box as hover/playing rows — marked rows are always framed.
+  border: $candy-border;
+  border-radius: $candy-radius-sm;
 }
 
 .track-item {

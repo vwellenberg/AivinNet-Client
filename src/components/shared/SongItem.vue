@@ -218,6 +218,13 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     user-select: none;
     padding-left: $small;
     position: relative;
+    // Text sits directly on the page ground (grid area) -> theme-aware so it
+    // turns white on the dark indigo ground. Filled row states (hover/current/
+    // contexton) pin ink below (see the combined selector after this rule).
+    color: $mem-content-text;
+    // Transparent placeholder so the ink box on hover/marked/playing rows
+    // never shifts the content.
+    border: $candy-border-w solid transparent;
     transition: background-color 0.2s ease-out;
 
     // Plays column (issue #68): inserted between album and duration. Only set
@@ -245,6 +252,7 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 
     &:hover {
         background-color: $candy-white;
+        border-color: $candy-black;
         border-radius: $candy-radius-sm;
 
         .song-duration.has_help_text {
@@ -295,6 +303,36 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 
 .songlist-item.contexton {
     background-color: $candy-pink-soft !important;
+    // Consistent with hover/playing rows: marked rows always carry the ink box.
+    border-color: $candy-black;
+    border-radius: $candy-radius-sm;
+}
+
+// Filled row states (white hover / yellow playing / blush marked): the base
+// row text is $mem-content-text (white on the dark ground), so pin ink for the
+// text and icons that now render over a light fill. The muted children carry
+// explicit content tokens (album/duration) that the row `color` can't cascade
+// into, so they get explicit ink-muted here; the opacity-based children
+// (index/plays/date/artist) inherit the row ink automatically.
+.songlist-item:hover,
+.songlist-item.current,
+.songlist-item.contexton {
+    color: $mem-ink;
+
+    .song-album,
+    .song-duration {
+        color: $mem-text-muted;
+    }
+
+    .options-and-duration {
+        .heart-icon.is_fav svg {
+            color: $mem-ink;
+        }
+
+        .options-icon svg {
+            stroke: $mem-text-muted;
+        }
+    }
 }
 
 .songlist-item.drag-over-top {

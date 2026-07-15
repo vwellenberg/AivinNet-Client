@@ -39,6 +39,10 @@ function deletePlaylist() {
     border-radius: $smaller;
     z-index: 12;
 
+    // Sits on the playlist header ground (square-image mode) -> theme-aware.
+    // Banner-image mode overrides to $candy-white in Header.vue.
+    color: $mem-content-text;
+
     display: flex;
     align-items: center;
 
@@ -55,7 +59,7 @@ function deletePlaylist() {
     svg {
         transform: scale(0.75);
         margin-bottom: -0.2rem;
-        color: $red !important;
+        color: $mem-content-text !important;
         height: 1.5rem;
     }
 }

@@ -53,6 +53,18 @@ const settings = useSettingsStore();
     padding-left: $small;
     transition: background-color 0.2s ease-out;
 
+    // List mode rows are transparent -> they sit on the page ground, so their
+    // text/icon must be theme-aware (grid mode keeps ink on the pink card).
+    color: $mem-content-text;
+
+    svg {
+      color: $mem-content-text;
+    }
+
+    .f-count {
+      color: $mem-content-muted;
+    }
+
     .options {
       display: block;
       background-color: transparent !important;
@@ -65,8 +77,18 @@ const settings = useSettingsStore();
       padding-right: $medium;
     }
 
+    // Blush-soft hover fill -> pin ink back.
     &:hover {
       background-color: $candy-pink-soft !important;
+      color: $mem-ink;
+
+      svg {
+        color: $candy-black;
+      }
+
+      .f-count {
+        color: $candy-text-muted;
+      }
     }
   }
 }

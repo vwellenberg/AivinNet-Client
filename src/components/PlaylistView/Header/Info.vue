@@ -64,7 +64,10 @@ function pinPlaylist(pid: number) {
   padding: 0 1.25rem;
   display: flex;
   flex-direction: column-reverse;
-  color: $candy-text;
+  // Square-image / gradient mode: title/meta sit on the page ground -> theme
+  // aware (type & duration mute via opacity). Banner-image mode overrides this
+  // to $candy-white in Header.vue (higher specificity), which is preserved.
+  color: $mem-content-text;
 
   .type {
     font-size: small;

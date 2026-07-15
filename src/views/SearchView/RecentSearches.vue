@@ -68,11 +68,14 @@ function clearAll() {
 
     h3 {
       margin: 0;
+      // "Recent searches" heading on the page ground -> theme-aware.
+      color: $mem-content-text;
     }
 
     .recent-clear {
       background: transparent;
-      color: $candy-text-muted;
+      // Transparent text button on the page ground -> theme-aware muted.
+      color: $mem-content-muted;
       font-size: 0.85rem;
       text-decoration: underline;
       cursor: pointer;

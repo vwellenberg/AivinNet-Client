@@ -171,19 +171,20 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
         .rtitle {
             font-size: 1.15rem;
             font-weight: 700;
-            color: $candy-text;
+            // Section heading rows sit on the page ground -> theme-aware.
+            color: $mem-content-text;
             display: flex;
             align-items: baseline;
             justify-content: space-between;
 
             a {
-                color: $candy-text;
+                color: $mem-content-text;
             }
         }
 
         .rdesc {
             font-size: 0.9rem;
-            color: $candy-text-muted;
+            color: $mem-content-muted;
             display: flex;
             align-items: baseline;
             justify-content: space-between;

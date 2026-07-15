@@ -29,6 +29,26 @@ $mem-blush: #f5c6ce !default; // soft fills (nav active, buttons)
 $mem-blush-soft: #fbe3e7 !default; // input fills, hover on white
 $mem-text-muted: #6d6a62 !default; // subtitles, captions
 
+// Dark theme ("classic 90s": indigo ground, reference image 2) — only the
+// roles that CHANGE between themes; accents/panels/ink stay identical.
+$mem-dark-ground: #4547c9 !default;
+$mem-dark-content-text: #ffffff !default;
+$mem-dark-content-muted: #d9d9f2 !default;
+
+// ---------------------------------------------------------------------------
+// THEME-DEPENDENT roles — runtime-switchable via CSS custom properties.
+// Global/index.scss defines --mem-* on :root (light values) and overrides
+// them under body.theme-dark. Use these tokens for anything that sits
+// DIRECTLY on the page ground (the grid): ground fills, sticky bands, and
+// text/icons painted over the grid. Panels (white), ink borders and the
+// accent colours are theme-INDEPENDENT — keep using the static tokens there.
+// NEVER run these through Sass colour functions (they are var() references).
+// ---------------------------------------------------------------------------
+$mem-ground: var(--mem-ground);
+$mem-content-text: var(--mem-content-text);
+$mem-content-muted: var(--mem-content-muted);
+$mem-content-faint: var(--mem-content-faint);
+
 // ---------------------------------------------------------------------------
 // LEGACY candy aliases (values also injected from JSON — kept for the ~100
 // existing usages; new code should prefer $mem-*).
@@ -71,10 +91,12 @@ $candy-radius-pill: 999px; // pills, sliders
 
 // Grid-paper ground — THE signature surface. Apply to the page ground only
 // (one owner per screen region; nested grids drift out of alignment).
-@mixin mem-grid($line: rgba($mem-ink, 0.3), $size: 42px, $w: 1.5px) {
-  background-color: $mem-paper;
-  background-image: linear-gradient($line $w, transparent $w),
-    linear-gradient(90deg, $line $w, transparent $w);
+// Theme-aware: light = ink grid on paper, dark = plain indigo (the grid line
+// var is transparent there, like the indigo reference art).
+@mixin mem-grid($size: 42px, $w: 1.5px) {
+  background-color: $mem-ground;
+  background-image: linear-gradient(var(--mem-grid-line) $w, transparent $w),
+    linear-gradient(90deg, var(--mem-grid-line) $w, transparent $w);
   background-size: $size $size;
 }
 

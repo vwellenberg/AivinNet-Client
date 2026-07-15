@@ -44,6 +44,8 @@ defineProps<{
     .section-title {
         margin-left: 0;
         align-items: baseline;
+        // Section heading over the page ground -> theme-aware.
+        color: $mem-content-text;
     }
 
     .section-title.isSmall {
@@ -52,7 +54,8 @@ defineProps<{
 
     .error {
         padding-left: 1rem;
-        color: $red;
+        // "No tracks" fallback sits on the page ground -> theme-aware muted.
+        color: $mem-content-muted;
     }
 
     h3 {

@@ -112,7 +112,8 @@ function getRouterParams() {
     .index {
         font-size: 1.25rem;
         font-weight: 900;
-        color: $candy-text-muted;
+        // Chart rows render directly on the page ground -> theme-aware.
+        color: $mem-content-muted;
         text-align: right;
     }
 
@@ -136,11 +137,12 @@ function getRouterParams() {
         .title {
             font-size: 1rem;
             font-weight: bold;
+            color: $mem-content-text;
         }
 
         .artist {
             font-size: 0.85rem;
-            color: $candy-text-muted;
+            color: $mem-content-muted;
             margin-top: 0.2rem;
         }
     }
@@ -160,12 +162,13 @@ function getRouterParams() {
 
     .trend.rising {
         transform: rotate(90deg);
-        color: $candy-text;
+        // Trend arrow over the page ground -> theme-aware.
+        color: $mem-content-text;
     }
 
     .trend.falling {
         transform: rotate(-90deg);
-        color: $candy-text;
+        color: $mem-content-text;
     }
 
     .is_new {
@@ -174,7 +177,7 @@ function getRouterParams() {
 
     .helptext {
         font-size: 0.75rem;
-        color: $candy-text-muted;
+        color: $mem-content-muted;
         text-align: right;
         text-transform: uppercase;
         font-weight: bold;
