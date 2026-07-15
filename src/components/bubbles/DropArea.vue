@@ -8,8 +8,7 @@
 
 <style lang="scss">
 .bin-drop-area {
-  // background-color: $gray;
-  color: $pink;
+  color: $mem-ink;
   padding: $medium;
   border-radius: $small;
   height: 5rem;
