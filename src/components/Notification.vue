@@ -117,6 +117,12 @@ function getSvg(notif: NotifType) {
 }
 
 .new-notif.error {
-    background-color: $candy-pink-deep;
+    // Coral is the danger hue — yellow is reserved for active/playing states.
+    background-color: $mem-coral;
+    color: $candy-white;
+
+    .notif-icon {
+        color: $candy-white;
+    }
 }
 </style>

@@ -38,7 +38,14 @@ defineProps<{
     }
 
     .confirm {
-        background-color: $candy-pink-deep;
+        // Destructive action — coral (danger), not the yellow active accent.
+        background-color: $mem-coral;
+        color: $candy-white;
+
+        &:hover {
+            background-color: $mem-coral;
+            opacity: 0.9;
+        }
     }
 }
 </style>
