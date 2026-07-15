@@ -101,7 +101,7 @@ const browselist: BrowseItem[] = [
   .browseitem {
     font-weight: 500;
     padding: 1.25rem 1rem;
-    @include candy-box($candy-pink, $candy-radius-sm);
+    @include candy-box($mem-panel, $candy-radius-sm);
     color: $candy-text;
     transition: background-color 0.2s ease-out;
 
@@ -130,7 +130,7 @@ const browselist: BrowseItem[] = [
   }
 
   .browseitem:hover {
-    background-color: $candy-pink-deep;
+    background-color: $mem-blush;
   }
 }
 </style>

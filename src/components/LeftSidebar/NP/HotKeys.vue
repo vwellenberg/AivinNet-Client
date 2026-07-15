@@ -97,14 +97,14 @@ const settings = useSettings()
         transform: rotate(180deg) scale(0.85);
     }
 
-    // play / pause — pink candy rounded-square with a 2px black border and a
-    // black glyph (candy brutalism). The exception to the borderless transport
-    // icons; hover deepens to $candy-pink-deep.
+    // play / pause — teal memphis rounded-square with a 2px ink border and an
+    // ink glyph (primary action). The exception to the borderless transport
+    // icons; hover flips to $mem-yellow.
     .play {
         width: 2.5rem;
         height: 2.5rem;
         flex-shrink: 0;
-        @include candy-box($candy-pink, $candy-radius-sm);
+        @include candy-box($mem-teal, $candy-radius-sm);
         transition: transform 0.1s ease, background-color 0.2s ease-out;
 
         svg {
@@ -119,7 +119,7 @@ const settings = useSettings()
         }
 
         &:hover {
-            background-color: $candy-pink-deep;
+            background-color: $mem-yellow;
             transform: scale(1.06);
         }
 

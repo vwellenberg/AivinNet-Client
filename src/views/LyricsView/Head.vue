@@ -44,7 +44,10 @@ const lyrics = useLyrics();
   position: sticky;
   top: 0;
   z-index: 1;
-  background-color: $candy-pink;
+  // Opaque paper band over the scrolling grid ground (lyrics pass behind it),
+  // with a hard ink bottom edge like the folder breadcrumb band.
+  background-color: $mem-paper;
+  border-bottom: $candy-border;
 
   @include allPhones {
     padding: $large 0;

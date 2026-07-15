@@ -39,7 +39,10 @@ $g-border: solid $candy-border-w $candy-black;
     overflow: hidden;
     margin-right: $margright;
     z-index: 0;
-    background-color: $candy-pink;
+    // THE memphis ground: grid paper. Pages/scrollers above are transparent
+    // so this single grid shows through everywhere (no nested grids — they
+    // would drift out of alignment).
+    @include mem-grid;
     border: $candy-border;
     border-bottom: none;
     border-radius: $candy-radius $candy-radius 0 0;
@@ -243,9 +246,10 @@ $g-border: solid $candy-border-w $candy-black;
     // --page-gradient. The decor is absolutely positioned so it spans the
     // scroller's full padding box — painting the item wrapper instead left
     // unpainted bands where the scroller has horizontal padding.
-    // Candy design: flat pink (pageGradient() now returns the same flat
-    // colour, so the decor is invisible — kept for a future re-theme).
-    background-color: $candy-pink;
+    // Memphis design: transparent — the grid-paper ground on #acontent shows
+    // through (pageGradient() returns 'transparent'; decor kept for a future
+    // re-theme).
+    background-color: transparent;
 
     .page-gradient-decor {
         position: absolute;

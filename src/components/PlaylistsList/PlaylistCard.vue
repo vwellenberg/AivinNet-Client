@@ -43,7 +43,7 @@ defineProps<{
   user-select: none;
   height: max-content;
   transition: background-color 0.2s ease-out;
-  @include candy-box($candy-pink, $candy-radius);
+  @include candy-box($mem-panel, $candy-radius);
 
   .image {
     position: relative;
@@ -55,7 +55,7 @@ defineProps<{
   @include card-play-btn;
 
   &:hover {
-    background-color: $candy-pink-deep !important;
+    background-color: $mem-blush !important;
   }
 
   img {

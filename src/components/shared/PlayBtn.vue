@@ -76,19 +76,19 @@ function handlePlay() {
 .play-btn {
   aspect-ratio: 1;
   padding: 0;
-  background: $candy-white;
+  background: $mem-teal;
   border: $candy-border;
-  // Black play glyph on the white button; play.svg uses currentColor.
-  color: $candy-black;
+  // Ink play glyph on the teal button; play.svg uses currentColor.
+  color: $mem-ink;
   display: grid;
   place-items: center;
   @include candy-shadow(3px, 3px);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
-    // The global button:hover paints $candy-pink-deep — the play button
-    // swaps to pink and scales (same affordance as the bottom bar).
-    background-color: $candy-pink;
+    // Primary "play" CTA — keep the teal identity, just scale + deepen the
+    // hard shadow (no colour flip, matching the header Play button).
+    background-color: $mem-teal;
     transform: scale(1.06);
     @include candy-shadow(4px, 4px);
   }

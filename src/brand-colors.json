@@ -1,13 +1,17 @@
 {
   "green": "#1D9E75",
   "red": "#FF284E",
-  "candy": {
-    "pink": "#F5C6CE",
-    "pinkSoft": "#F9D7DC",
-    "pinkDeep": "#EFA9B6",
-    "white": "#FFFFFF",
-    "lavender": "#CDBCF4",
-    "black": "#111111",
-    "textMuted": "#8A5560"
+  "memphis": {
+    "ink": "#17171A",
+    "paper": "#F4F2ED",
+    "panel": "#FFFFFF",
+    "teal": "#2FBFA3",
+    "yellow": "#F5B23C",
+    "coral": "#E2574C",
+    "lavender": "#8B8BEB",
+    "pink": "#F2799F",
+    "blush": "#F5C6CE",
+    "blushSoft": "#FBE3E7",
+    "textMuted": "#6D6A62"
   }
 }

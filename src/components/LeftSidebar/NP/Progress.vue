@@ -52,7 +52,7 @@
 import { maxSeekPercent } from '@/stores/player'
 import useQStore from '@/stores/queue'
 import { formatSeconds } from '@/utils'
-import { CANDY } from '@/utils/colortools/pageGradient'
+import { MEMPHIS } from '@/utils/colortools/pageGradient'
 import { computed, reactive, ref } from 'vue'
 
 const q = useQStore()
@@ -149,18 +149,22 @@ const seek = (e: Event) => {
 
 const currentPercent = computed(() => (time.current / (time.full || 1)) * 100)
 
-// Seek bar background, layered so the played portion reads as diagonal candy
-// stripes over a soft-pink track:
-//   1. played [0..current%]  — candy stripes (pink-deep / white, -45deg, 10px)
-//   2. buffered [0..max%]     — flat $candy-pink, sits UNDER the stripes so it
-//                               only shows between the playhead and buffer edge
-//   3. track (base)           — flat $candy-pink-soft fills the remainder
-// The 2px black border, pill radius and white bordered thumb come from the
+// Seek bar background, layered so the played portion reads as a solid teal
+// fill (the memphis primary-action colour) over a soft-blush track:
+//   1. played [0..current%]  — flat $mem-teal
+//   2. buffered [0..max%]     — flat $mem-blush, sits UNDER the played fill so
+//                               it only shows between the playhead and buffer edge
+//   3. track (base)           — flat $mem-blush-soft fills the remainder
+// The 2px ink border, pill radius and white bordered thumb come from the
 // global range styling (ProgressBar.scss); this only paints the fill.
+// Decision: no sprinkle texture on the played fill — the layered-background
+// mechanism clips each layer to a percentage via background-size, which would
+// stretch the fixed-tile sprinkle SVG (or bleed it into the unplayed region if
+// tiled). Plain teal reads cleanly, so per the task's fallback we keep it flat.
 const progressBg = computed(() => {
-    const played = `repeating-linear-gradient(-45deg, ${CANDY.pinkDeep} 0 10px, ${CANDY.white} 10px 20px) left center / ${currentPercent.value}% 100% no-repeat`
-    const buffered = `linear-gradient(${CANDY.pink}, ${CANDY.pink}) left center / ${maxSeekPercent.value}% 100% no-repeat`
-    return `${played}, ${buffered}, ${CANDY.pinkSoft}`
+    const played = `linear-gradient(${MEMPHIS.teal}, ${MEMPHIS.teal}) left center / ${currentPercent.value}% 100% no-repeat`
+    const buffered = `linear-gradient(${MEMPHIS.blush}, ${MEMPHIS.blush}) left center / ${maxSeekPercent.value}% 100% no-repeat`
+    return `${played}, ${buffered}, ${MEMPHIS.blushSoft}`
 })
 
 // Seek target under the cursor, formatted like every other time in the app.
@@ -185,7 +189,7 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
         position: absolute;
         pointer-events: none;
         border-radius: $candy-radius-pill; // match the range track radius (ProgressBar.scss)
-        background: rgba($candy-pink-deep, 0.55);
+        background: rgba($mem-teal, 0.55);
         z-index: 2;
     }
 

@@ -1,28 +1,49 @@
 // ============================================================================
-// "Candy Brutalism" design tokens — the single SCSS source for the redesign.
+// "Memphis 90s" design tokens — the single SCSS source for the design.
 //
-// Palette values are injected from src/brand-colors.json via vite.config
-// (css.preprocessorOptions.scss.additionalData) so JSON stays the single
-// source of truth shared with TypeScript. The literals below are inert
+// Palette values are injected from src/brand-colors.json (memphis block) via
+// vite.config (css.preprocessorOptions.scss.additionalData) so JSON stays the
+// single source of truth shared with TypeScript. The literals below are inert
 // `!default` fallbacks for tooling that compiles without the injection.
 //
-// Design language: light pink surfaces, white panels, 2px black borders on
-// every element, generous radii, flat colors (no gradients, no blurred
-// shadows — only hard offset shadows), black text, candy-stripe accents.
+// Design language (reference: 80s/90s Memphis pattern art): grid-paper ground,
+// white panels, 2-3px ink borders, hard offset shadows, teal/yellow/coral/
+// lavender/pink accents, sprinkle (terrazzo) textures, zigzag accent strips.
+// Flat colors — no gradients, no blurred shadows.
+//
+// The $candy-* names further down are LEGACY aliases from the candy design
+// this theme evolved from — they are re-pointed at memphis roles so the
+// existing usages keep working. Use $mem-* directly in new/touched code.
 // ============================================================================
 
-// Surfaces
-$candy-pink: #f5c6ce !default; // page background, cards, buttons
-$candy-pink-soft: #f9d7dc !default; // input fills, hover on white panels
-$candy-pink-deep: #efa9b6 !default; // hover/active on pink, stripe tone
-$candy-white: #ffffff !default; // panels: bars, sidebars, queue, modals
-$candy-lavender: #cdbcf4 !default; // secondary accent (badges, pills)
-$candy-black: #111111 !default; // borders, text, icons
+// Memphis roles
+$mem-ink: #17171a !default; // borders, text, icons
+$mem-paper: #f4f2ed !default; // page ground (gets the grid pattern)
+$mem-panel: #ffffff !default; // panels: bars, sidebars, cards, modals
+$mem-teal: #2fbfa3 !default; // primary action (play), seek fill
+$mem-yellow: #f5b23c !default; // active states (playing row, hovers)
+$mem-coral: #e2574c !default; // secondary accent
+$mem-lavender: #8b8beb !default; // badges, chips
+$mem-pink: #f2799f !default; // decorative accent
+$mem-blush: #f5c6ce !default; // soft fills (nav active, buttons)
+$mem-blush-soft: #fbe3e7 !default; // input fills, hover on white
+$mem-text-muted: #6d6a62 !default; // subtitles, captions
+
+// ---------------------------------------------------------------------------
+// LEGACY candy aliases (values also injected from JSON — kept for the ~100
+// existing usages; new code should prefer $mem-*).
+// ---------------------------------------------------------------------------
+$candy-pink: $mem-blush !default;
+$candy-pink-soft: $mem-blush-soft !default;
+$candy-pink-deep: $mem-yellow !default;
+$candy-white: $mem-panel !default;
+$candy-lavender: $mem-lavender !default;
+$candy-black: $mem-ink !default;
 
 // Text
 $candy-text: $candy-black;
-$candy-text-muted: #8a5560 !default; // subtitles (artist names etc.)
-$candy-text-faint: rgba(17, 17, 17, 0.45); // placeholders, disabled
+$candy-text-muted: $mem-text-muted !default;
+$candy-text-faint: rgba(23, 23, 26, 0.45); // placeholders, disabled
 
 // Structure
 $candy-border-w: 2px;
@@ -37,14 +58,43 @@ $candy-radius-pill: 999px; // pills, sliders
   box-shadow: $x $y 0 $candy-black;
 }
 
-// Diagonal candy stripes — seek bar fill, currently-playing accents.
-@mixin candy-stripes($a: $candy-pink-deep, $b: $candy-white, $w: 10px) {
-  background: repeating-linear-gradient(-45deg, $a 0 $w, $b $w $w * 2);
-}
-
 // The standard bordered surface.
-@mixin candy-box($bg: $candy-pink, $radius: $candy-radius) {
+@mixin candy-box($bg: $mem-panel, $radius: $candy-radius) {
   background-color: $bg;
   border: $candy-border;
   border-radius: $radius;
+}
+
+// ---------------------------------------------------------------------------
+// Memphis patterns
+// ---------------------------------------------------------------------------
+
+// Grid-paper ground — THE signature surface. Apply to the page ground only
+// (one owner per screen region; nested grids drift out of alignment).
+@mixin mem-grid($line: rgba($mem-ink, 0.3), $size: 42px, $w: 1.5px) {
+  background-color: $mem-paper;
+  background-image: linear-gradient($line $w, transparent $w),
+    linear-gradient(90deg, $line $w, transparent $w);
+  background-size: $size $size;
+}
+
+// Sprinkle / terrazzo dash texture. Sets ONLY the pattern image + tile size —
+// combine with a background-color on the same element (use background-color,
+// not the background shorthand, or the image layer gets wiped).
+@mixin mem-sprinkle($size: 46px) {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><g stroke="%2317171A" stroke-width="2.6" stroke-linecap="round"><line x1="7" y1="9" x2="14" y2="13"/><line x1="30" y1="6" x2="36" y2="2"/><line x1="38" y1="26" x2="43" y2="31"/><line x1="14" y1="34" x2="20" y2="31"/><line x1="26" y1="42" x2="33" y2="40"/><line x1="3" y1="24" x2="8" y2="21"/></g></svg>');
+  background-size: $size $size;
+}
+
+// Zigzag accent strip (replaces the candy stripes) — give the host element a
+// fixed height (~8-10px) and this paints a bunting-style zigzag edge.
+@mixin mem-zigzag($color: $mem-ink, $h: 9px, $w: 14px) {
+  background: linear-gradient(-45deg, transparent 72%, $color 0) 0 0 / $w $h repeat-x,
+    linear-gradient(45deg, transparent 72%, $color 0) ($w * 0.5) 0 / $w $h repeat-x;
+}
+
+// DEPRECATED (candy design): diagonal candy stripes. Superseded by
+// mem-zigzag/mem-sprinkle — kept only until the last usage is migrated.
+@mixin candy-stripes($a: $candy-pink-deep, $b: $candy-white, $w: 10px) {
+  background: repeating-linear-gradient(-45deg, $a 0 $w, $b $w $w * 2);
 }
