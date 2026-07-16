@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="960" viewBox="0 0 1280 960">
+  <!-- Memphis doodle tile, shapes copied from the 90s reference art:
+       3D bars (plain + terrazzo) with hard ink shadows, teal triangle,
+       pink circle, yellow arc, squiggles, red zigzag, donut, flag, prism.
+       Tiled as the content-ground decoration layer (see mem-grid). -->
+  <defs>
+    <pattern id="tz" width="34" height="34" patternUnits="userSpaceOnUse">
+      <g stroke="#17171A" stroke-width="2.4" stroke-linecap="round">
+        <line x1="5" y1="7" x2="11" y2="10"/>
+        <line x1="22" y1="4" x2="27" y2="1"/>
+        <line x1="28" y1="19" x2="32" y2="23"/>
+        <line x1="10" y1="25" x2="15" y2="23"/>
+        <line x1="19" y1="31" x2="24" y2="29"/>
+        <line x1="2" y1="17" x2="6" y2="15"/>
+      </g>
+    </pattern>
+  </defs>
+
+  <!-- ============ top-left corner group ============ -->
+  <!-- pink 3D bar, rotated, ink shadow -->
+  <g transform="translate(80,120) rotate(-28)">
+    <rect x="6" y="8" width="150" height="34" fill="#17171A"/>
+    <rect x="0" y="0" width="150" height="34" fill="#F5A8BC" stroke="#17171A" stroke-width="3"/>
+  </g>
+  <!-- teal squiggle -->
+  <path d="M300 70 Q 322 30, 344 58 T 388 50 T 430 66" fill="none" stroke="#2FBFA3" stroke-width="10" stroke-linecap="round"/>
+  <!-- yellow arc (half ring) -->
+  <path d="M560 140 A 44 44 0 0 1 648 140 L 616 140 A 12 12 0 0 0 592 140 Z" fill="#F5B23C" stroke="#17171A" stroke-width="3"/>
+  <!-- pink solid circle (borderless, like the reference) -->
+  <circle cx="840" cy="90" r="58" fill="#F2A9BC"/>
+  <!-- lavender squiggle -->
+  <path d="M1030 130 Q 1052 92, 1074 118 T 1118 112" fill="none" stroke="#8B8BEB" stroke-width="9" stroke-linecap="round"/>
+  <!-- small yellow donut -->
+  <circle cx="1220" cy="60" r="16" fill="none" stroke="#F5B23C" stroke-width="9"/>
+
+  <!-- ============ mid-left ============ -->
+  <!-- terrazzo 3D bar (blue-ish lavender), like the patterned beam -->
+  <g transform="translate(40,420) rotate(-62)">
+    <rect x="7" y="7" width="46" height="170" fill="#17171A"/>
+    <rect x="0" y="0" width="46" height="170" fill="#8B8BEB" stroke="#17171A" stroke-width="3"/>
+    <rect x="0" y="0" width="46" height="170" fill="url(#tz)" opacity="0.55"/>
+  </g>
+  <!-- big teal triangle (borderless fill, reference style) -->
+  <polygon points="330,330 424,498 236,498" fill="#2FBFA3"/>
+  <!-- red zigzag -->
+  <polyline points="560,400 588,364 616,400 644,364 672,400 700,364" fill="none" stroke="#E2574C" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- yellow flag -->
+  <path d="M880 330 L948 330 L926 358 L948 386 L880 386 Z" fill="#F5B23C" stroke="#17171A" stroke-width="3"/>
+  <!-- pink squiggle -->
+  <path d="M1080 420 Q 1104 380, 1128 408 T 1174 400 T 1220 418" fill="none" stroke="#F2799F" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- ============ lower band ============ -->
+  <!-- yellow/coral 3D bar -->
+  <g transform="translate(180,700) rotate(20)">
+    <rect x="6" y="8" width="140" height="30" fill="#17171A"/>
+    <rect x="0" y="0" width="140" height="30" fill="#F5B23C" stroke="#17171A" stroke-width="3"/>
+    <rect x="0" y="0" width="140" height="9" fill="#E2574C" stroke="#17171A" stroke-width="3"/>
+  </g>
+  <!-- lavender prism with terrazzo face -->
+  <g transform="translate(560,660) rotate(-14)">
+    <polygon points="40,0 80,64 0,64" fill="#8B8BEB" stroke="#17171A" stroke-width="3"/>
+    <polygon points="40,0 80,64 0,64" fill="url(#tz)" opacity="0.5"/>
+  </g>
+  <!-- big pink circle -->
+  <circle cx="800" cy="820" r="64" fill="#F2A9BC"/>
+  <!-- teal zigzag (light blue in the reference; teal keeps the palette) -->
+  <polyline points="960,700 986,668 1012,700 1038,668 1064,700" fill="none" stroke="#2FBFA3" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- coral squiggle -->
+  <path d="M1130 810 Q 1150 776, 1170 800 T 1212 794" fill="none" stroke="#E2574C" stroke-width="8" stroke-linecap="round"/>
+  <!-- small lavender donut -->
+  <circle cx="420" cy="880 " r="15" fill="none" stroke="#8B8BEB" stroke-width="8"/>
+  <!-- tiny yellow ring top-mid gap filler -->
+  <circle cx="120" cy="600" r="12" fill="none" stroke="#F5B23C" stroke-width="7"/>
+</svg>

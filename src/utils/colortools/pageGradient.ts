@@ -1,3 +1,4 @@
+import { parseColor } from '@/utils/colortools'
 import brandColors from '@/brand-colors.json'
 
 // AivinNet brand colours — re-exported from the single source of truth
@@ -12,15 +13,17 @@ export const MEMPHIS = brandColors.memphis
 
 /**
  * Single source of truth for the page background of the detail views
- * (Album / Artist / Playlist). The memphis design paints ONE grid-paper
- * ground on the content shell (#acontent, app-grid.scss) — pages themselves
- * are transparent so the grid shows through everywhere. The signature keeps
- * accepting the extracted colour so the call sites (and a future re-theme)
- * stay untouched.
+ * (Album / Artist / Playlist). The memphis ground (grid + doodles) lives on
+ * the content shell (#acontent, app-grid.scss); this paints a LIGHT
+ * cover-tinted veil over it — a translucent fade from the extracted cover
+ * colour (colors.bg) that lets the grid and doodles show through, echoing
+ * the old Spotify-style header fade in a memphis-compatible way.
  */
 export function pageGradient(bg?: string): string {
-    void bg
-    return 'transparent'
+    if (!bg) return 'transparent'
+    const [r, g, b] = parseColor(bg)
+    const stop = (a: number) => `rgba(${r}, ${g}, ${b}, ${a})`
+    return `linear-gradient(180deg, ${stop(0.55)} 0%, ${stop(0.25)} 240px, ${stop(0)} 460px)`
 }
 
 /**

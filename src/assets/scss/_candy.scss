@@ -118,13 +118,22 @@ $candy-radius-pill: 999px; // pills, sliders
 
 // Grid-paper ground — THE signature surface. Apply to the page ground only
 // (one owner per screen region; nested grids drift out of alignment).
-// Theme-aware: light = ink grid on paper, dark = plain indigo (the grid line
-// var is transparent there, like the indigo reference art).
-@mixin mem-grid($size: 42px, $w: 1.5px) {
+// Theme-aware grid lines; $doodles layers the scattered memphis shapes
+// (assets/images/memphis-doodles.svg — copied from the 90s reference art)
+// over the grid. Both stay fixed while the content scrolls past (backgrounds
+// on the overflow container don't scroll), like paper under the UI.
+@mixin mem-grid($size: 42px, $w: 1.5px, $doodles: true) {
   background-color: $mem-ground;
-  background-image: linear-gradient(var(--mem-grid-line) $w, transparent $w),
-    linear-gradient(90deg, var(--mem-grid-line) $w, transparent $w);
-  background-size: $size $size;
+  @if $doodles {
+    background-image: url("@/assets/images/memphis-doodles.svg"),
+      linear-gradient(var(--mem-grid-line) $w, transparent $w),
+      linear-gradient(90deg, var(--mem-grid-line) $w, transparent $w);
+    background-size: 1280px 960px, $size $size, $size $size;
+  } @else {
+    background-image: linear-gradient(var(--mem-grid-line) $w, transparent $w),
+      linear-gradient(90deg, var(--mem-grid-line) $w, transparent $w);
+    background-size: $size $size;
+  }
 }
 
 // Sprinkle / terrazzo dash texture. Sets ONLY the pattern image + tile size —
