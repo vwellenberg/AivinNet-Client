@@ -12,7 +12,7 @@ const settings = useSettingsStore
  */
 const theme: Setting = {
     title: 'Theme',
-    desc: 'Grid-paper light or the classic-90s indigo dark look.',
+    desc: 'Grid-paper light or the near-black dark look.',
     type: SettingType.select,
     options: [
         { title: 'Light', value: 'light' },

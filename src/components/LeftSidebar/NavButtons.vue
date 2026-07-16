@@ -62,7 +62,10 @@ import { menus } from "./navitems";
       color: $mem-ink;
     }
 
-    &:hover {
+    // :not(.active): the soft hover fill is dark in dark mode and would
+    // override the blush pill (same specificity, later rule) while the
+    // pinned ink label stays — dark-on-dark. Active items keep their pill.
+    &:hover:not(.active) {
       background-color: $candy-pink-soft;
     }
   }
