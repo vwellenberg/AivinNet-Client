@@ -15,9 +15,9 @@
     "textMuted": "#6D6A62"
   },
   "memphisDark": {
-    "ground": "#1B1B1F",
-    "panel": "#27272D",
-    "soft": "#37373F",
+    "ground": "#101012",
+    "panel": "#1B1B1F",
+    "soft": "#2A2A30",
     "line": "#F4F2ED",
     "text": "#F4F2ED",
     "textMuted": "#B9B9C0",
