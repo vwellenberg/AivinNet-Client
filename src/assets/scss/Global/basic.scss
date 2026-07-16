@@ -75,7 +75,10 @@ button {
   font-size: 0.9rem !important;
   font-weight: 700;
   line-height: 1.2;
-  color: $candy-text;
+  // Buttons carry the static blush fill (and yellow hover/active) in both
+  // themes -> the label/icon must be static ink too. Transparent icon
+  // buttons that need the adaptive colour set it locally.
+  color: $mem-ink;
   border-radius: $candy-radius-sm;
   border: $candy-border;
   display: flex;
@@ -157,7 +160,7 @@ button {
 .load_disabled {
   pointer-events: all;
   background: $candy-pink-soft !important;
-  border-color: $candy-black !important;
+  border-color: $mem-line !important;
   opacity: 1;
 }
 
@@ -172,7 +175,7 @@ button {
 }
 
 .spinner {
-  border: solid 3px $candy-black;
+  border: solid 3px $mem-line;
   border-top: solid 3px transparent;
   border-left: solid 3px transparent;
   border-radius: 50%;
@@ -233,14 +236,17 @@ button {
   opacity: 1;
   padding: 0 $smaller;
   border-radius: $candy-radius-pill;
-  border: 1px solid $candy-black;
+  border: 1px solid $mem-line;
   background-color: $candy-lavender;
-  color: $candy-text;
+  color: $mem-ink;
   font-size: 12px !important;
 }
 
 .experimental {
   background-color: $candy-pink-soft;
+  // Soft (theme-var) fill, not an accent — keep adaptive text so it stays
+  // readable when this badge variant lands on the dark soft in dark mode.
+  color: $candy-text;
 }
 
 .badge.new {

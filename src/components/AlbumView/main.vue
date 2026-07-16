@@ -87,7 +87,7 @@ useVisibility(albumheaderthing, handleVisibilityState)
 
         .top {
             .albumtype {
-                color: $pink;
+                color: $candy-text-muted;
             }
         }
     }

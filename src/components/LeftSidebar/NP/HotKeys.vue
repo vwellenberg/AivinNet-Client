@@ -64,11 +64,17 @@ const settings = useSettings()
         cursor: pointer;
 
         // Transport glyphs (pause/next/shuffle/repeat) hardcode a light fill in
-        // the SVG asset — force them black so they read on the light bar. play.svg
-        // uses currentColor and lands black too.
+        // the SVG asset — force them to the theme text colour so they read on
+        // the panel bar in BOTH themes (ink on light, paper on dark).
         svg path {
-            fill: $candy-black;
+            fill: $candy-text;
         }
+    }
+
+    // …but the play/pause glyph sits on the teal accent box (theme-invariant
+    // light fill) — pin static ink there.
+    .play svg path {
+        fill: $mem-ink;
     }
 
     // prev / next — light-grey glyphs that brighten on hover (no box).
@@ -97,14 +103,14 @@ const settings = useSettings()
         transform: rotate(180deg) scale(0.85);
     }
 
-    // play / pause — pink candy rounded-square with a 2px black border and a
-    // black glyph (candy brutalism). The exception to the borderless transport
-    // icons; hover deepens to $candy-pink-deep.
+    // play / pause — teal memphis rounded-square with a 2px ink border and an
+    // ink glyph (primary action). The exception to the borderless transport
+    // icons; hover flips to $mem-yellow.
     .play {
         width: 2.5rem;
         height: 2.5rem;
         flex-shrink: 0;
-        @include candy-box($candy-pink, $candy-radius-sm);
+        @include candy-box($mem-teal, $candy-radius-sm);
         transition: transform 0.1s ease, background-color 0.2s ease-out;
 
         svg {
@@ -119,7 +125,7 @@ const settings = useSettings()
         }
 
         &:hover {
-            background-color: $candy-pink-deep;
+            background-color: $mem-yellow;
             transform: scale(1.06);
         }
 

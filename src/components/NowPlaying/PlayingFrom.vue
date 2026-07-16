@@ -94,11 +94,12 @@ function showContextMenu(e: MouseEvent) {
         align-items: center;
         justify-content: center;
         background-color: $candy-pink-soft;
-        border: 1px solid $candy-black;
+        border: 1px solid $mem-line;
 
         svg {
             width: 1.5rem;
-            color: $candy-black;
+            // Soft fill is theme-var (dark in dark) -> glyph must adapt too.
+            color: $candy-text;
         }
     }
 

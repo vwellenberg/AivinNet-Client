@@ -38,7 +38,7 @@ defineProps<{
 .favoritescard {
     padding: $medium;
     position: relative;
-    @include candy-box($candy-pink, $candy-radius);
+    @include candy-box($mem-panel, $candy-radius);
     transition: background-color 0.2s ease-out;
 
     .img,
@@ -81,7 +81,7 @@ defineProps<{
     }
 
     &:hover {
-        background-color: $candy-pink-deep;
+        background-color: $mem-hover;
     }
 
     .info {

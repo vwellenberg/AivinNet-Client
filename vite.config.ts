@@ -59,7 +59,7 @@ export default defineConfig({
         name: "AivinNet",
         short_name: "AivinNet",
         description: "AivinNet — selbst-gehosteter Musik-Player",
-        theme_color: brandColors.candy.pink,
+        theme_color: brandColors.memphis.paper,
         icons: [
           {
             src: "pwa-192x192.png",
@@ -121,7 +121,7 @@ export default defineConfig({
         ],
         start_url: "/",
         display: "standalone",
-        background_color: brandColors.candy.pink,
+        background_color: brandColors.memphis.paper,
       },
     }),
     viteCompression({
@@ -139,15 +139,31 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        // Feed the brand + candy colours from the single JSON source into
+        // Feed the brand + memphis colours from the single JSON source into
         // SCSS. These win over the `!default` fallbacks in _variables.scss
-        // and _candy.scss.
+        // and _candy.scss. The $candy-* names are legacy aliases from the
+        // candy design, re-pointed at memphis roles (see _candy.scss).
         additionalData:
           `$brand-green: ${brandColors.green}; $brand-red: ${brandColors.red}; ` +
-          `$candy-pink: ${brandColors.candy.pink}; $candy-pink-soft: ${brandColors.candy.pinkSoft}; ` +
-          `$candy-pink-deep: ${brandColors.candy.pinkDeep}; $candy-white: ${brandColors.candy.white}; ` +
-          `$candy-lavender: ${brandColors.candy.lavender}; $candy-black: ${brandColors.candy.black}; ` +
-          `$candy-text-muted: ${brandColors.candy.textMuted}; ` +
+          `$mem-ink: ${brandColors.memphis.ink}; $mem-paper: ${brandColors.memphis.paper}; ` +
+          `$mem-panel: ${brandColors.memphis.panel}; $mem-teal: ${brandColors.memphis.teal}; ` +
+          `$mem-yellow: ${brandColors.memphis.yellow}; $mem-coral: ${brandColors.memphis.coral}; ` +
+          `$mem-lavender: ${brandColors.memphis.lavender}; $mem-pink: ${brandColors.memphis.pink}; ` +
+          `$mem-blush: ${brandColors.memphis.blush}; $mem-blush-soft: ${brandColors.memphis.blushSoft}; ` +
+          `$mem-text-muted: ${brandColors.memphis.textMuted}; ` +
+          `$mem-dark-ground: ${brandColors.memphisDark.ground}; ` +
+          `$mem-dark-panel: ${brandColors.memphisDark.panel}; ` +
+          `$mem-dark-soft: ${brandColors.memphisDark.soft}; ` +
+          `$mem-dark-line: ${brandColors.memphisDark.line}; ` +
+          `$mem-dark-text: ${brandColors.memphisDark.text}; ` +
+          `$mem-dark-text-muted: ${brandColors.memphisDark.textMuted}; ` +
+          `$mem-dark-content-text: ${brandColors.memphisDark.contentText}; ` +
+          `$mem-dark-content-muted: ${brandColors.memphisDark.contentMuted}; ` +
+          `$mem-dark-grid-line: ${brandColors.memphisDark.gridLine}; ` +
+          `$candy-pink: ${brandColors.memphis.blush}; $candy-pink-soft: ${brandColors.memphis.blushSoft}; ` +
+          `$candy-pink-deep: ${brandColors.memphis.yellow}; $candy-white: ${brandColors.memphis.panel}; ` +
+          `$candy-lavender: ${brandColors.memphis.lavender}; $candy-black: ${brandColors.memphis.ink}; ` +
+          `$candy-text-muted: ${brandColors.memphis.textMuted}; ` +
           `@import "@/assets/scss/_variables.scss", "@/assets/scss/_mixins.scss", "@/assets/scss/_candy.scss";`,
       },
     },

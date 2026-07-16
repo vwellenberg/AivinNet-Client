@@ -108,7 +108,7 @@ function handleFav() {
             font-weight: 500;
             color: $candy-text;
             background-color: $candy-pink-soft;
-            border: 1px solid $candy-black;
+            border: 1px solid $mem-line;
             padding: 1px $smaller;
             min-width: 2.5rem;
             text-align: center;
@@ -180,12 +180,12 @@ function handleFav() {
         }
 
         // Track pill, border and the white bordered thumb come from the global
-        // candy range styling; only the flat pink-deep played-volume fill is
-        // painted here (clipped by the inline background-size from Volume.vue).
+        // range styling; only the flat teal played-volume fill is painted here
+        // (clipped by the inline background-size from Volume.vue).
         .volume-slider {
             flex: 1;
             margin-right: 0; // neutralise the global range's 15px right margin
-            background-image: linear-gradient($candy-pink-deep, $candy-pink-deep);
+            background-image: linear-gradient($mem-teal, $mem-teal);
             background-repeat: no-repeat;
             // background-size is set inline from the current volume (Volume.vue).
         }

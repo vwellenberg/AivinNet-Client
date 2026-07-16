@@ -53,6 +53,8 @@ defineProps<{
     .card-title {
         font-size: small;
         font-weight: 700;
+        // Header text on the page ground -> theme-aware.
+        color: $mem-content-muted;
     }
 
     .artist-name {
@@ -60,12 +62,13 @@ defineProps<{
         font-weight: 700;
         word-wrap: break-all;
         margin-left: -1px;
+        color: $mem-content-text;
     }
 
     .stats {
         font-size: small;
         font-weight: 700;
-        color: $candy-text-muted;
+        color: $mem-content-muted;
     }
 }
 </style>

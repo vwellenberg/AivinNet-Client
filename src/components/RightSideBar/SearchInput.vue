@@ -160,11 +160,14 @@ function handleButton() {
             border-radius: $candy-radius-pill;
             cursor: pointer;
             flex-shrink: 0;
-            color: $candy-black;
+            // Adaptive glyph on the panel input; hover flips to the yellow
+            // accent fill -> pin static ink there.
+            color: $candy-text;
 
             &:hover {
                 transition: all 0.2s ease;
                 background-color: $candy-pink-deep;
+                color: $mem-ink;
             }
 
             @include allPhones {

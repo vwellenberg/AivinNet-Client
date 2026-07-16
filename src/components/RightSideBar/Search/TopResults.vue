@@ -58,5 +58,16 @@ const search = useSearchStore();
     margin-top: 1rem;
     margin-bottom: 0.5rem;
   }
+
+  // The right sidebar is a white panel, so the "No results" empty state keeps
+  // ink text (NoItems defaults to the theme-aware ground colour, which would
+  // go white-on-white here in dark mode).
+  .nothing {
+    color: $candy-text;
+
+    p {
+      color: $candy-text-muted;
+    }
+  }
 }
 </style>

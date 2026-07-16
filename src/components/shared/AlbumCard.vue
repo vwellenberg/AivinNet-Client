@@ -103,14 +103,14 @@ function showMenu(e: MouseEvent) {
     display: grid;
     gap: $small;
     padding: $medium;
-    @include candy-box($candy-pink, $candy-radius);
+    @include candy-box($mem-panel, $candy-radius);
     height: max-content;
     transition: background-color 0.2s ease-out;
 
     @include card-play-btn;
 
     &.context-menu-open {
-        background-color: $candy-pink-deep;
+        background-color: $mem-hover;
     }
 
     .with-img {
@@ -128,7 +128,7 @@ function showMenu(e: MouseEvent) {
     }
 
     &:hover {
-        background-color: $candy-pink-deep;
+        background-color: $mem-hover;
     }
 
     img {

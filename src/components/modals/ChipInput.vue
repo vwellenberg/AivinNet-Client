@@ -82,7 +82,9 @@ function onKeydown(e: KeyboardEvent) {
         align-items: center;
         gap: $smaller;
         background-color: $candy-lavender;
-        border: 1px solid $candy-black;
+        // Lavender accent chip → static ink label + paper outline.
+        color: $mem-ink;
+        border: 1px solid $mem-line;
         border-radius: $smaller;
         padding: 0.15rem 0.5rem;
         font-size: 0.85rem;
@@ -91,7 +93,9 @@ function onKeydown(e: KeyboardEvent) {
         .chip-x {
             border: none;
             background: none;
-            color: $candy-text-muted;
+            // Static dark-muted so the × stays visible on the lavender chip in
+            // dark (the theme var would go light on this light fill).
+            color: $mem-text-muted-static;
             cursor: pointer;
             padding: 0;
             font-size: 1.1rem;

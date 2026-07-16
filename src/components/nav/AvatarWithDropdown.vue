@@ -59,7 +59,9 @@ onClickOutside(avatarRef, () => {
         svg {
             border: $candy-border;
             border-radius: 50%;
-            background-color: $candy-white;
+            // The "white circle" behind the avatar art — keep it static light so
+            // the ring stays a light disc in dark (pairs with the paper border).
+            background-color: $mem-panel-static;
         }
 
         &:hover {

@@ -218,6 +218,13 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     user-select: none;
     padding-left: $small;
     position: relative;
+    // Text sits directly on the page ground (grid area) -> theme-aware so it
+    // turns white on the dark indigo ground. Filled row states (hover/current/
+    // contexton) pin ink below (see the combined selector after this rule).
+    color: $mem-content-text;
+    // Transparent placeholder so the ink box on hover/marked/playing rows
+    // never shifts the content.
+    border: $candy-border-w solid transparent;
     transition: background-color 0.2s ease-out;
 
     // Plays column (issue #68): inserted between album and duration. Only set
@@ -244,7 +251,10 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     }
 
     &:hover {
-        background-color: $candy-white;
+        // Static-light hover fill (not the panel var) so the pinned ink text
+        // below stays readable in dark; paper outline.
+        background-color: $mem-panel-static;
+        border-color: $mem-line;
         border-radius: $candy-radius-sm;
 
         .song-duration.has_help_text {
@@ -274,12 +284,12 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 }
 
 .songlist-item.current {
-    background-color: $candy-pink;
+    background-color: $mem-yellow;
     border: $candy-border;
     border-radius: $candy-radius-sm;
     overflow: hidden;
 
-    // Signature candy accent: a diagonal candy-stripe strip along the bottom
+    // Signature memphis accent: a bunting-style zigzag strip along the bottom
     // edge of the currently-playing row.
     &::after {
         content: "";
@@ -287,22 +297,60 @@ const isFavoritesPage = route.path.startsWith('/favorites')
         left: 0;
         right: 0;
         bottom: 0;
-        height: 6px;
+        height: 9px;
         pointer-events: none;
-        @include candy-stripes($candy-pink-deep, $candy-white, 8px);
+        @include mem-zigzag($mem-ink);
     }
 }
 
 .songlist-item.contexton {
-    background-color: $candy-pink-soft !important;
+    // Static soft-blush light fill (equals the light value of $candy-pink-soft)
+    // so it stays light in dark and the pinned ink text reads; paper outline.
+    background-color: $mem-blush-soft-static !important;
+    border-color: $mem-line;
+    border-radius: $candy-radius-sm;
+}
+
+// Filled row states (white hover / yellow playing / blush marked): the base
+// row text is $mem-content-text (white on the dark ground), so pin ink for the
+// text and icons that now render over a light fill. The muted children carry
+// explicit content tokens (album/duration) that the row `color` can't cascade
+// into, so they get explicit ink-muted here; the opacity-based children
+// (index/plays/date/artist) inherit the row ink automatically.
+.songlist-item:hover,
+.songlist-item.current,
+.songlist-item.contexton {
+    color: $mem-ink;
+
+    .song-album,
+    .song-duration {
+        color: $mem-text-muted-static;
+    }
+
+    .options-and-duration {
+        .heart-icon.is_fav svg {
+            // Teal "favorited" accent reads on the light row fills too.
+            color: $mem-teal;
+        }
+
+        .options-icon svg {
+            stroke: $mem-text-muted-static;
+        }
+    }
+
+    // Unfavorited add/fav glyph declares its own adaptive colour (paper in
+    // dark) — pin ink on the light row fills.
+    .heart-button {
+        color: $mem-ink;
+    }
 }
 
 .songlist-item.drag-over-top {
-    border-top: 2px solid $candy-black;
+    border-top: 2px solid $mem-line;
 }
 
 .songlist-item.drag-over-bottom {
-    border-bottom: 2px solid $candy-black;
+    border-bottom: 2px solid $mem-line;
 }
 
 .songlist-item[draggable="true"] {

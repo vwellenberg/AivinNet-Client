@@ -255,7 +255,7 @@ onMounted(async () => {
             color: $candy-text;
 
             &:focus {
-                outline: solid 2px $candy-black;
+                outline: solid 2px $mem-line;
             }
         }
 

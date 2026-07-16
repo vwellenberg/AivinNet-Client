@@ -1,32 +1,100 @@
 // ============================================================================
-// "Candy Brutalism" design tokens — the single SCSS source for the redesign.
+// "Memphis 90s" design tokens — the single SCSS source for the design.
 //
-// Palette values are injected from src/brand-colors.json via vite.config
-// (css.preprocessorOptions.scss.additionalData) so JSON stays the single
-// source of truth shared with TypeScript. The literals below are inert
+// Palette values are injected from src/brand-colors.json (memphis block) via
+// vite.config (css.preprocessorOptions.scss.additionalData) so JSON stays the
+// single source of truth shared with TypeScript. The literals below are inert
 // `!default` fallbacks for tooling that compiles without the injection.
 //
-// Design language: light pink surfaces, white panels, 2px black borders on
-// every element, generous radii, flat colors (no gradients, no blurred
-// shadows — only hard offset shadows), black text, candy-stripe accents.
+// Design language (reference: 80s/90s Memphis pattern art): grid-paper ground,
+// white panels, 2-3px ink borders, hard offset shadows, teal/yellow/coral/
+// lavender/pink accents, sprinkle (terrazzo) textures, zigzag accent strips.
+// Flat colors — no gradients, no blurred shadows.
+//
+// The $candy-* names further down are LEGACY aliases from the candy design
+// this theme evolved from — they are re-pointed at memphis roles so the
+// existing usages keep working. Use $mem-* directly in new/touched code.
 // ============================================================================
 
-// Surfaces
-$candy-pink: #f5c6ce !default; // page background, cards, buttons
-$candy-pink-soft: #f9d7dc !default; // input fills, hover on white panels
-$candy-pink-deep: #efa9b6 !default; // hover/active on pink, stripe tone
-$candy-white: #ffffff !default; // panels: bars, sidebars, queue, modals
-$candy-lavender: #cdbcf4 !default; // secondary accent (badges, pills)
-$candy-black: #111111 !default; // borders, text, icons
+// Memphis roles
+$mem-ink: #17171a !default; // borders, text, icons
+$mem-paper: #f4f2ed !default; // page ground (gets the grid pattern)
+$mem-panel: #ffffff !default; // panels: bars, sidebars, cards, modals
+$mem-teal: #2fbfa3 !default; // primary action (play), seek fill
+$mem-yellow: #f5b23c !default; // active states (playing row, hovers)
+$mem-coral: #e2574c !default; // secondary accent
+$mem-lavender: #8b8beb !default; // badges, chips
+$mem-pink: #f2799f !default; // decorative accent
+$mem-blush: #f5c6ce !default; // soft fills (nav active, buttons)
+$mem-blush-soft: #fbe3e7 !default; // input fills, hover on white
+$mem-text-muted: #6d6a62 !default; // subtitles, captions
+
+// True-dark theme ("classic 90s": deep indigo, grid stays visible) — the
+// roles that CHANGE between themes. Accents (teal/yellow/coral/lavender/
+// blush) and $mem-ink stay identical.
+$mem-dark-ground: #1e1f4b !default;
+$mem-dark-panel: #2a2b5e !default;
+$mem-dark-soft: #3a3b7a !default;
+$mem-dark-line: #f4f2ed !default;
+$mem-dark-text: #f4f2ed !default;
+$mem-dark-text-muted: #c9c9e8 !default;
+$mem-dark-content-text: #ffffff !default;
+$mem-dark-content-muted: #d9d9f2 !default;
+$mem-dark-grid-line: rgba(255, 255, 255, 0.14) !default;
+
+// Static literals preserved for the :root var definitions in
+// Global/index.scss (the role tokens below become var() references).
+// `!default` is CRITICAL: this file is imported more than once (variables,
+// index.scss, vite additionalData); on re-import $mem-panel is already the
+// var() reference, and without !default these would capture the var and
+// emit a self-referencing `--mem-panel: var(--mem-panel)` (= transparent).
+$mem-panel-static: $mem-panel !default;
+$mem-blush-soft-static: $mem-blush-soft !default;
+$mem-text-muted-static: $mem-text-muted !default;
+
+// ---------------------------------------------------------------------------
+// THEME-DEPENDENT roles — runtime-switchable via CSS custom properties.
+// Global/index.scss defines --mem-* on :root (light values) and overrides
+// them under body.theme-dark. NEVER run these through Sass colour functions
+// (they are var() references).
+//  - ground/content-*: the page ground (grid) and text painted over it
+//  - panel/text/text-muted/soft: panel surfaces and their text/hover fills
+//  - line: EVERY border/outline (ink in light, paper in dark)
+// $mem-ink stays STATIC — use it for text/icons on the light accent fills
+// (yellow/teal/blush/white), which look the same in both themes.
+// ---------------------------------------------------------------------------
+$mem-ground: var(--mem-ground);
+$mem-content-text: var(--mem-content-text);
+$mem-content-muted: var(--mem-content-muted);
+$mem-content-faint: var(--mem-content-faint);
+$mem-panel: var(--mem-panel);
+$mem-soft: var(--mem-soft);
+$mem-line: var(--mem-line);
+$mem-text: var(--mem-text);
+$mem-text-muted: var(--mem-text-muted);
+$mem-hover: var(--mem-hover); // hover fill (blush / calm dark tint)
+
+// ---------------------------------------------------------------------------
+// LEGACY candy aliases — kept for the ~100 existing usages; new code should
+// prefer $mem-*. The theme-dependent ones are assigned WITHOUT !default so
+// they beat the static literals the vite injection prepends.
+// ---------------------------------------------------------------------------
+$candy-pink: $mem-blush !default; // accent, theme-independent
+$candy-pink-soft: $mem-soft; // panel hover/input fill → theme var
+$candy-pink-deep: $mem-yellow !default; // accent, theme-independent
+$candy-white: $mem-panel; // panel surface → theme var
+$candy-lavender: $mem-lavender !default;
+$candy-black: $mem-ink !default; // static ink (text on accent fills)
 
 // Text
-$candy-text: $candy-black;
-$candy-text-muted: #8a5560 !default; // subtitles (artist names etc.)
-$candy-text-faint: rgba(17, 17, 17, 0.45); // placeholders, disabled
+$candy-text: $mem-text; // default text → theme var (ink / paper)
+$candy-text-muted: $mem-text-muted; // theme var
+$candy-text-faint: var(--mem-content-faint); // placeholders, disabled
 
 // Structure
 $candy-border-w: 2px;
-$candy-border: $candy-border-w solid $candy-black;
+// Every border/outline: ink in light, paper in dark.
+$candy-border: $candy-border-w solid $mem-line;
 $candy-radius: 14px; // cards, panels, modals
 $candy-radius-sm: 10px; // buttons, inputs, thumbnails
 $candy-radius-pill: 999px; // pills, sliders
@@ -37,14 +105,47 @@ $candy-radius-pill: 999px; // pills, sliders
   box-shadow: $x $y 0 $candy-black;
 }
 
-// Diagonal candy stripes — seek bar fill, currently-playing accents.
-@mixin candy-stripes($a: $candy-pink-deep, $b: $candy-white, $w: 10px) {
-  background: repeating-linear-gradient(-45deg, $a 0 $w, $b $w $w * 2);
-}
-
 // The standard bordered surface.
-@mixin candy-box($bg: $candy-pink, $radius: $candy-radius) {
+@mixin candy-box($bg: $mem-panel, $radius: $candy-radius) {
   background-color: $bg;
   border: $candy-border;
   border-radius: $radius;
+}
+
+// ---------------------------------------------------------------------------
+// Memphis patterns
+// ---------------------------------------------------------------------------
+
+// Grid-paper ground — THE signature surface. Apply to the page ground only
+// (one owner per screen region; nested grids drift out of alignment).
+// Theme-aware: light = ink grid on paper, dark = plain indigo (the grid line
+// var is transparent there, like the indigo reference art).
+@mixin mem-grid($size: 42px, $w: 1.5px) {
+  background-color: $mem-ground;
+  background-image: linear-gradient(var(--mem-grid-line) $w, transparent $w),
+    linear-gradient(90deg, var(--mem-grid-line) $w, transparent $w);
+  background-size: $size $size;
+}
+
+// Sprinkle / terrazzo dash texture. Sets ONLY the pattern image + tile size —
+// combine with a background-color on the same element (use background-color,
+// not the background shorthand, or the image layer gets wiped).
+@mixin mem-sprinkle($size: 46px) {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><g stroke="%2317171A" stroke-width="2.6" stroke-linecap="round"><line x1="7" y1="9" x2="14" y2="13"/><line x1="30" y1="6" x2="36" y2="2"/><line x1="38" y1="26" x2="43" y2="31"/><line x1="14" y1="34" x2="20" y2="31"/><line x1="26" y1="42" x2="33" y2="40"/><line x1="3" y1="24" x2="8" y2="21"/></g></svg>');
+  background-size: $size $size;
+}
+
+// Zigzag accent strip (replaces the candy stripes) — give the host element a
+// fixed height (~8-10px) and this paints a bunting-style zigzag edge.
+// The `position / size` slashes are interpolated so Sass doesn't parse them
+// as division.
+@mixin mem-zigzag($color: $mem-ink, $h: 9px, $w: 14px) {
+  background: linear-gradient(-45deg, transparent 72%, $color 0) 0 0 #{"/"} #{$w} #{$h} repeat-x,
+    linear-gradient(45deg, transparent 72%, $color 0) #{$w * 0.5} 0 #{"/"} #{$w} #{$h} repeat-x;
+}
+
+// DEPRECATED (candy design): diagonal candy stripes. Superseded by
+// mem-zigzag/mem-sprinkle — kept only until the last usage is migrated.
+@mixin candy-stripes($a: $candy-pink-deep, $b: $candy-white, $w: 10px) {
+  background: repeating-linear-gradient(-45deg, $a 0 $w, $b $w $w * 2);
 }

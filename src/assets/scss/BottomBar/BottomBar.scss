@@ -27,8 +27,9 @@
 
         .durationx {
           background-color: $candy-pink-soft;
-          border: 1px solid $candy-black;
-          color: $candy-black;
+          border: 1px solid $mem-line;
+          // Soft fill is theme-var (dark in dark) -> text must adapt too.
+          color: $candy-text;
           padding: $smaller;
           border-radius: $candy-radius-sm;
           margin: 0 $small 0 $small;

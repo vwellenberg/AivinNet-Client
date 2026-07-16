@@ -44,7 +44,14 @@ const lyrics = useLyrics();
   position: sticky;
   top: 0;
   z-index: 1;
-  background-color: $candy-pink;
+  // Opaque band over the scrolling grid ground (lyrics pass behind it), with a
+  // hard ink bottom edge like the folder breadcrumb band. Uses the theme-aware
+  // ground colour so it matches the ground in both themes (paper / indigo);
+  // its text then follows with the content colour. The .lyricstype chip keeps
+  // its own ink text on the lavender fill.
+  background-color: $mem-ground;
+  color: $mem-content-text;
+  border-bottom: $candy-border;
 
   @include allPhones {
     padding: $large 0;
@@ -68,7 +75,7 @@ const lyrics = useLyrics();
 
   .lyricstype {
     border-radius: $candy-radius-pill;
-    border: 1px solid $candy-black;
+    border: 1px solid $mem-line;
     font-size: 12px;
     padding: $smaller $small;
     background-color: $candy-lavender;

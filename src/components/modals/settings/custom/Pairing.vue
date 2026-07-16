@@ -23,7 +23,7 @@
 import { Ref, onMounted, ref } from 'vue'
 import QRCodeStyling from 'qr-code-styling'
 import { sendPairRequest } from '@/requests/auth'
-import { CANDY } from '@/utils/colortools/pageGradient'
+import { MEMPHIS } from '@/utils/colortools/pageGradient'
 
 const qrLoaded = ref(false)
 // @ts-expect-error
@@ -39,7 +39,7 @@ async function renderQrCode(code: string) {
         data: data,
         image: '/logo-fill.light.svg',
         dotsOptions: {
-            color: CANDY.black,
+            color: MEMPHIS.ink,
             type: 'extra-rounded',
         },
         backgroundOptions: {
@@ -86,7 +86,9 @@ onMounted(async () => {
         width: max-content;
         margin: 0 auto;
         padding: $small;
-        @include candy-box($candy-white, $candy-radius);
+        // The QR has ink dots on a transparent bg — pin the wrapper to a static
+        // light box so the code stays scannable on the dark modal in dark mode.
+        @include candy-box($mem-panel-static, $candy-radius);
     }
 
     .loader {
@@ -96,7 +98,7 @@ onMounted(async () => {
 
     .spinner {
         border-color: transparent;
-        border-top-color: $candy-black;
+        border-top-color: $mem-line;
         margin: 0 auto;
     }
 
@@ -108,7 +110,7 @@ onMounted(async () => {
         font-family: 'SF Mono';
         color: $candy-text;
         background-color: $candy-pink-soft;
-        border: 1px solid $candy-black;
+        border: 1px solid $mem-line;
     }
 }
 </style>

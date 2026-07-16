@@ -33,7 +33,9 @@ const showDateHeading = computed(() => Boolean(props.show_date_added) && !isSmal
 
     font-size: 14px;
     font-weight: 500;
-    color: $gray1;
+    // Column-caption row ("All Tracks" / "Date added") sits on the page ground
+    // -> theme-aware muted.
+    color: $mem-content-muted;
 
     // Column-caption mode: same grid as .songlist-item.with-date (shared
     // variable) so the "Date added" caption sits exactly above its column.

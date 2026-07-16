@@ -60,12 +60,16 @@
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
+        // Page title (Playlists / Favorites / Charts / ...) on the page ground
+        // -> theme-aware so it turns white on the dark indigo ground.
+        color: $mem-content-text;
     }
 
     .desc {
         font-size: 1rem;
         line-height: 1.5;
         font-weight: 500;
+        color: $mem-content-text;
     }
 
     @include mediumPhones {

@@ -96,7 +96,8 @@ context.$subscribe((mutation, state) => {
 
     &:hover {
       background-color: $candy-pink-deep;
-      color: $candy-text;
+      // Yellow accent on hover → pin static ink for the label.
+      color: $mem-ink;
     }
   }
 }

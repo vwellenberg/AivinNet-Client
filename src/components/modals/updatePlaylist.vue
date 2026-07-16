@@ -263,7 +263,7 @@ function update_playlist(e: Event) {
             place-items: center;
             place-content: center;
             border-radius: $small;
-            border: dashed 2px $candy-black;
+            border: dashed 2px $mem-line;
             cursor: pointer;
             padding: $medium;
 
@@ -287,7 +287,8 @@ function update_playlist(e: Event) {
 
             svg {
                 transform: scale(1);
-                color: $candy-white;
+                // White delete glyph over the image overlay — static light.
+                color: $mem-panel-static;
                 transition: transform 0.2s ease-out;
             }
 

@@ -45,7 +45,8 @@ const statsText = computed(() => {
   margin-bottom: 0.75rem;
   font-size: 14px;
   padding-left: $smaller;
-  color: $candy-text-muted;
+  // Header stats line sits on the page ground -> theme-aware muted.
+  color: $mem-content-muted;
 
   .artistname {
     display: -webkit-box;

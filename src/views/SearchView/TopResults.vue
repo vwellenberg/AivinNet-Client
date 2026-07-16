@@ -98,6 +98,9 @@ const noResults = computed(
 
   h3 {
     margin: $small;
+    // Section headings (Top Result / Tracks / Artists / ...) sit on the page
+    // ground -> theme-aware.
+    color: $mem-content-text;
   }
 
   .top-result-item {

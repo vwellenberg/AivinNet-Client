@@ -57,10 +57,15 @@ import { menus } from "./navitems";
     // old grey fill + green accent bar).
     &.active {
       background-color: $candy-pink;
-      border-color: $candy-black;
+      border-color: $mem-line;
+      // Blush accent pill -> label/icon pin static ink (readable in dark).
+      color: $mem-ink;
     }
 
-    &:hover {
+    // :not(.active): the soft hover fill is dark in dark mode and would
+    // override the blush pill (same specificity, later rule) while the
+    // pinned ink label stays — dark-on-dark. Active items keep their pill.
+    &:hover:not(.active) {
       background-color: $candy-pink-soft;
     }
   }

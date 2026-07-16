@@ -26,7 +26,9 @@ defineProps<{
 .song-album {
     max-width: max-content;
     max-width: calc(100% - 10px);
-    color: $candy-text-muted;
+    // Renders on the page ground -> theme-aware muted (ink-muted on paper,
+    // lavender-white on indigo). Filled rows re-pin ink-muted in SongItem.vue.
+    color: $mem-content-muted;
     cursor: pointer !important;
 
     &:hover {

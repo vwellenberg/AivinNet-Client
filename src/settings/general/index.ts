@@ -16,6 +16,7 @@ import nowPlaying from './now-playing-group'
 import rootDirSettings from './root-dirs'
 import separators from './separators'
 import sidebarSettings from './sidebar'
+import theme from './theme'
 import tracks from './tracks'
 // icons
 import AlbumSvg from '@/assets/icons/album.svg?raw'
@@ -35,6 +36,7 @@ export const general = {
             desc: 'Settings for various parts of the user interface.',
             icon: AppearanceSvg,
             settings: [
+                ...theme,
                 ...layout,
                 ...font,
                 ...extendWidth,

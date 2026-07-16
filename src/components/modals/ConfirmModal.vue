@@ -31,6 +31,9 @@ defineProps<{
 
     .cancel {
         background-color: $candy-white;
+        // Panel-var fill (dark in dark) -> adaptive label, not the ink
+        // default from the button base.
+        color: $candy-text;
 
         &:hover {
             background-color: $candy-pink-soft;
@@ -38,7 +41,15 @@ defineProps<{
     }
 
     .confirm {
-        background-color: $candy-pink-deep;
+        // Destructive action — coral (danger), not the yellow active accent.
+        background-color: $mem-coral;
+        // Static light label on coral (the panel var would go dark in dark).
+        color: $mem-panel-static;
+
+        &:hover {
+            background-color: $mem-coral;
+            opacity: 0.9;
+        }
     }
 }
 </style>

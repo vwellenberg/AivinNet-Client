@@ -742,7 +742,7 @@ onBeforeUnmount(teardown);
 
     &.drag-over {
       background-color: $candy-pink-soft;
-      outline: 1px dashed $candy-black;
+      outline: 1px dashed $mem-line;
     }
 
     .sidebar-folder-header {
@@ -831,7 +831,11 @@ onBeforeUnmount(teardown);
     font-weight: 500;
 
     &:hover { background-color: $candy-pink-soft; }
-    &.active { background-color: $candy-pink; }
+    &.active {
+      // Blush accent -> pin static ink for the row text.
+      background-color: $candy-pink;
+      color: $mem-ink;
+    }
 
     span.ellip {
       opacity: 0.85;
@@ -843,7 +847,7 @@ onBeforeUnmount(teardown);
       flex-shrink: 0;
       width: 0.95rem;
       height: 0.95rem;
-      color: $candy-black;
+      color: $candy-text;
       // Tilt the thumbtack like Spotify's pin (📌): head top-right, point lower-left.
       transform: rotate(35deg);
     }
@@ -882,7 +886,8 @@ onBeforeUnmount(teardown);
       svg {
         height: 1rem;
         width: 1rem;
-        color: $candy-white;
+        // White play glyph over the dark hover scrim — static light.
+        color: $mem-panel-static;
       }
 
       &:hover {

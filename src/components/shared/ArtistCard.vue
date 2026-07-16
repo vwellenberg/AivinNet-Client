@@ -54,7 +54,7 @@ const showContextMenu = (e: MouseEvent) => {
     overflow: hidden;
     position: relative;
 
-    @include candy-box($candy-pink, $candy-radius);
+    @include candy-box($mem-panel, $candy-radius);
     justify-content: center;
     padding: 1.2rem 1rem !important;
     font-size: 0.95rem;
@@ -63,7 +63,7 @@ const showContextMenu = (e: MouseEvent) => {
     transition: background-color 0.2s ease-out;
 
     &.context-menu-open {
-        background-color: $candy-pink-deep;
+        background-color: $mem-hover;
     }
 
     .image {
@@ -74,7 +74,7 @@ const showContextMenu = (e: MouseEvent) => {
     @include card-play-btn(center);
 
     &:hover {
-        background-color: $candy-pink-deep;
+        background-color: $mem-hover;
     }
 
     .artist-image {

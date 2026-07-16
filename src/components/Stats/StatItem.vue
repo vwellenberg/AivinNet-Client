@@ -31,7 +31,7 @@ import SparklesSvg from '@/assets/icons/sparkles.svg'
 
 import { paths } from '@/config'
 import { Routes } from '@/router'
-import { CANDY } from '@/utils/colortools/pageGradient'
+import { MEMPHIS } from '@/utils/colortools/pageGradient'
 
 const props = defineProps<{
     value: string
@@ -62,23 +62,23 @@ const formattedValue = computed(() => {
     return props.value.toLocaleString()
 })
 
-// Flat candy tile colour, cycled by stat type across the palette
-// [pink, lavender, pink-soft, white]. Candy brutalism is flat, so every route
+// Flat memphis tile colour, cycled by stat type across the palette
+// [blush, lavender, teal, yellow]. The design is flat, so every route
 // (including Album/Artist, which previously used cover-extracted colours) uses
-// the same candy tiles with black text.
+// the same memphis tiles with black text.
 const defaultBackgroundStyles = computed(() => {
     switch (props.icon) {
         case 'streams':
-            return CANDY.pink
+            return MEMPHIS.blush
         case 'playtime':
-            return CANDY.lavender
+            return MEMPHIS.lavender
         case 'trackcount':
-            return CANDY.pinkSoft
+            return MEMPHIS.teal
         case 'toptrack':
         case 'topalbum':
-            return CANDY.white
+            return MEMPHIS.yellow
         default:
-            return CANDY.pink
+            return MEMPHIS.blush
     }
 })
 
@@ -89,8 +89,9 @@ const tileStyle = computed(() => ({
 
 <style lang="scss">
 .statitem {
-    @include candy-box($candy-pink, $candy-radius);
-    color: $candy-text;
+    @include candy-box($mem-blush, $candy-radius);
+    // Accent-filled tiles (blush/lavender/teal/yellow) → static ink text.
+    color: $mem-ink;
     height: 12rem;
     aspect-ratio: 1;
     overflow: hidden;
@@ -125,7 +126,7 @@ const tileStyle = computed(() => ({
         left: 1rem;
         width: 1.5rem;
         z-index: 1;
-        color: $candy-text;
+        color: $mem-ink;
     }
 
     .statimage {

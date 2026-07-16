@@ -89,7 +89,7 @@ onClickOutside(dropOptionsRef, e => {
         font-size: 12px !important;
 
         background-color: transparent;
-        outline: solid 1px $candy-black;
+        outline: solid 1px $mem-line;
 
         svg {
             transform: rotate(90deg) scale(0.65);
@@ -100,7 +100,7 @@ onClickOutside(dropOptionsRef, e => {
         }
 
         &.showDropDown {
-            outline: solid 2px $candy-black;
+            outline: solid 2px $mem-line;
         }
     }
 
@@ -137,7 +137,9 @@ onClickOutside(dropOptionsRef, e => {
         }
 
         .current {
+            // Blush accent -> pin static ink for the label.
             background-color: $candy-pink;
+            color: $mem-ink;
         }
     }
 }

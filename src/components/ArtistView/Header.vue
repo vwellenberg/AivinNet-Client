@@ -101,7 +101,8 @@ const containerHeight = computed(() => {
     &.isSmallPhone .artist-info,
     &.isSmallPhone .artist-info .stats,
     &.isSmallPhone .artist-info .card-title {
-        color: $candy-white;
+        // White text over the dark photo scrim — static light in both themes.
+        color: $mem-panel-static;
     }
 
     .artist-img {

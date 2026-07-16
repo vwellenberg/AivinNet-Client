@@ -160,9 +160,9 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
         }
     }
 
-    .p-card {
-        background-color: transparent;
-    }
+    // Playlist cards keep their white candy-box here — the old dark design
+    // flattened them to transparent inside scroller rows, which let the page
+    // ground (indigo in dark) bleed through the card.
 
     .rinfo {
         padding: 0 $medium;
@@ -171,19 +171,20 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
         .rtitle {
             font-size: 1.15rem;
             font-weight: 700;
-            color: $candy-text;
+            // Section heading rows sit on the page ground -> theme-aware.
+            color: $mem-content-text;
             display: flex;
             align-items: baseline;
             justify-content: space-between;
 
             a {
-                color: $candy-text;
+                color: $mem-content-text;
             }
         }
 
         .rdesc {
             font-size: 0.9rem;
-            color: $candy-text-muted;
+            color: $mem-content-muted;
             display: flex;
             align-items: baseline;
             justify-content: space-between;
@@ -191,7 +192,8 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
     }
 
     .to_playlist {
-        background-color: $candy-white;
+        // Static-white highlight card with ink text — keep light in both themes.
+        background-color: $mem-panel-static;
         color: $candy-black;
         border: $candy-border;
         padding: 1.25rem 2rem;

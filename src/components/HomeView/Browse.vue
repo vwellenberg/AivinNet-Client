@@ -89,6 +89,9 @@ const browselist: BrowseItem[] = [
     font-size: 1.15rem;
     margin-bottom: 1rem;
     padding-left: 0.25rem;
+    // "Browse Library" heading sits on the page ground -> theme-aware.
+    // (The .browseitem tiles below are white candy-boxes -> stay ink.)
+    color: $mem-content-text;
   }
 
   .browselist {
@@ -101,7 +104,7 @@ const browselist: BrowseItem[] = [
   .browseitem {
     font-weight: 500;
     padding: 1.25rem 1rem;
-    @include candy-box($candy-pink, $candy-radius-sm);
+    @include candy-box($mem-panel, $candy-radius-sm);
     color: $candy-text;
     transition: background-color 0.2s ease-out;
 
@@ -116,12 +119,12 @@ const browselist: BrowseItem[] = [
 
     svg {
       height: 1.75rem;
-      color: $candy-black;
+      color: $candy-text;
     }
   }
 
   .settings svg {
-    color: $candy-black;
+    color: $candy-text;
   }
 
   .reload svg {
@@ -130,7 +133,7 @@ const browselist: BrowseItem[] = [
   }
 
   .browseitem:hover {
-    background-color: $candy-pink-deep;
+    background-color: $mem-hover;
   }
 }
 </style>

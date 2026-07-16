@@ -68,11 +68,14 @@ function clearAll() {
 
     h3 {
       margin: 0;
+      // "Recent searches" heading on the page ground -> theme-aware.
+      color: $mem-content-text;
     }
 
     .recent-clear {
       background: transparent;
-      color: $candy-text-muted;
+      // Transparent text button on the page ground -> theme-aware muted.
+      color: $mem-content-muted;
       font-size: 0.85rem;
       text-decoration: underline;
       cursor: pointer;
@@ -94,7 +97,7 @@ function clearAll() {
     padding: 0.5rem 0.5rem 0.5rem 0.85rem;
     border-radius: $candy-radius-pill;
     background-color: $candy-pink-soft;
-    border: 1px solid $candy-black;
+    border: 1px solid $mem-line;
     color: $candy-text;
     font-size: 0.9rem;
     font-weight: 500;
@@ -102,7 +105,7 @@ function clearAll() {
     transition: background-color 0.15s ease;
 
     &:hover {
-      background-color: $candy-pink;
+      background-color: $mem-hover;
     }
 
     .chip-search {
@@ -129,6 +132,8 @@ function clearAll() {
 
       &:hover {
         background-color: $candy-pink-deep;
+        // Yellow accent fill -> pin ink for the glyph.
+        color: $mem-ink;
         opacity: 1;
       }
     }

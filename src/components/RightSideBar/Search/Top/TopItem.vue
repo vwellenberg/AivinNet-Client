@@ -127,7 +127,7 @@ function onContextMenu(e: MouseEvent) {
 
 <style lang="scss">
 .top-result-item {
-    @include candy-box($candy-white, $candy-radius);
+    @include candy-box($mem-panel, $candy-radius);
     padding: 1rem;
     display: grid;
     gap: 1rem;
@@ -194,7 +194,7 @@ function onContextMenu(e: MouseEvent) {
         font-weight: 500;
         color: $candy-black;
         background-color: $candy-lavender;
-        border: 1px solid $candy-black;
+        border: 1px solid $mem-line;
         border-radius: $candy-radius-pill;
         width: max-content;
         padding: 2px $small;

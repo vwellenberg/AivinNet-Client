@@ -88,7 +88,10 @@ defineEmits<{
         visibility: visible;
 
         svg {
-            color: $candy-pink-deep;
+            // Inline favorited check-circle: teal "active" accent — readable
+            // on the light and dark grounds and on the filled row states
+            // (SongItem.vue pins the same teal there).
+            color: $mem-teal;
         }
     }
 
@@ -96,6 +99,9 @@ defineEmits<{
         font-size: small;
         font-variant-numeric: tabular-nums;
         text-align: left;
+        // On the page ground -> theme-aware muted. Filled rows re-pin
+        // ink-muted in SongItem.vue.
+        color: $mem-content-muted;
 
         @include mediumPhones {
             display: none;
@@ -130,7 +136,10 @@ defineEmits<{
         transition: background-color 0.2s ease-out;
 
         svg {
-            stroke: $gray1;
+            // Always-visible options glyph on the page ground -> theme-aware
+            // muted so it stays legible on the dark indigo ground. Filled rows
+            // re-pin ink-muted in SongItem.vue.
+            stroke: $mem-content-muted;
         }
 
         &:hover {
