@@ -43,7 +43,7 @@ defineProps<{
     @include candy-box($mem-panel, $candy-radius);
 
     &:hover {
-        background-color: $mem-blush;
+        background-color: $mem-hover;
         cursor: pointer;
     }
 

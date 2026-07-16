@@ -75,7 +75,7 @@ const name = (path: string) => {
   @include card-play-btn;
 
   &:hover {
-    background-color: $mem-blush;
+    background-color: $mem-hover;
   }
 
   svg.bg {

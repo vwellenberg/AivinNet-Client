@@ -55,7 +55,7 @@ defineProps<{
   @include card-play-btn;
 
   &:hover {
-    background-color: $mem-blush !important;
+    background-color: $mem-hover !important;
   }
 
   img {

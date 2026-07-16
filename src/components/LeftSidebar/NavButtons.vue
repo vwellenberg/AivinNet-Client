@@ -58,6 +58,8 @@ import { menus } from "./navitems";
     &.active {
       background-color: $candy-pink;
       border-color: $mem-line;
+      // Blush accent pill -> label/icon pin static ink (readable in dark).
+      color: $mem-ink;
     }
 
     &:hover {

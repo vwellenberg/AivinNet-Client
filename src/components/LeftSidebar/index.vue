@@ -831,7 +831,11 @@ onBeforeUnmount(teardown);
     font-weight: 500;
 
     &:hover { background-color: $candy-pink-soft; }
-    &.active { background-color: $candy-pink; }
+    &.active {
+      // Blush accent -> pin static ink for the row text.
+      background-color: $candy-pink;
+      color: $mem-ink;
+    }
 
     span.ellip {
       opacity: 0.85;

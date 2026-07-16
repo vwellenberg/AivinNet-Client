@@ -58,7 +58,7 @@ defineEmits<{
   @include card-play-btn;
 
   &:hover {
-    background-color: $mem-blush;
+    background-color: $mem-hover;
   }
 
   .ttitle {

@@ -31,6 +31,9 @@ defineProps<{
 
     .cancel {
         background-color: $candy-white;
+        // Panel-var fill (dark in dark) -> adaptive label, not the ink
+        // default from the button base.
+        color: $candy-text;
 
         &:hover {
             background-color: $candy-pink-soft;
