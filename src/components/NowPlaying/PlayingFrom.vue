@@ -98,7 +98,8 @@ function showContextMenu(e: MouseEvent) {
 
         svg {
             width: 1.5rem;
-            color: $candy-black;
+            // Soft fill is theme-var (dark in dark) -> glyph must adapt too.
+            color: $candy-text;
         }
     }
 

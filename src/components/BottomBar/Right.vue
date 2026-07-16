@@ -105,11 +105,17 @@ defineEmits<{
     }
 
     // The transport glyphs (repeat, shuffle, lyrics) hardcode a light fill in
-    // their SVG assets — force them black on the light surface. The favorite
-    // check is excluded: its circle is currentColor-driven (see HeartSvg) and
-    // its check mark is a separate white-stroked path that must stay white.
+    // their SVG assets — force them to the theme text colour so they read on
+    // the panel bar in BOTH themes. The favorite check is excluded: its circle
+    // is currentColor-driven (see HeartSvg) and its check mark is a separate
+    // white-stroked path that must stay white.
     > button:not(.heart-button) svg path {
-        fill: $candy-black;
+        fill: $candy-text;
+    }
+
+    // Active repeat sits on the yellow accent fill — pin static ink.
+    button.repeat:not(.repeat-disabled) svg path {
+        fill: $mem-ink;
     }
 }
 </style>

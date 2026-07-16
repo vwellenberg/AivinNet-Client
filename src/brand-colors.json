@@ -15,14 +15,14 @@
     "textMuted": "#6D6A62"
   },
   "memphisDark": {
-    "ground": "#1E1F4B",
-    "panel": "#2A2B5E",
-    "soft": "#3A3B7A",
+    "ground": "#1B1B1F",
+    "panel": "#27272D",
+    "soft": "#37373F",
     "line": "#F4F2ED",
     "text": "#F4F2ED",
-    "textMuted": "#C9C9E8",
+    "textMuted": "#B9B9C0",
     "contentText": "#FFFFFF",
-    "contentMuted": "#D9D9F2",
-    "gridLine": "rgba(255, 255, 255, 0.14)"
+    "contentMuted": "#C6C6CE",
+    "gridLine": "rgba(255, 255, 255, 0.13)"
   }
 }
