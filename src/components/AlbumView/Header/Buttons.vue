@@ -96,7 +96,8 @@ async function fetchCover() {
     border: none;
 
     svg {
-      color: $candy-black;
+      // Sits on the page ground -> theme-aware (ink on paper, white on dark).
+      color: $mem-content-text;
     }
   }
 
@@ -105,7 +106,8 @@ async function fetchCover() {
       background-color: $darkblue;
 
       svg {
-        color: $white !important;
+        // Yellow accent fill while the menu is open -> pin static ink.
+        color: $mem-ink !important;
       }
     }
 

@@ -60,12 +60,15 @@ function showContext(e: MouseEvent) {
       background-color: $darkblue;
 
       svg {
-        color: $white !important;
+        // Yellow accent fill while the menu is open -> pin static ink.
+        color: $mem-ink !important;
       }
     }
 
     svg {
       transform: scale(1.25);
+      // Sits on the page ground -> theme-aware.
+      color: $mem-content-text;
     }
   }
 }

@@ -329,7 +329,8 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 
     .options-and-duration {
         .heart-icon.is_fav svg {
-            color: $mem-ink;
+            // Teal "favorited" accent reads on the light row fills too.
+            color: $mem-teal;
         }
 
         .options-icon svg {

@@ -88,11 +88,10 @@ defineEmits<{
         visibility: visible;
 
         svg {
-            // Inline favorited check-circle. It sits on the page ground, so use
-            // the theme-aware content colour (ink on paper, white on indigo) —
-            // plain ink would nearly vanish on the dark indigo ground. Filled
-            // rows re-pin ink in SongItem.vue.
-            color: $mem-content-text;
+            // Inline favorited check-circle: teal "active" accent — readable
+            // on the light and dark grounds and on the filled row states
+            // (SongItem.vue pins the same teal there).
+            color: $mem-teal;
         }
     }
 
