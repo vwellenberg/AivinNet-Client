@@ -136,7 +136,7 @@ $modalheight: 38rem;
             // margin: $smaller $small 0 0;
             padding: 2px $smaller;
             border-radius: $smaller;
-            border: solid 1px $candy-black;
+            border: solid 1px $mem-line;
             color: $candy-text;
             font-size: 10px;
             font-weight: bold;

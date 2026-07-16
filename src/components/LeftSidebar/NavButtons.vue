@@ -57,7 +57,7 @@ import { menus } from "./navitems";
     // old grey fill + green accent bar).
     &.active {
       background-color: $candy-pink;
-      border-color: $candy-black;
+      border-color: $mem-line;
     }
 
     &:hover {

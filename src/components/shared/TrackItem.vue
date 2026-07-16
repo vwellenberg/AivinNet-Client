@@ -222,7 +222,7 @@ onBeforeUnmount(() => {
     width: 3rem;
     height: 3rem;
     object-fit: contain;
-    border: 1px solid $candy-black;
+    border: 1px solid $mem-line;
     border-radius: $candy-radius-sm;
   }
 

@@ -73,7 +73,8 @@ const useSqrImg = computed(() => !playlist.info.has_image || !bg.value.startsWit
 
     .playlist-info,
     .last-updated {
-      color: $candy-white;
+      // White text over the banner photo — static light in both themes.
+      color: $mem-panel-static;
     }
   }
 

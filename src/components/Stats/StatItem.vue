@@ -90,7 +90,8 @@ const tileStyle = computed(() => ({
 <style lang="scss">
 .statitem {
     @include candy-box($mem-blush, $candy-radius);
-    color: $candy-text;
+    // Accent-filled tiles (blush/lavender/teal/yellow) → static ink text.
+    color: $mem-ink;
     height: 12rem;
     aspect-ratio: 1;
     overflow: hidden;
@@ -125,7 +126,7 @@ const tileStyle = computed(() => ({
         left: 1rem;
         width: 1.5rem;
         z-index: 1;
-        color: $candy-text;
+        color: $mem-ink;
     }
 
     .statimage {

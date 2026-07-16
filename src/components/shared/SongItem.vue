@@ -251,8 +251,10 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     }
 
     &:hover {
-        background-color: $candy-white;
-        border-color: $candy-black;
+        // Static-light hover fill (not the panel var) so the pinned ink text
+        // below stays readable in dark; paper outline.
+        background-color: $mem-panel-static;
+        border-color: $mem-line;
         border-radius: $candy-radius-sm;
 
         .song-duration.has_help_text {
@@ -302,9 +304,10 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 }
 
 .songlist-item.contexton {
-    background-color: $candy-pink-soft !important;
-    // Consistent with hover/playing rows: marked rows always carry the ink box.
-    border-color: $candy-black;
+    // Static soft-blush light fill (equals the light value of $candy-pink-soft)
+    // so it stays light in dark and the pinned ink text reads; paper outline.
+    background-color: $mem-blush-soft-static !important;
+    border-color: $mem-line;
     border-radius: $candy-radius-sm;
 }
 
@@ -321,7 +324,7 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 
     .song-album,
     .song-duration {
-        color: $mem-text-muted;
+        color: $mem-text-muted-static;
     }
 
     .options-and-duration {
@@ -330,17 +333,17 @@ const isFavoritesPage = route.path.startsWith('/favorites')
         }
 
         .options-icon svg {
-            stroke: $mem-text-muted;
+            stroke: $mem-text-muted-static;
         }
     }
 }
 
 .songlist-item.drag-over-top {
-    border-top: 2px solid $candy-black;
+    border-top: 2px solid $mem-line;
 }
 
 .songlist-item.drag-over-bottom {
-    border-bottom: 2px solid $candy-black;
+    border-bottom: 2px solid $mem-line;
 }
 
 .songlist-item[draggable="true"] {

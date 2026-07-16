@@ -7,8 +7,10 @@
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background-color: $candy-white;
-  border: $candy-border;
+  // Sits on album artwork with a black wave inside — keep it a static light
+  // circle with a static ink ring so it reads over any cover in both themes.
+  background-color: $mem-panel-static;
+  border: $candy-border-w solid $mem-ink;
   transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
 
   &.active {

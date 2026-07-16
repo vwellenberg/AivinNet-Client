@@ -742,7 +742,7 @@ onBeforeUnmount(teardown);
 
     &.drag-over {
       background-color: $candy-pink-soft;
-      outline: 1px dashed $candy-black;
+      outline: 1px dashed $mem-line;
     }
 
     .sidebar-folder-header {
@@ -882,7 +882,8 @@ onBeforeUnmount(teardown);
       svg {
         height: 1rem;
         width: 1rem;
-        color: $candy-white;
+        // White play glyph over the dark hover scrim — static light.
+        color: $mem-panel-static;
       }
 
       &:hover {

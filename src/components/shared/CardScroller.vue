@@ -192,7 +192,8 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
     }
 
     .to_playlist {
-        background-color: $candy-white;
+        // Static-white highlight card with ink text — keep light in both themes.
+        background-color: $mem-panel-static;
         color: $candy-black;
         border: $candy-border;
         padding: 1.25rem 2rem;

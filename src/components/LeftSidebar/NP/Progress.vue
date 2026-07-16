@@ -201,7 +201,7 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
         padding: 2px 6px;
         border-radius: $candy-radius-sm;
         background: $candy-white;
-        border: 1px solid $candy-black;
+        border: 1px solid $mem-line;
         color: $candy-text;
         font-size: $medium;
         line-height: 1.2;

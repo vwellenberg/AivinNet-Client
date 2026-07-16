@@ -22,21 +22,31 @@
     --mem-ground: #{$mem-paper};
     --mem-grid-line: #{rgba($mem-ink, 0.3)};
     --mem-content-text: #{$mem-ink};
-    --mem-content-muted: #{$mem-text-muted};
+    --mem-content-muted: #{$mem-text-muted-static};
     --mem-content-faint: #{rgba($mem-ink, 0.45)};
+    --mem-panel: #{$mem-panel-static};
+    --mem-soft: #{$mem-blush-soft-static};
+    --mem-line: #{$mem-ink};
+    --mem-text: #{$mem-ink};
+    --mem-text-muted: #{$mem-text-muted-static};
     --mem-scrollbar-thumb: #{rgba($mem-ink, 0.35)};
     --mem-scrollbar-thumb-hover: #{rgba($mem-ink, 0.55)};
 }
 
 body.theme-dark {
-    // "Classic 90s" dark: indigo ground (no grid — like the reference art),
-    // white content text. Panels stay white, ink stays ink, accents stay.
+    // True-dark "classic 90s": deep indigo ground WITH the grid (light
+    // lines), dark indigo panels, paper borders/text. Accents stay the same.
     color-scheme: dark;
     --mem-ground: #{$mem-dark-ground};
-    --mem-grid-line: transparent;
+    --mem-grid-line: #{$mem-dark-grid-line};
     --mem-content-text: #{$mem-dark-content-text};
     --mem-content-muted: #{$mem-dark-content-muted};
     --mem-content-faint: rgba(255, 255, 255, 0.55);
+    --mem-panel: #{$mem-dark-panel};
+    --mem-soft: #{$mem-dark-soft};
+    --mem-line: #{$mem-dark-line};
+    --mem-text: #{$mem-dark-text};
+    --mem-text-muted: #{$mem-dark-text-muted};
     --mem-scrollbar-thumb: rgba(255, 255, 255, 0.45);
     --mem-scrollbar-thumb-hover: rgba(255, 255, 255, 0.65);
 }

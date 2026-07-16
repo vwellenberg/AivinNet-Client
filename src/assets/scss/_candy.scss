@@ -29,45 +29,67 @@ $mem-blush: #f5c6ce !default; // soft fills (nav active, buttons)
 $mem-blush-soft: #fbe3e7 !default; // input fills, hover on white
 $mem-text-muted: #6d6a62 !default; // subtitles, captions
 
-// Dark theme ("classic 90s": indigo ground, reference image 2) — only the
-// roles that CHANGE between themes; accents/panels/ink stay identical.
-$mem-dark-ground: #4547c9 !default;
+// True-dark theme ("classic 90s": deep indigo, grid stays visible) — the
+// roles that CHANGE between themes. Accents (teal/yellow/coral/lavender/
+// blush) and $mem-ink stay identical.
+$mem-dark-ground: #1e1f4b !default;
+$mem-dark-panel: #2a2b5e !default;
+$mem-dark-soft: #3a3b7a !default;
+$mem-dark-line: #f4f2ed !default;
+$mem-dark-text: #f4f2ed !default;
+$mem-dark-text-muted: #c9c9e8 !default;
 $mem-dark-content-text: #ffffff !default;
 $mem-dark-content-muted: #d9d9f2 !default;
+$mem-dark-grid-line: rgba(255, 255, 255, 0.14) !default;
+
+// Static literals preserved for the :root var definitions in
+// Global/index.scss (the role tokens below become var() references).
+$mem-panel-static: $mem-panel;
+$mem-blush-soft-static: $mem-blush-soft;
+$mem-text-muted-static: $mem-text-muted;
 
 // ---------------------------------------------------------------------------
 // THEME-DEPENDENT roles — runtime-switchable via CSS custom properties.
 // Global/index.scss defines --mem-* on :root (light values) and overrides
-// them under body.theme-dark. Use these tokens for anything that sits
-// DIRECTLY on the page ground (the grid): ground fills, sticky bands, and
-// text/icons painted over the grid. Panels (white), ink borders and the
-// accent colours are theme-INDEPENDENT — keep using the static tokens there.
-// NEVER run these through Sass colour functions (they are var() references).
+// them under body.theme-dark. NEVER run these through Sass colour functions
+// (they are var() references).
+//  - ground/content-*: the page ground (grid) and text painted over it
+//  - panel/text/text-muted/soft: panel surfaces and their text/hover fills
+//  - line: EVERY border/outline (ink in light, paper in dark)
+// $mem-ink stays STATIC — use it for text/icons on the light accent fills
+// (yellow/teal/blush/white), which look the same in both themes.
 // ---------------------------------------------------------------------------
 $mem-ground: var(--mem-ground);
 $mem-content-text: var(--mem-content-text);
 $mem-content-muted: var(--mem-content-muted);
 $mem-content-faint: var(--mem-content-faint);
+$mem-panel: var(--mem-panel);
+$mem-soft: var(--mem-soft);
+$mem-line: var(--mem-line);
+$mem-text: var(--mem-text);
+$mem-text-muted: var(--mem-text-muted);
 
 // ---------------------------------------------------------------------------
-// LEGACY candy aliases (values also injected from JSON — kept for the ~100
-// existing usages; new code should prefer $mem-*).
+// LEGACY candy aliases — kept for the ~100 existing usages; new code should
+// prefer $mem-*. The theme-dependent ones are assigned WITHOUT !default so
+// they beat the static literals the vite injection prepends.
 // ---------------------------------------------------------------------------
-$candy-pink: $mem-blush !default;
-$candy-pink-soft: $mem-blush-soft !default;
-$candy-pink-deep: $mem-yellow !default;
-$candy-white: $mem-panel !default;
+$candy-pink: $mem-blush !default; // accent, theme-independent
+$candy-pink-soft: $mem-soft; // panel hover/input fill → theme var
+$candy-pink-deep: $mem-yellow !default; // accent, theme-independent
+$candy-white: $mem-panel; // panel surface → theme var
 $candy-lavender: $mem-lavender !default;
-$candy-black: $mem-ink !default;
+$candy-black: $mem-ink !default; // static ink (text on accent fills)
 
 // Text
-$candy-text: $candy-black;
-$candy-text-muted: $mem-text-muted !default;
-$candy-text-faint: rgba(23, 23, 26, 0.45); // placeholders, disabled
+$candy-text: $mem-text; // default text → theme var (ink / paper)
+$candy-text-muted: $mem-text-muted; // theme var
+$candy-text-faint: var(--mem-content-faint); // placeholders, disabled
 
 // Structure
 $candy-border-w: 2px;
-$candy-border: $candy-border-w solid $candy-black;
+// Every border/outline: ink in light, paper in dark.
+$candy-border: $candy-border-w solid $mem-line;
 $candy-radius: 14px; // cards, panels, modals
 $candy-radius-sm: 10px; // buttons, inputs, thumbnails
 $candy-radius-pill: 999px; // pills, sliders

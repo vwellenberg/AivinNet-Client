@@ -65,7 +65,7 @@ const genres = computed(() => {
 
   .genre-pill {
     background-color: $candy-lavender;
-    border: 1px solid $candy-black;
+    border: 1px solid $mem-line;
     border-radius: $candy-radius-pill;
     color: $candy-black;
     min-width: 4rem;
@@ -75,7 +75,9 @@ const genres = computed(() => {
     transition: background-color 0.2s ease-out, color 0.2s ease-out;
 
     &:first-child {
-      background-color: $candy-white;
+      // Static-white "primary genre" pill with ink text — keep it light in
+      // both themes so the ink label stays readable (not a panel surface).
+      background-color: $mem-panel-static;
       color: $candy-black;
       pointer-events: none;
     }

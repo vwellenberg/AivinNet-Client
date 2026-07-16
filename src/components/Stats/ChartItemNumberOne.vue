@@ -63,7 +63,8 @@ function getItemImage(item: ChartItem, size: 'small' | 'large' | 'medium' = 'lar
 <style lang="scss">
 .chartitemhashuno {
     @include candy-box($candy-lavender, $candy-radius);
-    color: $candy-text;
+    // Lavender accent box → static ink text.
+    color: $mem-ink;
     display: grid;
     grid-template-columns: max-content 1fr max-content !important;
     align-items: flex-end !important;
@@ -73,7 +74,8 @@ function getItemImage(item: ChartItem, size: 'small' | 'large' | 'medium' = 'lar
     position: relative;
 
     .hashuno {
-        background-color: $candy-white;
+        // Static-white "1" badge with ink numeral — keep light in both themes.
+        background-color: $mem-panel-static;
         color: $candy-black;
         border: $candy-border;
 
@@ -103,7 +105,7 @@ function getItemImage(item: ChartItem, size: 'small' | 'large' | 'medium' = 'lar
         .index {
             font-size: 5rem;
             font-weight: 900;
-            color: $candy-text;
+            color: $mem-ink;
         }
 
         .trend {

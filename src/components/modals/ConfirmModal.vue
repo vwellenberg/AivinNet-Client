@@ -40,7 +40,8 @@ defineProps<{
     .confirm {
         // Destructive action — coral (danger), not the yellow active accent.
         background-color: $mem-coral;
-        color: $candy-white;
+        // Static light label on coral (the panel var would go dark in dark).
+        color: $mem-panel-static;
 
         &:hover {
             background-color: $mem-coral;

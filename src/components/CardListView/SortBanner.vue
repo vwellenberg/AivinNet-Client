@@ -105,7 +105,7 @@ const artistitems = [
     .tt {
         background-color: $candy-white;
         color: $candy-text;
-        border: 1px solid $candy-black;
+        border: 1px solid $mem-line;
         height: max-content;
 
         display: flex;
