@@ -720,8 +720,10 @@ onBeforeUnmount(teardown);
       width: 1.4rem;
       height: 1.4rem;
       border-radius: 50%;
-      color: inherit;
-      opacity: 0.8;
+      // Blush accent fill (button base) -> static ink glyph, full opacity;
+      // inherited panel text was washed out on the pink circle in dark.
+      color: $mem-ink;
+      opacity: 1;
       cursor: pointer;
       transition: background-color 0.15s ease, opacity 0.15s ease;
 

@@ -47,8 +47,10 @@ button.playbtnrect {
         content: "";
         position: absolute;
         inset: 0;
-        @include mem-sprinkle;
-        opacity: 0.3;
+        // Small tile + stronger opacity: the 44px button shows only a slice
+        // of the pattern, so the default 46px/0.3 was invisible in practice.
+        @include mem-sprinkle(28px);
+        opacity: 0.45;
         pointer-events: none;
         z-index: 0;
     }
