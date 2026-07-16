@@ -46,8 +46,9 @@ defineEmits<{
     align-items: center;
     gap: $smaller;
     border: none;
-    // Unfavorited: black outline glyph (the plus) on a transparent button.
-    color: $candy-black;
+    // Unfavorited: theme-text outline glyph (the plus) on a transparent
+    // button — ink on light chrome, paper on dark.
+    color: $candy-text;
     aspect-ratio: 1.5;
     background: transparent;
 
@@ -67,10 +68,12 @@ defineEmits<{
         border: none;
     }
 
-    // Favorited state: black check circle (drives the SVG's currentColor
-    // circle; the check itself is fixed white in the asset).
+    // Favorited state: teal check circle (drives the SVG's currentColor
+    // circle; the check itself is fixed white in the asset). Teal is the
+    // theme-invariant "active" accent — readable on light and dark chrome
+    // and on the yellow playing row.
     &.is-fav {
-        color: $candy-black;
+        color: $mem-teal;
     }
 }
 </style>
