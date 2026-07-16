@@ -44,9 +44,13 @@ $mem-dark-grid-line: rgba(255, 255, 255, 0.14) !default;
 
 // Static literals preserved for the :root var definitions in
 // Global/index.scss (the role tokens below become var() references).
-$mem-panel-static: $mem-panel;
-$mem-blush-soft-static: $mem-blush-soft;
-$mem-text-muted-static: $mem-text-muted;
+// `!default` is CRITICAL: this file is imported more than once (variables,
+// index.scss, vite additionalData); on re-import $mem-panel is already the
+// var() reference, and without !default these would capture the var and
+// emit a self-referencing `--mem-panel: var(--mem-panel)` (= transparent).
+$mem-panel-static: $mem-panel !default;
+$mem-blush-soft-static: $mem-blush-soft !default;
+$mem-text-muted-static: $mem-text-muted !default;
 
 // ---------------------------------------------------------------------------
 // THEME-DEPENDENT roles — runtime-switchable via CSS custom properties.
