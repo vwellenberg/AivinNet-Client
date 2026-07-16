@@ -84,6 +84,23 @@ function handlePlay() {
   place-items: center;
   @include candy-shadow(3px, 3px);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden; // clip the sprinkle to the circle
+
+  // Memphis sprinkle over the teal fill (like the header Play CTA).
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    @include mem-sprinkle(24px);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  svg {
+    position: relative;
+    z-index: 1;
+  }
 
   &:hover {
     // Primary "play" CTA — keep the teal identity, just scale + deepen the

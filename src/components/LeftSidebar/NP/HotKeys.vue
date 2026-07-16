@@ -112,6 +112,25 @@ const settings = useSettings()
         flex-shrink: 0;
         @include candy-box($mem-teal, $candy-radius-sm);
         transition: transform 0.1s ease, background-color 0.2s ease-out;
+        position: relative;
+        overflow: hidden; // clip the sprinkle to the rounded corners
+
+        // Memphis sprinkle over the teal box (like the header Play CTA).
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            @include mem-sprinkle(22px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        svg,
+        .spinner {
+            // Glyph above the sprinkle overlay.
+            position: relative;
+            z-index: 1;
+        }
 
         svg {
             // Larger glyph — the 1.35rem play/pause looked too small in the box.

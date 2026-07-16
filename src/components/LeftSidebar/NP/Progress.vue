@@ -2,6 +2,7 @@
     <div
         ref="wrap"
         class="progress-wrap"
+        :style="{ '--played-frac': currentPercent / 100 }"
         @pointermove="onPointerMove"
         @pointerleave="onPointerLeave"
     >
@@ -19,6 +20,12 @@
             @change="seek"
             @click="seek"
         />
+
+        <!-- Memphis sprinkle texture over the played (teal) fill. An overlay
+             div (the range input can't host pseudo-elements) whose width
+             follows the playhead via --played-frac; fixed tile size, so the
+             pattern never stretches. pointer-events off — seeks untouched. -->
+        <div class="progress-fill-sprinkle" />
 
         <!--
             Spotify-style hover preview (#66): a light fill from 0 to the cursor
@@ -156,11 +163,10 @@ const currentPercent = computed(() => (time.current / (time.full || 1)) * 100)
 //                               it only shows between the playhead and buffer edge
 //   3. track (base)           — flat $mem-blush-soft fills the remainder
 // The 2px ink border, pill radius and white bordered thumb come from the
-// global range styling (ProgressBar.scss); this only paints the fill.
-// Decision: no sprinkle texture on the played fill — the layered-background
-// mechanism clips each layer to a percentage via background-size, which would
-// stretch the fixed-tile sprinkle SVG (or bleed it into the unplayed region if
-// tiled). Plain teal reads cleanly, so per the task's fallback we keep it flat.
+// global range styling (ProgressBar.scss); this only paints the fill. The
+// sprinkle texture lives on the .progress-fill-sprinkle overlay div (the
+// background layers here clip via background-size, which would stretch a
+// fixed-tile pattern).
 const progressBg = computed(() => {
     const played = `linear-gradient(${MEMPHIS.teal}, ${MEMPHIS.teal}) left center / ${currentPercent.value}% 100% no-repeat`
     const buffered = `linear-gradient(${MEMPHIS.blush}, ${MEMPHIS.blush}) left center / ${maxSeekPercent.value}% 100% no-repeat`
@@ -181,6 +187,22 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
     // Collapse the inline-block baseline gap under the range input so wrapping
     // it does not nudge the bar down a couple of pixels.
     line-height: 0;
+
+    // Sprinkle overlay tracking the played fill (width via --played-frac set
+    // on the wrapper). Insets keep it inside the input's 2px ink border.
+    .progress-fill-sprinkle {
+        position: absolute;
+        left: 3px;
+        top: 50%;
+        transform: translateY(-50%);
+        height: calc(0.6rem - 6px);
+        width: calc((100% - 8px) * var(--played-frac, 0));
+        border-radius: $candy-radius-pill;
+        @include mem-sprinkle(20px);
+        opacity: 0.4;
+        pointer-events: none;
+        z-index: 1;
+    }
 
     // Light preview fill from 0 to the cursor, layered over the played
     // green/grey gradient (which stays visible). Never intercepts pointer
