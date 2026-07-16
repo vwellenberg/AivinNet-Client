@@ -62,7 +62,7 @@ defineEmits<{
       object-fit: contain;
       cursor: pointer;
       z-index: 20;
-      border: 1px solid $candy-black;
+      border: 1px solid $mem-line;
       border-radius: $candy-radius-sm;
       transition: filter 0.15s ease;
     }
@@ -114,9 +114,10 @@ defineEmits<{
       font-weight: 600;
     }
 
-    // Highlight the title of the currently-playing track (issue #67).
+    // Highlight the title of the currently-playing track (issue #67). This
+    // title always sits on the .current (yellow) row, so pin static ink.
     .title.is-current {
-      color: $candy-text;
+      color: $mem-ink;
     }
   }
 }

@@ -31,8 +31,8 @@
     font-weight: 600;
 
     background-color: $candy-pink-deep;
-    color: $candy-text;
-    border: 1px solid $candy-black;
+    color: $mem-ink;
+    border: 1px solid $mem-line;
 
     padding: $smaller;
     margin-bottom: $small;

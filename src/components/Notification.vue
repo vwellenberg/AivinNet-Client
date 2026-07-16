@@ -114,15 +114,22 @@ function getSvg(notif: NotifType) {
 .new-notif.success,
 .new-notif.favorite {
     background-color: $candy-pink;
+    // Blush accent fill → pin static ink for the text + icon.
+    color: $mem-ink;
+
+    .notif-icon {
+        color: $mem-ink;
+    }
 }
 
 .new-notif.error {
     // Coral is the danger hue — yellow is reserved for active/playing states.
     background-color: $mem-coral;
-    color: $candy-white;
+    // Static light text/icon on the coral fill (the panel var would go dark).
+    color: $mem-panel-static;
 
     .notif-icon {
-        color: $candy-white;
+        color: $mem-panel-static;
     }
 }
 </style>

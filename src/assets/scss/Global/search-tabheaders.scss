@@ -17,6 +17,7 @@
 
   .activetab {
     background-color: $candy-pink-deep;
-    color: $candy-text;
+    // Yellow accent fill (light in both themes) → pin static ink.
+    color: $mem-ink;
   }
 }

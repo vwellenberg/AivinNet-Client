@@ -64,7 +64,7 @@ async function submit(newValue: number) {
         top: 6px;
 
         border-color: $candy-pink-soft;
-        border-top-color: $candy-black;
+        border-top-color: $mem-line;
     }
 
     input::-webkit-outer-spin-button,

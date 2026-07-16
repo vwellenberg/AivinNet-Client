@@ -97,7 +97,7 @@ function clearAll() {
     padding: 0.5rem 0.5rem 0.5rem 0.85rem;
     border-radius: $candy-radius-pill;
     background-color: $candy-pink-soft;
-    border: 1px solid $candy-black;
+    border: 1px solid $mem-line;
     color: $candy-text;
     font-size: 0.9rem;
     font-weight: 500;

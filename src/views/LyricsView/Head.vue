@@ -75,7 +75,7 @@ const lyrics = useLyrics();
 
   .lyricstype {
     border-radius: $candy-radius-pill;
-    border: 1px solid $candy-black;
+    border: 1px solid $mem-line;
     font-size: 12px;
     padding: $smaller $small;
     background-color: $candy-lavender;

@@ -47,12 +47,12 @@ import { topnavitems } from "../LeftSidebar/navitems";
 
     &:hover {
       color: $primary;
-      background-color: #fff;
+      background-color: $candy-white;
     }
   }
 
   .active {
-    background-color: #fff;
+    background-color: $candy-white;
     color: $primary;
   }
 

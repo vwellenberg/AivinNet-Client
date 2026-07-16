@@ -152,8 +152,14 @@ export default defineConfig({
           `$mem-blush: ${brandColors.memphis.blush}; $mem-blush-soft: ${brandColors.memphis.blushSoft}; ` +
           `$mem-text-muted: ${brandColors.memphis.textMuted}; ` +
           `$mem-dark-ground: ${brandColors.memphisDark.ground}; ` +
+          `$mem-dark-panel: ${brandColors.memphisDark.panel}; ` +
+          `$mem-dark-soft: ${brandColors.memphisDark.soft}; ` +
+          `$mem-dark-line: ${brandColors.memphisDark.line}; ` +
+          `$mem-dark-text: ${brandColors.memphisDark.text}; ` +
+          `$mem-dark-text-muted: ${brandColors.memphisDark.textMuted}; ` +
           `$mem-dark-content-text: ${brandColors.memphisDark.contentText}; ` +
           `$mem-dark-content-muted: ${brandColors.memphisDark.contentMuted}; ` +
+          `$mem-dark-grid-line: ${brandColors.memphisDark.gridLine}; ` +
           `$candy-pink: ${brandColors.memphis.blush}; $candy-pink-soft: ${brandColors.memphis.blushSoft}; ` +
           `$candy-pink-deep: ${brandColors.memphis.yellow}; $candy-white: ${brandColors.memphis.panel}; ` +
           `$candy-lavender: ${brandColors.memphis.lavender}; $candy-black: ${brandColors.memphis.ink}; ` +
