@@ -72,6 +72,7 @@ $mem-soft: var(--mem-soft);
 $mem-line: var(--mem-line);
 $mem-text: var(--mem-text);
 $mem-text-muted: var(--mem-text-muted);
+$mem-hover: var(--mem-hover); // hover fill (blush / calm dark tint)
 
 // ---------------------------------------------------------------------------
 // LEGACY candy aliases — kept for the ~100 existing usages; new code should

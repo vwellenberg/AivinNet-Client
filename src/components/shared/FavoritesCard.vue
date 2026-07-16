@@ -81,7 +81,7 @@ defineProps<{
     }
 
     &:hover {
-        background-color: $mem-blush;
+        background-color: $mem-hover;
     }
 
     .info {

@@ -110,7 +110,7 @@ function showMenu(e: MouseEvent) {
     @include card-play-btn;
 
     &.context-menu-open {
-        background-color: $mem-blush;
+        background-color: $mem-hover;
     }
 
     .with-img {
@@ -128,7 +128,7 @@ function showMenu(e: MouseEvent) {
     }
 
     &:hover {
-        background-color: $mem-blush;
+        background-color: $mem-hover;
     }
 
     img {

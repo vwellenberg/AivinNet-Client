@@ -75,7 +75,10 @@ button {
   font-size: 0.9rem !important;
   font-weight: 700;
   line-height: 1.2;
-  color: $candy-text;
+  // Buttons carry the static blush fill (and yellow hover/active) in both
+  // themes -> the label/icon must be static ink too. Transparent icon
+  // buttons that need the adaptive colour set it locally.
+  color: $mem-ink;
   border-radius: $candy-radius-sm;
   border: $candy-border;
   display: flex;

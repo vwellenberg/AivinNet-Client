@@ -29,6 +29,9 @@
     --mem-line: #{$mem-ink};
     --mem-text: #{$mem-ink};
     --mem-text-muted: #{$mem-text-muted-static};
+    // Hover fill on cards/rows: blush in light, calm dark tint in dark
+    // (adaptive text keeps working — no per-child pinning needed).
+    --mem-hover: #{$mem-blush};
     --mem-scrollbar-thumb: #{rgba($mem-ink, 0.35)};
     --mem-scrollbar-thumb-hover: #{rgba($mem-ink, 0.55)};
 }
@@ -47,6 +50,7 @@ body.theme-dark {
     --mem-line: #{$mem-dark-line};
     --mem-text: #{$mem-dark-text};
     --mem-text-muted: #{$mem-dark-text-muted};
+    --mem-hover: #{$mem-dark-soft};
     --mem-scrollbar-thumb: rgba(255, 255, 255, 0.45);
     --mem-scrollbar-thumb-hover: rgba(255, 255, 255, 0.65);
 }

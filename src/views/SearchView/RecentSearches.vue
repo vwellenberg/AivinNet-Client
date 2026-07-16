@@ -105,7 +105,7 @@ function clearAll() {
     transition: background-color 0.15s ease;
 
     &:hover {
-      background-color: $candy-pink;
+      background-color: $mem-hover;
     }
 
     .chip-search {
@@ -132,6 +132,8 @@ function clearAll() {
 
       &:hover {
         background-color: $candy-pink-deep;
+        // Yellow accent fill -> pin ink for the glyph.
+        color: $mem-ink;
         opacity: 1;
       }
     }

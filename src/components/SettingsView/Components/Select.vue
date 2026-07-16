@@ -52,7 +52,9 @@ const optionsWithActive = computed(() => {
     }
 
     .option.active {
+        // Yellow accent fill -> pin static ink for the label.
         background-color: $candy-pink-deep;
+        color: $mem-ink;
     }
 }
 </style>

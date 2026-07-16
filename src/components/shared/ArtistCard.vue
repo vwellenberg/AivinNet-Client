@@ -63,7 +63,7 @@ const showContextMenu = (e: MouseEvent) => {
     transition: background-color 0.2s ease-out;
 
     &.context-menu-open {
-        background-color: $mem-blush;
+        background-color: $mem-hover;
     }
 
     .image {
@@ -74,7 +74,7 @@ const showContextMenu = (e: MouseEvent) => {
     @include card-play-btn(center);
 
     &:hover {
-        background-color: $mem-blush;
+        background-color: $mem-hover;
     }
 
     .artist-image {

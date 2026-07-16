@@ -133,7 +133,7 @@ const browselist: BrowseItem[] = [
   }
 
   .browseitem:hover {
-    background-color: $mem-blush;
+    background-color: $mem-hover;
   }
 }
 </style>

@@ -137,7 +137,9 @@ onClickOutside(dropOptionsRef, e => {
         }
 
         .current {
+            // Blush accent -> pin static ink for the label.
             background-color: $candy-pink;
+            color: $mem-ink;
         }
     }
 }
