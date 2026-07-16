@@ -847,7 +847,7 @@ onBeforeUnmount(teardown);
       flex-shrink: 0;
       width: 0.95rem;
       height: 0.95rem;
-      color: $candy-black;
+      color: $candy-text;
       // Tilt the thumbtack like Spotify's pin (📌): head top-right, point lower-left.
       transform: rotate(35deg);
     }

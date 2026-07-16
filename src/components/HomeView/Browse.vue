@@ -119,12 +119,12 @@ const browselist: BrowseItem[] = [
 
     svg {
       height: 1.75rem;
-      color: $candy-black;
+      color: $candy-text;
     }
   }
 
   .settings svg {
-    color: $candy-black;
+    color: $candy-text;
   }
 
   .reload svg {
