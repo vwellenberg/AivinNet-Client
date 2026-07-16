@@ -64,11 +64,17 @@ const settings = useSettings()
         cursor: pointer;
 
         // Transport glyphs (pause/next/shuffle/repeat) hardcode a light fill in
-        // the SVG asset — force them black so they read on the light bar. play.svg
-        // uses currentColor and lands black too.
+        // the SVG asset — force them to the theme text colour so they read on
+        // the panel bar in BOTH themes (ink on light, paper on dark).
         svg path {
-            fill: $candy-black;
+            fill: $candy-text;
         }
+    }
+
+    // …but the play/pause glyph sits on the teal accent box (theme-invariant
+    // light fill) — pin static ink there.
+    .play svg path {
+        fill: $mem-ink;
     }
 
     // prev / next — light-grey glyphs that brighten on hover (no box).
