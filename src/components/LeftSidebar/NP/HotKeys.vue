@@ -62,6 +62,13 @@ const settings = useSettings()
         align-items: center;
         justify-content: center;
         cursor: pointer;
+
+        // Transport glyphs (pause/next/shuffle/repeat) hardcode a light fill in
+        // the SVG asset — force them black so they read on the light bar. play.svg
+        // uses currentColor and lands black too.
+        svg path {
+            fill: $candy-black;
+        }
     }
 
     // prev / next — light-grey glyphs that brighten on hover (no box).
@@ -90,33 +97,29 @@ const settings = useSettings()
         transform: rotate(180deg) scale(0.85);
     }
 
-    // play / pause — AivinNet-green circle with a black glyph (Spotify look).
+    // play / pause — pink candy rounded-square with a 2px black border and a
+    // black glyph (candy brutalism). The exception to the borderless transport
+    // icons; hover deepens to $candy-pink-deep.
     .play {
         width: 2.5rem;
         height: 2.5rem;
-        border-radius: 50%;
-        background: $brand-green;
         flex-shrink: 0;
-        transition: transform 0.1s ease;
+        @include candy-box($candy-pink, $candy-radius-sm);
+        transition: transform 0.1s ease, background-color 0.2s ease-out;
 
         svg {
-            // Larger glyph — the 1.35rem play/pause looked too small in the circle.
+            // Larger glyph — the 1.35rem play/pause looked too small in the box.
             width: 1.8rem;
             height: 1.8rem;
         }
 
-        // Both play (currentColor) and pause (#F2F2F2) paths -> black on green.
-        svg path {
-            fill: #0a0a0a;
-        }
-
-        // Optically centre the play triangle inside the circle.
+        // Optically centre the play triangle inside the box.
         .playsvg {
             transform: translateX(1px);
         }
 
-        // Just a quick scale on hover/press — no glow.
         &:hover {
+            background-color: $candy-pink-deep;
             transform: scale(1.06);
         }
 
@@ -153,6 +156,17 @@ const settings = useSettings()
 
     .aux-disabled svg {
         opacity: 0.3;
+    }
+
+    // Repeat active (mode != none): pink-deep rounded fill so the "on" state
+    // reads on the light bar (candy equivalent of the old green accent).
+    .aux.repeat:not(.aux-disabled) {
+        background-color: $candy-pink-deep;
+        border-radius: $candy-radius-sm;
+
+        svg {
+            opacity: 1;
+        }
     }
 
     @include allPhones {

@@ -57,6 +57,16 @@ const currentTab = computed(() => {
   width: 31rem;
   max-width: 100%;
 
+  // Routed (full-page/mobile) settings sit on the pink content area, so give
+  // each setting group its own white candy card. The desktop modal renders
+  // these same groups inside `.settingsmodalcontent` (already a white panel),
+  // which this selector deliberately does not match.
+  .settingsgroup {
+    @include candy-box($candy-white, $candy-radius);
+    padding: $small 1.25rem;
+    margin-top: 1.5rem;
+  }
+
   .version {
     margin: 2rem auto;
     width: max-content;

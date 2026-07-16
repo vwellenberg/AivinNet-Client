@@ -14,7 +14,7 @@
             :max="time.full"
             step="0.1"
             :style="{
-                background: `#3a3a3c linear-gradient(90deg, ${accent} ${currentPercent}%, #48484a ${currentPercent}%, #48484a ${maxSeekPercent}%, #3a3a3c ${maxSeekPercent}%)`,
+                background: progressBg,
             }"
             @change="seek"
             @click="seek"
@@ -52,16 +52,12 @@
 import { maxSeekPercent } from '@/stores/player'
 import useQStore from '@/stores/queue'
 import { formatSeconds } from '@/utils'
-import { BRAND_GREEN } from '@/utils/colortools/pageGradient'
+import { CANDY } from '@/utils/colortools/pageGradient'
 import { computed, reactive, ref } from 'vue'
 
 const q = useQStore()
 
 const { duration: time } = q
-
-// Played portion in AivinNet brand green — fixed, not tied to the cover
-// colour (#32).
-const accent = BRAND_GREEN
 
 const wrap = ref<HTMLElement | null>(null)
 const input = ref<HTMLInputElement | null>(null)
@@ -153,6 +149,20 @@ const seek = (e: Event) => {
 
 const currentPercent = computed(() => (time.current / (time.full || 1)) * 100)
 
+// Seek bar background, layered so the played portion reads as diagonal candy
+// stripes over a soft-pink track:
+//   1. played [0..current%]  — candy stripes (pink-deep / white, -45deg, 10px)
+//   2. buffered [0..max%]     — flat $candy-pink, sits UNDER the stripes so it
+//                               only shows between the playhead and buffer edge
+//   3. track (base)           — flat $candy-pink-soft fills the remainder
+// The 2px black border, pill radius and white bordered thumb come from the
+// global range styling (ProgressBar.scss); this only paints the fill.
+const progressBg = computed(() => {
+    const played = `repeating-linear-gradient(-45deg, ${CANDY.pinkDeep} 0 10px, ${CANDY.white} 10px 20px) left center / ${currentPercent.value}% 100% no-repeat`
+    const buffered = `linear-gradient(${CANDY.pink}, ${CANDY.pink}) left center / ${maxSeekPercent.value}% 100% no-repeat`
+    return `${played}, ${buffered}, ${CANDY.pinkSoft}`
+})
+
 // Seek target under the cursor, formatted like every other time in the app.
 const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
 </script>
@@ -174,8 +184,8 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
     .progress-preview {
         position: absolute;
         pointer-events: none;
-        border-radius: 5px; // match the range track radius (ProgressBar.scss)
-        background: rgba(255, 255, 255, 0.4);
+        border-radius: $candy-radius-pill; // match the range track radius (ProgressBar.scss)
+        background: rgba($candy-pink-deep, 0.55);
         z-index: 2;
     }
 
@@ -185,9 +195,10 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
         pointer-events: none;
         transform: translate(-50%, calc(-100% - 0.4rem));
         padding: 2px 6px;
-        border-radius: 6px;
-        background: rgba(0, 0, 0, 0.85);
-        color: #fff;
+        border-radius: $candy-radius-sm;
+        background: $candy-white;
+        border: 1px solid $candy-black;
+        color: $candy-text;
         font-size: $medium;
         line-height: 1.2;
         font-weight: 500;

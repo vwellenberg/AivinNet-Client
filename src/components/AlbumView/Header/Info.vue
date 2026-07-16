@@ -1,5 +1,5 @@
 <template>
-  <div class="album-info" :style="{ color: textColor }">
+  <div class="album-info">
     <div class="top">
       <!-- <AlbumType :album="album" /> -->
       <div class="albumtype">{{ album.type }}</div>
@@ -9,20 +9,19 @@
     </div>
     <div class="bottom">
       <div id="test-elem"></div>
-      <Versions :color="colors.bg" :versions="album.versions" />
+      <Versions :versions="album.versions" />
       <Stats :album="album" />
-      <Buttons :text-color="textColor || ''" />
+      <Buttons />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { onBeforeRouteUpdate } from "vue-router";
 
 import { balanceText } from "@/utils/balanceText";
-import { getTextColor } from "@/utils/colortools/shift";
 
 import useAlbumStore from "@/stores/pages/album";
 import updatePageTitle from "@/utils/updatePageTitle";
@@ -34,16 +33,8 @@ import AlbumType from "./AlbumType.vue";
 
 const store = useAlbumStore();
 
-const { info: album, colors } = storeToRefs(store);
+const { info: album } = storeToRefs(store);
 const titleSplits = ref([""]);
-
-const textColor = computed((): string => {
-  if (colors.value.bg) {
-    return getTextColor(colors.value.bg);
-  }
-
-  return "";
-});
 
 const updateTitle = () => {
   updatePageTitle(album.value.title + " - " + album.value.albumartists[0].name);

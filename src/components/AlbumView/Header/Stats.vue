@@ -45,6 +45,7 @@ const statsText = computed(() => {
   margin-bottom: 0.75rem;
   font-size: 14px;
   padding-left: $smaller;
+  color: $candy-text-muted;
 
   .artistname {
     display: -webkit-box;

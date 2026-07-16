@@ -65,7 +65,7 @@ function getSvg(notif: NotifType) {
     position: relative;
     font-size: 0.85rem;
     font-weight: 600;
-    color: $white;
+    color: $candy-text;
     display: grid;
     place-items: center;
     width: 100%;
@@ -73,12 +73,15 @@ function getSvg(notif: NotifType) {
     min-height: 4rem;
     padding: 1rem $medium;
     padding-right: $large;
-    border: 1px solid $gray5;
-    background-color: $gray;
-    box-shadow: 0px 0px 2rem rgba(0, 0, 0, 0.6);
+    @include candy-box($candy-white, $candy-radius-sm);
+    @include candy-shadow(3px, 3px);
 
     grid-template-columns: 2rem 3fr;
     gap: $small;
+
+    .notif-icon {
+        color: $candy-text;
+    }
 
     .notif-text {
         width: 100%;
@@ -91,15 +94,15 @@ function getSvg(notif: NotifType) {
 
     .notif-action {
         background-color: transparent;
-        border: 1px solid $gray4;
-        color: $white;
+        border: $candy-border;
+        color: $candy-text;
         font-weight: 700;
         padding: $smaller $small;
         height: unset;
         cursor: pointer;
 
         &:hover {
-            background-color: $gray4;
+            background-color: $candy-pink-soft;
         }
     }
 
@@ -108,44 +111,12 @@ function getSvg(notif: NotifType) {
     }
 }
 
-.new-notif.error > .notif-icon {
-    color: #c54848;
+.new-notif.success,
+.new-notif.favorite {
+    background-color: $candy-pink;
 }
 
-.new-notif.info > .notif-icon {
-    color: #418dc0;
-}
-
-.new-notif.favorite > .notif-icon,
-.new-notif.success > .notif-icon {
-    color: #4cbd4c;
-}
-
-.new-notif.working > .notif-icon {
-    color: $white;
-}
-
-/*
 .new-notif.error {
-    $bg: rgb(197, 72, 72);
-    background-color: $bg;
+    background-color: $candy-pink-deep;
 }
-*/
-
-/*
-.new-notif.info,
-.new-notif.favorite,
-.new-notif.success {
-    $bg: rgb(255, 255, 255);
-    background-color: $bg;
-    color: $black;
-}
-*/
-
-/*
-.new-notif.working {
-    $bg: $gray4;
-    background-color: $bg;
-}
-*/
 </style>

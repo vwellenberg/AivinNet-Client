@@ -80,7 +80,8 @@ function showContextMenu(e: MouseEvent) {
   display: grid;
   grid-template-columns: max-content 1fr;
   align-items: center;
-  background-color: $gray;
+  background-color: $candy-pink;
+  border: $candy-border;
   border-radius: $medium;
   position: relative;
   padding: 0 0 0 1rem;
@@ -88,18 +89,18 @@ function showContextMenu(e: MouseEvent) {
   transition: background-color 0.2s ease-out;
 
   &.context_menu_showing {
-    background-color: $gray4;
+    background-color: $candy-pink-deep;
   }
 
   svg {
-    color: $gray1;
+    color: $candy-black;
     height: 1.75rem;
   }
 
   .f-count {
     font-size: $medium;
     font-weight: 700;
-    color: $gray1;
+    color: $candy-text-muted;
     white-space: nowrap;
   }
 
@@ -111,7 +112,7 @@ function showContextMenu(e: MouseEvent) {
 
     border: none;
     outline: none;
-    color: $darkblue;
+    color: $candy-black;
     transform: scale(0.75);
   }
 

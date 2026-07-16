@@ -12,12 +12,6 @@
     >
         <div class="image circular">
             <img class="artist-image circular" :src="imguri + artist.image" />
-            <div
-                class="overlay circular"
-                :style="{
-                    background: `linear-gradient(to top, ${artist.color} 20%, transparent)`,
-                }"
-            ></div>
             <PlayBtn :artisthash="artist.artisthash" :artistname="artist.name" :source="playSources.artist" />
         </div>
         <div v-if="artist.help_text" class="rhelp t-center">
@@ -60,7 +54,7 @@ const showContextMenu = (e: MouseEvent) => {
     overflow: hidden;
     position: relative;
 
-    border-radius: $medium;
+    @include candy-box($candy-pink, $candy-radius);
     justify-content: center;
     padding: 1.2rem 1rem !important;
     font-size: 0.95rem;
@@ -69,47 +63,37 @@ const showContextMenu = (e: MouseEvent) => {
     transition: background-color 0.2s ease-out;
 
     &.context-menu-open {
-        background-color: $gray5;
+        background-color: $candy-pink-deep;
     }
 
     .image {
         position: relative;
-
-        .overlay {
-            position: absolute;
-            width: 100%;
-            height: calc(100% - $small + 1px);
-            top: 0;
-            opacity: 0;
-            transition: opacity 0.25s ease;
-        }
     }
 
     // round cover → centered button (a corner button would sit outside the circle)
     @include card-play-btn(center);
 
     &:hover {
-        background-color: $gray5;
-
-        .overlay {
-            opacity: 1;
-        }
+        background-color: $candy-pink-deep;
     }
 
     .artist-image {
         width: 100%;
-        transition: all 0.5s ease-in-out;
+        transition: background-color 0.2s ease-out;
         object-fit: cover;
         margin-bottom: $smaller;
+        border: $candy-border;
     }
 
     .artist-name {
         word-break: break-word;
+        color: $candy-text;
+        font-weight: 700;
     }
 
     .racount {
         font-size: 12px;
-        color: #ffffffbf;
+        color: $candy-text-muted;
     }
 }
 </style>

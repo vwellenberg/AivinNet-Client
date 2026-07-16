@@ -64,30 +64,32 @@ const name = (path: string) => {
   flex-direction: column;
   height: max-content;
   transition: background-color 0.2s ease-out;
+  @include candy-box($candy-pink, $candy-radius);
 
   .title {
     font-weight: 700;
     font-size: 0.95rem;
+    color: $candy-text;
   }
 
   @include card-play-btn;
 
   &:hover {
-    background-color: $gray4;
+    background-color: $candy-pink-deep;
   }
 
   svg.bg {
     transform: scale(2);
-    color: $gray2;
+    color: $candy-text-muted;
   }
 
   .rimg {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
-    background-color: $gray;
-    background-image: linear-gradient(37deg, $gray5, $gray, $gray);
     margin-bottom: $small;
+    overflow: hidden;
+    @include candy-box($candy-pink-soft, $candy-radius-sm);
 
     display: flex;
     align-items: center;
@@ -96,7 +98,7 @@ const name = (path: string) => {
 
   .rtcount {
     font-size: 0.75rem;
-    color: #ffffffbf;
+    color: $candy-text-muted;
     margin-top: $smaller;
   }
 }

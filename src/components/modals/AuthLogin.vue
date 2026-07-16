@@ -175,7 +175,7 @@ onMounted(async () => {
 
     .head {
         text-align: center;
-        border-bottom: solid 1px $gray5;
+        border-bottom: solid 1px $separator;
         padding: 1rem;
         user-select: none;
 
@@ -242,10 +242,11 @@ onMounted(async () => {
             width: 100%;
             height: 3rem;
             padding: 1rem;
-            border: none;
+            border: $candy-border;
+            border-radius: $candy-radius-sm;
             outline: none;
-            background-color: $gray5;
-            color: $white;
+            background-color: $candy-pink-soft;
+            color: $candy-text;
             text-align: center;
         }
 
@@ -254,13 +255,7 @@ onMounted(async () => {
             border-radius: 4rem;
             margin: 0 auto;
             height: 3rem;
-            background-color: $darkblue;
             margin-top: 1rem;
-            transition: color 0.2s ease-out;
-
-            &:hover {
-                color: #ffffff;
-            }
         }
 
         .submit.long {

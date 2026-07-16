@@ -43,43 +43,32 @@ import { menus } from "./navitems";
     padding: $small 0;
     font-size: 14px;
     font-weight: 500;
-    transition: background-color 0.2s ease-out;
+    // Transparent border on every item so the active state can colour it in
+    // without shifting the row (border-box keeps the footprint constant).
+    border: $candy-border-w solid transparent;
+    transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
 
     & > div {
       display: flex;
       align-items: center;
     }
 
+    // Active item = candy pink pill with the 2px black border (replaces the
+    // old grey fill + green accent bar).
     &.active {
-      background-color: $gray5;
-      position: relative;
-
-      // Brand-green accent bar on the active item (Spotify-style indicator).
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        height: 1.25rem;
-        width: 4px;
-        border-radius: 0 4px 4px 0;
-        background-color: $brand-green;
-
-        @include allPhones {
-          display: none;
-        }
-      }
+      background-color: $candy-pink;
+      border-color: $candy-black;
     }
 
     &:hover {
-      background-color: $gray;
+      background-color: $candy-pink-soft;
     }
   }
 
   .nav-item.separator {
     height: 1px;
     padding: 0;
+    border: none;
   }
 
   @include allPhones {

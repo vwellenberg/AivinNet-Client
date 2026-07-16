@@ -1,9 +1,9 @@
 // Lauflicht / running-light — issue #32.
 //
-// Brand-coloured "running light" around an active container (now-playing card
-// & full now-playing cover art): a soft GREEN glimmer breathes all around it
-// while a brighter GREEN comet with a white-hot tip travels along the rim —
-// AivinNet green throughout (no red).
+// "Running light" around an active container (now-playing card & full
+// now-playing cover art): a soft PINK glimmer breathes all around it while a
+// brighter PINK comet with a white-hot tip travels along the rim — candy
+// pink-deep throughout (recolored from brand green for the candy design).
 //
 // Cheap by construction: only a registered `--np-angle` angle and `opacity`
 // animate — no layout, no animated box-shadow. Lives in Global/index.scss
@@ -55,10 +55,10 @@
             from var(--np-angle),
             transparent 0deg,
             transparent 235deg,
-            rgba($brand-green, 0.55) 300deg,
-            $brand-green 332deg,
+            rgba($candy-pink-deep, 0.55) 300deg,
+            $candy-pink-deep 332deg,
             #ffffff 348deg,
-            $brand-green 354deg,
+            $candy-pink-deep 354deg,
             transparent 360deg
         );
         -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -77,7 +77,7 @@
         inset: -2px;
         z-index: -1;
         border-radius: inherit;
-        background: $brand-green;
+        background: $candy-pink-deep;
         filter: blur(24px);
         opacity: 0.34;
         pointer-events: none;

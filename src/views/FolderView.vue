@@ -169,14 +169,11 @@ onMounted(() => {
 
     .scroller > div.vue-recycle-scroller__slot:first-child {
         padding: 1rem 0;
-        // Translucent sticky breadcrumb band: let the content tint (album /
-        // now-playing gradient) show through with a blur instead of an opaque
-        // block, so it blends on any background — tinted or plain #121212. The
-        // dark scrim keeps content that scrolls underneath legible; the band
-        // can't be fully transparent because it's sticky and tracks pass behind it.
-        background-color: rgba(18, 18, 18, 0.3);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
+        // Opaque sticky breadcrumb band on the flat pink surface — tracks pass
+        // behind it, so it can't be transparent. Candy brutalism is flat: no
+        // blur, a hard bottom border marks the edge.
+        background-color: $candy-pink;
+        border-bottom: $candy-border;
         position: sticky;
         top: 0;
         z-index: 1;

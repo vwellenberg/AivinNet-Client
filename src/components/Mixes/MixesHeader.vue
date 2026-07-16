@@ -11,7 +11,7 @@
                 {{ mix.trackcount }} track{{ mix.trackcount === 1 ? '' : 's' }} ▸ {{ mix.duration }}
             </div>
             <div class="buttons">
-                <PlayBtnRect :source="playSources.mix" :bg_color="'#fff'" @click.prevent="$emit('playThis')" />
+                <PlayBtnRect :source="playSources.mix" @click.prevent="$emit('playThis')" />
                 <button class="savebtn" :title="saved ? 'Saved Mix' : 'Save Mix'" @click="saveMix">
                     <SaveFilledSvg v-if="saved" />
                     <SaveSvg v-else />
@@ -89,7 +89,7 @@ async function saveMix() {
         font-weight: 600;
         text-transform: capitalize;
         font-size: 14px;
-        color: $gray1;
+        color: $candy-text-muted;
     }
 
     .header_title {
@@ -101,7 +101,7 @@ async function saveMix() {
         font-size: 1rem;
         font-weight: 500;
         margin-top: $smaller;
-        color: $brown;
+        color: $candy-text-muted;
     }
 
     .bunchofstuff {

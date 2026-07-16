@@ -107,7 +107,26 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 .track-item.currentInQueue {
-  background-color: $gray4;
+  position: relative;
+  overflow: hidden;
+  background-color: $candy-pink;
+  border: $candy-border;
+  border-radius: $candy-radius-sm;
+  // Absorb the 2px border into the queue's fixed 64px row slot.
+  padding-top: calc(#{$small} - #{$candy-border-w});
+  padding-bottom: calc(#{$small} - #{$candy-border-w});
+
+  // Signature candy accent: candy-stripe strip along the bottom edge.
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 6px;
+    pointer-events: none;
+    @include candy-stripes($candy-pink-deep, $candy-white, 8px);
+  }
 }
 
 .contexton {
@@ -144,7 +163,7 @@ onBeforeUnmount(() => {
       background-color: transparent;
 
       svg {
-        color: white;
+        color: $candy-black;
       }
     }
 
@@ -175,7 +194,8 @@ onBeforeUnmount(() => {
       transform: translateY(0) rotate(45deg);
     }
 
-    background-color: $gray5;
+    background-color: $candy-pink-soft;
+    border-radius: $candy-radius-sm;
   }
 
   hr {
@@ -200,6 +220,8 @@ onBeforeUnmount(() => {
     width: 3rem;
     height: 3rem;
     object-fit: contain;
+    border: 1px solid $candy-black;
+    border-radius: $candy-radius-sm;
   }
 
   .artist {

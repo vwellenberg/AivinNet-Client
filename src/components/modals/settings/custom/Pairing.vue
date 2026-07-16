@@ -23,6 +23,7 @@
 import { Ref, onMounted, ref } from 'vue'
 import QRCodeStyling from 'qr-code-styling'
 import { sendPairRequest } from '@/requests/auth'
+import { CANDY } from '@/utils/colortools/pageGradient'
 
 const qrLoaded = ref(false)
 // @ts-expect-error
@@ -38,7 +39,7 @@ async function renderQrCode(code: string) {
         data: data,
         image: '/logo-fill.light.svg',
         dotsOptions: {
-            color: '#fff',
+            color: CANDY.black,
             type: 'extra-rounded',
         },
         backgroundOptions: {
@@ -80,6 +81,14 @@ onMounted(async () => {
         height: 300px;
     }
 
+    .qrcode {
+        height: max-content;
+        width: max-content;
+        margin: 0 auto;
+        padding: $small;
+        @include candy-box($candy-white, $candy-radius);
+    }
+
     .loader {
         display: grid;
         place-items: center;
@@ -87,18 +96,19 @@ onMounted(async () => {
 
     .spinner {
         border-color: transparent;
-        border-top-color: $gray1;
+        border-top-color: $candy-black;
         margin: 0 auto;
     }
 
     .serverurl {
-        // background-color: $orange;
         width: fit-content;
         margin: 0 auto;
-        padding: $smaller;
+        padding: $smaller $small;
         font-size: 12px;
         font-family: 'SF Mono';
-        color: $orange;
+        color: $candy-text;
+        background-color: $candy-pink-soft;
+        border: 1px solid $candy-black;
     }
 }
 </style>

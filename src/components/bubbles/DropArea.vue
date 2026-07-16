@@ -30,8 +30,9 @@
     aspect-ratio: 1;
     font-weight: 600;
 
-    background-color: $pink;
-    color: white;
+    background-color: $candy-pink-deep;
+    color: $candy-text;
+    border: 1px solid $candy-black;
 
     padding: $smaller;
     margin-bottom: $small;

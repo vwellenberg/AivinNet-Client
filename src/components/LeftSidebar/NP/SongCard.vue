@@ -12,7 +12,6 @@
     <div
       v-wave
       class="sidebar-songcard lauflicht-rim rounded-sm"
-      :style="{ '--np-accent': colors.theme1 || BRAND_RED }"
     >
       <router-link
         :to="{
@@ -38,17 +37,12 @@ import { Motion } from "motion/vue";
 import { Routes } from "@/router";
 
 import { paths } from "@/config";
-import useColorStore from "@/stores/colors";
 import useQueueStore from "@/stores/queue";
-import { BRAND_RED } from "@/utils/colortools/pageGradient";
 
 import Bitrate from "./Bitrate.vue";
 
 const imguri = paths.images.thumb.medium;
 const q = useQueueStore();
-// Cover accent of the current track (LightVibrant, set per track in
-// stores/player.ts). Drives the Lauflicht rim; brand-red fallback below.
-const colors = useColorStore();
 </script>
 
 <style lang="scss">
@@ -75,6 +69,8 @@ const colors = useColorStore();
     aspect-ratio: 1;
     object-fit: cover;
     display: block;
+    // Flat candy cover: keep the rounded-sm radius, add the 2px black border.
+    border: $candy-border;
   }
 }
 </style>

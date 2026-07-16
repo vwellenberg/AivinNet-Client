@@ -127,7 +127,7 @@ function onContextMenu(e: MouseEvent) {
 
 <style lang="scss">
 .top-result-item {
-    background-color: $gray;
+    @include candy-box($candy-white, $candy-radius);
     padding: 1rem;
     display: grid;
     gap: 1rem;
@@ -179,20 +179,23 @@ function onContextMenu(e: MouseEvent) {
     }
 
     .context_menu_showing {
-        background-color: $darkestblue;
+        background-color: $candy-pink-deep;
     }
 
     img {
         width: 7.5rem;
         height: 7.5rem;
         object-fit: cover;
+        border: $candy-border;
     }
 
     .type {
         font-size: 0.8rem;
         font-weight: 500;
-        color: white;
-        background-color: $brand-green;
+        color: $candy-black;
+        background-color: $candy-lavender;
+        border: 1px solid $candy-black;
+        border-radius: $candy-radius-pill;
         width: max-content;
         padding: 2px $small;
         text-transform: capitalize;
@@ -210,7 +213,7 @@ function onContextMenu(e: MouseEvent) {
         .artists {
             font-size: 14px;
             font-weight: 500;
-            opacity: 0.8;
+            color: $candy-text-muted;
         }
 
         h3 {

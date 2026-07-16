@@ -115,8 +115,9 @@ const playlists = computed(() => {
         width: 16rem;
         max-width: 100%;
         margin-top: 1rem;
-        background-color: $gray5;
-        color: white;
+        background-color: $candy-pink-soft;
+        border: $candy-border;
+        color: $candy-black;
         font-size: 0.95rem;
         font-weight: 500;
         padding: $medium;

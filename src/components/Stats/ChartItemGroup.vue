@@ -116,10 +116,10 @@ onMounted(async () => {
     .noitems {
         height: 3.25rem;
         padding: 1rem;
-        background-color: $gray;
+        background-color: $candy-pink-soft;
         margin: 1rem;
         margin-bottom: 2rem;
-        color: $white;
+        color: $candy-black;
     }
 
     .scrobbleinfo {
@@ -133,7 +133,7 @@ onMounted(async () => {
         font-weight: 900;
 
         margin: $medium 1.2rem;
-        color: $gray1;
+        color: $candy-text-muted;
 
         .date {
             display: flex;
@@ -146,7 +146,7 @@ onMounted(async () => {
         }
 
         .scrobbleinfo-trend {
-            color: #8280f0;
+            color: $candy-text-muted;
             display: flex;
             align-items: center;
             gap: $small;
@@ -158,12 +158,12 @@ onMounted(async () => {
 
         .trend.rising {
             transform: rotate(90deg);
-            color: rgb(75, 170, 67);
+            color: $candy-text;
         }
 
         .trend.falling {
             transform: rotate(-90deg);
-            color: $red;
+            color: $candy-text;
         }
     }
 }

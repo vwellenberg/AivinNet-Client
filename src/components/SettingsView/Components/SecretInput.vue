@@ -54,7 +54,8 @@ onMounted(() => {
         align-items: center;
         gap: 1rem;
         position: relative;
-        background-color: $gray5;
+        background-color: $candy-pink-soft;
+        border: 1px solid $candy-black;
 
         input {
             height: 100%;
@@ -65,7 +66,7 @@ onMounted(() => {
             padding: $small;
             font-size: 12px;
             font-family: 'SF Mono';
-            color: #ffffff00;
+            color: transparent;
         }
 
         svg {

@@ -9,12 +9,6 @@
         :class="{ 'context-menu-open': contextMenuFlag }"
     >
         <div class="with-img rounded-sm no-scroll">
-            <div
-                class="gradient"
-                :style="{
-                    background: `linear-gradient(to top, ${album.color} 20%, transparent)`,
-                }"
-            ></div>
             <img class="shadow-lg" :src="imguri + album.image" alt="" />
             <PlayBtn
                 :store="useAlbumStore"
@@ -109,14 +103,14 @@ function showMenu(e: MouseEvent) {
     display: grid;
     gap: $small;
     padding: $medium;
-    border-radius: 1rem;
+    @include candy-box($candy-pink, $candy-radius);
     height: max-content;
     transition: background-color 0.2s ease-out;
 
     @include card-play-btn;
 
     &.context-menu-open {
-        background-color: $gray5;
+        background-color: $candy-pink-deep;
     }
 
     .with-img {
@@ -128,29 +122,13 @@ function showMenu(e: MouseEvent) {
             height: 100%;
             aspect-ratio: 1;
             object-fit: cover;
-        }
-
-        .gradient {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 0.25s ease;
+            border: $candy-border;
+            border-radius: $candy-radius-sm;
         }
     }
 
     &:hover {
-        background-color: $gray5;
-
-        .with-img {
-            .gradient {
-                opacity: 1;
-            }
-
-            img {
-                filter: brightness(0.75);
-            }
-        }
+        background-color: $candy-pink-deep;
     }
 
     img {
@@ -167,13 +145,15 @@ function showMenu(e: MouseEvent) {
         font-size: 0.95rem;
         width: fit-content;
         position: relative;
+        color: $candy-text;
+        font-weight: 700;
     }
 
     .artist {
         font-size: 0.8rem;
         text-align: left;
-        opacity: 0.75;
-        font-weight: 700;
+        color: $candy-text-muted;
+        font-weight: 500;
 
         a {
             cursor: pointer !important;

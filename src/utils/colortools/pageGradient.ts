@@ -1,4 +1,3 @@
-import { parseColor, darkenHex } from '@/utils/colortools'
 import brandColors from '@/brand-colors.json'
 
 // AivinNet brand colours — re-exported from the single source of truth
@@ -7,73 +6,35 @@ import brandColors from '@/brand-colors.json'
 export const BRAND_GREEN = brandColors.green
 export const BRAND_RED = brandColors.red
 
-// The app page background the gradients fade into.
-const PAGE_BG = '#121212'
+// Candy design palette — the TS-side view of the same JSON source that feeds
+// the SCSS $candy-* tokens. Use these for any colour set from script.
+export const CANDY = brandColors.candy
+
+// The app page background. Candy brutalism is FLAT: every page sits on the
+// same pink surface, no fades.
+const PAGE_BG = CANDY.pink
 
 /**
- * Linear blend between two colours. `t` = 0 returns `a`, `t` = 1 returns `b`.
- * Accepts any form parseColor understands, returns `#rrggbb`.
- */
-function mixColor(a: string, b: string, t: number): string {
-    const [ar, ag, ab] = parseColor(a)
-    const [br, bg, bb] = parseColor(b)
-    const toHex = (x: number, y: number) =>
-        Math.round(x + (y - x) * t)
-            .toString(16)
-            .padStart(2, '0')
-    return `#${toHex(ar, br)}${toHex(ag, bg)}${toHex(ab, bb)}`
-}
-
-/**
- * Brightens a colour toward a vivid version by scaling its RGB channels while
- * preserving hue. The scale factor is capped so the brightest channel never
- * exceeds 255, so it lifts dark colours strongly but can't blow bright colours
- * out to white. Used for the vivid top stop of the page gradient.
- */
-function vividTop(color: string, factor = 2.3): string {
-    const [r, g, b] = parseColor(color)
-    const max = Math.max(r, g, b)
-    if (max === 0) return 'rgb(60, 60, 60)'
-    const scale = Math.min(factor, 255 / max)
-    const c = (v: number) => Math.round(v * scale)
-    return `rgb(${c(r)}, ${c(g)}, ${c(b)})`
-}
-
-/**
- * Single source of truth for the page background gradient of the detail views
- * (Album / Artist / Playlist). Spotify-style header fade with an edge: the
- * vivid colour band only covers the header + action row, then a visibly
- * darker ledge takes over (Spotify layers rgba(0,0,0,.6) over the colour
- * below the header) and quickly settles into the page background (#121212).
- * The gradient is anchored to the CONTENT (not the viewport): the colour
- * band belongs to the header block and scrolls away with it, exactly like
- * Spotify — deep in a long list the page is plain dark. Pixel stops are
- * content coordinates from the top of the page. Pass the view's dominant
- * `colors.bg`; falls back to a neutral dark gradient when no colour is
- * available.
+ * Single source of truth for the page background of the detail views
+ * (Album / Artist / Playlist). Under the candy design this is a flat pink —
+ * the cover-derived colour is deliberately ignored so every page shares the
+ * same surface. The signature keeps accepting the extracted colour so the
+ * call sites (and a future re-theme) stay untouched.
  *
- * Centralised here so all three views stay visually consistent — change the
- * fade once and it applies everywhere.
+ * Centralised here so all views stay visually consistent — change the
+ * surface once and it applies everywhere.
  */
 export function pageGradient(bg?: string): string {
-    if (!bg) return 'linear-gradient(180deg, #2a2a2a 0%, #121212 45%)'
-    const ledge = mixColor(bg, PAGE_BG, 0.45)
-    return `linear-gradient(180deg, ${vividTop(bg)} 0%, ${bg} 360px, ${ledge} 400px, ${PAGE_BG} 800px)`
+    void bg
+    return PAGE_BG
 }
 
 /**
- * Brand-tinted page fade for the top-level library pages (Home, Favorites,
- * Playlists, Stats) which have no cover to derive a colour from. Darkens the
- * brand colour to the same gradient base the detail headers and the Now Playing
- * fallback use, so the whole app shares one fade recipe. Defaults to the wavenet
- * green; pass BRAND_RED for the energetic accent (Stats).
+ * Page background for the top-level library pages (Home, Favorites,
+ * Playlists, Stats). Flat candy pink, same as the detail views — kept as a
+ * separate function so the library/detail call sites remain distinguishable.
  */
 export function brandGradient(color: string = BRAND_GREEN): string {
-    const bg = darkenHex(color)
-    // Very subtle brand hint on the library pages: blend each tinted stop ~72%
-    // toward the page background and fade out high up the page, so it reads as a
-    // faint top glow rather than a wash. (Tuned down twice per design review.)
-    const top = mixColor(vividTop(bg), PAGE_BG, 0.72)
-    const mid = mixColor(bg, PAGE_BG, 0.72)
-    return `linear-gradient(180deg, ${top} 0%, ${mid} 22%, ${PAGE_BG} 52%)`
+    void color
+    return PAGE_BG
 }

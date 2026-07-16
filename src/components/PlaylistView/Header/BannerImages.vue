@@ -1,10 +1,5 @@
 <template>
-    <div
-        class="playlist-banner-images no-scroll"
-        :style="{
-      background: playlist.info.images.length ? (playlist.info.images[0] as any).color : undefined,
-    }"
-    >
+    <div class="playlist-banner-images no-scroll">
         <PlaylistImages v-if="playlist.info.images.length" :images="playlist.info.images" size="medium" />
     </div>
 </template>
@@ -23,6 +18,9 @@ const playlist = usePStore()
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    background: $candy-pink-soft;
+    border: $candy-border;
+    border-radius: $candy-radius-sm;
     transition: all 0.2s ease-in-out;
 
     img {

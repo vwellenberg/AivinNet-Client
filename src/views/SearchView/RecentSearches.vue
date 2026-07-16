@@ -72,7 +72,7 @@ function clearAll() {
 
     .recent-clear {
       background: transparent;
-      color: $gray1;
+      color: $candy-text-muted;
       font-size: 0.85rem;
       text-decoration: underline;
       cursor: pointer;
@@ -92,16 +92,17 @@ function clearAll() {
     gap: $smaller;
     max-width: 16rem;
     padding: 0.5rem 0.5rem 0.5rem 0.85rem;
-    border-radius: 5rem;
-    background-color: $gray5;
-    color: $white;
+    border-radius: $candy-radius-pill;
+    background-color: $candy-pink-soft;
+    border: 1px solid $candy-black;
+    color: $candy-text;
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.15s ease;
 
     &:hover {
-      background-color: $gray4;
+      background-color: $candy-pink;
     }
 
     .chip-search {
@@ -127,7 +128,7 @@ function clearAll() {
       }
 
       &:hover {
-        background-color: $gray2;
+        background-color: $candy-pink-deep;
         opacity: 1;
       }
     }

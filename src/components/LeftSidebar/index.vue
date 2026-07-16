@@ -607,7 +607,7 @@ onBeforeUnmount(teardown);
   right: $small;
   height: 2px;
   border-radius: 2px;
-  background-color: $brand-green;
+  background-color: $candy-black;
   pointer-events: none;
 }
 
@@ -626,8 +626,7 @@ onBeforeUnmount(teardown);
   display: grid;
   // Logo now lives in the top bar; sidebar is scrollable list + now-playing card.
   grid-template-rows: 1fr max-content;
-  background-color: #121212;
-  border-radius: 8px;
+  @include candy-box($candy-white, $candy-radius);
   position: relative;
   padding: 0.875rem 0.875rem 1rem;
   min-height: 0;
@@ -679,7 +678,7 @@ onBeforeUnmount(teardown);
 
   &:hover,
   &.active {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: $candy-pink-deep;
   }
 }
 
@@ -702,7 +701,7 @@ onBeforeUnmount(teardown);
 .sidebar-library {
   margin-top: 1rem;
   padding-top: 0.75rem;
-  border-top: 1px solid $gray5;
+  border-top: 1px solid $separator;
 
   .sidebar-library-title {
     display: flex;
@@ -711,7 +710,7 @@ onBeforeUnmount(teardown);
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    opacity: 0.5;
+    color: $candy-text;
     padding: 0 $small 0.5rem;
     letter-spacing: 0.05em;
 
@@ -732,7 +731,7 @@ onBeforeUnmount(teardown);
       }
 
       &:hover {
-        background-color: $gray;
+        background-color: $candy-pink-soft;
         opacity: 1;
       }
     }
@@ -742,8 +741,8 @@ onBeforeUnmount(teardown);
     border-radius: $smaller;
 
     &.drag-over {
-      background-color: rgba(255, 255, 255, 0.06);
-      outline: 1px dashed $gray2;
+      background-color: $candy-pink-soft;
+      outline: 1px dashed $candy-black;
     }
 
     .sidebar-folder-header {
@@ -761,7 +760,7 @@ onBeforeUnmount(teardown);
       transition: background-color 0.15s;
 
       &:hover {
-        background-color: $gray;
+        background-color: $candy-pink-soft;
       }
 
       .folder-icon-slot {
@@ -810,7 +809,7 @@ onBeforeUnmount(teardown);
     .sidebar-folder-items {
       margin-left: 0.85rem;
       padding-left: 0.4rem;
-      border-left: 1px solid $gray5;
+      border-left: 1px solid $separator;
     }
 
     .sidebar-folder-empty {
@@ -831,8 +830,8 @@ onBeforeUnmount(teardown);
     font-size: 0.875rem;
     font-weight: 500;
 
-    &:hover { background-color: $gray; }
-    &.active { background-color: $gray5; }
+    &:hover { background-color: $candy-pink-soft; }
+    &.active { background-color: $candy-pink; }
 
     span.ellip {
       opacity: 0.85;
@@ -844,7 +843,7 @@ onBeforeUnmount(teardown);
       flex-shrink: 0;
       width: 0.95rem;
       height: 0.95rem;
-      color: $brand-green;
+      color: $candy-black;
       // Tilt the thumbtack like Spotify's pin (📌): head top-right, point lower-left.
       transform: rotate(35deg);
     }
@@ -883,7 +882,7 @@ onBeforeUnmount(teardown);
       svg {
         height: 1rem;
         width: 1rem;
-        color: $brand-green;
+        color: $candy-white;
       }
 
       &:hover {
@@ -900,7 +899,7 @@ onBeforeUnmount(teardown);
   .sidebar-pl-placeholder {
     width: 100%;
     height: 100%;
-    background-color: $gray4;
+    background-color: $candy-pink-soft;
     display: flex;
     align-items: center;
     justify-content: center;

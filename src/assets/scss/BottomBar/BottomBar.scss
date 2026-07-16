@@ -2,7 +2,6 @@
   height: 100%;
 
   .grid {
-    background-color: #181818;
     height: 100%;
     padding-right: $small;
 
@@ -27,9 +26,11 @@
         width: 100%;
 
         .durationx {
-          background-color: $black;
+          background-color: $candy-pink-soft;
+          border: 1px solid $candy-black;
+          color: $candy-black;
           padding: $smaller;
-          border-radius: 0.5rem;
+          border-radius: $candy-radius-sm;
           margin: 0 $small 0 $small;
           font-size: 0.8rem;
           min-width: 2.5rem;

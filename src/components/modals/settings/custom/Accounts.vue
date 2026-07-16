@@ -260,7 +260,7 @@ onMounted(async () => {
     .asettings {
         margin: 0 0 1rem 0;
         padding-bottom: 1rem;
-        border-bottom: solid 1px $gray5;
+        border-bottom: solid 1px $separator;
     }
 
     .ahead {
@@ -285,11 +285,11 @@ onMounted(async () => {
         padding: 1rem;
         padding-bottom: 0;
         margin-top: 1rem;
-        border: solid 1px $gray5;
+        border: $candy-border;
         cursor: pointer;
 
         &:hover {
-            background-color: $gray5;
+            background-color: $candy-pink-soft;
         }
 
         .userinfo {
@@ -309,12 +309,12 @@ onMounted(async () => {
 
         .delete {
             cursor: pointer;
-            color: $white;
+            color: $candy-text;
             margin-left: 1rem;
             transition: all 0.25s ease;
 
             &:hover {
-                color: rgb(248, 115, 115);
+                color: $candy-pink-deep;
             }
         }
 
@@ -334,7 +334,7 @@ onMounted(async () => {
             left: 45%;
             width: 10%;
             height: 1px;
-            background-color: $gray5;
+            background-color: $separator;
         }
     }
 
@@ -342,7 +342,7 @@ onMounted(async () => {
         padding-bottom: 1rem;
 
         .usettins {
-            border-top: solid 1px $gray4;
+            border-top: solid 1px $separator;
         }
     }
 

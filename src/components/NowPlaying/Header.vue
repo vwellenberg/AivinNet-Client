@@ -11,7 +11,6 @@
                 }"
                 title="Go to Album"
                 class="np-image lauflicht-rim"
-                :style="{ '--np-accent': colors.theme1 || BRAND_RED }"
             >
                 <img v-motion-fade class="rounded" :src="paths.images.thumb.large + queue.currenttrack?.image" />
             </RouterLink>
@@ -47,9 +46,7 @@ import favoriteHandler from '@/helpers/favoriteHandler'
 import { Routes } from '@/router'
 import { isMobile, isSmallPhone } from '@/stores/content-width'
 import useQueueStore from '@/stores/queue'
-import useColorStore from '@/stores/colors'
 import { formatSeconds } from '@/utils'
-import { BRAND_RED } from '@/utils/colortools/pageGradient'
 
 import Progress from '@/components/LeftSidebar/NP/Progress.vue'
 import Buttons from '../BottomBar/Right.vue'
@@ -59,8 +56,6 @@ import NowPlayingInfo from './NowPlayingInfo.vue'
 import PlayingFrom from './PlayingFrom.vue'
 
 const queue = useQueueStore()
-// Cover accent of the current track drives the Lauflicht rim (#32); brand-red fallback.
-const colors = useColorStore()
 
 function handleFav() {
     favoriteHandler(
@@ -111,7 +106,9 @@ function handleFav() {
         .time {
             font-size: $medium;
             font-weight: 500;
-            background-color: $gray3;
+            color: $candy-text;
+            background-color: $candy-pink-soft;
+            border: 1px solid $candy-black;
             padding: 1px $smaller;
             min-width: 2.5rem;
             text-align: center;
@@ -182,41 +179,15 @@ function handleFav() {
             }
         }
 
+        // Track pill, border and the white bordered thumb come from the global
+        // candy range styling; only the flat pink-deep played-volume fill is
+        // painted here (clipped by the inline background-size from Volume.vue).
         .volume-slider {
             flex: 1;
-            -webkit-appearance: none;
-            appearance: none;
-            height: 5px;
-            border-radius: 3px;
-            outline: none;
-            cursor: pointer;
-            background-color: $gray4;
-            background-image: linear-gradient(#fff, #fff);
+            margin-right: 0; // neutralise the global range's 15px right margin
+            background-image: linear-gradient($candy-pink-deep, $candy-pink-deep);
             background-repeat: no-repeat;
             // background-size is set inline from the current volume (Volume.vue).
-
-            &::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                appearance: none;
-                height: 13px;
-                width: 13px;
-                border-radius: 50%;
-                background: #fff;
-                cursor: pointer;
-            }
-
-            &::-moz-range-thumb {
-                height: 13px;
-                width: 13px;
-                border: none;
-                border-radius: 50%;
-                background: #fff;
-                cursor: pointer;
-            }
-
-            &:hover {
-                background-image: linear-gradient($brand-green, $brand-green);
-            }
         }
     }
 
@@ -245,6 +216,7 @@ function handleFav() {
             max-width: 30rem;
             object-fit: cover;
             display: block;
+            border: $candy-border;
         }
     }
 

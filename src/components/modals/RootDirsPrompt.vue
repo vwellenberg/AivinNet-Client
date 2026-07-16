@@ -60,15 +60,14 @@ onMounted(() => {
 .root-dirs-prompt {
   .option {
     padding: 1.25rem;
-    border-radius: $small;
     position: relative;
-    background-color: #4e4b4b3f;
+    @include candy-box($candy-pink-soft, $candy-radius-sm);
     margin-top: 1.25rem;
     cursor: pointer;
     transition: background-color 0.2s ease-out;
 
     &:hover {
-      background-color: $darkblue;
+      background-color: $candy-pink-deep;
     }
 
     .info {

@@ -35,7 +35,7 @@ const tabs = useTabStore()
     width: 100%;
     display: grid;
     grid-template-rows: max-content 1fr;
-    background-color: rgb(22, 22, 22);
+    background-color: $candy-white;
     padding-bottom: 1rem;
     border-top: none;
     border-bottom: none;
@@ -75,7 +75,7 @@ const tabs = useTabStore()
     .r-content {
         width: 100%;
         height: 100%;
-        background-color: $gray;
+        background-color: $candy-white;
 
         .r-search {
             height: 100%;
@@ -96,10 +96,10 @@ const tabs = useTabStore()
 }
 
 .designatedOS .r-sidebar > .r-content > .r-queue > .queue-virtual-scroller > .scroller::-webkit-scrollbar-track {
-    background-color: $gray;
+    background-color: transparent;
 }
 
 .designatedOS .r-sidebar > .r-content > .r-queue > .queue-virtual-scroller > .scroller::-webkit-scrollbar-thumb {
-    border-color: $gray;
+    border-color: transparent;
 }
 </style>

@@ -179,18 +179,16 @@ const mobileTitle = computed(() => {
         }
 
         // Per-route contextual action in the mobile top bar (e.g. New Playlist).
-        // Subtle filled circle sized to the 36px avatar so the two read as a pair.
+        // Candy square sized to the 36px avatar so the two read as a pair.
         .mobile-header-action {
             flex-shrink: 0;
             margin-right: $smaller;
             width: 2.25rem;
             height: 2.25rem;
-            border-radius: 50%;
+            @include candy-box($candy-pink, $candy-radius-sm);
             display: grid;
             place-items: center;
-            border: none;
-            background-color: $gray5;
-            color: $white;
+            color: $candy-black;
             cursor: pointer;
             transition: background-color 0.15s ease, transform 0.15s ease;
 
@@ -200,7 +198,7 @@ const mobileTitle = computed(() => {
             }
 
             &:hover {
-                background-color: $gray4;
+                background-color: $candy-pink-deep;
             }
 
             &:active {
@@ -219,8 +217,8 @@ const mobileTitle = computed(() => {
             margin-left: auto;
             width: 3rem;
             height: 3rem;
-            border-radius: 50%;
-            background-color: $gray;
+            @include candy-box($candy-pink, $candy-radius-sm);
+            color: $candy-black;
             flex-shrink: 0;
             transition: background-color 0.15s ease, transform 0.15s ease;
 
@@ -230,7 +228,7 @@ const mobileTitle = computed(() => {
             }
 
             &:hover {
-                background-color: $gray4;
+                background-color: $candy-pink-deep;
                 transform: scale(1.05);
             }
         }

@@ -1,4 +1,13 @@
 {
   "green": "#1D9E75",
-  "red": "#FF284E"
+  "red": "#FF284E",
+  "candy": {
+    "pink": "#F5C6CE",
+    "pinkSoft": "#F9D7DC",
+    "pinkDeep": "#EFA9B6",
+    "white": "#FFFFFF",
+    "lavender": "#CDBCF4",
+    "black": "#111111",
+    "textMuted": "#8A5560"
+  }
 }

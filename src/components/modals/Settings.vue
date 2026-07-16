@@ -95,7 +95,7 @@ $modalheight: 38rem;
         min-height: 0;
 
         .head {
-            border-bottom: solid 1px $gray4;
+            border-bottom: solid 1px $separator;
             padding: 0 2rem;
             display: flex;
             flex-direction: column;
@@ -136,8 +136,8 @@ $modalheight: 38rem;
             // margin: $smaller $small 0 0;
             padding: 2px $smaller;
             border-radius: $smaller;
-            border: solid 1px $brown;
-            color: $brown;
+            border: solid 1px $candy-black;
+            color: $candy-text;
             font-size: 10px;
             font-weight: bold;
             text-transform: uppercase;

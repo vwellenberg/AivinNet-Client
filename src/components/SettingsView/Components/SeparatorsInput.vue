@@ -77,12 +77,12 @@ onMounted(() => {
 
   input {
     width: 100%;
-    border: none;
+    border: $candy-border;
     outline: none;
 
     padding: $small;
-    background-color: $gray5;
-    color: white;
+    background-color: $candy-pink-soft;
+    color: $candy-text;
     font-size: 1rem;
     appearance: none;
   }
@@ -93,15 +93,16 @@ onMounted(() => {
     margin: $medium 0;
 
     span {
-      background-color: $gray3;
-      color: white;
+      background-color: $candy-lavender;
+      border: 1px solid $candy-black;
+      color: $candy-text;
       font-size: 1rem;
       padding: $smaller 1rem;
       font-size: 14px;
     }
 
     span.new {
-      background-color: $darkblue;
+      background-color: $candy-pink-deep;
     }
   }
 

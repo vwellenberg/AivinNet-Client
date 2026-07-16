@@ -170,14 +170,20 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
 
         .rtitle {
             font-size: 1.15rem;
+            font-weight: 700;
+            color: $candy-text;
             display: flex;
             align-items: baseline;
             justify-content: space-between;
+
+            a {
+                color: $candy-text;
+            }
         }
 
         .rdesc {
             font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.747);
+            color: $candy-text-muted;
             display: flex;
             align-items: baseline;
             justify-content: space-between;
@@ -185,9 +191,9 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
     }
 
     .to_playlist {
-        background-color: #fff;
-        color: #000;
-        border: 1px solid #fff;
+        background-color: $candy-white;
+        color: $candy-black;
+        border: $candy-border;
         padding: 1.25rem 2rem;
         margin: 1rem;
     }

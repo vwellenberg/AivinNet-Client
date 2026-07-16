@@ -27,10 +27,11 @@ defineProps<{
   max-width: 25rem;
   margin: 0 auto;
   display: grid;
-  opacity: 0.5;
+  color: $candy-text;
 
   p {
     word-break: break-word;
+    color: $candy-text-muted;
   }
 
   .nothingtitle {

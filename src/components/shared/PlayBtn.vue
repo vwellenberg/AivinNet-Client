@@ -76,20 +76,21 @@ function handlePlay() {
 .play-btn {
   aspect-ratio: 1;
   padding: 0;
-  background: $brand-green;
-  // Black play glyph on the green button (Spotify look); play.svg uses currentColor.
-  color: #0a0a0a;
+  background: $candy-white;
+  border: $candy-border;
+  // Black play glyph on the white button; play.svg uses currentColor.
+  color: $candy-black;
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  @include candy-shadow(3px, 3px);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
-    // The global button:hover paints $darkestblue — the play button must
-    // stay brand green and only scale (same affordance as the bottom bar).
-    background-color: $brand-green;
+    // The global button:hover paints $candy-pink-deep — the play button
+    // swaps to pink and scales (same affordance as the bottom bar).
+    background-color: $candy-pink;
     transform: scale(1.06);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    @include candy-shadow(4px, 4px);
   }
 
   svg {

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="queue.currenttrack" class="lyricsinfo" :style="{ background: bgColor }">
+  <div v-if="queue.currenttrack" class="lyricsinfo">
     <RouterLink
       :to="{
         name: Routes.album,
@@ -31,10 +31,6 @@ import { Routes } from "@/router";
 
 const queue = useQueue();
 const lyrics = useLyrics();
-
-defineProps<{
-  bgColor: string;
-}>();
 </script>
 
 <style lang="scss">
@@ -48,6 +44,7 @@ defineProps<{
   position: sticky;
   top: 0;
   z-index: 1;
+  background-color: $candy-pink;
 
   @include allPhones {
     padding: $large 0;
@@ -57,7 +54,8 @@ defineProps<{
   img {
     display: block;
     height: 2.5rem;
-    border-radius: $smaller;
+    border: $candy-border;
+    border-radius: $candy-radius-sm;
   }
 
   .title {
@@ -69,11 +67,12 @@ defineProps<{
   }
 
   .lyricstype {
-    border-radius: $smaller;
+    border-radius: $candy-radius-pill;
+    border: 1px solid $candy-black;
     font-size: 12px;
     padding: $smaller $small;
-    background-color: $white;
-    color: $black;
+    background-color: $candy-lavender;
+    color: $candy-black;
   }
 }
 </style>

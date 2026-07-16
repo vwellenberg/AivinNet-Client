@@ -48,7 +48,7 @@ const icon_ = getIcon()
     // border: solid 1px;
 
     .list-items {
-        border: solid 1px $gray5;
+        border: $candy-border;
         border-radius: $small;
         margin-top: 1rem;
         overflow: hidden;

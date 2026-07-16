@@ -67,12 +67,15 @@ function onLogout() {
     font-weight: 400;
     display: flex;
     flex-direction: column;
-    border: solid 1px $gray5;
-    background-color: $gray;
+    @include candy-box($candy-white, $candy-radius);
+    // Floating chrome gets the hard offset shadow (the .shadow-lg utility on
+    // this element resolves to the same 4px 4px 0 black — this keeps it
+    // explicit and lane-independent).
+    @include candy-shadow(4px, 4px);
 
     .separator {
         height: 1px;
-        background-color: $gray3;
+        background-color: $separator;
         padding: 0;
     }
 
@@ -89,7 +92,7 @@ function onLogout() {
         transition: background-color 0.2s ease-out, opacity 0.2s ease-out, box-shadow 0.2s ease-out;
 
         &:hover {
-            background-color: $gray4;
+            background-color: $candy-pink-soft;
         }
 
         &:active {
@@ -141,13 +144,13 @@ function onLogout() {
         pointer-events: none;
     }
 
+    // Destructive entry: black text, deeper pink hover fill (no red, no ring).
     .critical {
-        color: $red;
+        color: $candy-text;
     }
 
     .critical:hover {
-        background-color: transparent;
-        box-shadow: 0 0 0 1px $red;
+        background-color: $candy-pink-deep;
     }
 }
 </style>

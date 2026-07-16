@@ -71,7 +71,8 @@ function onKeydown(e: KeyboardEvent) {
     flex-wrap: wrap;
     gap: $smaller;
     align-items: center;
-    background-color: $gray5;
+    background-color: $candy-pink-soft;
+    border: $candy-border;
     padding: $smaller $small;
     min-height: 2.75rem;
     cursor: text;
@@ -80,7 +81,8 @@ function onKeydown(e: KeyboardEvent) {
         display: inline-flex;
         align-items: center;
         gap: $smaller;
-        background-color: $gray3;
+        background-color: $candy-lavender;
+        border: 1px solid $candy-black;
         border-radius: $smaller;
         padding: 0.15rem 0.5rem;
         font-size: 0.85rem;
@@ -89,14 +91,14 @@ function onKeydown(e: KeyboardEvent) {
         .chip-x {
             border: none;
             background: none;
-            color: $gray1;
+            color: $candy-text-muted;
             cursor: pointer;
             padding: 0;
             font-size: 1.1rem;
             line-height: 1;
 
             &:hover {
-                color: #fff;
+                color: $candy-black;
             }
         }
     }
@@ -107,7 +109,7 @@ function onKeydown(e: KeyboardEvent) {
         border: none;
         background: none;
         outline: none;
-        color: #fff;
+        color: $candy-text;
         font-size: 14px;
         height: 1.75rem;
     }
