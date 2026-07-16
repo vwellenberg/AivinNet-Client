@@ -337,6 +337,12 @@ const isFavoritesPage = route.path.startsWith('/favorites')
             stroke: $mem-text-muted-static;
         }
     }
+
+    // Unfavorited add/fav glyph declares its own adaptive colour (paper in
+    // dark) — pin ink on the light row fills.
+    .heart-button {
+        color: $mem-ink;
+    }
 }
 
 .songlist-item.drag-over-top {
