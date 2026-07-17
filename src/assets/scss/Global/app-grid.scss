@@ -114,29 +114,26 @@ $g-border: solid $candy-border-w $mem-line;
 // their own full rounded ink box.
 .songlist-item {
     background-color: var(--mem-veil);
-    border-left-color: $mem-line;
-    border-right-color: $mem-line;
 
+    // The frame declarations need the .rounded-sm compound: SongItem.vue's
+    // base rule (border: 2px solid transparent) sits later in the bundle and
+    // would reset plain same-specificity overrides from here.
     &.rounded-sm {
+        border-left-color: $mem-line;
+        border-right-color: $mem-line;
         border-radius: 0;
     }
 
-    &.is-first {
+    &.is-first.rounded-sm {
         border-top-color: $mem-line;
-
-        &.rounded-sm {
-            border-top-left-radius: $candy-radius-sm;
-            border-top-right-radius: $candy-radius-sm;
-        }
+        border-top-left-radius: $candy-radius-sm;
+        border-top-right-radius: $candy-radius-sm;
     }
 
-    &.is-last {
+    &.is-last.rounded-sm {
         border-bottom-color: $mem-line;
-
-        &.rounded-sm {
-            border-bottom-left-radius: $candy-radius-sm;
-            border-bottom-right-radius: $candy-radius-sm;
-        }
+        border-bottom-left-radius: $candy-radius-sm;
+        border-bottom-right-radius: $candy-radius-sm;
     }
 }
 
