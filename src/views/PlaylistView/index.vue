@@ -1,6 +1,10 @@
 <template>
     <div class="folder-view v-scroll-page" style="height: 100%; position: relative;" :class="{ isSmall, isMedium }"
-        :style="{ '--page-gradient': pageGradient(playlist.colors.bg) }">
+        :style="{ '--page-gradient': pageGradient(playlist.colors.bg) }"
+        @dragover="onScrollerDragOver"
+        @dragleave="onScrollerDragLeave"
+        @drop="stopAutoScroll"
+        @dragend="stopAutoScroll">
         <DynamicScroller
             id="contentscroller"
             :items="scrollerItems"
@@ -33,7 +37,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { onMounted, onUpdated } from 'vue'
+import { onBeforeUnmount, onMounted, onUpdated } from 'vue'
 
 import { isMedium, isSmall, isSmallPhone } from '@/stores/content-width'
 import { dropSources } from '@/enums'
@@ -53,6 +57,7 @@ import AlbumsFetcher from '@/components/ArtistView/AlbumsFetcher.vue'
 import { reorderTracks } from '@/requests/playlists'
 import { Track } from '@/interfaces'
 import { pageGradient } from '@/utils/colortools/pageGradient'
+import { createDragAutoScroller } from '@/utils/dragAutoScroll'
 
 const queue = useQueue()
 const tracklist = useTracklist()
@@ -173,8 +178,33 @@ const scrollerItems = computed(() => {
 })
 
 async function onTrackDropped(_source: dropSources, _track: Track, newIndex: number, oldIndex: number) {
+    stopAutoScroll()
     playlist.moveTrack(oldIndex, newIndex)
     await reorderTracks(playlist.info.id, playlist.allTracks.map(t => t.trackhash))
+}
+
+// Edge auto-scroll while reordering: dragging a row near the top/bottom edge of
+// the scroller scrolls the list automatically, so moving a track from the
+// bottom to the top no longer means holding the drag AND touchpad-scrolling at
+// once. The rAF loop lives in the utility; here we just feed it the pointer.
+const autoScroller = createDragAutoScroller(() => document.getElementById('contentscroller'))
+
+function onScrollerDragOver(e: DragEvent) {
+    autoScroller.update(e.clientY)
+}
+
+function onScrollerDragLeave(e: DragEvent) {
+    // dragleave bubbles up from every row the pointer crosses; keep scrolling
+    // while the pointer stays inside the scroller and only stop once it truly
+    // leaves it (relatedTarget outside, or null when leaving the window).
+    const container = e.currentTarget as HTMLElement
+    const related = e.relatedTarget as Node | null
+    if (related && container.contains(related)) return
+    stopAutoScroll()
+}
+
+function stopAutoScroll() {
+    autoScroller.stop()
 }
 
 async function playFromPlaylistPage(index: number) {
@@ -196,7 +226,12 @@ async function playFromPlaylistPage(index: number) {
     updatePageTitle(playlist.info.name)
 })
 
-onBeforeRouteLeave(() => playlist.resetAll())
+onBeforeUnmount(() => stopAutoScroll())
+
+onBeforeRouteLeave(() => {
+    stopAutoScroll()
+    playlist.resetAll()
+})
 </script>
 
 <style lang="scss">
