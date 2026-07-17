@@ -58,7 +58,9 @@ const scrollerItems = computed(() => {
             track,
             index: index + 1,
             is_first: index === 0,
-            is_last: index === search.tracks.value.length - 1,
+            // Keep the frame open at the bottom while more paginated results
+            // exist — the closing cap only lands on the true last result.
+            is_last: !search.tracks.more && index === search.tracks.value.length - 1,
             source: dropSources.search,
         },
     }))

@@ -135,11 +135,10 @@ $g-border: solid $candy-border-w $mem-line;
     // the stripes are skipped there — a straight stripe would peek out inside
     // those rows' rounded corners.
     &.rounded-sm:not(:hover):not(.current):not(.contexton) {
-        background-image: linear-gradient(var(--mem-line), var(--mem-line)),
-            linear-gradient(var(--mem-line), var(--mem-line));
+        background-image: linear-gradient($mem-line, $mem-line),
+            linear-gradient($mem-line, $mem-line);
         background-repeat: no-repeat;
         background-origin: border-box;
-        background-clip: border-box;
         background-position: left top, right top;
         background-size: $candy-border-w 100%, $candy-border-w 100%;
     }
