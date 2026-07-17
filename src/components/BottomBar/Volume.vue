@@ -57,14 +57,20 @@ const handleMouseWheel = (event: WheelEvent) => {
         width: 2.25rem !important;
         background-color: transparent;
         border: none !important;
+        // The speaker glyph is currentColor, but the global button base pins
+        // `color: $mem-ink` (static) — which left the icon nearly invisible on
+        // the dark bar in dark mode. Drive it from the adaptive text colour.
+        color: $candy-text;
 
         svg {
             transform: scale(0.72);
         }
 
+        // Match the lyrics button (its right-group neighbour): a soft-pink
+        // rounded fill on hover, instead of the odd dim-on-hover it had before.
         &:hover {
-            background-color: transparent !important;
-            opacity: 0.85;
+            background-color: $candy-pink-soft;
+            opacity: 1;
         }
     }
 
