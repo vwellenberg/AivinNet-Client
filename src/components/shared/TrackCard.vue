@@ -6,7 +6,7 @@
         albumhash: track.albumhash,
       },
     }"
-    class="trackcard rounded"
+    class="trackcard"
   >
     <div class="image">
       <img class="rounded-sm" :src="paths.images.thumb.large + track.image" />

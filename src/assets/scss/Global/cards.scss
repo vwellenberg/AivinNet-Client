@@ -1,0 +1,45 @@
+// One anatomy for every cover card inside a horizontal card row (.cardscroller):
+// the home/search/artist rows mix playlist, track, album and artist cards side
+// by side, and each component historically computed its height differently
+// (inline-image baseline gaps, per-card margins, free-growing text blocks:
+// 285/280/278–305/258px in one row). A shared skeleton makes every tile the
+// same shape: padding + square image box + gap + fixed-height text zone.
+//
+// Scoped to .cardscroller on purpose — grid pages (playlists, discography)
+// show a single card type and keep their own flow.
+.cardscroller {
+    .p-card,
+    .trackcard,
+    .artist-card,
+    .album-card {
+        display: grid;
+        // Square image row + fixed text zone => identical totals across types.
+        // The text zone fits label + name + count/artist (3 lines); cards with
+        // fewer lines keep the empty space instead of shrinking the tile.
+        grid-template-rows: max-content 4rem;
+        align-content: start;
+        gap: $small;
+
+        > :first-child {
+            // The image container: force the square box here so an inline-image
+            // baseline gap or a stray margin can never change the row height.
+            aspect-ratio: 1;
+            margin: 0;
+        }
+
+        > :last-child {
+            overflow: hidden;
+        }
+
+        img {
+            // Kill the inline baseline gap (+5px on playlist/track tiles).
+            display: block;
+        }
+    }
+
+    // Version badges vary per album and would rock the fixed text zone; they
+    // stay on the album page, rows do without them.
+    .album-card .versions {
+        display: none;
+    }
+}

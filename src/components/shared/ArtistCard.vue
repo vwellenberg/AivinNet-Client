@@ -14,15 +14,19 @@
             <img class="artist-image circular" :src="imguri + artist.image" />
             <PlayBtn :artisthash="artist.artisthash" :artistname="artist.name" :source="playSources.artist" />
         </div>
-        <div v-if="artist.help_text" class="rhelp t-center">
-            <span class="help" :class="{ keep: !artist.time }">{{ artist.help_text }}</span>
-            <span class="time">{{ artist.time }}</span>
-        </div>
-        <div class="artist-name t-center">
-            {{ artist.name }}
-        </div>
-        <div v-if="artist.help_text && artist.trackcount" class="racount t-center">
-            {{ artist.trackcount }} Track{{ artist.trackcount == 1 ? '' : 's' }}
+        <!-- Single text wrapper so the shared card anatomy (Global/cards.scss)
+             can treat every card as image + one text zone. -->
+        <div class="card-text">
+            <div v-if="artist.help_text" class="rhelp t-center">
+                <span class="help" :class="{ keep: !artist.time }">{{ artist.help_text }}</span>
+                <span class="time">{{ artist.time }}</span>
+            </div>
+            <div class="artist-name t-center">
+                {{ artist.name }}
+            </div>
+            <div v-if="artist.help_text && artist.trackcount" class="racount t-center">
+                {{ artist.trackcount }} Track{{ artist.trackcount == 1 ? '' : 's' }}
+            </div>
         </div>
     </RouterLink>
 </template>
@@ -81,15 +85,19 @@ const showContextMenu = (e: MouseEvent) => {
         width: 100%;
         // Match the square cover cards' height behaviour: a fixed 1:1 box the
         // image is cropped into (object-fit), rendered round by .circular.
+        // No bottom margin: the shared card anatomy's gap owns that spacing.
         aspect-ratio: 1;
         transition: background-color 0.2s ease-out;
         object-fit: cover;
-        margin-bottom: $smaller;
         border: $candy-border;
     }
 
     .artist-name {
-        word-break: break-word;
+        // Single line like every other card's name — wrapping would rock the
+        // shared fixed text zone.
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         color: $candy-text;
         font-weight: 700;
     }

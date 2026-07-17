@@ -70,7 +70,10 @@ defineProps<{
   .overlay {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    // Top-anchored like every other card's text zone, so the name lines align
+    // across mixed rows (the old flex-end only mattered when the image row was
+    // 1fr; in the shared anatomy the text zone has a fixed height).
+    justify-content: flex-start;
     transition: all 0.25s ease;
 
     .p-name {
