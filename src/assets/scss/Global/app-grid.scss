@@ -118,10 +118,30 @@ $g-border: solid $candy-border-w $mem-line;
     // The frame declarations need the .rounded-sm compound: SongItem.vue's
     // base rule (border: 2px solid transparent) sits later in the bundle and
     // would reset plain same-specificity overrides from here.
+    //
+    // The side lines are painted as background stripes across the full border
+    // box rather than by colouring the side borders: a coloured border miters
+    // diagonally against the transparent top/bottom placeholder borders,
+    // leaving a notch at every row boundary, while stacked background stripes
+    // join seamlessly. The stripes also fill in the corner miters of the real
+    // top/bottom cap borders on .is-first/.is-last rows. Row states
+    // (hover/current/contexton) draw their own full ink border on top, which
+    // covers the stripes at the edges.
     &.rounded-sm {
-        border-left-color: $mem-line;
-        border-right-color: $mem-line;
         border-radius: 0;
+    }
+
+    // Filled row states carry their own full ink border at the same edge, so
+    // the stripes are skipped there — a straight stripe would peek out inside
+    // those rows' rounded corners.
+    &.rounded-sm:not(:hover):not(.current):not(.contexton) {
+        background-image: linear-gradient(var(--mem-line), var(--mem-line)),
+            linear-gradient(var(--mem-line), var(--mem-line));
+        background-repeat: no-repeat;
+        background-origin: border-box;
+        background-clip: border-box;
+        background-position: left top, right top;
+        background-size: $candy-border-w 100%, $candy-border-w 100%;
     }
 
     &.is-first.rounded-sm {
