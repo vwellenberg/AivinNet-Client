@@ -192,6 +192,13 @@ const settings = useSettings()
         svg {
             opacity: 1;
         }
+
+        // On the yellow accent fill the glyph must be static ink in BOTH themes.
+        // Without this the adaptive $candy-text turns the glyph paper-light on
+        // yellow in dark mode (poor contrast). Mirrors Right.vue's mobile repeat.
+        svg path {
+            fill: $mem-ink;
+        }
     }
 
     @include allPhones {

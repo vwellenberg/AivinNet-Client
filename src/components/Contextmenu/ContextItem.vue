@@ -194,6 +194,12 @@ function runChildAction(action: () => void) {
         right: 2px;
         bottom: 6px;
         transform: scale(0.65);
+
+        // The submenu chevron (ExpandIcon) hardcodes a light fill in its asset —
+        // make it follow the inherited menu text colour like the option icons.
+        svg path {
+            fill: currentColor;
+        }
     }
 
     .children {
@@ -251,6 +257,15 @@ function runChildAction(action: () => void) {
         svg {
             height: 100%;
             width: 100%;
+        }
+
+        // Option icons are injected as raw SVG (v-html) and many hardcode a
+        // light fill (#F2F2F2 / white) in their asset — nearly invisible on the
+        // light panel. Redirect every glyph to the inherited menu text colour
+        // (currentColor) so they read in BOTH themes and still flip to ink on
+        // the yellow critical-hover fill.
+        svg path {
+            fill: currentColor;
         }
     }
 
