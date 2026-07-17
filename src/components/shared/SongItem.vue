@@ -131,15 +131,15 @@ function onDragStart(e: DragEvent) {
 }
 
 function onDragOver(e: DragEvent) {
-    const el = e.currentTarget as HTMLElement
-    const mid = el.getBoundingClientRect().top + el.getBoundingClientRect().height / 2
-    if (e.clientY < mid) {
-        dragOverTop.value = true
-        dragOverBottom.value = false
-    } else {
-        dragOverTop.value = false
-        dragOverBottom.value = true
-    }
+    // Read the rect ONCE (was twice): dragover fires continuously on every
+    // recycled row the pointer crosses, and each getBoundingClientRect() forces
+    // a synchronous layout — doubly expensive while the virtual scroller is
+    // recycling rows during a drag-scroll. Only write the refs when the side
+    // actually flips so we don't churn the class-patch cycle.
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    const top = e.clientY < rect.top + rect.height / 2
+    if (dragOverTop.value !== top) dragOverTop.value = top
+    if (dragOverBottom.value !== !top) dragOverBottom.value = !top
 }
 
 function onDragLeave() {
@@ -157,8 +157,8 @@ function onDrop(e: DragEvent) {
         source: dropSources
         oldIndex: number
     }
-    const el = e.currentTarget as HTMLElement
-    const top = e.clientY < el.getBoundingClientRect().top + el.getBoundingClientRect().height / 2
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    const top = e.clientY < rect.top + rect.height / 2
     const newIndex = top ? props.track.index : props.track.index + 1
     if (oldIndex === newIndex || oldIndex === newIndex - 1) return
     emit('trackDropped', source, track, newIndex, oldIndex)
