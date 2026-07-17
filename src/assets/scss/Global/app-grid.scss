@@ -98,6 +98,16 @@ $g-border: solid $candy-border-w $mem-line;
     overflow: visible !important;
 }
 
+// Track rows sit directly on the doodled grid ground — a translucent
+// ground-coloured plate on each row keeps titles readable while the shapes
+// stay full-strength around the list (header, margins). Rows stack without
+// gaps, so the plates read as one continuous surface. Filled states
+// (hover/current/contexton) override with their own opaque fills; the queue
+// panel uses TrackItem and is untouched.
+.songlist-item {
+    background-color: var(--mem-veil);
+}
+
 .vue-recycle-scroller {
     scrollbar-gutter: stable;
     padding-left: $padleft;

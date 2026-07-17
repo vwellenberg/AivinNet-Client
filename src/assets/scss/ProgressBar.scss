@@ -24,9 +24,10 @@ input[type='range'] {
         // Static ink ring on the static-white thumb: it sits ON the blush
         // track, so a paper (var) border would vanish in dark — keep it ink.
         border: $candy-border-w solid $mem-ink;
-        // Center on the track: (track content 0.6rem - 2*2px ≈ 5.6px
-        // minus thumb 17.6px) / 2 = -6px.
-        margin-top: -0.375rem;
+        // Empirically calibrated at 4x zoom (Chromium partially self-centers
+        // appearance:none thumbs, so the pure geometry value of -6px pushed
+        // the knob ~2px above the bar's centerline).
+        margin-top: -3px;
     }
 
     &::-moz-range-thumb {
