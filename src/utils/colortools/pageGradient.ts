@@ -23,7 +23,10 @@ export function pageGradient(bg?: string): string {
     if (!bg) return 'transparent'
     const [r, g, b] = parseColor(bg)
     const stop = (a: number) => `rgba(${r}, ${g}, ${b}, ${a})`
-    return `linear-gradient(180deg, ${stop(0.55)} 0%, ${stop(0.25)} 240px, ${stop(0)} 460px)`
+    // Slightly stronger than the first memphis iteration (0.55/0.25): with the
+    // reference-copied doodles the header band needs more wash so the muted
+    // metadata lines stay readable over saturated shapes (judge finding).
+    return `linear-gradient(180deg, ${stop(0.72)} 0%, ${stop(0.42)} 240px, ${stop(0)} 460px)`
 }
 
 /**

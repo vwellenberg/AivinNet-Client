@@ -22,7 +22,7 @@
     --mem-ground: #{$mem-paper};
     // Bold near-black grid like the reference art (its lines are full black;
     // ~0.5 keeps content in front readable while the paper still reads bold).
-    --mem-grid-line: #{rgba($mem-ink, 0.5)};
+    --mem-grid-line: #{rgba($mem-ink, 0.65)};
     --mem-content-text: #{$mem-ink};
     --mem-content-muted: #{$mem-text-muted-static};
     --mem-content-faint: #{rgba($mem-ink, 0.45)};
@@ -36,7 +36,7 @@
     --mem-hover: #{$mem-blush};
     // Translucent ground plate behind track lists: text reads clearly while
     // the grid + doodles still shimmer through.
-    --mem-veil: #{rgba($mem-paper, 0.86)};
+    --mem-veil: #{rgba($mem-paper, 0.92)};
     --mem-scrollbar-thumb: #{rgba($mem-ink, 0.35)};
     --mem-scrollbar-thumb-hover: #{rgba($mem-ink, 0.55)};
 }
@@ -56,7 +56,7 @@ body.theme-dark {
     --mem-text: #{$mem-dark-text};
     --mem-text-muted: #{$mem-dark-text-muted};
     --mem-hover: #{$mem-dark-soft};
-    --mem-veil: #{rgba($mem-dark-ground, 0.86)};
+    --mem-veil: #{rgba($mem-dark-ground, 0.92)};
     --mem-scrollbar-thumb: rgba(255, 255, 255, 0.45);
     --mem-scrollbar-thumb-hover: rgba(255, 255, 255, 0.65);
 }
