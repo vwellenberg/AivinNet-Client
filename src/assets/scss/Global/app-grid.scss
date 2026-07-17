@@ -98,6 +98,16 @@ $g-border: solid $candy-border-w $mem-line;
     overflow: visible !important;
 }
 
+// Track lists in the main content sit directly on the doodled grid ground —
+// a translucent ground-coloured plate behind the rows keeps titles readable
+// while the shapes still shimmer through. Scoped to #acontent so the queue
+// panel (own white/dark panel in .r-sidebar) is untouched; the header in the
+// scroller's #before slot stays plate-free, so the doodles play there.
+#acontent .vue-recycle-scroller__item-wrapper {
+    background-color: var(--mem-veil);
+    border-radius: $candy-radius-sm;
+}
+
 .vue-recycle-scroller {
     scrollbar-gutter: stable;
     padding-left: $padleft;
