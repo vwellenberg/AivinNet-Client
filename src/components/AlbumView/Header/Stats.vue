@@ -45,8 +45,10 @@ const statsText = computed(() => {
   margin-bottom: 0.75rem;
   font-size: 14px;
   padding-left: $smaller;
-  // Header stats line sits on the page ground -> theme-aware muted.
-  color: $mem-content-muted;
+  // Full-strength adaptive text + soft ground halo: the copied reference art
+  // puts saturated shapes behind the header, where muted grey failed.
+  color: $mem-content-text;
+  text-shadow: 0 0 8px var(--mem-ground);
 
   .artistname {
     display: -webkit-box;
