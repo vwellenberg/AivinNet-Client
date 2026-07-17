@@ -55,8 +55,7 @@ const showContextMenu = (e: MouseEvent) => {
     position: relative;
 
     @include candy-box($mem-panel, $candy-radius);
-    justify-content: center;
-    padding: 1.2rem 1rem !important;
+    padding: $medium;
     font-size: 0.95rem;
     font-weight: 700;
     height: max-content;
@@ -70,8 +69,9 @@ const showContextMenu = (e: MouseEvent) => {
         position: relative;
     }
 
-    // round cover → centered button (a corner button would sit outside the circle)
-    @include card-play-btn(center);
+    // Same bottom-right corner button as every other cover card; on the round
+    // image it lands in the square corner outside the circle but inside the box.
+    @include card-play-btn;
 
     &:hover {
         background-color: $mem-hover;
@@ -79,6 +79,9 @@ const showContextMenu = (e: MouseEvent) => {
 
     .artist-image {
         width: 100%;
+        // Match the square cover cards' height behaviour: a fixed 1:1 box the
+        // image is cropped into (object-fit), rendered round by .circular.
+        aspect-ratio: 1;
         transition: background-color 0.2s ease-out;
         object-fit: cover;
         margin-bottom: $smaller;

@@ -1,5 +1,7 @@
 <template>
-  <router-link :to="{ name: 'PlaylistView', params: { pid: playlist.id } }" class="p-card rounded no-scroll">
+  <!-- No .rounded utility here: it overrode the candy-box radius (16px vs the
+       14px every other card uses) and made playlist tiles a different shape. -->
+  <router-link :to="{ name: 'PlaylistView', params: { pid: playlist.id } }" class="p-card no-scroll">
     <div v-if="!playlist.has_image && playlist.images.length" class="image rounded-sm no-scroll">
       <PlaylistImages :images="playlist.images" size="large" class="rounded-sm" />
       <PlayBtn :source="playSources.playlist" :playlist="playlist.id.toString()"/>
@@ -8,7 +10,7 @@
       <img :src="imguri + playlist.thumb" class="rounded-sm" :class="{ border: !playlist.thumb }" />
       <PlayBtn :source="playSources.playlist" :playlist="playlist.id.toString()"/>
     </div>
-    <div class="overlay rounded">
+    <div class="overlay">
       <div v-if="playlist.help_text" class="rhelp playlist">
         <span class="help">{{ playlist.help_text }}</span>
         <span class="time">{{ playlist.time }}</span>
