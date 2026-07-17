@@ -75,7 +75,7 @@ class songItem {
     props = {}
     component: typeof SongItem | typeof AlbumDiscBar
 
-    constructor(track: Track) {
+    constructor(track: Track, is_first = false, is_last = false) {
         this.id = track.filepath || Math.random()
         this.props = track.is_album_disc_number
             ? { album_disc: track }
@@ -83,6 +83,8 @@ class songItem {
                   track,
                   hide_album: true,
                   index: track.track,
+                  is_first,
+                  is_last,
                   source: dropSources.album,
               }
         this.component = track.is_album_disc_number ? AlbumDiscBar : SongItem
@@ -116,8 +118,13 @@ const fetched_similar_hash: ScrollerItem = {
 }
 
 function getSongItems() {
-    return album.tracks.map(track => {
-        return new songItem(track)
+    // Frame each disc section on its own: a row is "first"/"last" when its
+    // neighbor is a disc-number pseudo-track (rendered as AlbumDiscBar) or the
+    // list edge, so every disc group gets a closed ink frame.
+    return album.tracks.map((track, i) => {
+        const prev = album.tracks[i - 1]
+        const next = album.tracks[i + 1]
+        return new songItem(track, !prev || !!prev.is_album_disc_number, !next || !!next.is_album_disc_number)
     })
 }
 

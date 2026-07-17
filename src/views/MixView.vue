@@ -97,6 +97,7 @@ const scrollerItems = computed(() => {
             props: {
                 track: track,
                 index: index + 1,
+                is_first: index === 0,
                 is_last: index === mix.tracks.length - 1,
                 droppable: true,
                 source: dropSources.playlist,

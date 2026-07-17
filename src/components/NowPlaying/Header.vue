@@ -32,6 +32,8 @@
             v-if="queue.next"
             :track="queue.next"
             :index="queue.nextindex + 1"
+            :is_first="true"
+            :is_last="true"
             :source="dropSources.folder"
             @play-this="queue.playNext"
         />

@@ -66,6 +66,8 @@ const scrollerItems = computed(() => {
       props: {
         track,
         index: index + 1,
+        is_first: index === 0,
+        is_last: index === store.tracklist.length - 1,
         isCurrent: index === queue.currentindex,
         isCurrentPlaying: index === queue.currentindex && queue.playing,
         isQueueTrack: true,

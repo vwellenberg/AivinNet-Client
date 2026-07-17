@@ -83,9 +83,9 @@ class songItem {
     props: any
     component = SongItem
 
-    constructor(track: Track) {
+    constructor(track: Track, is_first = false, is_last = false) {
         this.id = track.filepath
-        this.props = { ...createTrackProps(track), source: dropSources.folder }
+        this.props = { ...createTrackProps(track), is_first, is_last, source: dropSources.folder }
     }
 }
 
@@ -102,8 +102,8 @@ const scrollerItems = computed(() => {
         })
     }
 
-    folder.tracks.forEach(track => {
-        items.push(new songItem(track))
+    folder.tracks.forEach((track, i) => {
+        items.push(new songItem(track, i === 0, i === folder.tracks.length - 1))
     })
 
     if (folder.tracks.length >= track_limit.value) {

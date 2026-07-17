@@ -57,6 +57,8 @@ const scrollerItems = computed(() => {
         props: {
             track,
             index: index + 1,
+            is_first: index === 0,
+            is_last: index === search.tracks.value.length - 1,
             source: dropSources.search,
         },
     }))

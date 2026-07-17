@@ -104,8 +104,40 @@ $g-border: solid $candy-border-w $mem-line;
 // gaps, so the plates read as one continuous surface. Filled states
 // (hover/current/contexton) override with their own opaque fills; the queue
 // panel uses TrackItem and is untouched.
+//
+// The plate carries an ink frame for the memphis panel look: every row colours
+// the (already reserved, transparent) side borders, and the .is-first/.is-last
+// rows close the frame top/bottom with capped corners. Middle rows must drop
+// the .rounded-sm radius, or each row's corners would curve away from the
+// frame line. Row states (hover/current/contexton) live in SongItem.vue and
+// deliberately win here (same specificity, later in the bundle) so they keep
+// their own full rounded ink box.
 .songlist-item {
     background-color: var(--mem-veil);
+    border-left-color: $mem-line;
+    border-right-color: $mem-line;
+
+    &.rounded-sm {
+        border-radius: 0;
+    }
+
+    &.is-first {
+        border-top-color: $mem-line;
+
+        &.rounded-sm {
+            border-top-left-radius: $candy-radius-sm;
+            border-top-right-radius: $candy-radius-sm;
+        }
+    }
+
+    &.is-last {
+        border-bottom-color: $mem-line;
+
+        &.rounded-sm {
+            border-bottom-left-radius: $candy-radius-sm;
+            border-bottom-right-radius: $candy-radius-sm;
+        }
+    }
 }
 
 .vue-recycle-scroller {
