@@ -20,6 +20,7 @@
                     :track="item.track"
                     :index="total ? total - index : index + 1"
                     :is_queue_track="is_queue"
+                    :is_first="index == 0"
                     :is_last="index == tracks.length - 1"
                     :droppable="false"
                     :source="source"

@@ -6,6 +6,8 @@
             { contexton: context_menu_showing },
             { 'with-plays': showPlaysColumn },
             { 'with-date': showDateColumn },
+            { 'is-first': is_first },
+            { 'is-last': is_last },
             dragOverClass,
         ]"
         :draggable="droppable && source === dropSources.playlist"
@@ -90,6 +92,9 @@ const props = defineProps<{
     hide_album?: boolean
     is_queue_track?: boolean
     droppable?: boolean
+    // First/last row of a list section — closes the ink frame around the
+    // translucent list plate (top/bottom edge + corner radii).
+    is_first?: boolean
     is_last?: boolean
     source: dropSources
     show_plays?: boolean

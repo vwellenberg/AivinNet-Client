@@ -1,11 +1,5 @@
 <template>
-    <div
-        class="b-bar"
-        :style="{
-            paddingLeft: `${settings.is_default_layout ? '1rem' : ''}`,
-            paddingRight: `${settings.is_default_layout ? '1rem' : ''}`,
-        }"
-    >
+    <div class="b-bar">
         <LeftGroup @handleFav="handleFav" />
         <div class="center">
             <div v-if="!isMobile" class="with-time">
@@ -38,7 +32,6 @@ import { isMobile } from '@/stores/content-width'
 import { formatSeconds } from '@/utils'
 
 import useQStore from '@/stores/queue'
-import useSettings from '@/stores/settings'
 
 import HotKeys from '@/components/LeftSidebar/NP/HotKeys.vue'
 import Progress from '@/components/LeftSidebar/NP/Progress.vue'
@@ -48,7 +41,6 @@ import LeftGroup from './Left.vue'
 import RightGroup from './Right.vue'
 
 const queue = useQStore()
-const settings = useSettings()
 
 function handleFav() {
     favoriteHandler(
@@ -67,6 +59,10 @@ function handleFav() {
     grid-template-columns: 1fr max-content 1fr;
     align-items: center;
     z-index: 1;
+    // Side inset for the NP block / volume group. Used to be an inline style
+    // gated on is_default_layout, which left the alternate (links) layout with
+    // zero padding — the NP cover sat flush against the window edge.
+    padding: 0 1rem;
 
     @include allPhones {
         display: flex;

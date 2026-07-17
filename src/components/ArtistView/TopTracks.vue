@@ -10,6 +10,8 @@
                 :key="index"
                 :track="song"
                 :index="total ? total - index : index + 1"
+                :is_first="index === 0"
+                :is_last="index === tracks.length - 1"
                 :source="source"
                 :show_plays="show_plays"
                 @playThis="playHandler(index)"

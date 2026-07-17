@@ -107,7 +107,7 @@ const scrollerItems = computed(() => {
         },
     }
 
-    const tracks = playlist.tracks.map(track => {
+    const tracks = playlist.tracks.map((track, i) => {
         return {
             // Key by position (track.index = Fuse refIndex), like every other
             // track list in the app (SongList, Queue, ...). filepath is NOT
@@ -118,7 +118,12 @@ const scrollerItems = computed(() => {
             props: {
                 track: track,
                 index: track.index + 1,
-                is_last: track.index === playlist.tracks.length - 1,
+                // Frame caps follow the RENDERED position (i), not track.index:
+                // under an in-playlist search track.index is the refIndex into
+                // the unfiltered list, so the first/last filtered row would
+                // never get its cap.
+                is_first: i === 0,
+                is_last: i === playlist.tracks.length - 1,
                 droppable: !playlist.query,
                 source: dropSources.playlist,
                 show_date_added: supportsDateAdded.value,

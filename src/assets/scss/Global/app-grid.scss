@@ -104,8 +104,56 @@ $g-border: solid $candy-border-w $mem-line;
 // gaps, so the plates read as one continuous surface. Filled states
 // (hover/current/contexton) override with their own opaque fills; the queue
 // panel uses TrackItem and is untouched.
+//
+// The plate carries an ink frame for the memphis panel look: every row colours
+// the (already reserved, transparent) side borders, and the .is-first/.is-last
+// rows close the frame top/bottom with capped corners. Middle rows must drop
+// the .rounded-sm radius, or each row's corners would curve away from the
+// frame line. Row states (hover/current/contexton) live in SongItem.vue and
+// deliberately win here (same specificity, later in the bundle) so they keep
+// their own full rounded ink box.
 .songlist-item {
     background-color: var(--mem-veil);
+
+    // The frame declarations need the .rounded-sm compound: SongItem.vue's
+    // base rule (border: 2px solid transparent) sits later in the bundle and
+    // would reset plain same-specificity overrides from here.
+    //
+    // The side lines are painted as background stripes across the full border
+    // box rather than by colouring the side borders: a coloured border miters
+    // diagonally against the transparent top/bottom placeholder borders,
+    // leaving a notch at every row boundary, while stacked background stripes
+    // join seamlessly. The stripes also fill in the corner miters of the real
+    // top/bottom cap borders on .is-first/.is-last rows. Row states
+    // (hover/current/contexton) draw their own full ink border on top, which
+    // covers the stripes at the edges.
+    &.rounded-sm {
+        border-radius: 0;
+    }
+
+    // Filled row states carry their own full ink border at the same edge, so
+    // the stripes are skipped there — a straight stripe would peek out inside
+    // those rows' rounded corners.
+    &.rounded-sm:not(:hover):not(.current):not(.contexton) {
+        background-image: linear-gradient($mem-line, $mem-line),
+            linear-gradient($mem-line, $mem-line);
+        background-repeat: no-repeat;
+        background-origin: border-box;
+        background-position: left top, right top;
+        background-size: $candy-border-w 100%, $candy-border-w 100%;
+    }
+
+    &.is-first.rounded-sm {
+        border-top-color: $mem-line;
+        border-top-left-radius: $candy-radius-sm;
+        border-top-right-radius: $candy-radius-sm;
+    }
+
+    &.is-last.rounded-sm {
+        border-bottom-color: $mem-line;
+        border-bottom-left-radius: $candy-radius-sm;
+        border-bottom-right-radius: $candy-radius-sm;
+    }
 }
 
 .vue-recycle-scroller {

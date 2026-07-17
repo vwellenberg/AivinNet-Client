@@ -15,6 +15,8 @@
       <SongItem
         :track="item.track"
         :index="index + 1"
+        :is_first="index === 0"
+        :is_last="index === scrollerItems.length - 1"
         :source="dropSources.artist"
         @playThis="playFromPage(index)"
       />
