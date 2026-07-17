@@ -65,8 +65,10 @@ onBeforeRouteUpdate(() => {
       font-size: 14px;
       font-weight: 700;
       text-transform: capitalize;
-      // Header text sits on the page ground -> theme-aware.
-      color: $mem-content-muted;
+      // Full-strength adaptive text + soft ground halo: the copied reference
+      // art puts saturated shapes behind the header, where muted grey failed.
+      color: $mem-content-text;
+      text-shadow: 0 0 8px var(--mem-ground);
     }
 
     .title {

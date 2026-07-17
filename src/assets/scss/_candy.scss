@@ -122,13 +122,15 @@ $candy-radius-pill: 999px; // pills, sliders
 // (assets/images/memphis-doodles.svg — copied from the 90s reference art)
 // over the grid. Both stay fixed while the content scrolls past (backgrounds
 // on the overflow container don't scroll), like paper under the UI.
-@mixin mem-grid($size: 42px, $w: 1.5px, $doodles: true) {
+// Cell + line weight follow the reference art's proportions (cell ~47px with a
+// bold ~2px line on the 750px-wide reference).
+@mixin mem-grid($size: 46px, $w: 2px, $doodles: true) {
   background-color: $mem-ground;
   @if $doodles {
     background-image: url("@/assets/images/memphis-doodles.svg"),
       linear-gradient(var(--mem-grid-line) $w, transparent $w),
       linear-gradient(90deg, var(--mem-grid-line) $w, transparent $w);
-    background-size: 1280px 960px, $size $size, $size $size;
+    background-size: 1500px 960px, $size $size, $size $size;
   } @else {
     background-image: linear-gradient(var(--mem-grid-line) $w, transparent $w),
       linear-gradient(90deg, var(--mem-grid-line) $w, transparent $w);

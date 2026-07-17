@@ -28,3 +28,5 @@ pnpm-debug.log*
 
 __pycache__
 dev-dist/*
+# Local design references (not distributed)
+design-refs/
