@@ -109,6 +109,18 @@ function getRouterParams() {
 
     margin-bottom: $medium;
 
+    // Chart rows sit directly on the doodled grid ground, which makes their
+    // text hard to read. Lay the same translucent ground-coloured plate under
+    // each row as the song lists use (var(--mem-veil)); the grid + memphis
+    // shapes still shimmer through the veil and stay full-strength in the gaps
+    // between rows. Each row is a separate rounded card (margin-bottom gap), so
+    // a plain 2px ink frame closes it — the song list's stripe technique is only
+    // needed when rows abut. The number-one card keeps its own lavender box.
+    &:not(.chartitemhashuno) {
+        background-color: var(--mem-veil);
+        border: $candy-border;
+    }
+
     .index {
         font-size: 1.25rem;
         font-weight: 900;
