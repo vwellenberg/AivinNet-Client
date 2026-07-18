@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 
+import useDeviceSync from '@/stores/devicesync'
 import useInterface from '@/stores/interface'
 import { NotifType, useToast } from '@/stores/notification'
 import usePlaylists from '@/stores/pages/playlists'
@@ -30,8 +31,8 @@ export type From =
     | fromFav
     | fromMix
 
-function shuffle(tracks: Track[]) {
-    const shuffled = tracks.slice()
+export function shuffleArray<T>(items: T[]): T[] {
+    const shuffled = items.slice()
     for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
         ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
@@ -159,6 +160,15 @@ export default defineStore('tracklist', {
             Toast.showNotification(`Added ${tracks.length} tracks to queue`, NotifType.Success)
         },
         insertAt(tracks: Track[], index: number) {
+            // Group mode: local queue edits ("play next" / "add to queue" funnel
+            // through here) must go through the server, or this device's list
+            // silently diverges from the authoritative group queue.
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                ds.intercept('insertTracks', tracks, index)
+                return
+            }
+
             this.tracklist.splice(index, 0, ...tracks)
 
             const player = usePlayer()
@@ -173,7 +183,7 @@ export default defineStore('tracklist', {
             this.from = {} as From
         },
         shuffleList() {
-            this.tracklist = shuffle(this.tracklist)
+            this.tracklist = shuffleArray(this.tracklist)
         },
         removeByIndex(index: number) {
             const { currentindex, nextindex, playing, playNext, moveForward, setCurrentIndex } = useQueue()

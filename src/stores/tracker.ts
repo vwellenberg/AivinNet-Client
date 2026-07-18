@@ -2,6 +2,7 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 
 import useQueue from "./queue";
+import useDeviceSync from "./devicesync";
 import { audioSource } from "./player";
 import { FromOptions } from "@/enums";
 import useTracklist, { From } from "@/stores/queue/tracklist";
@@ -113,6 +114,18 @@ export default defineStore(
     }
 
     function submitData() {
+      // Group mode: exactly one device (the scrobble leader) submits play data.
+      // Non-leaders DISCARD instead of defer: reset the accumulation like a
+      // real submit would, otherwise duration keeps growing against a stale
+      // trackhash and a later leadership change / solo fallback would submit
+      // one grossly inflated bogus scrobble.
+      const ds = useDeviceSync();
+      if (ds.joined && !ds.isScrobbleLeader) {
+        resetData();
+        prevKey.value = key.value;
+        return;
+      }
+
       if (!can_submit) return;
       lockSubmit();
       sendLogData(trackhash.value, duration.value, from.value, timestamp.value);
