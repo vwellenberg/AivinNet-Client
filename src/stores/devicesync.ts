@@ -91,6 +91,14 @@ function clearScheduled() {
  */
 let applyDepth = 0
 
+/**
+ * While set (epoch ms deadline), poll() must NOT re-adopt a server-side
+ * membership: the user just pressed Leave and the server may not have
+ * processed it yet — without this, an in-flight poll bounces the device
+ * straight back into the group it left.
+ */
+let leaveSuppressUntil = 0
+
 // The trackhash currently loaded into the audio element and the last applied
 // playbackRate — both tracked here (not in reactive state) so reconciliation
 // and steering can compare cheaply without reading the media element.
@@ -198,6 +206,13 @@ export default defineStore('devicesync', {
         },
         scheduleNextPoll() {
             if (!pollingActive) return
+            // Idempotent: cancel any pending timer first. A cadence restart
+            // during an in-flight poll would otherwise race the poll's own
+            // trailing reschedule and leave TWO poll loops running.
+            if (pollTimer) {
+                clearTimeout(pollTimer)
+                pollTimer = null
+            }
             const cadence = this.joined ? CADENCE_JOINED_MS : CADENCE_SOLO_MS
             pollTimer = setTimeout(() => {
                 void this.poll().finally(() => this.scheduleNextPoll())
@@ -277,11 +292,26 @@ export default defineStore('devicesync', {
                 this.sessionVersion = res.version
                 return
             }
+            if (!res.joined) {
+                leaveSuppressUntil = 0
+            }
             if (res.joined && !this.joined) {
+                if (Date.now() < leaveSuppressUntil) {
+                    // The user just left; the server hasn't caught up yet.
+                    return
+                }
                 this.joined = true
                 this.status = 'joined'
                 this.startSteerLoop()
-                this.restartPollingCadence()
+                // Force a full re-mirror: the local list may have diverged
+                // while we were solo (queue_id alone would not notice).
+                this.queueId = ''
+                this.lastMirroredHashKey = ''
+                if (!res.state) {
+                    // No state in this response — request it on the next poll.
+                    this.sessionVersion = 0
+                    return
+                }
             }
 
             // The server sends `state` to EVERY device of the user (also
@@ -664,6 +694,7 @@ export default defineStore('devicesync', {
         /** Voluntary leave: keep playing locally (dissolve-to-solo semantics). */
         async leave() {
             const id = this.deviceId
+            leaveSuppressUntil = Date.now() + 10000
             this.toSolo()
             if (id) await leaveGroup(id)
         },
@@ -671,6 +702,7 @@ export default defineStore('devicesync', {
         /** play_here recipient: leave the group AND stop audio. */
         playHereLeave() {
             const id = this.deviceId
+            leaveSuppressUntil = Date.now() + 10000
             if (id) void leaveGroup(id)
             audioSource.pausePlayingSource()
             useQueue().playing = false

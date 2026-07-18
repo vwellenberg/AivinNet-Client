@@ -483,6 +483,49 @@ describe('devicesync store', () => {
         )
     })
 
+    it('does not re-adopt membership right after a voluntary leave (server lag race)', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        // Server considers us a member (page-reload semantics) → adopt.
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ joined: true }))
+        await ds.poll()
+        expect(ds.joined).toBe(true)
+
+        await ds.leave()
+        expect(ds.joined).toBe(false)
+
+        // The server has not processed the leave yet — this stale poll must
+        // NOT bounce the device back into the group.
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ joined: true }))
+        await ds.poll()
+        expect(ds.joined).toBe(false)
+    })
+
+    it('re-adopting a membership forces a full queue re-mirror (local list may have diverged)', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        requestsMock.resolveTracks.mockResolvedValue([mkTrack('h1'), mkTrack('h2')])
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ version: 1, joined: true, state: mkState() }))
+        await ds.poll()
+        expect(requestsMock.resolveTracks).toHaveBeenCalledTimes(1)
+
+        // Outage → solo; same server session survives with the same queue_id.
+        ds.toSolo()
+
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ version: 1, joined: true, state: mkState() }))
+        await ds.poll()
+
+        // Same queue_id, but the re-adopt reset the mirror → re-resolve.
+        expect(requestsMock.resolveTracks).toHaveBeenCalledTimes(2)
+        expect(ds.joined).toBe(true)
+    })
+
     it('intercept(insertTracks) broadcasts the would-be queue instead of mutating locally', async () => {
         const { useDeviceSync, useTracklist, useQueue } = await setup()
         localStorage.setItem('aivinnet.device_id', 'devA')
