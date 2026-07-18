@@ -219,6 +219,30 @@ export const paths = {
                 return this.base + '/top-tracks'
             },
         },
+        devicesync: {
+            base: '/devicesync',
+            get register() {
+                return this.base + '/register'
+            },
+            get poll() {
+                return this.base + '/poll'
+            },
+            get command() {
+                return this.base + '/command'
+            },
+            get queueSet() {
+                return this.base + '/queue-set'
+            },
+            get resolve() {
+                return this.base + '/resolve'
+            },
+            get join() {
+                return this.base + '/join'
+            },
+            get leave() {
+                return this.base + '/leave'
+            },
+        },
     },
     images: {
         thumb: {
