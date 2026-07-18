@@ -25,7 +25,7 @@ const { playerMock, audioSourceMock, requestsMock } = vi.hoisted(() => ({
         leaveGroup: vi.fn(() => Promise.resolve({ status: 200, data: {} })),
         setQueue: vi.fn(() => Promise.resolve({ status: 200, data: {} })),
         sendCommand: vi.fn(() => Promise.resolve({ status: 200, data: {} })),
-        resolveTracks: vi.fn(() => Promise.resolve([])),
+        resolveTracks: vi.fn(() => Promise.resolve([] as any[])),
     },
 }))
 
