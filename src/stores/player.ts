@@ -321,10 +321,17 @@ export const usePlayer = defineStore('player', () => {
 
     const onAudioEnded = () => {
         // Group mode: the leader plans the next track via a scheduled command;
-        // no local moveForward / crossfade advance here.
+        // NEVER run the solo advance below — not even while a mirror
+        // application is in flight (`applying`), or the local moveForward
+        // would silently desync this device from the group.
         const ds = useDeviceSync()
-        if (ds.joined && !ds.applying) {
-            ds.onTrackEnded()
+        if (ds.joined) {
+            // The scrobble leader logs the finished track now (submitData is
+            // leader-gated and resets after submitting), so the last track of
+            // a repeat-none queue is scrobbled even though no next track ever
+            // triggers the key-change submit.
+            tracker.submitData()
+            if (!ds.applying) ds.onTrackEnded()
             return
         }
 

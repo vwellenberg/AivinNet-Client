@@ -13,6 +13,7 @@ const { playerMock, audioSourceMock, requestsMock } = vi.hoisted(() => ({
         setMute: vi.fn(),
         setVolume: vi.fn(),
         clearNextAudio: vi.fn(),
+        clearMovingNextTimeout: vi.fn(),
     },
     audioSourceMock: {
         playPlayingSource: vi.fn(() => Promise.resolve()),
@@ -41,12 +42,14 @@ vi.mock('@/requests/devicesync', () => requestsMock)
 vi.mock('@/stores/interface', () => ({ default: () => ({ focusCurrentInSidebar() {} }) }))
 vi.mock('@/stores/pages/playlists', () => ({ default: () => ({ movePlayedToTop: vi.fn() }) }))
 
+// Realistic backend shape: image strings carry a `?pathhash=` suffix (repo
+// fixture rule — a sanitized `hash.webp` has hidden real bugs before).
 const mkTrack = (hash: string): any => ({
     trackhash: hash,
     filepath: `/music/${hash}.mp3`,
     title: hash,
     duration: 100,
-    image: '',
+    image: `${hash}.webp?pathhash=${hash}ph`,
 })
 
 const mkState = (over: Partial<any> = {}): any => ({
@@ -114,7 +117,9 @@ describe('devicesync store', () => {
         await ds.register()
 
         requestsMock.resolveTracks.mockResolvedValue([mkTrack('h1'), mkTrack('h2')])
-        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ version: 1, state: mkState({ currentindex: 0 }) }))
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({ version: 1, joined: true, state: mkState({ currentindex: 0 }) })
+        )
         await ds.poll()
 
         expect(requestsMock.resolveTracks).toHaveBeenCalledTimes(1)
@@ -122,7 +127,9 @@ describe('devicesync store', () => {
         expect(useQueue().currentindex).toBe(0)
 
         // Same queue_id + hashes, new index → mirror the index, no re-resolve.
-        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ version: 2, state: mkState({ currentindex: 1 }) }))
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({ version: 2, joined: true, state: mkState({ currentindex: 1 }) })
+        )
         await ds.poll()
 
         expect(requestsMock.resolveTracks).toHaveBeenCalledTimes(1)
@@ -136,7 +143,7 @@ describe('devicesync store', () => {
         await ds.register()
 
         requestsMock.resolveTracks.mockResolvedValue([mkTrack('h1'), mkTrack('h2')])
-        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ state: mkState({ repeat: 'one' }) }))
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ joined: true, state: mkState({ repeat: 'one' }) }))
         await ds.poll()
 
         expect(useSettings().repeat).toBe('one')
@@ -335,5 +342,164 @@ describe('devicesync store', () => {
 
         for (let i = 0; i < 12; i++) await ds.poll()
         expect(ds.joined).toBe(false)
+    })
+
+    it('a solo (non-joined) device never mirrors group state onto its local queue', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        // Server sends `state` to every device of the user — joined:false here.
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ version: 3, joined: false, state: mkState() }))
+        await ds.poll()
+
+        expect(requestsMock.resolveTracks).not.toHaveBeenCalled()
+        expect(useTracklist().tracklist).toEqual([])
+        expect(useQueue().currentindex).toBe(0)
+        expect(ds.joined).toBe(false)
+    })
+
+    it('cancels pending scheduled commands on leave — no hijack of solo playback', async () => {
+        vi.useFakeTimers()
+        vi.setSystemTime(100000)
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({
+                server_now_ms: 100000,
+                joined: true,
+                commands: [
+                    { id: 'c1', type: 'seek', payload: { position_ms: 3000 }, execute_at_ms: 102000, target_device: null },
+                ],
+            })
+        )
+        await ds.poll()
+        expect(ds.joined).toBe(true)
+
+        await ds.leave()
+        vi.advanceTimersByTime(5000)
+
+        expect(playerMock.hardSeekMs).not.toHaveBeenCalled()
+    })
+
+    it('clamps a stale track_change index into the current queue bounds', async () => {
+        const { useDeviceSync, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        requestsMock.resolveTracks.mockResolvedValue([mkTrack('h1'), mkTrack('h2')])
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({
+                joined: true,
+                state: mkState(),
+                commands: [
+                    { id: 'tc', type: 'track_change', payload: { index: 99 }, execute_at_ms: 0, target_device: null },
+                ],
+            })
+        )
+        await ds.poll()
+
+        expect(useQueue().currentindex).toBe(1)
+    })
+
+    it('the applying guard never spans the resolve await — user actions still intercept', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        let release: (tracks: any[]) => void = () => {}
+        requestsMock.resolveTracks.mockReturnValueOnce(new Promise(resolve => (release = resolve)))
+
+        const pending = ds.applyState(mkState())
+        // Let applyState reach (and suspend at) the resolve await.
+        await Promise.resolve()
+        expect(ds.applying).toBe(false)
+
+        release([mkTrack('h1'), mkTrack('h2')])
+        await pending
+        expect(ds.applying).toBe(false)
+        expect(ds.queueId).toBe('q1')
+    })
+
+    it('keeps known_version stale when the track resolve fails, so the server re-sends state', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        requestsMock.resolveTracks.mockResolvedValueOnce([])
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ version: 5, joined: true, state: mkState() }))
+        await ds.poll()
+        expect(ds.sessionVersion).toBe(0)
+
+        requestsMock.resolveTracks.mockResolvedValueOnce([mkTrack('h1'), mkTrack('h2')])
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ version: 5, joined: true, state: mkState() }))
+        await ds.poll()
+        expect(ds.sessionVersion).toBe(5)
+    })
+
+    it('intercept(playPrev) restarts the current track past 3 s, jumps back before it', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        useTracklist().tracklist = [mkTrack('h1'), mkTrack('h2')]
+        useQueue().currentindex = 1
+
+        playerMock.getCurrentTimeMs.mockReturnValue(10000)
+        ds.intercept('playPrev')
+        expect(requestsMock.sendCommand).toHaveBeenLastCalledWith(
+            expect.objectContaining({ type: 'seek', payload: { position_ms: 0 } })
+        )
+        expect(useQueue().duration.current).toBe(0)
+
+        playerMock.getCurrentTimeMs.mockReturnValue(1000)
+        ds.intercept('playPrev')
+        expect(requestsMock.sendCommand).toHaveBeenLastCalledWith(
+            expect.objectContaining({ type: 'track_change', payload: { index: 0, position_ms: 0, playing: true } })
+        )
+    })
+
+    it('intercept(seek) optimistically moves the progress thumb', async () => {
+        const { useDeviceSync, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        ds.intercept('seek', 42)
+        expect(useQueue().duration.current).toBe(42)
+        expect(requestsMock.sendCommand).toHaveBeenCalledWith(
+            expect.objectContaining({ type: 'seek', payload: { position_ms: 42000 } })
+        )
+    })
+
+    it('intercept(insertTracks) broadcasts the would-be queue instead of mutating locally', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('h1'), mkTrack('h2')]
+        useQueue().currentindex = 0
+
+        // "Play next" funnels through tracklist.insertAt → the group seam.
+        tl.insertAt([mkTrack('h9')], 1)
+
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['h1', 'h2'])
+        expect(requestsMock.setQueue).toHaveBeenCalledWith(
+            expect.objectContaining({ trackhashes: ['h1', 'h9', 'h2'], currentindex: 0 })
+        )
     })
 })

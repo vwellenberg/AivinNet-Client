@@ -15,7 +15,7 @@
 
 import { defineStore } from 'pinia'
 
-import { computeCorrection } from '@/utils/deviceSync/driftSteer'
+import { computeCorrection, HARD_MS } from '@/utils/deviceSync/driftSteer'
 import { ClockOffsetEstimator } from '@/utils/deviceSync/clockSync'
 import { detectDeviceName, detectDeviceType, getOrCreateDeviceId } from '@/utils/deviceSync/deviceId'
 import { expectedPositionMs } from '@/utils/deviceSync/expectedPosition'
@@ -39,10 +39,11 @@ import {
     setQueue,
 } from '@/requests/devicesync'
 
+import type { Track } from '@/interfaces'
 import { audioSource, usePlayer } from '@/stores/player'
 import useQueue from '@/stores/queue'
 import type { From } from '@/stores/queue/tracklist'
-import useTracklist from '@/stores/queue/tracklist'
+import useTracklist, { shuffleArray } from '@/stores/queue/tracklist'
 import useSettings from '@/stores/settings'
 
 type RepeatMode = 'all' | 'one' | 'none'
@@ -76,6 +77,19 @@ interface Scheduled {
     at: number
 }
 let scheduled: Scheduled[] = []
+
+/** Cancel every pending scheduled command timer (on leave/solo/queue swap). */
+function clearScheduled() {
+    for (const s of scheduled) clearTimeout(s.handle)
+    scheduled = []
+}
+
+/**
+ * Nesting depth of `withApplying` sections. A plain boolean would let an inner
+ * section (e.g. a scheduled command firing during a mirror) clear the outer
+ * section's flag prematurely.
+ */
+let applyDepth = 0
 
 // The trackhash currently loaded into the audio element and the last applied
 // playbackRate — both tracked here (not in reactive state) so reconciliation
@@ -115,12 +129,10 @@ function impliesPlaying(cmd: SyncCommand, playing: boolean): boolean {
     }
 }
 
-function shuffleInPlace<T>(arr: T[]): T[] {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[arr[i], arr[j]] = [arr[j], arr[i]]
-    }
-    return arr
+/** Reset drift steering to neutral rate — keeps `appliedRate` and the element in lockstep. */
+function resetRate(player: ReturnType<typeof usePlayer>) {
+    player.setPlaybackRate(1)
+    appliedRate = 1
 }
 
 export default defineStore('devicesync', {
@@ -255,48 +267,85 @@ export default defineStore('devicesync', {
             this.devices = res.devices ?? []
             this.scrobbleLeader = res.scrobble_leader ?? null
 
-            // Membership transition: the server no longer considers us joined
-            // (e.g. it restarted and the RAM session is gone) → graceful solo.
+            // Membership transitions — the server is authoritative BOTH ways:
+            // it no longer considers us joined (e.g. it restarted and the RAM
+            // session is gone) → graceful solo; it still considers us a member
+            // while our local state is fresh (page reload mid-session) →
+            // re-adopt the membership.
             if (this.joined && !res.joined) {
                 this.toSolo()
                 this.sessionVersion = res.version
                 return
             }
+            if (res.joined && !this.joined) {
+                this.joined = true
+                this.status = 'joined'
+                this.startSteerLoop()
+                this.restartPollingCadence()
+            }
 
-            if (res.state) {
-                await this.applyState(res.state)
+            // The server sends `state` to EVERY device of the user (also
+            // non-members). Only members may mirror it — a solo device must
+            // never have the group queue clobber its local playback.
+            let applied = true
+            if (res.joined && res.state) {
+                applied = await this.applyState(res.state)
             }
             this.handleCommands(res.commands ?? [])
-            this.sessionVersion = res.version
+            // On a failed state apply keep known_version stale so the server
+            // re-sends the state on the next poll.
+            if (applied) this.sessionVersion = res.version
+        },
+
+        /**
+         * Run `fn` under the mirror re-entrancy guard. `fn` MUST be synchronous:
+         * the guard must never span an await, or genuine user actions during
+         * the async window would bypass the transport seams unbroadcast.
+         */
+        withApplying(fn: () => void) {
+            applyDepth++
+            this.applying = true
+            try {
+                fn()
+            } finally {
+                applyDepth--
+                if (applyDepth === 0) this.applying = false
+            }
         },
 
         /** Re-derive transport from the current anchor (used on tab re-focus). */
         hardResync() {
             if (!this.joined || !this.anchor) return
-            this.applying = true
-            try {
-                this.reconcileTransport()
-            } finally {
-                this.applying = false
-            }
+            this.withApplying(() => this.reconcileTransport())
         },
 
         // --- authoritative state mirroring ----------------------------------
-        async applyState(state: SyncState) {
-            const prevQueueId = this.queueId
-            this.applying = true
-            try {
-                this.queueId = state.queue_id
+        async applyState(state: SyncState): Promise<boolean> {
+            // Queue identity = the server-computed queue_id (sha1 of hashes) —
+            // no O(N) key building on the unchanged hot path.
+            const queueChanged = state.queue_id !== this.queueId
 
-                const hashKey = state.trackhashes.join('\n')
-                const queueChanged = state.queue_id !== prevQueueId || hashKey !== this.lastMirroredHashKey
+            let tracks: Track[] | null = null
+            if (queueChanged) {
+                // Resolve OUTSIDE the applying guard (must not span an await).
+                tracks = await resolveTracks(state.trackhashes)
+                if (tracks.length === 0 && state.trackhashes.length > 0) {
+                    // Resolve failed — keep the old mirror; queueId stays stale
+                    // so the next poll retries.
+                    return false
+                }
+            }
 
-                if (queueChanged) {
-                    const tracks = await resolveTracks(state.trackhashes)
+            this.withApplying(() => {
+                if (queueChanged && tracks) {
+                    // Pending scheduled commands were aimed at the OLD queue;
+                    // a stale track_change index must not fire into this one.
+                    clearScheduled()
                     const tracklist = useTracklist()
                     tracklist.setNewList(tracks)
                     tracklist.from = state.from as From
-                    this.lastMirroredHashKey = hashKey
+                    this.lastMirroredHashKey = state.trackhashes.join('\n')
+                    this.queueId = state.queue_id
                 }
 
                 const queue = useQueue()
@@ -310,9 +359,8 @@ export default defineStore('devicesync', {
                 this.playing = state.playing
 
                 this.reconcileTransport()
-            } finally {
-                this.applying = false
-            }
+            })
+            return true
         },
 
         /**
@@ -337,14 +385,13 @@ export default defineStore('devicesync', {
 
             const expected = expectedPositionMs(anchor, estimator.serverNow(), this.playing)
             const trackDiffers = loadedTrackhash !== current.trackhash
-            const drift = Math.abs(player.getCurrentTimeMs() - expected) > 1000
+            const drift = Math.abs(player.getCurrentTimeMs() - expected) > HARD_MS
             const playMismatch = queue.playing !== this.playing
 
             if (!trackDiffers && !drift && !playMismatch) return
 
             queue.playing = this.playing
-            player.setPlaybackRate(1)
-            appliedRate = 1
+            resetRate(player)
 
             if (trackDiffers) {
                 player.playCurrent()
@@ -381,24 +428,15 @@ export default defineStore('devicesync', {
 
             switch (cmd.type) {
                 case 'set_volume': {
-                    const settings = useSettings()
-                    this.applying = true
-                    try {
-                        settings.setVolume(p.volume)
-                    } finally {
-                        this.applying = false
-                    }
+                    this.withApplying(() => useSettings().setVolume(p.volume))
                     break
                 }
                 case 'set_mute': {
-                    const settings = useSettings()
-                    this.applying = true
-                    try {
+                    this.withApplying(() => {
+                        const settings = useSettings()
                         settings.mute = !!p.mute
                         usePlayer().setMute(settings.mute)
-                    } finally {
-                        this.applying = false
-                    }
+                    })
                     break
                 }
                 case 'join_invite': {
@@ -440,12 +478,15 @@ export default defineStore('devicesync', {
         },
 
         executeCommand(cmd: SyncCommand, extraMs = 0) {
+            // A timer that outlived the membership (leave/toSolo raced the
+            // clearScheduled) must never touch solo playback.
+            if (!this.joined) return
+
             const p = (cmd.payload ?? {}) as any
             const queue = useQueue()
             const player = usePlayer()
 
-            this.applying = true
-            try {
+            this.withApplying(() => {
                 switch (cmd.type) {
                     case 'play': {
                         queue.playing = true
@@ -458,25 +499,44 @@ export default defineStore('devicesync', {
                     case 'pause': {
                         queue.playing = false
                         audioSource.pausePlayingSource()
+                        resetRate(player)
                         if (typeof p.position_ms === 'number') {
                             player.hardSeekMs(p.position_ms)
                         }
                         break
                     }
                     case 'seek': {
-                        player.setPlaybackRate(1)
-                        appliedRate = 1
+                        resetRate(player)
                         player.hardSeekMs((p.position_ms ?? 0) + extraMs)
                         break
                     }
                     case 'track_change': {
+                        const tracklist = useTracklist()
+                        const len = tracklist.tracklist.length
+                        if (len === 0) break
+
+                        // Bounds-guard: a stale command may carry an index from
+                        // a longer, since-replaced queue.
+                        const index =
+                            typeof p.index === 'number'
+                                ? Math.max(0, Math.min(p.index, len - 1))
+                                : queue.currentindex
                         const wantPlaying = p.playing !== false
-                        if (typeof p.index === 'number') queue.currentindex = p.index
+
+                        queue.currentindex = index
                         queue.playing = wantPlaying
-                        player.setPlaybackRate(1)
-                        appliedRate = 1
-                        player.playCurrent()
-                        loadedTrackhash = useTracklist().tracklist[queue.currentindex]?.trackhash ?? ''
+                        resetRate(player)
+
+                        const target = tracklist.tracklist[index]
+                        if (target && loadedTrackhash === target.trackhash) {
+                            // Same track already loaded (e.g. a queue-set that
+                            // kept the current track): align without reloading.
+                            if (wantPlaying) void audioSource.playPlayingSource()
+                            else audioSource.pausePlayingSource()
+                        } else {
+                            player.playCurrent()
+                            loadedTrackhash = target?.trackhash ?? ''
+                        }
                         player.hardSeekMs((p.position_ms ?? 0) + extraMs)
                         break
                     }
@@ -487,9 +547,7 @@ export default defineStore('devicesync', {
                     default:
                         break
                 }
-            } finally {
-                this.applying = false
-            }
+            })
         },
 
         // --- drift steering --------------------------------------------------
@@ -503,13 +561,27 @@ export default defineStore('devicesync', {
             steerTimer = null
         },
         steerTick() {
-            if (!this.joined || !this.playing || !this.anchor || this.applying) return
+            // needsGesture: audio is autoplay-blocked — steering would hard-seek
+            // a frozen element every tick for nothing.
+            if (!this.joined || !this.anchor || this.applying || this.needsGesture) return
             const anchor = this.anchor
             // Don't fight a seek/track-change that's about to fire.
             if (scheduledCommandNear(Date.now())) return
 
             const player = usePlayer()
-            const expected = expectedPositionMs(anchor, estimator.serverNow(), true)
+            const expected = expectedPositionMs(anchor, estimator.serverNow(), this.playing)
+
+            if (!this.playing) {
+                // Paused: no rate steering, but recover a lost seek — e.g. the
+                // element was still loading when reconcileTransport seeked, so
+                // the position silently reset to 0.
+                if (Math.abs(player.getCurrentTimeMs() - expected) > HARD_MS) {
+                    player.hardSeekMs(expected)
+                    resetRate(player)
+                }
+                return
+            }
+
             const correction = computeCorrection(player.getCurrentTimeMs(), expected)
 
             if (correction.action === 'rate') {
@@ -517,16 +589,14 @@ export default defineStore('devicesync', {
                 appliedRate = correction.rate
             } else if (correction.action === 'seek') {
                 player.hardSeekMs(correction.seekToMs)
-                player.setPlaybackRate(1)
-                appliedRate = 1
+                resetRate(player)
             } else if (appliedRate !== 1) {
-                player.setPlaybackRate(1)
-                appliedRate = 1
+                resetRate(player)
             }
         },
 
         // --- membership transitions -----------------------------------------
-        async join() {
+        async joinInternal() {
             if (!this.deviceId) return
             const t0 = Date.now()
             const res = await joinGroup(this.deviceId)
@@ -536,11 +606,16 @@ export default defineStore('devicesync', {
             this.status = 'joined'
             this.pollFailures = 0
 
+            // A crossfade/preload timer armed while solo must not fire a local
+            // advance into the group session.
+            const player = usePlayer()
+            player.clearMovingNextTimeout()
+            player.clearNextAudio()
+
             const snapState = snap?.state
             const emptySession = !snapState || (snapState.trackhashes?.length ?? 0) === 0
-            const localTracklist = useTracklist()
 
-            if (emptySession && localTracklist.tracklist.length > 0) {
+            if (emptySession && useTracklist().tracklist.length > 0) {
                 // First joiner into an empty session seeds it from local state.
                 if (snap && typeof snap.server_now_ms === 'number') {
                     estimator.addSample(t0, snap.server_now_ms, Date.now())
@@ -557,32 +632,20 @@ export default defineStore('devicesync', {
             this.restartPollingCadence()
         },
 
+        /** User-gesture join (device picker). */
+        async join() {
+            await this.joinInternal()
+        },
+
         /** Remote-invite join: audio play() may be autoplay-blocked → needsGesture. */
         async joinNow() {
-            if (!this.deviceId) return
-            const t0 = Date.now()
-            const res = await joinGroup(this.deviceId)
-            const snap = res?.data as PollResponse | undefined
-
-            this.joined = true
-            this.status = 'joined'
-            this.pollFailures = 0
-
-            await this.applySnapshot(snap, t0)
-
-            this.startSteerLoop()
-            this.restartPollingCadence()
+            await this.joinInternal()
         },
 
         /** Retry the blocked play() from a real user gesture and clear the flag. */
         completeGestureJoin() {
             this.needsGesture = false
-            this.applying = true
-            try {
-                this.reconcileTransport()
-            } finally {
-                this.applying = false
-            }
+            this.withApplying(() => this.reconcileTransport())
         },
 
         async applySnapshot(snap: PollResponse | undefined, t0: number) {
@@ -592,18 +655,16 @@ export default defineStore('devicesync', {
             }
             this.devices = snap.devices ?? this.devices
             this.scrobbleLeader = snap.scrobble_leader ?? null
-            if (snap.state) await this.applyState(snap.state)
+            const applied = snap.state ? await this.applyState(snap.state) : true
             this.handleCommands(snap.commands ?? [])
-            if (typeof snap.version === 'number') this.sessionVersion = snap.version
+            // A failed state apply keeps known_version stale → server re-sends.
+            if (applied && typeof snap.version === 'number') this.sessionVersion = snap.version
         },
 
         /** Voluntary leave: keep playing locally (dissolve-to-solo semantics). */
         async leave() {
             const id = this.deviceId
-            this.stopSteerLoop()
-            this.joined = false
-            this.status = 'solo'
-            this.restartPollingCadence()
+            this.toSolo()
             if (id) await leaveGroup(id)
         },
 
@@ -620,6 +681,8 @@ export default defineStore('devicesync', {
         toSolo() {
             this.joined = false
             this.stopSteerLoop()
+            // Pending scheduled commands must not fire into solo playback.
+            clearScheduled()
             this.status = 'solo'
             this.restartPollingCadence()
         },
@@ -688,6 +751,9 @@ export default defineStore('devicesync', {
                 }
                 case 'seek': {
                     const posSeconds = typeof args[0] === 'number' ? args[0] : 0
+                    // Optimistic thumb: the progress bar must not snap back for
+                    // ~1 s until the command echoes back (audio stays untouched).
+                    queue.setCurrentDuration(posSeconds)
                     void this.sendCmd('seek', { position_ms: Math.round(posSeconds * 1000) })
                     break
                 }
@@ -696,14 +762,38 @@ export default defineStore('devicesync', {
                     break
                 }
                 case 'playPrev': {
-                    void this.sendCmd('track_change', { index: queue.previndex, position_ms: 0, playing: true })
+                    // Solo semantics preserved: >3 s into the track, Previous
+                    // restarts the current track instead of jumping the group.
+                    if (usePlayer().getCurrentTimeMs() > 3000) {
+                        queue.setCurrentDuration(0)
+                        void this.sendCmd('seek', { position_ms: 0 })
+                    } else {
+                        void this.sendCmd('track_change', { index: queue.previndex, position_ms: 0, playing: true })
+                    }
+                    break
+                }
+                case 'insertTracks': {
+                    // "Play next" / "add to queue" while joined: broadcast the
+                    // would-be list as the new group queue (the server bounces
+                    // it back as authoritative state).
+                    const toInsert = (args[0] as Track[]) ?? []
+                    const at = typeof args[1] === 'number' ? args[1] : tracklist.tracklist.length
+                    const hashes = tracklist.tracklist.map(t => t.trackhash)
+                    hashes.splice(at, 0, ...toInsert.map(t => t.trackhash))
+                    void this.sendQueueSet({
+                        trackhashes: hashes,
+                        from: tracklist.from as SyncFrom,
+                        currentindex: queue.currentindex,
+                        playing: queue.playing,
+                        position_ms: usePlayer().getCurrentTimeMs(),
+                        repeat: useSettings().repeat,
+                    })
                     break
                 }
                 case 'shuffleQueue': {
                     const hashes = tracklist.tracklist.map(t => t.trackhash)
                     const currentHash = hashes[queue.currentindex]
-                    const rest = hashes.filter((_, i) => i !== queue.currentindex)
-                    shuffleInPlace(rest)
+                    const rest = shuffleArray(hashes.filter((_, i) => i !== queue.currentindex))
                     const shuffled = currentHash !== undefined ? [currentHash, ...rest] : rest
                     void this.sendQueueSet({
                         trackhashes: shuffled,
