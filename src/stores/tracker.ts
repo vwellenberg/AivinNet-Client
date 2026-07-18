@@ -2,6 +2,7 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 
 import useQueue from "./queue";
+import useDeviceSync from "./devicesync";
 import { audioSource } from "./player";
 import { FromOptions } from "@/enums";
 import useTracklist, { From } from "@/stores/queue/tracklist";
@@ -113,6 +114,10 @@ export default defineStore(
     }
 
     function submitData() {
+      // Group mode: exactly one device (the scrobble leader) submits play data.
+      const ds = useDeviceSync();
+      if (ds.joined && !ds.isScrobbleLeader) return;
+
       if (!can_submit) return;
       lockSubmit();
       sendLogData(trackhash.value, duration.value, from.value, timestamp.value);

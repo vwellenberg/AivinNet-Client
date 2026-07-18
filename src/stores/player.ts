@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 import useColors from './colors'
+import useDeviceSync from './devicesync'
 import useLyrics from './lyrics'
 import { NotifType, useToast } from './notification'
 import useQueue from './queue'
@@ -201,6 +202,35 @@ export const usePlayer = defineStore('player', () => {
         audio.muted = new_value
     }
 
+    // --- imperative helpers for the device-sync store -----------------------
+    // These operate on the ACTIVE audio element (audioSource.playingSource),
+    // which may differ from the captured `audio` after a source switch.
+
+    /** Set a pitch-preserving playbackRate on the active element (drift steering). */
+    function setPlaybackRate(rate: number) {
+        const el = audioSource.playingSource
+        ;(el as any).preservesPitch = true
+        el.playbackRate = rate
+    }
+
+    /** Current playback position of the active element, in milliseconds. */
+    function getCurrentTimeMs(): number {
+        return audioSource.playingSource.currentTime * 1000
+    }
+
+    /** Hard-seek the active element (and mirror queue.duration.current), like `seek`. */
+    function hardSeekMs(ms: number) {
+        const seconds = ms / 1000
+        try {
+            audioSource.playingSource.currentTime = seconds
+            queue.setCurrentDuration(seconds)
+        } catch (error) {
+            if (error instanceof TypeError) {
+                console.error('Seek error: no audio')
+            }
+        }
+    }
+
     const audio_onerror = (err: Event | string) => {
         if (typeof err != 'string') {
             err.stopImmediatePropagation()
@@ -231,6 +261,14 @@ export const usePlayer = defineStore('player', () => {
     const handlePlayErrors = (e: Event | string) => {
         if (e instanceof DOMException) {
             if (e.name === 'NotAllowedError') {
+                const ds = useDeviceSync()
+                if (ds.joined) {
+                    // Group mode: surface the "tap to join" overlay (later UI PR)
+                    // instead of toggling — playPause would broadcast a pause to
+                    // the whole group off a local autoplay block.
+                    ds.needsGesture = true
+                    return toast.showNotification('Tap to join playback (autoplay blocked)', NotifType.Error)
+                }
                 queue.playPause()
                 return toast.showNotification(
                     'Tap anywhere in the page and try again (autoplay blocked)',
@@ -282,6 +320,14 @@ export const usePlayer = defineStore('player', () => {
     }
 
     const onAudioEnded = () => {
+        // Group mode: the leader plans the next track via a scheduled command;
+        // no local moveForward / crossfade advance here.
+        const ds = useDeviceSync()
+        if (ds.joined && !ds.applying) {
+            ds.onTrackEnded()
+            return
+        }
+
         const { submitData } = tracker
         submitData()
 
@@ -400,6 +446,9 @@ export const usePlayer = defineStore('player', () => {
     }
 
     const initLoadingNextTrackAudio = () => {
+        // Group mode disables gapless preload + silence-skip (they would desync).
+        if (useDeviceSync().joined) return
+
         const { currentindex } = queue
         const { length } = tracklist
         const { repeat } = settings
@@ -475,7 +524,14 @@ export const usePlayer = defineStore('player', () => {
         clearEventHandlers(audio)
         maxSeekPercent.value = 0
 
-        if (!queue.manual && queue.playing && audio.src !== '' && !audio.src.includes('sm.radio.jingles')) {
+        // Group mode always hard-loads the current source (no crossfade switch).
+        if (
+            !queue.manual &&
+            queue.playing &&
+            audio.src !== '' &&
+            !audio.src.includes('sm.radio.jingles') &&
+            !useDeviceSync().joined
+        ) {
             audioSource.switchSources()
             audio = audioSource.playingSource
         }
@@ -521,6 +577,9 @@ export const usePlayer = defineStore('player', () => {
         playCurrent: playCurrentTrack,
         clearNextAudio: clearNextAudioData,
         clearMovingNextTimeout,
+        setPlaybackRate,
+        getCurrentTimeMs,
+        hardSeekMs,
     }
 })
 

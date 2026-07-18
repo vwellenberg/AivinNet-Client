@@ -5,6 +5,7 @@ import { DBSettings, contextChildrenShowMode } from '@/enums'
 import { pluginSetActive, updatePluginSettings } from '@/requests/plugins'
 
 import { updateConfig } from '@/requests/settings'
+import useDeviceSync from '@/stores/devicesync'
 import { usePlayer } from '@/stores/player'
 import { content_width } from '../content-width'
 import { getLastFmApiSig } from '@/context_menus/hashing'
@@ -167,6 +168,15 @@ export default defineStore('settings', {
         },
         // repeat 👇
         toggleRepeatMode() {
+            // Repeat is shared across the group: broadcast a set_repeat command
+            // and let the mirrored state flip it locally (volume/mute stay local).
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                const next = this.repeat == 'all' ? 'one' : this.repeat == 'one' ? 'none' : 'all'
+                ds.intercept('toggleRepeat', next)
+                return
+            }
+
             if (this.repeat == 'all') {
                 this.repeat = 'one'
                 return

@@ -8,6 +8,7 @@ import { isFavorite } from '@/requests/favorite'
 import useInterface from './interface'
 
 import { audioSource, getUrl, usePlayer } from '@/stores/player'
+import useDeviceSync from './devicesync'
 import useLyrics from './lyrics'
 import { NotifType, useToast } from './notification'
 import useTracklist from './queue/tracklist'
@@ -41,6 +42,12 @@ export default defineStore('Queue', {
             this.currentindex = val
         },
         play(index: number = 0, manual = true) {
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                ds.intercept('play', index)
+                return
+            }
+
             const { tracklist } = useTracklist()
             if (tracklist.length === 0) return
 
@@ -55,6 +62,12 @@ export default defineStore('Queue', {
             focusCurrentInSidebar()
         },
         playPause() {
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                ds.intercept('playPause')
+                return
+            }
+
             if (audioSource.playingSource.src === '') {
                 this.play(this.currentindex)
                 return
@@ -71,6 +84,10 @@ export default defineStore('Queue', {
             this.playing = false
         },
         autoPlayNext() {
+            // Group mode: the scrobble leader plans a server-scheduled
+            // track_change; every device advances via that command, not locally.
+            if (useDeviceSync().joined) return
+
             const settings = useSettings()
             const { focusCurrentInSidebar } = useInterface()
             const { tracklist } = useTracklist()
@@ -99,9 +116,21 @@ export default defineStore('Queue', {
             !is_last ? this.play(this.currentindex + 1, false) : resetQueue()
         },
         playNext() {
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                ds.intercept('playNext')
+                return
+            }
+
             this.play(this.nextindex)
         },
         playPrev() {
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                ds.intercept('playPrev')
+                return
+            }
+
             const lyrics = useLyrics()
 
             if (audioSource.playingSource.currentTime > 3) {
@@ -117,6 +146,12 @@ export default defineStore('Queue', {
             this.currentindex = this.nextindex
         },
         seek(pos: number) {
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                ds.intercept('seek', pos)
+                return
+            }
+
             const lyrics = useLyrics()
 
             try {
@@ -151,6 +186,12 @@ export default defineStore('Queue', {
             this.currentindex = 0
         },
         shuffleQueue() {
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                ds.intercept('shuffleQueue')
+                return
+            }
+
             const { shuffleList } = useTracklist()
             const { focusCurrentInSidebar } = useInterface()
 
