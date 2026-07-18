@@ -31,6 +31,11 @@
     </pattern>
   </defs>
 
+  <!-- Volume dial: the full-strength copy (tag memphis-ref-full-v1.2.6) was
+       too loud as an app ground — this group opacity blends the artwork
+       toward the previous subtle look while keeping the copied composition. -->
+  <g opacity="0.62">
+
   <!-- ============ big soft shapes (back layer) ============ -->
   <!-- orchid circle (left) -->
   <circle cx="320" cy="490" r="150" fill="#C36BBE"/>
@@ -170,4 +175,6 @@
 
   <!-- small pink squiggle (bottom, left of centre) -->
   <path d="M1160 918 q40 -28 50 12 q8 34 -28 40" fill="none" stroke="#EFA0C8" stroke-width="14" stroke-linecap="round"/>
+
+  </g>
 </svg>
