@@ -21,8 +21,8 @@
     // _candy.scss). Panels, ink borders and accents are theme-independent.
     --mem-ground: #{$mem-paper};
     // Bold near-black grid like the reference art (its lines are full black;
-    // ~0.5 keeps content in front readable while the paper still reads bold).
-    --mem-grid-line: #{rgba($mem-ink, 0.65)};
+    // middle setting between the subtle original and the full copy).
+    --mem-grid-line: #{rgba($mem-ink, 0.45)};
     --mem-content-text: #{$mem-ink};
     --mem-content-muted: #{$mem-text-muted-static};
     --mem-content-faint: #{rgba($mem-ink, 0.45)};
