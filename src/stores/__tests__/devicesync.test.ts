@@ -82,14 +82,21 @@ async function setup() {
 }
 
 describe('devicesync store', () => {
-    beforeEach(() => {
-        vi.resetModules()
+    beforeEach(async () => {
+        // NO vi.resetModules(): in vitest 0.34 it can hand the re-imported
+        // store a different pinia module copy that still resolves to the
+        // PREVIOUS test's store state, and module instances end up shared
+        // between tests anyway. Instead the store exposes an explicit
+        // test-state reset for its module singletons (timers, estimator,
+        // command dedupe, leave-suppress window).
         vi.clearAllMocks()
         requestsMock.pollSession.mockReset()
         requestsMock.resolveTracks.mockReset()
         requestsMock.resolveTracks.mockResolvedValue([])
         playerMock.getCurrentTimeMs.mockReset()
         playerMock.getCurrentTimeMs.mockReturnValue(0)
+        const { __resetDeviceSyncTestState } = await import('@/stores/devicesync')
+        __resetDeviceSyncTestState()
         setActivePinia(createPinia())
         localStorage.clear()
     })

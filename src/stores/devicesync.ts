@@ -64,7 +64,7 @@ const STEER_SUPPRESS_MS = 1000
 
 // --- non-reactive module singletons -----------------------------------------
 
-const estimator = new ClockOffsetEstimator()
+let estimator = new ClockOffsetEstimator()
 const executedCommandIds = new Set<string>()
 
 let pollTimer: any = null
@@ -98,6 +98,35 @@ let applyDepth = 0
  * straight back into the group it left.
  */
 let leaveSuppressUntil = 0
+
+/**
+ * TEST-ONLY: reset every module-level singleton. `vi.resetModules()` is not
+ * reliable here (it can hand the re-imported store a different pinia module
+ * copy, silently reusing the previous test's store state), so the test suite
+ * imports the store statically and calls this in beforeEach instead.
+ */
+export function __resetDeviceSyncTestState() {
+    clearScheduled()
+    executedCommandIds.clear()
+    estimator = new ClockOffsetEstimator()
+    leaveSuppressUntil = 0
+    applyDepth = 0
+    loadedTrackhash = ''
+    appliedRate = 1
+    pollingActive = false
+    if (pollTimer) {
+        clearTimeout(pollTimer)
+        pollTimer = null
+    }
+    if (steerTimer) {
+        clearInterval(steerTimer)
+        steerTimer = null
+    }
+    if (visibilityHandler && typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', visibilityHandler)
+        visibilityHandler = null
+    }
+}
 
 // The trackhash currently loaded into the audio element and the last applied
 // playbackRate — both tracked here (not in reactive state) so reconciliation
@@ -295,6 +324,7 @@ export default defineStore('devicesync', {
             if (!res.joined) {
                 leaveSuppressUntil = 0
             }
+            let forceStateRefresh = false
             if (res.joined && !this.joined) {
                 if (Date.now() < leaveSuppressUntil) {
                     // The user just left; the server hasn't caught up yet.
@@ -307,11 +337,9 @@ export default defineStore('devicesync', {
                 // while we were solo (queue_id alone would not notice).
                 this.queueId = ''
                 this.lastMirroredHashKey = ''
-                if (!res.state) {
-                    // No state in this response — request it on the next poll.
-                    this.sessionVersion = 0
-                    return
-                }
+                // No state in this response → request it on the next poll
+                // (but still process this response's commands below).
+                if (!res.state) forceStateRefresh = true
             }
 
             // The server sends `state` to EVERY device of the user (also
@@ -322,9 +350,13 @@ export default defineStore('devicesync', {
                 applied = await this.applyState(res.state)
             }
             this.handleCommands(res.commands ?? [])
-            // On a failed state apply keep known_version stale so the server
-            // re-sends the state on the next poll.
-            if (applied) this.sessionVersion = res.version
+            if (forceStateRefresh) {
+                this.sessionVersion = 0
+            } else if (applied) {
+                // On a failed state apply keep known_version stale so the
+                // server re-sends the state on the next poll.
+                this.sessionVersion = res.version
+            }
         },
 
         /**
