@@ -121,3 +121,14 @@ export async function sendPairRequest() {
         method: 'GET',
     })
 }
+
+/**
+ * Redeem a pairing code (QR deep-link flow). `setcookie=true` makes the
+ * backend set the auth cookie on the response, logging this browser in.
+ */
+export async function pairWithCode(code: string) {
+    return await useAxios({
+        url: paths.api.auth.redeemPair + '?code=' + encodeURIComponent(code) + '&setcookie=true',
+        method: 'GET',
+    })
+}

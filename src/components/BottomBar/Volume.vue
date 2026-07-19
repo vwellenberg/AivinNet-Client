@@ -1,6 +1,6 @@
 <template>
     <div class="volume-control" @wheel.passive="handleMouseWheel">
-        <button class="speaker-icon" title="Stummschalten" @click="settings.toggleMute">
+        <button class="speaker-icon" title="Mute" @click="settings.toggleMute">
             <VolumeMuteSvg v-if="settings.mute || settings.volume == 0.0" />
             <VolumeMidSvg v-else-if="settings.volume > 0.5" />
             <VolumeLowSvg v-else />

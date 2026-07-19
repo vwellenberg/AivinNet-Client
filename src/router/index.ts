@@ -28,6 +28,7 @@ const FavoriteCardScroller = () => import('@/views/FavoriteCardScroller.vue')
 const StatsView = () => import('@/views/Stats/main.vue')
 const MixView = () => import('@/views/MixView.vue')
 const MixListView = () => import('@/views/MixListView.vue')
+const PairView = () => import('@/views/PairView.vue')
 
 const folder = {
     path: '/folder/:path',
@@ -208,6 +209,14 @@ const MixList = {
     component: MixListView,
 }
 
+// QR deep-link pairing target. Reachable without login (there is no router
+// auth guard; auth is cookie-based) — the view redeems the code itself.
+const Pair = {
+    path: '/pair',
+    name: 'PairView',
+    component: PairView,
+}
+
 const routes = [
     folder,
     playlists,
@@ -231,6 +240,7 @@ const routes = [
     Stats,
     Mix,
     MixList,
+    Pair,
 ]
 
 const Routes = {
@@ -256,6 +266,7 @@ const Routes = {
     Stats: Stats.name,
     Mix: Mix.name,
     MixList: MixList.name,
+    Pair: Pair.name,
 }
 
 const router = createRouter({

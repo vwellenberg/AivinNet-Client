@@ -22,6 +22,9 @@
         </div>
         <RightGroup v-if="!isMobile" @handleFav="handleFav" />
         <Navigation v-else />
+        <!-- Autoplay-block overlay for remote group joins; the bottom bar is
+             always mounted, which makes it a reliable host. -->
+        <GestureOverlay />
     </div>
 </template>
 
@@ -33,6 +36,7 @@ import { formatSeconds } from '@/utils'
 
 import useQStore from '@/stores/queue'
 
+import GestureOverlay from '@/components/DeviceSync/GestureOverlay.vue'
 import HotKeys from '@/components/LeftSidebar/NP/HotKeys.vue'
 import Progress from '@/components/LeftSidebar/NP/Progress.vue'
 import Navigation from '@/components/LeftSidebar/NavButtons.vue'

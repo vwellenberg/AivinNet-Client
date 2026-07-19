@@ -12,7 +12,7 @@
             <div class="spinner"></div>
         </div>
         <p class="desc">
-            Scan the QR code from the AivinNet app to pair with this server.
+            Scan the QR code with your phone's camera to open AivinNet and pair the device.
         </p>
 
         <div class="serverurl rounded">{{ url }}</div>
@@ -31,7 +31,11 @@ const qrcode: Ref<HTMLElement> = ref(null)
 const url = window.location.origin
 
 async function renderQrCode(code: string) {
-    const data = window.location.origin + ' ' + code
+    // Deep-link URL: scanning with a phone camera opens the web client, which
+    // redeems the code and logs the browser in (see views/PairView.vue).
+    // Intentionally replaces the native Swing Music app's "<origin> <code>"
+    // payload — pairing targets the AivinNet web client.
+    const data = window.location.origin + '/#/pair?code=' + code
     const qrCode = new QRCodeStyling({
         width: 300,
         height: 300,

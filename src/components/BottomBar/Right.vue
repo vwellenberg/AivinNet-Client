@@ -24,11 +24,16 @@
             />
         </template>
         <LyricsButton />
+        <button class="devices-btn" :class="{ 'ds-joined': ds.joined }" title="Devices" @click="modal.showDevicesModal()">
+            <SpeakerSvg />
+        </button>
         <Volume v-if="!hideVolume" />
     </div>
 </template>
 
 <script setup lang="ts">
+import useDeviceSync from '@/stores/devicesync'
+import useModal from '@/stores/modal'
 import useQueue from '@/stores/queue'
 import useSettings from '@/stores/settings'
 import { isMobile } from '@/stores/content-width'
@@ -36,12 +41,15 @@ import { isMobile } from '@/stores/content-width'
 import RepeatOneSvg from '@/assets/icons/repeat-one.svg'
 import RepeatAllSvg from '@/assets/icons/repeat.svg'
 import ShuffleSvg from '@/assets/icons/shuffle.svg'
+import SpeakerSvg from '@/assets/icons/speaker.svg'
 import HeartSvg from '../shared/HeartSvg.vue'
 import LyricsButton from '../shared/LyricsButton.vue'
 import Volume from './Volume.vue'
 
 const queue = useQueue()
 const settings = useSettings()
+const ds = useDeviceSync()
+const modal = useModal()
 
 defineProps<{
     hideHeart?: boolean
@@ -116,6 +124,15 @@ defineEmits<{
     // Active repeat sits on the yellow accent fill — pin static ink.
     button.repeat:not(.repeat-disabled) svg path {
         fill: $mem-ink;
+    }
+
+    // Device sync: green fill marks an active group session.
+    button.devices-btn.ds-joined {
+        background-color: $brand-green;
+
+        svg path {
+            fill: white;
+        }
     }
 }
 </style>

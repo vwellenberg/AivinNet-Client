@@ -56,6 +56,7 @@
             <SetRootDirs v-if="modal.component == modal.options.setRootDirs" @hideModal="hideModal" />
             <RootDirsPrompt v-if="modal.component == modal.options.rootDirsPrompt" @hideModal="hideModal" />
             <Settings @set-title="setTitle" v-if="modal.component == modal.options.settings" />
+            <Devices v-if="modal.component == modal.options.devices" @setTitle="setTitle" />
         </div>
     </div>
 </template>
@@ -69,6 +70,7 @@ import { onMounted, onUnmounted, watch } from 'vue'
 
 import AuthLogin from './modals/AuthLogin.vue'
 import ConfirmModal from './modals/ConfirmModal.vue'
+import Devices from './modals/Devices.vue'
 import FolderModal from './modals/FolderModal.vue'
 import NewPlaylist from './modals/NewPlaylist.vue'
 import RootDirsPrompt from './modals/RootDirsPrompt.vue'
