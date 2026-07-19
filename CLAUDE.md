@@ -153,3 +153,19 @@ gegen `http://localhost:1970/#/<route>` (Hash-Routing).
 ## Nächste Schritte
 
 Offene Arbeit als GitHub Issues: `gh issue list --repo vwellenberg/AivinNet-Client`.
+
+## Device Sync / Multiroom (v1.3.0)
+
+Spotify-Connect + Multiroom: Geräte desselben Accounts können einer **Group Session** beitreten; alle joined Geräte spielen hörbar synchron, jedes kann steuern, Volume/Mute bleibt pro Gerät (remote einstellbar). Server = Source of Truth (RAM, `SubspaceRadio/src/swingmusic/lib/groupsession.py`, HTTP `api/devicesync.py`, alle POST unter `/devicesync`).
+
+**Client-Architektur:**
+- `src/stores/devicesync.ts` — Herzstück: Poll-Loop (1 s joined / 5 s solo), Cristian-Clock-Offset (`utils/deviceSync/clockSync.ts`, lowest-RTT gewinnt), geplante Command-Ausführung (Server-`execute_at_ms` − Offset → lokales setTimeout; Catch-up wenn verpasst; Dedupe per Command-Id), Drift-Steering 250 ms (`utils/deviceSync/driftSteer.ts`: Deadband 50 ms, playbackRate ±4 %, Hard-Seek > 1 s; im Pause-Zustand nur Hard-Seek-Recovery), Mirror unter `applying`-Guard.
+- **Seams**: `queue.ts` (play/playPause/seek/playNext/playPrev/shuffleQueue → `intercept()`, autoPlayNext no-op), `tracklist.ts::insertAt` (Play next / Add to queue → queue-set-Broadcast), `player.ts` (onAudioEnded → Leader plant `track_change`; Gapless/Crossfade im Group-Mode aus), `tracker.ts` (nur Scrobble-Leader submittet; Nicht-Leader verwerfen die Akkumulation), `settings` repeat geteilt.
+- UI: Cast-Button in `BottomBar/Right.vue` (grün = joined) → `modals/Devices.vue`; `DeviceSync/GestureOverlay.vue` (Autoplay-Block bei Remote-Invite); QR-Pairing = Deep-Link `/#/pair?code=…` → `views/PairView.vue` (Redeem via `/auth/pair?setcookie=true`).
+
+**⚠️ Gotchas:**
+- Der `applying`-Guard darf NIE ein `await` überspannen (Resolve VOR dem Guard; `withApplying()` ist sync-only, Tiefe gezählt). Sonst laufen User-Aktionen im Netzwerkfenster lokal statt als Broadcast.
+- Bei Leave: `leaveSuppressUntil`-Fenster verhindert, dass ein in-flight Poll das Gerät sofort re-adoptiert; Re-Adopt (Page-Reload mid-session) erzwingt Full-Re-Mirror (`queueId`-Reset).
+- Scheduled-Timer werden bei leave/toSolo/Queue-Wechsel gecancelt; `executeCommand` prüft Membership; `track_change`-Index wird geclampt.
+- **Vitest 0.34 + Pinia + Modul-Singletons: `vi.resetModules()` ist UNZUVERLÄSSIG** (geteilte Modul-Instanzen, Store-State des Vortests via zweiter Pinia-Kopie). Stattdessen exportiert der Store `__resetDeviceSyncTestState()` — im beforeEach aufrufen, keine Registry-Resets.
+- Backend-Constraint: bjoern single-threaded → keine langlebigen Verbindungen; Polling + Scheduled Execution (LEAD 1500 ms) ist der v1-Transport. Poll-Handler serverseitig strikt RAM-only.
