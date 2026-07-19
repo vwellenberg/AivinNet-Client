@@ -39,6 +39,7 @@ import { BalancerProvider } from "vue-wrap-balancer";
 
 // @stores
 import useAuth from "@/stores/auth";
+import useDeviceSync from "@/stores/devicesync";
 import { content_height, content_width, isMobile, resizer_width, updateCardWidth } from "@/stores/content-width";
 import useLyrics from "@/stores/lyrics";
 import useModal from "@/stores/modal";
@@ -159,6 +160,13 @@ onMounted(async () => {
     }
 
     settings.initializeVolume();
+
+    // Device sync: register this device and start the session poll loop.
+    // Must never break app start (e.g. older backend without the endpoints).
+    const ds = useDeviceSync();
+    ds.register()
+        .then(() => ds.startPolling())
+        .catch(() => null);
 
     handleRootDirsPrompt();
 

@@ -191,6 +191,9 @@ export const paths = {
             get pair() {
                 return this.base + '/getpaircode'
             },
+            get redeemPair() {
+                return this.base + '/pair'
+            },
         },
         backups: {
             base: '/backup',

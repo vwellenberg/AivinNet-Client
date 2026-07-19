@@ -15,6 +15,7 @@ export enum ModalOptions {
     editTrackTags,
     folder,
     findCoverOnline,
+    devices,
 }
 
 export default defineStore('newModal', {
@@ -61,6 +62,9 @@ export default defineStore('newModal', {
         },
         showEditPlaylistModal() {
             this.showModal(ModalOptions.updatePlaylist)
+        },
+        showDevicesModal() {
+            this.showModal(ModalOptions.devices)
         },
         showEditTrackTagsModal(track: Track) {
             this.showModal(ModalOptions.editTrackTags, { track })
