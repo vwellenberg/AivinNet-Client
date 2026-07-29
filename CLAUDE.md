@@ -178,3 +178,16 @@ Spotify-Connect + Multiroom: Geräte desselben Accounts können einer **Group Se
 - **Icon-Kollision:** `speaker.svg` ist das Volume-Icon — für Geräte ein eigenes Glyph (`devices.svg`).
 - **QR-Pairing:** Auf `/#/pair` darf der 401 der Boot-Requests kein Login-Modal öffnen (`useAxios` prüft die Route), sonst wirkt das Scannen „komisch/kaputt".
 - **Verifikationsfalle:** Der erste E2E jointe per API und startete Chromium mit `--autoplay-policy=no-user-gesture-required` — beides umging genau die Pfade, die im Alltag brechen. Group-Sync IMMER über echte UI-Klicks und ohne Autoplay-Flag verifizieren (`~/uitest/verify3.js`).
+
+### Device-Sync: Timing-Mechanik (v1.3.3)
+
+Vier Stellschrauben, die zusammen den hörbaren Versatz bestimmen — in dieser Reihenfolge prüfen, wenn „klingt versetzt" gemeldet wird:
+
+1. **Clock-Kalibrierung beim Join** (`calibrateClock()`, 4 Polls à ~120 ms): Der Estimator behält das Sample mit der niedrigsten RTT. Direkt nach dem Join gab es nur EINES (aus der Join-Antwort) — ein langsames Sample ⇒ Wiedergabe startet messbar versetzt und kriecht erst langsam in Position.
+2. **Snap-Window** (`SNAP_WINDOW_MS 2500`, `SNAP_HARD_MS 80`): In den ersten 2,5 s nach einem Transport-Command wird ein Offset > 80 ms **hart gesucht** statt mit ±4 % playbackRate ausgeglichen. Das langsame Ausgleichen war genau das, was am Track-Anfang als Verzögerung hörbar war.
+3. **Deadband 25 ms** (`driftSteer.ts`): 50 ms zwischen zwei Lautsprechern im selben Raum sind als Kammfilter/Echo hörbar — das darf das Deadband nicht verschlucken.
+4. **Per-Device-Trim** (`utils/deviceSync/audioOffset.ts`, UI im Devices-Panel): Ausgabe-Latenz (Bluetooth 100–200 ms, TV/Soundbar mehr) ist für JEDES Protokoll unsichtbar und braucht einen manuellen Regler (±1000 ms, lokal persistiert, wird auf `expectedPositionMs` addiert). Genau der Knopf, den Sonos/Chromecast auch haben.
+
+**Gruppen-Bildung:** „Invite" joint das eigene Gerät implizit (seedet die Gruppe mit dem, was hier läuft) — niemand soll „sich selbst beitreten" müssen. „Join group" erscheint nur, wenn bereits eine Gruppe läuft.
+
+**⚠️ Autoplay-Prompt:** Der `GestureOverlay` IST die Meldung — kein zusätzlicher Error-Toast (Autoplay-Rejects feuern mehrfach → gestapelte rote Toasts über dem Dialog). Touch-Targets im Overlay per `min-height` erzwingen; ein globales Button-Height-Rule deckelt reines Padding auf 40 px.
