@@ -1,44 +1,107 @@
 <template>
-    <!-- Autoplay-blocked group join: any tap counts as the unlocking gesture. -->
+    <!-- Autoplay-blocked group join: any tap counts as the unlocking gesture,
+         but the button is the obvious target and reads as a real invitation
+         rather than an error message. -->
     <div v-if="ds.needsGesture" class="gesture-overlay" @click="ds.completeGestureJoin()">
         <div class="card rounded">
-            <p>This device was invited to group playback, but the browser blocked autoplay.</p>
-            <button class="rounded-sm" @click.stop="ds.completeGestureJoin()">Tap to join playback</button>
+            <DevicesSvg class="glyph" />
+            <h3>Join group playback?</h3>
+            <p>{{ subtitle }}</p>
+            <button class="accept rounded-sm" @click.stop="ds.completeGestureJoin()">Start playing here</button>
+            <button class="decline" @click.stop="decline()">Not now</button>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
+import DevicesSvg from '@/assets/icons/devices.svg'
 import useDeviceSync from '@/stores/devicesync'
 
 const ds = useDeviceSync()
+
+const subtitle = computed(() => {
+    const host = ds.devices.find(d => d.joined && d.device_id !== ds.deviceId)
+    return host
+        ? `${host.name} wants this device to play along in sync.`
+        : 'Another device wants this one to play along in sync.'
+})
+
+/** Decline: leave the group again and drop the prompt. */
+function decline() {
+    ds.needsGesture = false
+    void ds.leave()
+}
 </script>
 
 <style lang="scss">
 .gesture-overlay {
     position: fixed;
     inset: 0;
-    z-index: 300;
+    // Above the bottom bar and any modal backdrop — this prompt is the one
+    // thing that needs a tap.
+    z-index: 400;
     display: grid;
     place-items: center;
-    background-color: rgba(0, 0, 0, 0.6);
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.72);
 
     .card {
-        max-width: 22rem;
-        margin: 1rem;
-        padding: 1.5rem;
-        text-align: center;
-        background-color: var(--mem-ground, #1d1d1d);
         display: grid;
-        gap: 1rem;
+        justify-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        max-width: 22rem;
+        padding: 1.75rem 1.5rem;
+        text-align: center;
+        background-color: var(--mem-veil, #1d1d1d);
+        border: $candy-border-w solid $mem-line;
+
+        .glyph {
+            width: 2.5rem;
+            height: 2.5rem;
+
+            path {
+                fill: $brand-green;
+            }
+        }
+
+        h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
 
         button {
-            padding: 0.85rem 1.25rem;
             border: none;
             cursor: pointer;
             font-weight: 700;
-            background-color: $brand-green;
-            color: white;
+            width: 100%;
+
+            &.accept {
+                // Big enough for a thumb — this is the whole point of the prompt.
+                padding: 1rem 1.25rem;
+                font-size: 1rem;
+                background-color: $brand-green;
+                color: white;
+            }
+
+            &.decline {
+                padding: 0.5rem;
+                margin-top: -0.25rem;
+                font-weight: 500;
+                font-size: 0.85rem;
+                background-color: transparent;
+                color: inherit;
+                opacity: 0.7;
+                text-decoration: underline;
+            }
         }
     }
 }

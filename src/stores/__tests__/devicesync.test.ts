@@ -593,6 +593,44 @@ describe('devicesync store', () => {
         expect(requestsMock.sendCommand).not.toHaveBeenCalled()
     })
 
+    it('applies this device audio offset when steering (Bluetooth latency trim)', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        useTracklist().tracklist = [mkTrack('h1')]
+        useQueue().currentindex = 0
+        useQueue().playing = true
+        ds.joined = true
+        ds.playing = true
+        // Anchor says position 10_000 ms; a +300 ms trim means this device must
+        // run 300 ms AHEAD to compensate a delayed output path.
+        ds.anchor = { position_ms: 10_000, at_server_ms: 1000 }
+        ds.setAudioOffset(300)
+        expect(ds.audioOffsetMs).toBe(300)
+
+        // Sitting exactly on the un-trimmed position is now 300 ms too late →
+        // steering must pull forward (rate > 1) or seek, never report 'none'.
+        playerMock.getCurrentTimeMs.mockReturnValue(10_000)
+        playerMock.setPlaybackRate.mockClear()
+        playerMock.hardSeekMs.mockClear()
+        ds.steerTick()
+
+        const rateCalls = playerMock.setPlaybackRate.mock.calls.map(c => c[0])
+        const corrected = rateCalls.some(r => r > 1) || playerMock.hardSeekMs.mock.calls.length > 0
+        expect(corrected).toBe(true)
+    })
+
+    it('persists the audio offset across store instances', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        useDeviceSync().setAudioOffset(-120)
+
+        const { loadAudioOffset } = await import('@/utils/deviceSync/audioOffset')
+        expect(loadAudioOffset()).toBe(-120)
+    })
+
     it('intercept(insertTracks) broadcasts the would-be queue instead of mutating locally', async () => {
         const { useDeviceSync, useTracklist, useQueue } = await setup()
         localStorage.setItem('aivinnet.device_id', 'devA')

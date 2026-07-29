@@ -15,6 +15,7 @@
 
 import { defineStore } from 'pinia'
 
+import { clampOffset, loadAudioOffset, saveAudioOffset } from '@/utils/deviceSync/audioOffset'
 import { computeCorrection, HARD_MS } from '@/utils/deviceSync/driftSteer'
 import { ClockOffsetEstimator } from '@/utils/deviceSync/clockSync'
 import { detectDeviceName, detectDeviceType, getOrCreateDeviceId } from '@/utils/deviceSync/deviceId'
@@ -112,6 +113,7 @@ export function __resetDeviceSyncTestState() {
     estimator = new ClockOffsetEstimator()
     leaveSuppressUntil = 0
     applyDepth = 0
+    lastTransportAt = 0
     loadedTrackhash = ''
     appliedRate = 1
     pollingActive = false
@@ -167,6 +169,17 @@ function impliesPlaying(cmd: SyncCommand, playing: boolean): boolean {
     }
 }
 
+/**
+ * When the last transport command was executed. Right after a play/seek/track
+ * change the device should snap onto the anchor hard instead of easing in over
+ * seconds via playbackRate — that easing is exactly what "slightly offset"
+ * sounds like at the start of a track.
+ */
+let lastTransportAt = 0
+/** Hard-seek threshold during that snap window, and how long it lasts. */
+const SNAP_WINDOW_MS = 2500
+const SNAP_HARD_MS = 80
+
 /** Reset drift steering to neutral rate — keeps `appliedRate` and the element in lockstep. */
 function resetRate(player: ReturnType<typeof usePlayer>) {
     player.setPlaybackRate(1)
@@ -194,6 +207,12 @@ export default defineStore('devicesync', {
         status: 'solo' as 'solo' | 'joined' | 'reconnecting',
         /** Autoplay-block overlay flag — consumed by the later UI PR. */
         needsGesture: false,
+        /**
+         * Manual trim for this device's output latency (Bluetooth speakers,
+         * TVs). Positive = run ahead of the group anchor. Persisted locally,
+         * never shared: it describes hardware, not the session.
+         */
+        audioOffsetMs: loadAudioOffset(),
         pollFailures: 0,
     }),
 
@@ -446,7 +465,7 @@ export default defineStore('devicesync', {
                 return
             }
 
-            const expected = expectedPositionMs(anchor, estimator.serverNow(), this.playing)
+            const expected = expectedPositionMs(anchor, estimator.serverNow(), this.playing) + this.audioOffsetMs
             const trackDiffers = loadedTrackhash !== current.trackhash
             const drift = Math.abs(player.getCurrentTimeMs() - expected) > HARD_MS
             const playMismatch = queue.playing !== this.playing
@@ -549,6 +568,10 @@ export default defineStore('devicesync', {
             const queue = useQueue()
             const player = usePlayer()
 
+            // Opens the snap window: for the next couple of seconds the steerer
+            // is allowed to hard-seek small offsets instead of easing them out.
+            lastTransportAt = Date.now()
+
             this.withApplying(() => {
                 switch (cmd.type) {
                     case 'play': {
@@ -632,7 +655,7 @@ export default defineStore('devicesync', {
             if (scheduledCommandNear(Date.now())) return
 
             const player = usePlayer()
-            const expected = expectedPositionMs(anchor, estimator.serverNow(), this.playing)
+            const expected = expectedPositionMs(anchor, estimator.serverNow(), this.playing) + this.audioOffsetMs
 
             if (!this.playing) {
                 // Paused: no rate steering, but recover a lost seek — e.g. the
@@ -645,7 +668,18 @@ export default defineStore('devicesync', {
                 return
             }
 
-            const correction = computeCorrection(player.getCurrentTimeMs(), expected)
+            const currentMs = player.getCurrentTimeMs()
+
+            // Snap window right after a transport command: land ON the anchor
+            // instead of easing a fresh offset out over several seconds at
+            // ±4% rate (which is what an audible lag at track start was).
+            if (Date.now() - lastTransportAt < SNAP_WINDOW_MS && Math.abs(currentMs - expected) > SNAP_HARD_MS) {
+                player.hardSeekMs(expected)
+                resetRate(player)
+                return
+            }
+
+            const correction = computeCorrection(currentMs, expected)
 
             if (correction.action === 'rate') {
                 player.setPlaybackRate(correction.rate)
@@ -655,6 +689,30 @@ export default defineStore('devicesync', {
                 resetRate(player)
             } else if (appliedRate !== 1) {
                 resetRate(player)
+            }
+        },
+
+        /**
+         * Burst a few polls to pin down the clock offset.
+         *
+         * The estimator keeps the lowest-RTT sample, and right after joining it
+         * has exactly one — if that single sample was a slow one, playback
+         * starts measurably offset and only creeps into place. A short burst
+         * makes the starting estimate as good as a steady-state one.
+         */
+        async calibrateClock(rounds = 4) {
+            if (!this.deviceId) return
+            for (let i = 0; i < rounds; i++) {
+                const t0 = Date.now()
+                const res = await pollSession({
+                    device_id: this.deviceId,
+                    known_version: this.sessionVersion,
+                    client_sent_ms: t0,
+                    volume: useSettings().volume,
+                    mute: useSettings().mute,
+                })
+                if (res) estimator.addSample(t0, res.server_now_ms, Date.now())
+                if (i < rounds - 1) await new Promise(r => setTimeout(r, 120))
             }
         },
 
@@ -677,6 +735,13 @@ export default defineStore('devicesync', {
 
             const snapState = snap?.state
             const emptySession = !snapState || (snapState.trackhashes?.length ?? 0) === 0
+
+            // Pin the clock down BEFORE the first mirror/scheduled command, so
+            // playback does not start on a single noisy offset sample.
+            if (snap && typeof snap.server_now_ms === 'number') {
+                estimator.addSample(t0, snap.server_now_ms, Date.now())
+            }
+            await this.calibrateClock()
 
             if (emptySession && useTracklist().tracklist.length > 0) {
                 // First joiner into an empty session seeds it from local state.
@@ -703,6 +768,15 @@ export default defineStore('devicesync', {
         /** Remote-invite join: audio play() may be autoplay-blocked → needsGesture. */
         async joinNow() {
             await this.joinInternal()
+        },
+
+        /**
+         * Set this device's output-latency trim and realign immediately, so the
+         * user hears the effect of the slider while dragging it.
+         */
+        setAudioOffset(ms: number) {
+            this.audioOffsetMs = saveAudioOffset(clampOffset(ms))
+            if (this.joined && this.anchor) this.hardResync()
         },
 
         /** Retry the blocked play() from a real user gesture and clear the flag. */

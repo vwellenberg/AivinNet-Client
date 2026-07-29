@@ -4,7 +4,9 @@
 // Pure function — the store applies the returned action to the audio element.
 
 /** Errors under this (ms) are ignored to avoid audible micro-corrections. */
-export const DEADBAND_MS = 50
+// 25 ms, not 50: a 50 ms offset between two speakers in one room is audible
+// as an echo/comb filter, so the steering has to keep pulling below that.
+export const DEADBAND_MS = 25
 
 /** Errors above this (ms) are too large to steer out — seek instead. */
 export const HARD_MS = 1000
