@@ -269,11 +269,14 @@ export const usePlayer = defineStore('player', () => {
             if (e.name === 'NotAllowedError') {
                 const ds = useDeviceSync()
                 if (ds.joined) {
-                    // Group mode: surface the "tap to join" overlay (later UI PR)
-                    // instead of toggling — playPause would broadcast a pause to
-                    // the whole group off a local autoplay block.
+                    // Group mode: the join prompt (GestureOverlay) IS the message
+                    // here — no error toast on top of it. Autoplay rejects can
+                    // fire repeatedly (two audio elements, retries), which stacked
+                    // duplicate red toasts over the prompt.
+                    // Also: never playPause() — that would broadcast a pause to
+                    // the whole group off one device's local block.
                     ds.needsGesture = true
-                    return toast.showNotification('Tap to join playback (autoplay blocked)', NotifType.Error)
+                    return
                 }
                 queue.playPause()
                 return toast.showNotification(
