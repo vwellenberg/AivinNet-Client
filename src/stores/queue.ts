@@ -13,6 +13,14 @@ import useLyrics from './lyrics'
 import { NotifType, useToast } from './notification'
 import useTracklist from './queue/tracklist'
 import useSettings from './settings'
+import { pickShuffleIndex, pushRecent } from '@/utils/shufflePicker'
+
+/**
+ * How many recently played indices permanent shuffle avoids. Small enough that a
+ * short queue still has candidates, big enough that a long queue stops feeling
+ * like it keeps returning to the same handful of tracks.
+ */
+const SHUFFLE_HISTORY_LIMIT = 10
 
 export default defineStore('Queue', {
     state: () => ({
@@ -24,6 +32,18 @@ export default defineStore('Queue', {
         playing: false,
         /** Whether track has been triggered manually */
         manual: true,
+        /**
+         * The index permanent shuffle will jump to next, rolled ahead of time.
+         *
+         * `nextindex` is a getter that also feeds the next-track audio preload and
+         * the group-session `track_change` broadcast, so it must return the same
+         * value every time it is read — rolling a random number inside it would
+         * hand out a different track on each read. The roll therefore happens in
+         * an action (`rollShuffleNext`) and lands here.
+         */
+        shuffleNextIndex: <number | null>null,
+        /** Recently played indices, so shuffle doesn't circle a handful of tracks. */
+        shuffleRecent: <number[]>[],
     }),
     actions: {
         setPlaying(val: boolean) {
@@ -55,11 +75,45 @@ export default defineStore('Queue', {
             this.currentindex = index
             this.manual = manual
 
+            // The current track changed, so the pre-rolled shuffle target is stale.
+            this.rollShuffleNext()
+
             const { playCurrent } = usePlayer()
             const { focusCurrentInSidebar } = useInterface()
 
             playCurrent()
             focusCurrentInSidebar()
+        },
+        /**
+         * Roll the next shuffle target (no-op unless permanent shuffle is on).
+         * Call this whenever the current track or the tracklist changes.
+         */
+        rollShuffleNext() {
+            const settings = useSettings()
+
+            if (!settings.shuffle) {
+                this.shuffleNextIndex = null
+                return
+            }
+
+            const { tracklist } = useTracklist()
+
+            this.shuffleRecent = pushRecent(this.shuffleRecent, this.currentindex, SHUFFLE_HISTORY_LIMIT)
+            this.shuffleNextIndex = pickShuffleIndex(tracklist.length, this.currentindex, this.shuffleRecent)
+        },
+        /**
+         * Flip permanent shuffle ("random track") mode. Separate from
+         * `shuffleQueue()`, which reorders the visible queue once.
+         */
+        toggleShuffle() {
+            const settings = useSettings()
+            settings.shuffle = !settings.shuffle
+
+            if (!settings.shuffle) this.shuffleRecent = []
+
+            // Re-roll straight away so `next` (and the audio preload behind it)
+            // reflects the new mode without waiting for a track change.
+            this.rollShuffleNext()
         },
         playPause() {
             const ds = useDeviceSync()
@@ -95,6 +149,13 @@ export default defineStore('Queue', {
 
             if (settings.repeat == 'one') {
                 this.play(this.currentindex, false)
+                return
+            }
+
+            // Permanent shuffle: follow the pre-rolled random target instead of
+            // walking the queue in order. repeat 'one' above still wins.
+            if (settings.shuffle && tracklist.length > 1) {
+                this.play(this.nextindex, false)
                 return
             }
 
@@ -230,20 +291,33 @@ export default defineStore('Queue', {
         },
         previndex(): number {
             const { tracklist } = useTracklist()
-            const { repeat } = useSettings()
+            const { repeat, shuffle } = useSettings()
 
             if (repeat == 'one') {
                 return this.currentindex
+            }
+
+            // While shuffling, "previous" means the track that actually played
+            // before this one, not the one sitting above it in the queue. The
+            // newest history entry is the current track, so step back past it.
+            if (shuffle) {
+                const previous = this.shuffleRecent[this.shuffleRecent.length - 2]
+                if (previous !== undefined && previous < tracklist.length) return previous
             }
 
             return this.currentindex === 0 ? tracklist.length - 1 : this.currentindex - 1
         },
         nextindex(): number {
             const { tracklist } = useTracklist()
-            const { repeat } = useSettings()
+            const { repeat, shuffle } = useSettings()
 
             if (repeat == 'one') {
                 return this.currentindex
+            }
+
+            // Pre-rolled in an action, never rolled here — see shuffleNextIndex.
+            if (shuffle && this.shuffleNextIndex !== null && this.shuffleNextIndex < tracklist.length) {
+                return this.shuffleNextIndex
             }
 
             return this.currentindex === tracklist.length - 1 ? 0 : this.currentindex + 1

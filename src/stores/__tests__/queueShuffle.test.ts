@@ -1,0 +1,227 @@
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+// The queue store pulls in the player, device sync, the router and media
+// notifications. None of that matters for the next/prev index maths, so stub it.
+const { tracklistState } = vi.hoisted(() => ({ tracklistState: { tracklist: [] as any[] } }))
+
+vi.mock('@/stores/player', () => ({
+    audioSource: {
+        playingSource: { src: '', currentTime: 0 },
+        pausePlayingSource: vi.fn(),
+        playPlayingSource: vi.fn(),
+    },
+    getUrl: () => '',
+    usePlayer: () => ({
+        playCurrent: vi.fn(),
+        clearNextAudio: vi.fn(),
+        clearMovingNextTimeout: vi.fn(),
+    }),
+}))
+vi.mock('@/stores/devicesync', () => ({ default: () => ({ joined: false, applying: false, intercept: vi.fn() }) }))
+vi.mock('@/stores/interface', () => ({ default: () => ({ focusCurrentInSidebar: vi.fn() }) }))
+vi.mock('@/stores/lyrics', () => ({ default: () => ({ setCurrentLine: vi.fn(), calculateCurrentLine: () => 0 }) }))
+vi.mock('@/stores/notification', () => ({
+    NotifType: { Success: 0, Error: 1, Info: 2 },
+    useToast: () => ({ showNotification: vi.fn() }),
+}))
+vi.mock('@/stores/queue/tracklist', () => ({ default: () => tracklistState }))
+vi.mock('@/helpers/mediaNotification', () => ({ default: vi.fn() }))
+vi.mock('@/requests/favorite', () => ({ isFavorite: () => Promise.resolve(false) }))
+vi.mock('@/router', () => ({
+    router: { currentRoute: { value: { name: 'other' } } },
+    Routes: { Lyrics: 'Lyrics' },
+}))
+
+import useQueue from '@/stores/queue'
+import useSettings from '@/stores/settings'
+
+const seedQueue = (n: number) => {
+    tracklistState.tracklist = Array.from({ length: n }, (_, i) => ({ trackhash: `h${i}`, filepath: `${i}.mp3` }))
+}
+
+describe('queue store: permanent shuffle', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia())
+        seedQueue(10)
+    })
+
+    it('walks the queue in order while shuffle is off', () => {
+        const queue = useQueue()
+        queue.currentindex = 3
+
+        expect(queue.nextindex).toBe(4)
+        expect(queue.previndex).toBe(2)
+    })
+
+    it('wraps around at the ends while shuffle is off', () => {
+        const queue = useQueue()
+
+        queue.currentindex = 9
+        expect(queue.nextindex).toBe(0)
+
+        queue.currentindex = 0
+        expect(queue.previndex).toBe(9)
+    })
+
+    it('toggleShuffle flips the persisted setting', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+
+        expect(settings.shuffle).toBe(false)
+        queue.toggleShuffle()
+        expect(settings.shuffle).toBe(true)
+        queue.toggleShuffle()
+        expect(settings.shuffle).toBe(false)
+    })
+
+    it('picks a random next track once shuffle is on', () => {
+        const queue = useQueue()
+        queue.currentindex = 3
+        queue.toggleShuffle()
+
+        expect(queue.shuffleNextIndex).not.toBeNull()
+        expect(queue.nextindex).toBe(queue.shuffleNextIndex)
+        expect(queue.nextindex).not.toBe(3)
+    })
+
+    it('nextindex is stable across reads — the roll happens in an action', () => {
+        // This is what keeps the audio preload and the group-session track_change
+        // broadcast pointing at the same track.
+        const queue = useQueue()
+        queue.toggleShuffle()
+
+        const reads = new Set([queue.nextindex, queue.nextindex, queue.nextindex, queue.nextindex])
+        expect(reads.size).toBe(1)
+    })
+
+    it('re-rolls when the current track changes', () => {
+        const queue = useQueue()
+        queue.toggleShuffle()
+
+        const rolls = new Set<number>()
+        for (let i = 0; i < 40; i++) {
+            queue.play(i % 10, false)
+            rolls.add(queue.nextindex)
+        }
+
+        // A single fixed target across 40 track changes would mean it never re-rolled.
+        expect(rolls.size).toBeGreaterThan(1)
+    })
+
+    it('never hands out the current index as next', () => {
+        const queue = useQueue()
+        queue.toggleShuffle()
+
+        for (let i = 0; i < 60; i++) {
+            queue.play(i % 10, false)
+            expect(queue.nextindex).not.toBe(queue.currentindex)
+        }
+    })
+
+    it('repeat "one" wins over shuffle', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+
+        queue.currentindex = 5
+        queue.toggleShuffle()
+        settings.repeat = 'one'
+
+        expect(queue.nextindex).toBe(5)
+        expect(queue.previndex).toBe(5)
+    })
+
+    it('previndex returns the track that actually played before', () => {
+        const queue = useQueue()
+        queue.toggleShuffle()
+
+        queue.play(2, false)
+        queue.play(7, false)
+
+        expect(queue.previndex).toBe(2)
+    })
+
+    it('turning shuffle off restores sequential order and clears the roll', () => {
+        const queue = useQueue()
+        queue.currentindex = 4
+        queue.toggleShuffle()
+        queue.toggleShuffle()
+
+        expect(queue.shuffleNextIndex).toBeNull()
+        expect(queue.shuffleRecent).toEqual([])
+        expect(queue.nextindex).toBe(5)
+    })
+
+    it('falls back to sequential when a stale roll points past the queue', () => {
+        const queue = useQueue()
+        queue.currentindex = 1
+        queue.toggleShuffle()
+
+        seedQueue(3)
+        queue.shuffleNextIndex = 42
+
+        expect(queue.nextindex).toBe(2)
+    })
+
+    it('is safe on a single-track queue', () => {
+        seedQueue(1)
+        const queue = useQueue()
+        queue.toggleShuffle()
+
+        expect(queue.nextindex).toBe(0)
+        expect(queue.previndex).toBe(0)
+    })
+
+    it('is safe on an empty queue', () => {
+        // An empty queue never plays, and its sequential nextindex is already
+        // meaningless (0 === -1 is false, so it answers 1). The invariant worth
+        // holding is that shuffle does not make it any worse.
+        seedQueue(0)
+        const queue = useQueue()
+        const sequential = queue.nextindex
+
+        expect(() => queue.toggleShuffle()).not.toThrow()
+        expect(queue.nextindex).toBe(sequential)
+        expect(queue.previndex).toBe(-1)
+    })
+
+    describe('autoPlayNext', () => {
+        it('follows the shuffle roll instead of the next row', () => {
+            const queue = useQueue()
+            const settings = useSettings()
+            settings.repeat = 'all'
+
+            queue.currentindex = 3
+            queue.toggleShuffle()
+            const target = queue.nextindex
+
+            queue.autoPlayNext()
+
+            expect(queue.currentindex).toBe(target)
+        })
+
+        it('still advances sequentially with shuffle off', () => {
+            const queue = useQueue()
+            const settings = useSettings()
+            settings.repeat = 'all'
+            queue.currentindex = 3
+
+            queue.autoPlayNext()
+
+            expect(queue.currentindex).toBe(4)
+        })
+
+        it('repeat "one" replays the same track even with shuffle on', () => {
+            const queue = useQueue()
+            const settings = useSettings()
+
+            queue.currentindex = 6
+            queue.toggleShuffle()
+            settings.repeat = 'one'
+
+            queue.autoPlayNext()
+
+            expect(queue.currentindex).toBe(6)
+        })
+    })
+})

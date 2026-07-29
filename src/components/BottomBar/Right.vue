@@ -5,15 +5,20 @@
              mobile, where all controls are crammed into one group. -->
         <template v-if="isMobile">
             <button
-                class="repeat"
-                :class="{ 'repeat-disabled': settings.repeat == 'none' }"
+                class="aux repeat"
+                :class="{ 'aux-off': settings.repeat == 'none' }"
                 :title="settings.repeat == 'all' ? 'Repeat all' : settings.repeat == 'one' ? 'Repeat one' : 'No repeat'"
                 @click="settings.toggleRepeatMode"
             >
                 <RepeatOneSvg v-if="settings.repeat == 'one'" />
                 <RepeatAllSvg v-else />
             </button>
-            <button title="Shuffle" @click="queue.shuffleQueue">
+            <button
+                class="aux shuffle"
+                :class="{ 'aux-off': !settings.shuffle }"
+                :title="settings.shuffle ? 'Shuffle: random next track' : 'Shuffle off'"
+                @click="queue.toggleShuffle"
+            >
                 <ShuffleSvg />
             </button>
             <HeartSvg
@@ -95,15 +100,8 @@ defineEmits<{
         }
     }
 
-    button.repeat.repeat-disabled {
-        svg {
-            opacity: 0.25;
-        }
-    }
-
-    // Repeat active (mode != none): pink-deep rounded fill marks the "on" state.
-    button.repeat:not(.repeat-disabled) {
-        background-color: $candy-pink-deep;
+    button.aux.aux-off svg {
+        opacity: 0.45;
     }
 
     // The transport glyphs (repeat, shuffle, lyrics) hardcode a light fill in
@@ -115,9 +113,38 @@ defineEmits<{
         fill: $candy-text;
     }
 
-    // Active repeat sits on the yellow accent fill — pin static ink.
-    button.repeat:not(.repeat-disabled) svg path {
-        fill: $mem-ink;
+    // Active shuffle / repeat wear the play button's memphis box, mirroring the
+    // desktop transport (LeftSidebar/NP/HotKeys.vue). The glyph keeps this bar's
+    // own 0.75 scale, so only the box, border, sprinkle and ink fill come from
+    // the shared treatment.
+    button.aux:not(.aux-off) {
+        @include candy-box($mem-yellow, $candy-radius-sm);
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            @include mem-sprinkle(22px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        svg {
+            position: relative;
+            z-index: 1;
+        }
+
+        // On the yellow accent fill the glyph must be static ink in BOTH themes —
+        // the adaptive $candy-text above would turn it paper-light in dark mode.
+        svg path {
+            fill: $mem-ink;
+        }
+
+        &:hover {
+            background-color: $mem-blush;
+        }
     }
 
     // Device sync: green fill marks an active group session.

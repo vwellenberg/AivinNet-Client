@@ -22,6 +22,17 @@ export default defineStore('settings', {
         // repeat_all: true,
         // repeat_one: false,
         repeat: <'all' | 'one' | 'none'>'all',
+        /**
+         * Permanent shuffle ("random track") mode, like Spotify's shuffle toggle:
+         * while on, the next track is picked at random from the queue and the
+         * visible queue order is left untouched. This is NOT the queue panel's
+         * one-shot "shuffle queue" action, which still reorders the list itself.
+         *
+         * The flag lives here so it persists, but it is flipped through
+         * `useQueue().toggleShuffle()` — that store owns the re-roll and already
+         * imports this one, so the toggle does not add a second import cycle.
+         */
+        shuffle: false,
         root_dir_set: false,
         root_dirs: <string[]>[],
 
