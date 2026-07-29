@@ -86,6 +86,9 @@ function decline() {
 
             &.accept {
                 // Big enough for a thumb — this is the whole point of the prompt.
+                // min-height, not padding: a global button height rule caps it
+                // at 40px otherwise (measured).
+                min-height: 3rem;
                 padding: 1rem 1.25rem;
                 font-size: 1rem;
                 background-color: $brand-green;
