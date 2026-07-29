@@ -173,11 +173,16 @@ describe('queue store: permanent shuffle', () => {
     })
 
     it('is safe on an empty queue', () => {
+        // An empty queue never plays, and its sequential nextindex is already
+        // meaningless (0 === -1 is false, so it answers 1). The invariant worth
+        // holding is that shuffle does not make it any worse.
         seedQueue(0)
         const queue = useQueue()
+        const sequential = queue.nextindex
 
         expect(() => queue.toggleShuffle()).not.toThrow()
-        expect(queue.nextindex).toBe(0)
+        expect(queue.nextindex).toBe(sequential)
+        expect(queue.previndex).toBe(-1)
     })
 
     describe('autoPlayNext', () => {
