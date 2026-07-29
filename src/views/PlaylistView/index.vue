@@ -54,10 +54,11 @@ import SongItem from '@/components/shared/SongItem.vue'
 import AfterHeader from '@/components/PlaylistView/AfterHeader.vue'
 import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import AlbumsFetcher from '@/components/ArtistView/AlbumsFetcher.vue'
-import { reorderTracks } from '@/requests/playlists'
+import { movePlaylistTrack } from '@/requests/playlists'
 import { Track } from '@/interfaces'
 import { pageGradient } from '@/utils/colortools/pageGradient'
 import { createDragAutoScroller } from '@/utils/dragAutoScroll'
+import { resolveMove } from '@/utils/playlistMove'
 
 const queue = useQueue()
 const tracklist = useTracklist()
@@ -179,8 +180,22 @@ const scrollerItems = computed(() => {
 
 async function onTrackDropped(_source: dropSources, _track: Track, newIndex: number, oldIndex: number) {
     stopAutoScroll()
+
+    // Resolve the move to trackhash anchors BEFORE mutating the list. Sending
+    // the whole tracklist (the old behaviour) truncated the playlist to whatever
+    // had been paginated in and dropped every orphan hash with it.
+    const move = resolveMove(playlist.allTracks, oldIndex, newIndex)
+    if (!move) return
+
     playlist.moveTrack(oldIndex, newIndex)
-    await reorderTracks(playlist.info.id, playlist.allTracks.map(t => t.trackhash))
+
+    const ok = await movePlaylistTrack(playlist.info.id, move.trackhash, move.beforeTrackhash)
+
+    if (!ok) {
+        // Put the row back so the list stops claiming an order the server never
+        // accepted.
+        playlist.moveTrack(move.undo.from, move.undo.to)
+    }
 }
 
 // Edge auto-scroll while reordering: dragging a row near the top/bottom edge of

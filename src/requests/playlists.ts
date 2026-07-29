@@ -293,16 +293,31 @@ export async function removeBannerImage(playlistid: number) {
     new Notification('Unable to remove banner image', NotifType.Error)
 }
 
-export async function reorderTracks(pid: number, trackhashes: string[]) {
+/**
+ * Move a single track so it sits immediately before `beforeTrackhash`
+ * (null moves it to the end of the playlist).
+ *
+ * Deliberately NOT a whole-list submit: the old `/reorder` call sent
+ * `allTracks.map(trackhash)`, which is only the tracks paginated in so far and
+ * never the orphan hashes, and the endpoint replaced the stored list with it —
+ * one drag cut a 120-track playlist down to 44. The server now does the surgery
+ * on its own list from these two anchors.
+ *
+ * Returns true when the server accepted the move.
+ */
+export async function movePlaylistTrack(pid: number, trackhash: string, beforeTrackhash: string | null) {
     const { status } = await useAxios({
-        url: paths.api.playlist.base + `/${pid}/reorder`,
+        url: paths.api.playlist.base + `/${pid}/move-track`,
         method: 'PUT',
-        props: { trackhashes },
+        props: { trackhash, before_trackhash: beforeTrackhash },
     })
 
     if (status !== 200) {
-        new Notification('Unable to reorder tracks', NotifType.Error)
+        new Notification('Unable to move track', NotifType.Error)
+        return false
     }
+
+    return true
 }
 
 export async function pinUnpinPlaylist(pid: number) {

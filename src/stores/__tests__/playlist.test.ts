@@ -137,3 +137,57 @@ describe('playlist store fetchAll', () => {
         expect(new Set(indices).size).toBe(indices.length)
     })
 })
+
+describe('playlist store moveTrack', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia())
+        getPlaylist.mockReset()
+    })
+
+    const hashes = () => usePlaylistStore().allTracks.map(t => t.trackhash)
+
+    const seed = (n: number) => {
+        const store = usePlaylistStore()
+        store.allTracks = Array.from({ length: n }, (_, i) => mkTrack(i + 1)) as any
+        return store
+    }
+
+    it('moves a track down (drop index is the target gap)', () => {
+        const store = seed(4)
+        store.moveTrack(0, 3)
+        expect(hashes()).toEqual(['h2', 'h3', 'h1', 'h4'])
+    })
+
+    it('moves a track up', () => {
+        const store = seed(4)
+        store.moveTrack(3, 1)
+        expect(hashes()).toEqual(['h1', 'h4', 'h2', 'h3'])
+    })
+
+    it('moves a track to the very end', () => {
+        const store = seed(3)
+        store.moveTrack(0, 3)
+        expect(hashes()).toEqual(['h2', 'h3', 'h1'])
+    })
+
+    it('keeps every track — a move never changes the length', () => {
+        const store = seed(6)
+        store.moveTrack(4, 1)
+        expect(store.allTracks).toHaveLength(6)
+        expect(new Set(hashes()).size).toBe(6)
+    })
+
+    it('works on a partially loaded (paginated) playlist', () => {
+        // info.count says 120 but only 38 are loaded — the state in which the old
+        // full-list reorder submit destroyed the other 82 tracks.
+        const store = seed(38)
+        store.info = mkInfo(120) as any
+        store.allLoaded = false
+
+        store.moveTrack(0, 5)
+
+        expect(store.allTracks).toHaveLength(38)
+        expect(store.info.count).toBe(120)
+        expect(hashes()[4]).toBe('h1')
+    })
+})
