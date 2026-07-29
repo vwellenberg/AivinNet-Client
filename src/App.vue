@@ -33,7 +33,7 @@
 // @libraries
 import { vElementSize } from "@vueuse/components";
 import { onStartTyping } from "@vueuse/core";
-import { onMounted, Ref, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, Ref, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { BalancerProvider } from "vue-wrap-balancer";
 
@@ -97,6 +97,17 @@ watch(
     },
     { immediate: true }
 );
+
+// Auto dark mode: decide the theme from the time of day in Berlin BEFORE the
+// watch below runs its immediate pass, so a reload never paints the wrong theme
+// first. The setting is restored from persistence synchronously, so it is already
+// known here. No-op unless the user turned Auto dark mode on.
+settings.applyAutoTheme();
+
+// ...and keep checking while the app stays open, or an app left running would
+// still be in light mode well past 20:00. Cheap: one timer, one Intl read.
+const autoThemeTimer = setInterval(() => settings.applyAutoTheme(), 5 * 60 * 1000);
+onBeforeUnmount(() => clearInterval(autoThemeTimer));
 
 // Memphis theme: body.theme-dark flips the --mem-* custom properties
 // (Global/index.scss) to the classic-90s indigo dark look.

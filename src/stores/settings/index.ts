@@ -12,6 +12,7 @@ import { getLastFmApiSig } from '@/context_menus/hashing'
 import useAxios from '@/requests/useAxios'
 import { paths } from '@/config'
 import { router, Routes } from '@/router'
+import { themeForNow } from '@/utils/autoTheme'
 
 export default defineStore('settings', {
     state: () => ({
@@ -81,6 +82,12 @@ export default defineStore('settings', {
         // layout
         // Memphis theme: 'light' = grid paper, 'dark' = classic-90s indigo.
         theme: <'light' | 'dark'>'light',
+        /**
+         * Pick the theme from the time of day in Berlin: light 08:00–19:59,
+         * dark otherwise. Evaluated on app start and re-checked while the app
+         * stays open (see App.vue). Toggling the theme by hand switches this off.
+         */
+        auto_theme: false,
         // INFO: Default to alternate layout from v2.0.0
         layout: 'alternate',
         use_np_img: false,
@@ -133,6 +140,21 @@ export default defineStore('settings', {
         },
         toggleTheme() {
             this.theme = this.theme === 'light' ? 'dark' : 'light'
+            // Picking a theme by hand is taking control: automatic switching
+            // would otherwise snap the choice back at the next check and read as
+            // the toggle being broken.
+            this.auto_theme = false
+        },
+        toggleAutoTheme() {
+            this.auto_theme = !this.auto_theme
+
+            if (this.auto_theme) this.applyAutoTheme()
+        },
+        /** Set the theme from the current Berlin time (no-op unless auto is on). */
+        applyAutoTheme() {
+            if (!this.auto_theme) return
+
+            this.theme = themeForNow()
         },
         // now playing 👇
         toggleUseNPImg() {
