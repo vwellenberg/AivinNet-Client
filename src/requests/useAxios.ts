@@ -5,6 +5,15 @@ import useModal from '@/stores/modal'
 import useLoaderStore from '@/stores/loader'
 import { logoutUser } from './auth'
 
+/**
+ * The QR deep-link pairing route redeems its code before any session exists, so
+ * the boot requests it races (e.g. /auth/user) answer 401. Popping the login
+ * modal on top of the pairing screen made scanning a QR code look broken.
+ */
+function isPairing(): boolean {
+    return typeof window !== 'undefined' && window.location.hash.startsWith('#/pair')
+}
+
 if (window.location.protocol === 'https:') {
     const meta = document.createElement('meta');
     meta.httpEquiv = 'Content-Security-Policy';
@@ -41,7 +50,7 @@ export default async (args: FetchProps, withCredentials: boolean = true) => {
         stopLoading()
 
         // was unauthorized
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && !isPairing()) {
             useModal().showLoginModal()
         }
 
@@ -56,7 +65,7 @@ export default async (args: FetchProps, withCredentials: boolean = true) => {
             console.error('Error:', error)
         }
 
-        if (error.response?.status === 422 && isSignatureError) {
+        if (error.response?.status === 422 && isSignatureError && !isPairing()) {
             await logoutUser()
             useModal().showLoginModal()
         }

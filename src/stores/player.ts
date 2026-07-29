@@ -213,9 +213,15 @@ export const usePlayer = defineStore('player', () => {
         el.playbackRate = rate
     }
 
-    /** Current playback position of the active element, in milliseconds. */
+    /**
+     * Current playback position of the active element, in WHOLE milliseconds.
+     *
+     * Rounded on purpose: this value is sent to the sync API, whose position
+     * fields are integers. Passing the raw fractional `currentTime * 1000` had
+     * every queue-set rejected with 422 while a track was playing.
+     */
     function getCurrentTimeMs(): number {
-        return audioSource.playingSource.currentTime * 1000
+        return Math.round(audioSource.playingSource.currentTime * 1000)
     }
 
     /** Hard-seek the active element (and mirror queue.duration.current), like `seek`. */
