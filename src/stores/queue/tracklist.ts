@@ -63,6 +63,12 @@ export default defineStore('tracklist', {
             const { focusCurrentInSidebar } = useInterface()
             focusCurrentInSidebar(1000)
             usePlayer().clearNextAudio()
+
+            // Shuffle history and the pre-rolled target are indices into the OLD
+            // list — meaningless now. Reset before the next roll.
+            const queue = useQueue()
+            queue.shuffleRecent = []
+            queue.rollShuffleNext()
         },
         setFromFolder(path: string, tracks: Track[]) {
             // remove trailing slash

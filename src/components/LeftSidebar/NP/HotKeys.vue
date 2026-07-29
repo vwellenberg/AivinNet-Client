@@ -1,6 +1,12 @@
 <template>
     <div class="hotkeys">
-        <button v-if="!isMobile" class="aux" title="Shuffle" @click.prevent="queue.shuffleQueue">
+        <button
+            v-if="!isMobile"
+            class="aux shuffle"
+            :class="{ 'aux-off': !settings.shuffle }"
+            :title="settings.shuffle ? 'Shuffle: random next track' : 'Shuffle off'"
+            @click.prevent="queue.toggleShuffle"
+        >
             <ShuffleSvg />
         </button>
         <button class="skip skip-prev" @click.prevent="queue.playPrev">
@@ -17,7 +23,7 @@
         <button
             v-if="!isMobile"
             class="aux repeat"
-            :class="{ 'aux-disabled': settings.repeat === 'none' }"
+            :class="{ 'aux-off': settings.repeat === 'none' }"
             :title="settings.repeat === 'all' ? 'Repeat all' : settings.repeat === 'one' ? 'Repeat one' : 'No repeat'"
             @click.prevent="settings.toggleRepeatMode"
         >
@@ -46,6 +52,49 @@ const settings = useSettings()
 </script>
 
 <style lang="scss">
+// Shared by this desktop transport and BottomBar/Right.vue's mobile one: the
+// "on" state of an auxiliary control (shuffle / repeat) wears the same memphis
+// box as the play button — 2px ink border, rounded square, sprinkle texture —
+// only smaller and in yellow, so play stays the primary teal action. The "off"
+// state deliberately keeps no box at all, which keeps the bar calm and makes
+// "on" unmistakable.
+//
+// $size is the box; pass the glyph size separately because the shuffle glyph
+// fills ~59% of its viewBox and the repeat glyph ~78%, so equal CSS boxes look
+// unequal (that correction predates this mixin).
+@mixin transport-aux-active($size: 2rem) {
+    width: $size;
+    height: $size;
+    flex-shrink: 0;
+    @include candy-box($mem-yellow, $candy-radius-sm);
+    position: relative;
+    overflow: hidden; // clip the sprinkle to the rounded corners
+
+    // Memphis sprinkle over the accent fill, exactly like the play CTA.
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        @include mem-sprinkle(22px);
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+    svg {
+        // Above the sprinkle overlay.
+        position: relative;
+        z-index: 1;
+        opacity: 1;
+    }
+
+    // The transport SVGs hardcode a light fill (#F2F2F2), and $candy-text turns
+    // them paper-light in dark mode — on the yellow fill the glyph must be
+    // static ink in BOTH themes.
+    svg path {
+        fill: $mem-ink;
+    }
+}
+
 .hotkeys {
     display: flex;
     align-items: center;
@@ -153,8 +202,9 @@ const settings = useSettings()
         }
     }
 
-    // shuffle / repeat — subtle auxiliary controls.
-    // Different box sizes on purpose: the shuffle glyph fills ~59% of its
+    // shuffle / repeat — auxiliary controls. Off = bare glyph; on = the memphis
+    // box below (see transport-aux-active).
+    // Different glyph sizes on purpose: the shuffle glyph fills ~59% of its
     // viewBox, the repeat glyph ~78%, so equal CSS boxes look unequal. Bump
     // shuffle up and trim repeat down for optically matched icons.
     .aux {
@@ -179,25 +229,29 @@ const settings = useSettings()
         height: 1.15rem;
     }
 
-    .aux-disabled svg {
-        opacity: 0.3;
+    .aux-off svg {
+        opacity: 0.45;
     }
 
-    // Repeat active (mode != none): pink-deep rounded fill so the "on" state
-    // reads on the light bar (candy equivalent of the old green accent).
-    .aux.repeat:not(.aux-disabled) {
-        background-color: $candy-pink-deep;
-        border-radius: $candy-radius-sm;
+    // Active shuffle / active repeat: the play button's box, one size down and in
+    // yellow. Same hover/press feedback as .play so the three read as one family.
+    .aux.shuffle:not(.aux-off),
+    .aux.repeat:not(.aux-off) {
+        @include transport-aux-active(2rem);
+        transition: transform 0.1s ease, background-color 0.2s ease-out;
 
-        svg {
-            opacity: 1;
+        &:hover {
+            background-color: $mem-blush;
+            transform: scale(1.06);
         }
 
-        // On the yellow accent fill the glyph must be static ink in BOTH themes.
-        // Without this the adaptive $candy-text turns the glyph paper-light on
-        // yellow in dark mode (poor contrast). Mirrors Right.vue's mobile repeat.
-        svg path {
-            fill: $mem-ink;
+        &:active {
+            transform: scale(0.98);
+
+            svg {
+                // The box already scales; don't shrink the glyph a second time.
+                transform: none;
+            }
         }
     }
 
