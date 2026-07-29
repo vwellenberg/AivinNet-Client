@@ -45,6 +45,10 @@
         />
         <Actions v-if="isLargerMobile" @handleFav="$emit('handleFav')" />
         <HotKeys v-if="isMobile" />
+        <!-- Small phones only get HotKeys here (Actions covers the larger ones),
+             so without this the Devices button was buried in the Now Playing
+             view and unreachable from the bar itself. -->
+        <DevicesButton v-if="isMobile && !isLargerMobile" class="bar-devices" />
     </div>
 </template>
 
@@ -58,6 +62,7 @@ import useSettingsStore from '@/stores/settings'
 
 import ExpandSvg from '@/assets/icons/expand.svg'
 import ArtistName from '@/components/shared/ArtistName.vue'
+import DevicesButton from '../DeviceSync/DevicesButton.vue'
 import HotKeys from '../LeftSidebar/NP/HotKeys.vue'
 import HeartSvg from '../shared/HeartSvg.vue'
 import MasterFlag from '../shared/MasterFlag.vue'
@@ -76,6 +81,28 @@ defineEmits<{
 .left-group {
     display: flex;
     gap: $medium;
+
+    // Devices button in the mobile bar: same footprint as a HotKeys glyph,
+    // pinned to the end so the track title keeps the flexible space.
+    .bar-devices {
+        flex-shrink: 0;
+        height: 3rem;
+        width: 3rem;
+        border: none;
+        background-color: transparent;
+
+        svg {
+            transform: scale(0.75);
+        }
+
+        path {
+            fill: $candy-text;
+        }
+
+        &.ds-joined path {
+            fill: $brand-green;
+        }
+    }
     align-items: center;
     font-size: small;
     font-weight: 700;
