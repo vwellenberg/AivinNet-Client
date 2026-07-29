@@ -40,6 +40,7 @@ import {
 } from '@/requests/devicesync'
 
 import type { Track } from '@/interfaces'
+import { NotifType, useToast } from '@/stores/notification'
 import { audioSource, usePlayer } from '@/stores/player'
 import useQueue from '@/stores/queue'
 import type { From } from '@/stores/queue/tracklist'
@@ -765,19 +766,38 @@ export default defineStore('devicesync', {
             const settings = useSettings()
             const player = usePlayer()
 
-            await setQueue({
+            const res = await setQueue({
                 device_id: this.deviceId,
                 trackhashes: opts?.trackhashes ?? tracklist.tracklist.map(t => t.trackhash),
                 from: opts?.from ?? (tracklist.from as SyncFrom),
                 currentindex: opts?.currentindex ?? queue.currentindex,
                 playing: opts?.playing ?? queue.playing,
-                position_ms: opts?.position_ms ?? player.getCurrentTimeMs(),
+                // Whole milliseconds: the API's position fields are integers.
+                position_ms: Math.round(opts?.position_ms ?? player.getCurrentTimeMs()),
                 repeat: opts?.repeat ?? settings.repeat,
             })
+
+            this.reportSyncFailure(res, 'Could not share the queue with the group')
         },
 
         async sendCmd(type: SyncCommandType, payload: unknown, target_device?: string) {
-            await sendCommand({ device_id: this.deviceId, type, payload, target_device })
+            const res = await sendCommand({ device_id: this.deviceId, type, payload, target_device })
+            this.reportSyncFailure(res, 'Group playback command failed')
+        },
+
+        /**
+         * Surface a rejected sync call instead of swallowing it.
+         *
+         * A silently dropped queue-set (422 on a fractional position) is exactly
+         * what made group playback look "connected but dead": the UI showed the
+         * group as joined while the server had no queue at all.
+         */
+        reportSyncFailure(res: { status?: number } | undefined, what: string) {
+            const status = res?.status
+            if (status === undefined || (status >= 200 && status < 300)) return
+
+            console.error(`[devicesync] ${what} (HTTP ${status})`, res)
+            useToast().showNotification(`${what} (HTTP ${status})`, NotifType.Error)
         },
 
         // --- transport interception (called from queue/settings seams) ------
@@ -809,8 +829,22 @@ export default defineStore('devicesync', {
                     break
                 }
                 case 'playPause': {
-                    if (queue.playing) void this.sendCmd('pause', {})
-                    else void this.sendCmd('play', {})
+                    if (queue.playing) {
+                        void this.sendCmd('pause', {})
+                        break
+                    }
+                    if (this.lastMirroredHashKey === '' && tracklist.tracklist.length > 0) {
+                        // Joined, but the group never got a queue (e.g. the seed
+                        // failed). Pressing play would otherwise start audio only
+                        // here while the server stays empty and every later
+                        // track_change is refused. Seed and start in one go.
+                        void this.sendQueueSet({
+                            playing: true,
+                            position_ms: usePlayer().getCurrentTimeMs(),
+                        })
+                        break
+                    }
+                    void this.sendCmd('play', {})
                     break
                 }
                 case 'seek': {

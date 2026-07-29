@@ -25,6 +25,12 @@
                     {{ formatSeconds(queue.duration.full) }}
                 </div>
             </div>
+            <div v-if="isMobile" class="np-devices">
+                <!-- On mobile the bottom bar swaps the aux group for navigation,
+                     so this is the only place a phone can reach group playback.
+                     Small phones already get the full aux group above. -->
+                <DevicesButton v-if="!isSmallPhone" />
+            </div>
             <Volume v-if="isSmallPhone" class="np-volume" />
         </div>
         <h3 class="nowplaying_title" v-if="queue.next">Up Next</h3>

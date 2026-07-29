@@ -24,16 +24,12 @@
             />
         </template>
         <LyricsButton />
-        <button class="devices-btn" :class="{ 'ds-joined': ds.joined }" title="Devices" @click="modal.showDevicesModal()">
-            <SpeakerSvg />
-        </button>
+        <DevicesButton />
         <Volume v-if="!hideVolume" />
     </div>
 </template>
 
 <script setup lang="ts">
-import useDeviceSync from '@/stores/devicesync'
-import useModal from '@/stores/modal'
 import useQueue from '@/stores/queue'
 import useSettings from '@/stores/settings'
 import { isMobile } from '@/stores/content-width'
@@ -41,15 +37,13 @@ import { isMobile } from '@/stores/content-width'
 import RepeatOneSvg from '@/assets/icons/repeat-one.svg'
 import RepeatAllSvg from '@/assets/icons/repeat.svg'
 import ShuffleSvg from '@/assets/icons/shuffle.svg'
-import SpeakerSvg from '@/assets/icons/speaker.svg'
+import DevicesButton from '../DeviceSync/DevicesButton.vue'
 import HeartSvg from '../shared/HeartSvg.vue'
 import LyricsButton from '../shared/LyricsButton.vue'
 import Volume from './Volume.vue'
 
 const queue = useQueue()
 const settings = useSettings()
-const ds = useDeviceSync()
-const modal = useModal()
 
 defineProps<{
     hideHeart?: boolean

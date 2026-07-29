@@ -533,6 +533,66 @@ describe('devicesync store', () => {
         expect(ds.joined).toBe(true)
     })
 
+    it('sends WHOLE-millisecond positions (a fractional one is rejected with 422)', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        useTracklist().tracklist = [mkTrack('h1'), mkTrack('h2')]
+        useQueue().currentindex = 0
+        // Real players report fractional seconds → *1000 keeps the fraction.
+        playerMock.getCurrentTimeMs.mockReturnValue(3213.456)
+
+        await ds.sendQueueSet()
+
+        expect(requestsMock.setQueue).toHaveBeenCalledWith(expect.objectContaining({ position_ms: 3213 }))
+
+        // ...and the seek command path too.
+        ds.intercept('seek', 12.3456)
+        expect(requestsMock.sendCommand).toHaveBeenLastCalledWith(
+            expect.objectContaining({ type: 'seek', payload: { position_ms: 12346 } })
+        )
+    })
+
+    it('surfaces a rejected sync call instead of swallowing it', async () => {
+        const { useDeviceSync, useTracklist } = await setup()
+        const { useToast } = await import('@/stores/notification')
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+        useTracklist().tracklist = [mkTrack('h1')]
+
+        requestsMock.setQueue.mockResolvedValueOnce({ status: 422, data: {} })
+        const toast = useToast()
+        const spy = vi.spyOn(toast, 'showNotification')
+
+        await ds.sendQueueSet()
+
+        expect(spy).toHaveBeenCalled()
+    })
+
+    it('play seeds the group queue when the session never received one', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        useTracklist().tracklist = [mkTrack('h1'), mkTrack('h2')]
+        useQueue().playing = false
+        ds.lastMirroredHashKey = '' // nothing mirrored → server queue is empty
+
+        ds.intercept('playPause')
+
+        expect(requestsMock.setQueue).toHaveBeenCalledWith(
+            expect.objectContaining({ trackhashes: ['h1', 'h2'], playing: true })
+        )
+        expect(requestsMock.sendCommand).not.toHaveBeenCalled()
+    })
+
     it('intercept(insertTracks) broadcasts the would-be queue instead of mutating locally', async () => {
         const { useDeviceSync, useTracklist, useQueue } = await setup()
         localStorage.setItem('aivinnet.device_id', 'devA')
