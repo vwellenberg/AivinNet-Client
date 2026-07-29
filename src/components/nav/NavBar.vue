@@ -29,6 +29,7 @@
             >
                 <component :is="headerAction.icon" />
             </button>
+            <ThemeToggle />
             <AvatarWithDropdown />
         </div>
     </div>
@@ -52,6 +53,7 @@ import NavLinks from './NavLinks.vue'
 import NavTitles from './NavTitles.vue'
 import Folder from './Titles/Folder.vue'
 import AvatarWithDropdown from './AvatarWithDropdown.vue'
+import ThemeToggle from './ThemeToggle.vue'
 import useModal from '@/stores/modal'
 
 const auth = useAuth()
@@ -170,11 +172,16 @@ const mobileTitle = computed(() => {
         @include allPhones {
             gap: unset;
 
-            // Let the title's flex: 1 push the action + avatar to the right edge.
-            // The desktop auto-margin would otherwise absorb the free space and
-            // separate the action button from the avatar.
-            .avatar {
+            // Let the title's flex: 1 push the action + toggle + avatar to the
+            // right edge. The desktop auto-margin would otherwise absorb the free
+            // space and separate them from each other.
+            .avatar,
+            .theme-toggle {
                 margin-left: 0;
+            }
+
+            .theme-toggle {
+                margin-right: $smaller;
             }
         }
 
@@ -233,8 +240,16 @@ const mobileTitle = computed(() => {
             }
         }
 
-        .avatar {
+        // The free space is claimed BEFORE the theme toggle, not before the
+        // avatar, so the toggle + avatar stay a pair in the far-right corner.
+        // (Two auto margins total — one here, one on .nav-home — still split the
+        // remaining space evenly and keep the home + search group centred.)
+        .theme-toggle {
             margin-left: auto;
+        }
+
+        .avatar {
+            margin-left: 0;
         }
 
         .mobile-nav-title {
