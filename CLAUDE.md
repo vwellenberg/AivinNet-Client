@@ -169,3 +169,12 @@ Spotify-Connect + Multiroom: Geräte desselben Accounts können einer **Group Se
 - Scheduled-Timer werden bei leave/toSolo/Queue-Wechsel gecancelt; `executeCommand` prüft Membership; `track_change`-Index wird geclampt.
 - **Vitest 0.34 + Pinia + Modul-Singletons: `vi.resetModules()` ist UNZUVERLÄSSIG** (geteilte Modul-Instanzen, Store-State des Vortests via zweiter Pinia-Kopie). Stattdessen exportiert der Store `__resetDeviceSyncTestState()` — im beforeEach aufrufen, keine Registry-Resets.
 - Backend-Constraint: bjoern single-threaded → keine langlebigen Verbindungen; Polling + Scheduled Execution (LEAD 1500 ms) ist der v1-Transport. Poll-Handler serverseitig strikt RAM-only.
+
+### ⚠️ Device-Sync: Feld-Bugs aus v1.3.0 (behoben in 1.3.1)
+
+- **Positionen IMMER als ganze Millisekunden senden.** `audio.currentTime * 1000` ist ein Float; die Sync-API-Felder sind `int`. Ein Float ließ jedes `queue-set` mit **422** auflaufen (pydantic `int_from_float`) → die Server-Queue blieb LEER → andere Geräte hatten nichts zu spiegeln und jedes `track_change` scheiterte mit 400 („queue is empty"). Symptom beim User: „gleicher Song wird angezeigt, aber nichts startet, Next tot" — und scheinbar sporadisch, weil ein Join bei Position exakt 0 (gültiger int) funktionierte. `getCurrentTimeMs()` rundet jetzt.
+- **Sync-Requests NIE stillschweigend verwerfen.** `sendQueueSet`/`sendCmd` melden Nicht-2xx per Toast + `console.error`. Ein verschlucktes 422 sah exakt aus wie eine gesunde Gruppe.
+- **Mobile-Erreichbarkeit prüfen, nicht annehmen:** Die Bottom-Bar tauscht auf Phones die Aux-Gruppe (`Right.vue`) gegen die Navigation — ein Button, der nur dort hängt, existiert auf dem Handy schlicht nicht. Devices-Button liegt jetzt zusätzlich in `BottomBar/Left.vue` (small phones) und im NowPlaying-Header.
+- **Icon-Kollision:** `speaker.svg` ist das Volume-Icon — für Geräte ein eigenes Glyph (`devices.svg`).
+- **QR-Pairing:** Auf `/#/pair` darf der 401 der Boot-Requests kein Login-Modal öffnen (`useAxios` prüft die Route), sonst wirkt das Scannen „komisch/kaputt".
+- **Verifikationsfalle:** Der erste E2E jointe per API und startete Chromium mit `--autoplay-policy=no-user-gesture-required` — beides umging genau die Pfade, die im Alltag brechen. Group-Sync IMMER über echte UI-Klicks und ohne Autoplay-Flag verifizieren (`~/uitest/verify3.js`).
