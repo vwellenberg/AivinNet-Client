@@ -152,10 +152,23 @@ function playHereOnly() {
             opacity: 0.55;
         }
 
+        // Flex children default to min-width:auto, which lets a long name
+        // widen the row instead of ellipsizing.
+        .info {
+            min-width: 0;
+        }
+
         .name {
             font-weight: 600;
+            // Long device names must ellipsize instead of pushing the row's
+            // controls off a narrow phone screen.
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
 
             .tag.this-device {
+                // Never split "This device" across two lines on a phone.
+                white-space: nowrap;
                 font-size: 0.7rem;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -187,6 +200,7 @@ function playHereOnly() {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            flex-shrink: 0;
 
             .vol {
                 width: 6rem;
