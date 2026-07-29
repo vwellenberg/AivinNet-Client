@@ -113,6 +113,36 @@ $candy-radius-pill: 999px; // pills, sliders
 }
 
 // ---------------------------------------------------------------------------
+// Interactive row (list item) — THE app-wide hover treatment.
+//
+// Every row list in the app (song lists, folder lists, ...) marks hover the same
+// way: a light fill with the ink frame drawn around it. Use these two mixins
+// instead of restating the rule, so the treatment stays one decision.
+//
+//   .my-row { @include candy-row-base; &:hover { @include candy-row-hover; } }
+//
+// `candy-row-base` is NOT optional. It reserves a transparent border of the same
+// width, so the frame appearing on hover does not shift the row's content by 2px.
+// A row that only implements the hover half visibly jumps (and rows that skip
+// both, like the folder list did, get no frame at all — the bug this fixes).
+// ---------------------------------------------------------------------------
+@mixin candy-row-base($radius: $candy-radius-sm) {
+  border: $candy-border-w solid transparent;
+  border-radius: $radius;
+  transition: background-color 0.2s ease-out;
+}
+
+// The fill defaults to the STATIC light panel token, not the theme-aware
+// `$mem-panel`: the row's text/icons get pinned to `$mem-ink` on top of it, so
+// the fill has to stay light in the dark theme too or the ink goes unreadable.
+// The border uses `$mem-line`, which IS theme-aware (ink on light, paper on dark).
+@mixin candy-row-hover($fill: $mem-panel-static, $radius: $candy-radius-sm) {
+  background-color: $fill;
+  border-color: $mem-line;
+  border-radius: $radius;
+}
+
+// ---------------------------------------------------------------------------
 // Memphis patterns
 // ---------------------------------------------------------------------------
 

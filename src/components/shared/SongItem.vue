@@ -227,10 +227,10 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     // turns white on the dark indigo ground. Filled row states (hover/current/
     // contexton) pin ink below (see the combined selector after this rule).
     color: $mem-content-text;
-    // Transparent placeholder so the ink box on hover/marked/playing rows
-    // never shifts the content.
-    border: $candy-border-w solid transparent;
-    transition: background-color 0.2s ease-out;
+    // Reserved transparent border so the ink frame on hover/marked/playing rows
+    // never shifts the content. (app-grid.scss zeroes the radius again for the
+    // middle rows of the list plate — the frame there is continuous.)
+    @include candy-row-base;
 
     // Plays column (issue #68): inserted between album and duration. Only set
     // on wide layouts (the .with-plays class is toggled off on isSmall/isMedium
@@ -256,11 +256,9 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     }
 
     &:hover {
-        // Static-light hover fill (not the panel var) so the pinned ink text
-        // below stays readable in dark; paper outline.
-        background-color: $mem-panel-static;
-        border-color: $mem-line;
-        border-radius: $candy-radius-sm;
+        // The app-wide row hover (see candy-row-hover): static-light fill so the
+        // pinned ink text below stays readable in dark, inside the ink frame.
+        @include candy-row-hover;
 
         .song-duration.has_help_text {
             opacity: 0;
@@ -309,11 +307,10 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 }
 
 .songlist-item.contexton {
-    // Static soft-blush light fill (equals the light value of $candy-pink-soft)
-    // so it stays light in dark and the pinned ink text reads; paper outline.
+    // Same frame as hover, but with the soft-blush fill that marks "this row owns
+    // the open context menu". Static light so the pinned ink text reads in dark.
+    @include candy-row-hover($mem-blush-soft-static);
     background-color: $mem-blush-soft-static !important;
-    border-color: $mem-line;
-    border-radius: $candy-radius-sm;
 }
 
 // Filled row states (white hover / yellow playing / blush marked): the base

@@ -35,6 +35,8 @@ const settings = useSettingsStore();
   gap: 1.5rem;
 }
 
+// Grid mode cards already carry a permanent ink frame (see FolderItem.vue), so
+// hover only deepens the fill — the frame is already there.
 .f-item:hover {
   background-color: $candy-pink-deep;
 }
@@ -45,13 +47,12 @@ const settings = useSettingsStore();
 
   .f-item {
     line-height: 1.2;
-    transition: none;
     height: 3.25rem;
-    border-radius: $small;
     background-color: transparent;
-    border: none;
     padding-left: $small;
-    transition: background-color 0.2s ease-out;
+    // Reserved transparent border + the shared radius/transition, so the ink
+    // frame below can appear without nudging the row's contents.
+    @include candy-row-base;
 
     // List mode rows are transparent -> they sit on the page ground, so their
     // text/icon must be theme-aware (grid mode keeps ink on the pink card).
@@ -77,9 +78,13 @@ const settings = useSettingsStore();
       padding-right: $medium;
     }
 
-    // Blush-soft hover fill -> pin ink back.
+    // The app-wide row hover: light fill inside the ink frame, like every song
+    // list row. These rows used `border: none` and a blush fill, so they were
+    // the only hoverable rows in the app with no frame at all.
+    // `!important` beats the grid-mode `.f-item:hover` fill above.
     &:hover {
-      background-color: $candy-pink-soft !important;
+      @include candy-row-hover;
+      background-color: $mem-panel-static !important;
       color: $mem-ink;
 
       svg {
