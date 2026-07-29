@@ -7,10 +7,18 @@ import { computeCorrection } from '../driftSteer'
 describe('computeCorrection', () => {
     it('does nothing inside the deadband (both signs)', () => {
         expect(computeCorrection(0, 0)).toEqual({ action: 'none' })
-        expect(computeCorrection(30, 0)).toEqual({ action: 'none' })
-        expect(computeCorrection(-30, 0)).toEqual({ action: 'none' })
-        expect(computeCorrection(49, 0)).toEqual({ action: 'none' })
-        expect(computeCorrection(-49, 0)).toEqual({ action: 'none' })
+        expect(computeCorrection(10, 0)).toEqual({ action: 'none' })
+        expect(computeCorrection(-10, 0)).toEqual({ action: 'none' })
+        expect(computeCorrection(24, 0)).toEqual({ action: 'none' })
+        expect(computeCorrection(-24, 0)).toEqual({ action: 'none' })
+    })
+
+    it('still corrects an audible 30-50 ms offset (deadband is 25 ms)', () => {
+        // Two speakers 40 ms apart comb-filter audibly, so this must NOT be
+        // swallowed by the deadband.
+        const c = computeCorrection(40, 0)
+        expect(c.action).toBe('rate')
+        if (c.action === 'rate') expect(c.rate).toBeLessThan(1)
     })
 
     it('nudges the rate down when the device is ahead (error > 0)', () => {
@@ -53,18 +61,18 @@ describe('computeCorrection', () => {
         }
     })
 
-    it('uses the rate branch at the deadband boundary (|e| = 50)', () => {
-        // 50 → 0.025 → rate 0.975
-        const c = computeCorrection(50, 0)
+    it('uses the rate branch at the deadband boundary (|e| = 25)', () => {
+        // 25 → 25/1000*0.5 = 0.0125 → rate 0.9875
+        const c = computeCorrection(25, 0)
         expect(c.action).toBe('rate')
         if (c.action === 'rate') {
-            expect(c.rate).toBeCloseTo(0.975, 6)
+            expect(c.rate).toBeCloseTo(0.9875, 6)
         }
 
-        const c2 = computeCorrection(-50, 0)
+        const c2 = computeCorrection(-25, 0)
         expect(c2.action).toBe('rate')
         if (c2.action === 'rate') {
-            expect(c2.rate).toBeCloseTo(1.025, 6)
+            expect(c2.rate).toBeCloseTo(1.0125, 6)
         }
     })
 
