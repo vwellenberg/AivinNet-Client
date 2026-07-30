@@ -4,11 +4,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // The store pulls in requests, the router, settings and the playlists page.
 // None of it matters for what an empty query does to the results.
+// Shaped like the real responses: the store copies these fields straight into
+// its state, so a bare {} would leave `undefined` behind and the assertions
+// would be about the mock rather than the store.
 vi.mock('@/requests/searchMusic', () => ({
-    searchAlbums: vi.fn(() => Promise.resolve({ results: [], more: false })),
-    searchArtists: vi.fn(() => Promise.resolve({ results: [], more: false })),
+    searchAlbums: vi.fn(() => Promise.resolve({ albums: [], more: false })),
+    searchArtists: vi.fn(() => Promise.resolve({ artists: [], more: false })),
     searchFolders: vi.fn(() => Promise.resolve({ results: [], more: false })),
-    searchTopResults: vi.fn(() => Promise.resolve({})),
+    searchTopResults: vi.fn(() =>
+        Promise.resolve({ top_result: {}, tracks: [], albums: [], artists: [] })
+    ),
     searchTracks: vi.fn(() => Promise.resolve({ tracks: [], more: false })),
 }))
 vi.mock('@/router', () => ({
