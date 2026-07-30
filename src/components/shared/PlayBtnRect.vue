@@ -26,62 +26,20 @@ defineProps<{
 // `button.` prefix so the teal fill/border/radius win over the global button
 // base, .btn-active and .circular (pill) without !important.
 button.playbtnrect {
-    position: relative;
-    width: 6rem;
-    // The same 44px height as every other control in the header row. This used
-    // to be phone-only, so on desktop the primary CTA sat 36px tall next to
-    // 44px siblings and the row's baseline visibly stepped.
-    height: 2.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: $mem-teal;
-    color: $mem-ink;
-    border: $candy-border;
-    border-radius: $candy-radius-sm;
+    // The primary role owns the whole anatomy: teal fill, ink border, the 3px
+    // offset (deeper than the 2px every other surface gets), the sprinkle
+    // texture and the scale feedback. Only the footprint stays here — 6rem wide
+    // for the "Play" label, at the same 44px height as the rest of the header
+    // row. (That height used to be phone-only, so on desktop the primary CTA
+    // sat 36px next to 44px siblings and the baseline visibly stepped.)
+    @include btn-primary($w: 6rem, $h: 2.75rem);
     padding-right: 1rem;
-    overflow: hidden; // clip the sprinkle overlay to the rounded corners
-    // The page's primary CTA — a deeper offset than the 2px every button gets.
-    // It keeps its own scale feedback below instead of the press-into-shadow,
-    // so `$press: false`.
-    @include candy-raised(3px, 3px, $press: false);
-    // Quick scale on hover/press — matches the bottom-bar play button.
-    transition: transform 0.1s ease, box-shadow 0.12s ease-out;
 
-    // Subtle sprinkle (terrazzo) texture over the teal fill. A translucent
-    // ::before keeps the dashes faint so the "Play" label stays legible;
-    // combining the pattern directly on the button reads too busy at this size.
-    &::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        // Small tile + stronger opacity: the 44px button shows only a slice
-        // of the pattern, so the default 46px/0.3 was invisible in practice.
-        @include mem-sprinkle(28px);
-        opacity: 0.45;
-        pointer-events: none;
-        z-index: 0;
-    }
-
-    svg,
+    // The label needs the same stacking lift the role gives the glyph, so it
+    // sits above the sprinkle overlay.
     .text {
         position: relative;
         z-index: 1;
-    }
-
-    svg {
-        height: 1.75rem;
-    }
-
-    // Hover keeps the teal identity (primary action colour) and just scales —
-    // no colour flip, so it stays distinct from the yellow "playing" states.
-    &:hover {
-        background-color: $mem-teal;
-        transform: scale(1.06);
-    }
-
-    &:active {
-        transform: scale(0.98);
     }
 }
 </style>
