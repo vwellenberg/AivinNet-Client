@@ -35,6 +35,23 @@
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
+// PLAYER-BAR GEOMETRY — one owner for the transport footprint.
+//
+// The bar used to hold four heights (32 / 36 / 40 / 48px) and four glyph sizes
+// (20.8 / 21.6 / 24.8 / 28.8) side by side, because five files each sized their
+// own controls. These two values are what "the bar is uniform" MEANS, so they
+// live in one place and every bar control reads them.
+//
+// 44px is the touch target, and it is the size the most-tapped control in the
+// app should have had all along.
+// ---------------------------------------------------------------------------
+$bar-control: 2.75rem;
+$bar-glyph: 1.5rem;
+// Play/pause is the same BOX as its neighbours — only its glyph is bigger, so
+// the primary reads as primary without breaking the row's rhythm.
+$bar-glyph-play: 1.75rem;
+
+// ---------------------------------------------------------------------------
 // primary — the page's main call to action. One per screen region.
 // Teal, because teal means "play/do the thing" everywhere in this app.
 //
@@ -269,4 +286,10 @@
 // ---------------------------------------------------------------------------
 @mixin btn-toggle-on {
   @include mem-transport-aux-on;
+  // `mem-transport-aux-on` only PAINTS the box (fill, border, radius,
+  // sprinkle). The offset shadow that makes a filled control look raised used
+  // to arrive by accident, from the global button base — so switching the
+  // control to a role that is flat at rest silently flattened the on-state too.
+  // It is stated here, at the same 3px as the play button it sits next to.
+  @include candy-raised(3px, 3px, $press: false);
 }

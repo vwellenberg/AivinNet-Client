@@ -52,29 +52,14 @@ const handleMouseWheel = (event: WheelEvent) => {
     align-items: center;
     gap: 2px;
 
+    // Mute: the same quiet role and the same footprint as every other bar
+    // control. It used to be the odd one out at 2.25rem — the smallest button
+    // in a bar whose next-smallest was 3rem.
     .speaker-icon {
-        height: 2.25rem !important;
-        width: 2.25rem !important;
-        background-color: transparent;
-        border: none !important;
-        // The speaker glyph is currentColor, but the global button base pins
-        // `color: $mem-ink` (static) — which left the icon nearly invisible on
-        // the dark bar in dark mode. Drive it from the adaptive text colour.
+        @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
+        // The speaker glyph is currentColor; drive it from the adaptive text
+        // colour so it reads on the bar in both themes.
         color: $candy-text;
-
-        // Same glyph size as its right-group neighbours (they come from the
-        // shared 24x24 set, so one width/height fits all).
-        svg {
-            width: 1.35rem;
-            height: 1.35rem;
-        }
-
-        // Match the lyrics button (its right-group neighbour): a soft-pink
-        // rounded fill on hover, instead of the odd dim-on-hover it had before.
-        &:hover {
-            background-color: $candy-pink-soft;
-            opacity: 1;
-        }
     }
 
     // Horizontal volume slider. Track pill, 2px ink border and the white

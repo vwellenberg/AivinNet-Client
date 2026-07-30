@@ -110,48 +110,18 @@ function handleFav() {
         }
     }
 
-    button {
-        // Transport icon buttons are borderless + transparent on the white bar
-        // (override the global candy button base locally); black glyphs, with a
-        // soft-pink rounded fill on hover. The play/pause button is the exception
-        // (its pink candy-box lives in HotKeys) and is excluded from the hover.
-        background: transparent;
-        border: none;
-        border-radius: $small;
-        width: 3rem;
-        transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
-
-        &:not(.play):hover {
-            background-color: $candy-pink-soft;
-        }
-
-        @include allPhones {
-            height: 3rem;
-        }
-
-        @include largePhones {
-            // Square, and at the 44px touch target — the most-tapped controls
-            // in the app were 40px. (A former `&:nth-child(2) { width: 3.5rem }`
-            // here only ever hit the play button, since the aux buttons are
-            // hidden at mobile widths, and stretched it into an oval.)
-            width: 2.75rem;
-            height: 2.75rem;
-        }
-
-        @include smallestPhones {
-            &:first-child {
-                display: none;
-            }
-
-            &:nth-child(2) {
-                margin-left: $smaller;
-            }
-
-            &:last-child {
-                display: none;
-            }
-        }
-    }
+    // There is deliberately no `.b-bar button { … }` rule here any more.
+    //
+    // It used to hand every descendant button a 3rem width, a transparent fill
+    // and a hover — on top of whatever HotKeys, Right.vue and Volume.vue were
+    // each setting for the same buttons, which is how one bar came to hold four
+    // heights and four glyph sizes. Worse, it reached things it was never
+    // aimed at: `:first-child` also matched the mute button (first child of
+    // .volume-control) and the mobile repeat button, so the narrowest phones
+    // silently lost their mute control.
+    //
+    // Each control group now owns its own controls, and all of them read the
+    // shared $bar-control / $bar-glyph tokens from Global/_buttons.scss.
 
     &:hover {
         // INFO: Show the progress bar when hovering over the bottom bar
@@ -180,15 +150,9 @@ function handleFav() {
         display: grid;
         grid-template-columns: max-content 1fr max-content;
         align-items: center;
-        // No fixed height: the row sizes to the green play circle (2.5rem) so
-        // its rounded edges are never clipped. A short fixed height + scaled
-        // buttons + overflow:hidden used to crop the transport icons.
-
-        // Keep the prev/next glyph buttons transparent, but NOT the play/pause
-        // button (it keeps its pink candy-box fill from HotKeys).
-        button:not(.play) {
-            background: transparent;
-        }
+        // No fixed height: the row sizes to the play button so its rounded
+        // edges are never clipped. A short fixed height + scaled buttons +
+        // overflow:hidden used to crop the transport icons.
     }
 
     .center {

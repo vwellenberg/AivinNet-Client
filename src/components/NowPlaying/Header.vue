@@ -171,23 +171,11 @@ function handleFav() {
         margin-top: 0.85rem;
         padding: 0 0.25rem;
 
+        // Same quiet role and same footprint as every other player control —
+        // this is a phone screen, so 2.25rem was well under the touch target.
         .speaker-icon {
-            flex-shrink: 0;
-            height: 2.25rem;
-            width: 2.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-
-            // Shared 24x24 icon set: size it directly instead of scaling off
-            // the viewBox, so it matches the other controls on this screen.
-            svg {
-                width: 1.45rem;
-                height: 1.45rem;
-            }
+            @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
+            color: $candy-text;
         }
 
         // Track pill, border and the white bordered thumb come from the global
@@ -199,6 +187,24 @@ function handleFav() {
             background-image: linear-gradient($mem-teal, $mem-teal);
             background-repeat: no-repeat;
             // background-size is set inline from the current volume (Volume.vue).
+        }
+    }
+
+    // Group playback, mobile-only. The button's LOOK is its own (green box
+    // when joined, owned by DevicesButton.vue); its footprint is the player's,
+    // so it reads the same tokens as the bar and the transport.
+    .np-devices button {
+        width: $bar-control;
+        height: $bar-control;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+        svg {
+            width: $bar-glyph;
+            height: $bar-glyph;
         }
     }
 

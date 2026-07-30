@@ -134,17 +134,12 @@ button {
 // play/pause, an active shuffle/repeat, the joined devices button — are
 // excluded, they keep their box AND their shadow.
 // ---------------------------------------------------------------------------
-// An auxiliary control is flat only while it is OFF — switched on it wears the
-// filled memphis box, so it keeps the shadow with it.
-.b-bar button:not(.play):not(.aux):not(.ds-joined),
-.b-bar .aux.aux-off,
-.hotkeys button:not(.play):not(.aux),
-.hotkeys .aux.aux-off,
-.right-group button:not(.aux):not(.ds-joined),
-.right-group .aux.aux-off,
+// The player bar used to own eleven of these entries — the transport, the aux
+// group, the volume speaker, the devices button. They are gone: those controls
+// now take the `quiet` role, which IS flat, so there is nothing left to
+// subtract. What remains below is the shrinking tail.
 .left-group .np-fav,
 .left-group .bar-devices:not(.ds-joined),
-.volume-control .speaker-icon,
 .np-devices button:not(.ds-joined),
 .pl-play-overlay,
 .sidebar-newfolder,

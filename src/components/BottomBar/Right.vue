@@ -75,64 +75,53 @@ defineEmits<{
         height: unset;
     }
 
-    button {
-        height: 3rem !important;
-        width: 3rem !important;
-        background-color: transparent;
-        border: none;
-
-        &:hover {
-            background-color: $candy-pink-soft;
-        }
-
-        &:active > svg {
-            transform: scale(0.85);
-        }
+    // Every control in this group (repeat, shuffle, lyrics, devices, volume
+    // speaker) shares the transport's footprint and glyph size — the same
+    // $bar-control / $bar-glyph the centre transport reads, so the two halves
+    // of the bar cannot drift apart again.
+    //
+    // Two exclusions, both because they bring their own complete anatomy:
+    // HeartSvg (its own geometry and its teal favourited state) and the joined
+    // devices button (white glyph on a green box, owned by DevicesButton.vue).
+    // Spelled out rather than left to specificity luck.
+    > button:not(.heart-button):not(.ds-joined) {
+        @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
+        // The control glyphs are currentColor (filled bodies, stroked details)
+        // — colour them through `color`, never `fill`, or the stroked ones
+        // (shuffle, repeat, lyrics) get flooded solid.
+        color: $candy-text;
     }
 
-    // Normalize every control icon (repeat, shuffle, lyrics, devices, volume
-    // speaker) to one size. They all come from the shared 24x24 icon set, so a
-    // plain width/height does it — the old `transform: scale(0.75)` sized each
-    // glyph off its own viewBox, which is why the lyrics bubble (filling its
-    // box edge to edge) towered over its neighbours. The favorite check is
-    // excluded: HeartSvg brings its own geometry.
-    > button:not(.heart-button) svg {
-        width: 1.35rem;
-        height: 1.35rem;
+    // The joined devices button is excluded above because its LOOK is its own
+    // (green box, white glyph). Its FOOTPRINT is not — it belongs to the bar,
+    // like every other control here. Without this the one button whose size
+    // nobody owns falls back to whatever the global default happens to be.
+    > button.ds-joined {
+        width: $bar-control;
+        height: $bar-control;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+        svg {
+            width: $bar-glyph;
+            height: $bar-glyph;
+        }
     }
 
     button.aux.aux-off svg {
         opacity: 0.45;
     }
 
-    // The control glyphs are currentColor (filled bodies, stroked details) —
-    // colour them through `color`, never `fill`, or the stroked ones (shuffle,
-    // repeat, lyrics) get flooded solid. Two exclusions: HeartSvg brings its
-    // own colours (currentColor circle + a white check mark), and the joined
-    // devices button keeps the white glyph on its green box (DevicesButton.vue)
-    // — spelled out here rather than left to specificity luck.
-    > button:not(.heart-button):not(.ds-joined) {
-        color: $candy-text;
-    }
-
-    // Active shuffle / repeat wear the play button's memphis box, mirroring the
-    // desktop transport (LeftSidebar/NP/HotKeys.vue) — the shared treatment from
-    // _candy.scss. The buttons are a fixed 3rem square here, so the box needs no
-    // extra footprint reservation.
+    // Active shuffle / repeat wear the yellow memphis box, mirroring the
+    // desktop transport (LeftSidebar/NP/HotKeys.vue). The footprint is already
+    // reserved by the quiet role above, so switching on changes colour only —
+    // it used to also resize the button from 3rem to 2.5rem, which shoved its
+    // neighbours on every toggle.
     button.aux:not(.aux-off) {
-        @include mem-transport-aux-on;
-        // A 3rem block of yellow around a 1.35rem glyph dwarfed its bare
-        // neighbours (and the 2.5rem play button) in the Now Playing header.
-        // The box matches the play button now, with a slightly bigger glyph so
-        // it does not look empty; the margins keep the hit areas apart.
-        width: 2.5rem !important;
-        height: 2.5rem !important;
-        margin: 0 0.25rem;
-
-        svg {
-            width: 1.5rem;
-            height: 1.5rem;
-        }
+        @include btn-toggle-on;
 
         &:hover {
             background-color: $mem-blush;
