@@ -14,13 +14,13 @@
             <NavTitles v-else-if="settings.is_default_layout && !isSmall" />
         </div>
         <div v-if="settings.is_alt_layout || !settings.use_sidebar || !xl" class="right">
-            <span v-if="isMobile && $route.name !== Routes.search" class="mobile-nav-title">
+            <span v-if="isMobile && !onSearchRoute" class="mobile-nav-title">
                 {{ mobileTitle }}
             </span>
             <RouterLink v-if="!isMobile" :to="{ name: Routes.Home }" class="nav-home" title="Home">
                 <HomeSvg />
             </RouterLink>
-            <SearchInput v-if="!isMobile || $route.name === Routes.search" :on_nav="true" />
+            <SearchInput v-if="!isMobile || onSearchRoute" :on_nav="true" />
             <button
                 v-if="isMobile && headerAction"
                 class="mobile-header-action"
@@ -61,6 +61,16 @@ const settings = useSettings()
 const modal = useModal()
 const isSmall = computed(() => content_width.value < 800)
 const route = useRoute()
+
+/**
+ * On phones the top bar shows the page title, and swaps it for the search
+ * field on the search page — that field is the ONLY way to type a query there.
+ * Matched on the path as well as the route name: opening /#/search/top as a
+ * deep link (or reloading on it) left the name unresolved at the moment this
+ * condition first ran, so the phone got a top bar with no search field at all
+ * and the page was unusable. The path is available immediately.
+ */
+const onSearchRoute = computed(() => route.name === Routes.search || route.path.startsWith('/search'))
 
 // Per-route action shown on the right of the mobile top bar, filling the empty
 // space next to the avatar. Playlists → New Playlist (replaces the old FAB).

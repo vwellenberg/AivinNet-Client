@@ -27,10 +27,16 @@ const title = computed(() => {
 <style lang="scss">
 .theme-toggle {
     flex-shrink: 0;
-    // Sized to the 36px avatar it sits next to so the two read as a pair,
-    // matching how .mobile-header-action pairs with it.
+    // Sized to the avatar it sits next to so the two read as a pair. On phones
+    // it grows to the 44px touch target — it is a top-bar control that gets
+    // tapped, not decoration.
     width: 2.25rem;
     height: 2.25rem;
+
+    @include allPhones {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
     @include candy-box($candy-pink, $candy-radius-sm);
     display: grid;
     place-items: center;
