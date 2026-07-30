@@ -730,7 +730,7 @@ onBeforeUnmount(teardown);
   }
 
   .sidebar-folder {
-    border-radius: $smaller;
+    border-radius: $sidebar-row-radius;
 
     &.drag-over {
       background-color: $candy-pink-soft;
@@ -748,9 +748,9 @@ onBeforeUnmount(teardown);
       min-height: 2.7rem;
       border: $candy-border-w solid transparent;
       padding: calc(0.35rem - #{$candy-border-w}) calc(#{$small} - #{$candy-border-w});
-      border-radius: $smaller;
+      border-radius: $sidebar-row-radius;
       cursor: pointer;
-      font-size: 0.875rem;
+      font-size: $sidebar-row-font;
       font-weight: 600;
       transition: background-color 0.15s;
 
@@ -824,16 +824,16 @@ onBeforeUnmount(teardown);
     // the frame without nudging the row's contents or changing its height.
     border: $candy-border-w solid transparent;
     padding: calc(0.35rem - #{$candy-border-w}) calc(#{$small} - #{$candy-border-w});
-    border-radius: $smaller;
+    border-radius: $sidebar-row-radius;
     transition: background-color 0.15s;
-    font-size: 0.875rem;
+    font-size: $sidebar-row-font;
     font-weight: 500;
 
     // Hover draws the ink frame too, not just a fill. The transparent border is
     // already reserved above (that is how `.active` gets its frame without
     // nudging the row), so hovering only had to colour it — it just never did,
     // leaving the sidebar the one hoverable list in the app without a frame.
-    &:hover { @include candy-row-hover($candy-pink-soft, $smaller); }
+    &:hover { @include candy-row-hover($candy-pink-soft, $sidebar-row-radius); }
     &.active {
       // Blush accent -> pin static ink for the row text. The selected item is
       // the one filled surface in the sidebar, so it carries the ink frame
