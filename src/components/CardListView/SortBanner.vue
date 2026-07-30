@@ -86,6 +86,12 @@ const artistitems = [
         border: solid 1px $gray5;
         padding: $small $medium;
         transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+
+        // Phones: these sort chips are tap targets, so give them the 44px
+        // height (they were 36).
+        @include allPhones {
+            min-height: 2.75rem;
+        }
     }
 
     .select.circular {
