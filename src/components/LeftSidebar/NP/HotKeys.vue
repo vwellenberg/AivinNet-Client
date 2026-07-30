@@ -118,6 +118,14 @@ const settings = useSettings()
         height: 2.5rem;
         flex-shrink: 0;
         color: $mem-ink;
+
+        // Phones: the 44px touch target. This rule out-specifies the bar's own
+        // phone sizing, so it has to opt in here too — otherwise the most
+        // tapped control in the app stays at 40px.
+        @include largePhones {
+            width: 2.75rem;
+            height: 2.75rem;
+        }
         @include candy-box($mem-teal, $candy-radius-sm);
         transition: transform 0.1s ease, background-color 0.2s ease-out;
         position: relative;

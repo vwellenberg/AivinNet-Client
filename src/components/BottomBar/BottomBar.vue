@@ -83,20 +83,23 @@ function handleFav() {
         // `touch-action: none` so a horizontal drag scrubs instead of being
         // swallowed as a page scroll/swipe.
         .center #progress {
-            --range-h: 1rem;
+            // A slider is the one control that stays thinner than 44px — the
+            // knob is what the finger goes for, so the track carries the bar
+            // and the knob is oversized against it.
+            --range-h: 1.25rem;
             touch-action: none;
 
             // Finger-sized knob (the desktop one is tuned for a mouse). Kept
             // slightly proud of the track so it stays visible while dragging.
             &::-webkit-slider-thumb {
-                height: 1.25rem;
-                width: 1.25rem;
-                margin-top: -2px;
+                height: 1.6rem;
+                width: 1.6rem;
+                margin-top: -3px;
             }
 
             &::-moz-range-thumb {
-                height: 1.25rem;
-                width: 1.25rem;
+                height: 1.6rem;
+                width: 1.6rem;
             }
         }
     }
