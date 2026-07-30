@@ -1,4 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia'
+import { nextTick } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // The store pulls in requests, the router, settings and the playlists page.
@@ -36,13 +37,19 @@ describe('search store: the query is always a string', () => {
     // the render — the page came up without its search field.
     it('survives an empty query and clears the results (idle state)', async () => {
         const search = useSearchStore()
+
+        // Search for something first — clearing has to be a real transition,
+        // and the store starts out empty.
+        search.query = 'genesis'
+        vi.advanceTimersByTime(600)
+        await nextTick()
+
         search.top_results.tracks = [{ title: 'stale' } as any]
         search.tracks = [{ title: 'stale' } as any]
 
         search.query = ''
-        // The watcher runs on the debounced value.
         vi.advanceTimersByTime(600)
-        await Promise.resolve()
+        await nextTick()
 
         expect(search.top_results.tracks).toEqual([])
         expect(search.tracks).toEqual([])
