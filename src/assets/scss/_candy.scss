@@ -99,10 +99,13 @@ $candy-radius: 14px; // cards, panels, modals
 $candy-radius-sm: 10px; // buttons, inputs, thumbnails
 $candy-radius-pill: 999px; // pills, sliders
 
-// Hard offset shadow — the only allowed "shadow" in this design. Use
-// sparingly: floating chrome only (modals, context menus, toasts).
+// Hard offset shadow — the only allowed "shadow" in this design: no blur, no
+// spread, always down-right, so every raised surface is lit from the same
+// corner. Carried by cards, buttons and floating chrome (modals, menus,
+// toasts). The colour is theme-aware (--mem-shadow, Global/index.scss): ink on
+// paper, a soft paper offset on the indigo dark ground where ink would vanish.
 @mixin candy-shadow($x: 4px, $y: 4px) {
-  box-shadow: $x $y 0 $candy-black;
+  box-shadow: $x $y 0 var(--mem-shadow);
 }
 
 // The standard bordered surface.
@@ -110,6 +113,34 @@ $candy-radius-pill: 999px; // pills, sliders
   background-color: $bg;
   border: $candy-border;
   border-radius: $radius;
+}
+
+// A raised, clickable surface: the offset shadow plus the press feedback that
+// belongs to it — hover deepens the offset, pressing pushes the element INTO
+// its own shadow (translate by the offset, shadow gone), which is what makes
+// the design feel physical rather than just decorated.
+//
+// Use on cards and on filled buttons. Never on a flattened/transparent control
+// (see the exception list in Global/basic.scss): an offset under nothing reads
+// as a smudge.
+//
+// `$press: false` keeps the shadow but drops the press: CSS `:active` also
+// matches ANCESTORS of the pressed element, so a card that presses would jump
+// whenever its own play button is clicked.
+@mixin candy-raised($x: 3px, $y: 3px, $press: true) {
+  @include candy-shadow($x, $y);
+  transition: box-shadow 0.12s ease-out, transform 0.12s ease-out;
+
+  &:hover {
+    @include candy-shadow($x + 1, $y + 1);
+  }
+
+  @if $press {
+    &:active {
+      transform: translate($x, $y);
+      box-shadow: none;
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------

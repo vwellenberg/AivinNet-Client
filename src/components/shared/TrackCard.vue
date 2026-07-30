@@ -49,6 +49,8 @@ defineEmits<{
   height: max-content;
   transition: background-color 0.2s ease-out;
   @include candy-box($mem-panel, $candy-radius);
+  // Hard offset shadow: the tile sits above the grid ground (memphis).
+  @include candy-raised(3px, 3px, $press: false);
 
   .image {
     position: relative;

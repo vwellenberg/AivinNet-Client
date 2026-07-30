@@ -105,8 +105,10 @@ const browselist: BrowseItem[] = [
     font-weight: 500;
     padding: 1.25rem 1rem;
     @include candy-box($mem-panel, $candy-radius-sm);
+    // Hard offset shadow: the tile sits above the grid ground (memphis).
+    @include candy-raised(3px, 3px, $press: false);
     color: $candy-text;
-    transition: background-color 0.2s ease-out;
+    transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
 
     display: grid;
     grid-template-columns: max-content 1fr;

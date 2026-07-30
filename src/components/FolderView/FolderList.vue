@@ -60,6 +60,8 @@ const settings = useSettingsStore();
     height: 3.25rem;
     background-color: transparent;
     padding-left: $small;
+    // Flat row inside the plate — no tile, so no offset shadow either.
+    box-shadow: none;
     // Reserved transparent border + the shared radius/transition, so the ink
     // frame below can appear without nudging the row's contents.
     @include candy-row-base;
