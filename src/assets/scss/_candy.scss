@@ -113,6 +113,49 @@ $candy-radius-pill: 999px; // pills, sliders
 }
 
 // ---------------------------------------------------------------------------
+// Transport auxiliary control (shuffle / repeat), "on" state — THE one
+// decision for both transports: the desktop one (LeftSidebar/NP/HotKeys.vue)
+// and the mobile one (BottomBar/Right.vue), which used to carry two copies of
+// this rule and drifted apart.
+//
+// It wears the play button's memphis box (ink border, rounded square, sprinkle
+// texture) one size down and in yellow, so play stays the primary teal action.
+//
+// Deliberately sets NO width/height: the caller reserves the footprint in BOTH
+// states, or switching shuffle on grows the button and shoves the whole
+// transport row sideways.
+// ---------------------------------------------------------------------------
+@mixin mem-transport-aux-on {
+  @include candy-box($mem-yellow, $candy-radius-sm);
+  position: relative;
+  overflow: hidden; // clip the sprinkle to the rounded corners
+
+  // Memphis sprinkle over the accent fill, exactly like the play CTA.
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    @include mem-sprinkle(22px);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  svg {
+    // Above the sprinkle overlay.
+    position: relative;
+    z-index: 1;
+    opacity: 1;
+  }
+
+  // The transport SVGs hardcode a light fill (#F2F2F2), and $candy-text turns
+  // them paper-light in dark mode — on the yellow fill the glyph must be
+  // static ink in BOTH themes.
+  svg path {
+    fill: $mem-ink;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Interactive row (list item) — THE app-wide hover treatment.
 //
 // Every row list in the app (song lists, folder lists, ...) marks hover the same

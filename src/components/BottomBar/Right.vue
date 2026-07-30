@@ -114,45 +114,14 @@ defineEmits<{
     }
 
     // Active shuffle / repeat wear the play button's memphis box, mirroring the
-    // desktop transport (LeftSidebar/NP/HotKeys.vue). The glyph keeps this bar's
-    // own 0.75 scale, so only the box, border, sprinkle and ink fill come from
-    // the shared treatment.
+    // desktop transport (LeftSidebar/NP/HotKeys.vue) — the shared treatment from
+    // _candy.scss. The glyph keeps this bar's own 0.75 scale; the buttons are a
+    // fixed 3rem square here, so the box needs no extra footprint reservation.
     button.aux:not(.aux-off) {
-        @include candy-box($mem-yellow, $candy-radius-sm);
-        position: relative;
-        overflow: hidden;
-
-        &::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            @include mem-sprinkle(22px);
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        svg {
-            position: relative;
-            z-index: 1;
-        }
-
-        // On the yellow accent fill the glyph must be static ink in BOTH themes —
-        // the adaptive $candy-text above would turn it paper-light in dark mode.
-        svg path {
-            fill: $mem-ink;
-        }
+        @include mem-transport-aux-on;
 
         &:hover {
             background-color: $mem-blush;
-        }
-    }
-
-    // Device sync: green fill marks an active group session.
-    button.devices-btn.ds-joined {
-        background-color: $brand-green;
-
-        svg path {
-            fill: white;
         }
     }
 }

@@ -52,49 +52,11 @@ const settings = useSettings()
 </script>
 
 <style lang="scss">
-// Shared by this desktop transport and BottomBar/Right.vue's mobile one: the
-// "on" state of an auxiliary control (shuffle / repeat) wears the same memphis
-// box as the play button — 2px ink border, rounded square, sprinkle texture —
-// only smaller and in yellow, so play stays the primary teal action. The "off"
-// state deliberately keeps no box at all, which keeps the bar calm and makes
-// "on" unmistakable.
-//
-// $size is the box; pass the glyph size separately because the shuffle glyph
-// fills ~59% of its viewBox and the repeat glyph ~78%, so equal CSS boxes look
-// unequal (that correction predates this mixin).
-@mixin transport-aux-active($size: 2rem) {
-    width: $size;
-    height: $size;
-    flex-shrink: 0;
-    @include candy-box($mem-yellow, $candy-radius-sm);
-    position: relative;
-    overflow: hidden; // clip the sprinkle to the rounded corners
-
-    // Memphis sprinkle over the accent fill, exactly like the play CTA.
-    &::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        @include mem-sprinkle(22px);
-        opacity: 0.4;
-        pointer-events: none;
-    }
-
-    svg {
-        // Above the sprinkle overlay.
-        position: relative;
-        z-index: 1;
-        opacity: 1;
-    }
-
-    // The transport SVGs hardcode a light fill (#F2F2F2), and $candy-text turns
-    // them paper-light in dark mode — on the yellow fill the glyph must be
-    // static ink in BOTH themes.
-    svg path {
-        fill: $mem-ink;
-    }
-}
-
+// The "on" state of shuffle / repeat is the shared `mem-transport-aux-on`
+// treatment from _candy.scss (this transport and the mobile one in
+// BottomBar/Right.vue use the same one). The glyph sizes stay local: the
+// shuffle glyph fills ~59% of its viewBox and the repeat glyph ~78%, so equal
+// CSS boxes look unequal without the per-glyph correction below.
 .hotkeys {
     display: flex;
     align-items: center;
@@ -202,12 +164,24 @@ const settings = useSettings()
         }
     }
 
-    // shuffle / repeat — auxiliary controls. Off = bare glyph; on = the memphis
-    // box below (see transport-aux-active).
+    // shuffle / repeat — auxiliary controls. Off = bare glyph on a transparent
+    // box; on = the memphis fill (see below).
+    //
+    // The 2rem box and its 2px border are reserved in BOTH states. Without that
+    // the off state was only as wide as its bare glyph (1.45rem) and grew to
+    // 2rem when switched on, which visibly shoved the whole transport row —
+    // prev/play/next included — sideways on every shuffle toggle.
+    //
     // Different glyph sizes on purpose: the shuffle glyph fills ~59% of its
     // viewBox, the repeat glyph ~78%, so equal CSS boxes look unequal. Bump
     // shuffle up and trim repeat down for optically matched icons.
     .aux {
+        width: 2rem;
+        height: 2rem;
+        flex-shrink: 0;
+        border: $candy-border-w solid transparent;
+        border-radius: $candy-radius-sm;
+
         svg {
             width: 1.45rem;
             height: 1.45rem;
@@ -237,7 +211,7 @@ const settings = useSettings()
     // yellow. Same hover/press feedback as .play so the three read as one family.
     .aux.shuffle:not(.aux-off),
     .aux.repeat:not(.aux-off) {
-        @include transport-aux-active(2rem);
+        @include mem-transport-aux-on;
         transition: transform 0.1s ease, background-color 0.2s ease-out;
 
         &:hover {
