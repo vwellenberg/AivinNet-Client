@@ -52,14 +52,17 @@ const settings = useSettings()
 </script>
 
 <style lang="scss">
-// The "on" state of shuffle / repeat is the shared `mem-transport-aux-on`
-// treatment from _candy.scss (this transport and the mobile one in
-// BottomBar/Right.vue use the same one).
+// TRANSPORT — five controls, ONE footprint.
 //
-// All five transport glyphs come from the shared 24x24 icon set, drawn to one
-// optical size, so they take ONE glyph size here — the per-glyph corrections
-// this file used to carry (shuffle up, repeat down) are gone with the icons
-// that needed them.
+// Every button here is $bar-control (44px) square with a $bar-glyph icon, from
+// Global/_buttons.scss. Before this the row held 32px aux buttons next to 36px
+// skips next to a 40px play, each with its own glyph size, because each control
+// sized itself. The sizes are read, not restated: "uniform" is only true if
+// there is one place to change.
+//
+// The roles carry the rest — shuffle/repeat and prev/next are `quiet` (bare
+// glyph, plate on hover), play/pause is `primary` (the teal box), and an
+// active shuffle/repeat is the yellow toggle box.
 .hotkeys {
     display: flex;
     align-items: center;
@@ -67,38 +70,18 @@ const settings = useSettings()
     gap: 1.25rem;
     height: 100%;
 
-    button {
-        padding: 0;
-        background: none;
-        border: none;
-        border-radius: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-
+    // prev / next / shuffle / repeat — bare glyphs on the bar.
+    .skip,
+    .aux {
+        @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
         // The transport glyphs are currentColor (filled play/pause/skip,
         // stroked shuffle/repeat) — drive them from `color` so they read on
         // the panel bar in BOTH themes (ink on light, paper on dark). Never
         // `fill` here: that would flood the stroked glyphs solid.
         color: $candy-text;
-    }
 
-    // prev / next — light-grey glyphs that brighten on hover (no box).
-    .skip {
         svg {
-            width: 1.55rem;
-            height: 1.55rem;
-            opacity: 0.7;
             transition: opacity 0.15s ease, transform 0.1s ease;
-        }
-
-        &:hover svg {
-            opacity: 1;
-        }
-
-        &:active svg {
-            transform: scale(0.85);
         }
     }
 
@@ -106,125 +89,48 @@ const settings = useSettings()
         transform: rotate(180deg);
     }
 
-    .skip-prev:active svg {
-        transform: rotate(180deg) scale(0.85);
-    }
-
-    // play / pause — teal memphis rounded-square with a 2px ink border and an
-    // ink glyph (primary action). The exception to the borderless transport
-    // icons; hover flips to $mem-yellow.
+    // play / pause — the primary role: teal memphis box, ink glyph, sprinkle.
+    // Hover deliberately does NOT flip to yellow any more: in this design
+    // system yellow means "active" (playing row, shuffle on, repeat on), and
+    // the play button borrowing it for hover was the one place that conflated
+    // the two signals.
     .play {
-        width: 2.5rem;
-        height: 2.5rem;
-        flex-shrink: 0;
-        color: $mem-ink;
+        @include btn-primary(
+            $w: $bar-control,
+            $h: $bar-control,
+            $pad: 0,
+            $glyph: $bar-glyph-play
+        );
 
-        // Phones: the 44px touch target. This rule out-specifies the bar's own
-        // phone sizing, so it has to opt in here too — otherwise the most
-        // tapped control in the app stays at 40px.
-        @include largePhones {
-            width: 2.75rem;
-            height: 2.75rem;
-        }
-        @include candy-box($mem-teal, $candy-radius-sm);
-        transition: transform 0.1s ease, background-color 0.2s ease-out;
-        position: relative;
-        overflow: hidden; // clip the sprinkle to the rounded corners
-
-        // Memphis sprinkle over the teal box (like the header Play CTA).
-        &::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            @include mem-sprinkle(22px);
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        svg,
         .spinner {
-            // Glyph above the sprinkle overlay.
+            // Above the sprinkle overlay, like the glyph.
             position: relative;
             z-index: 1;
-        }
-
-        svg {
-            // Larger glyph — the 1.35rem play/pause looked too small in the box.
-            width: 1.8rem;
-            height: 1.8rem;
         }
 
         // Optically centre the play triangle inside the box.
         .playsvg {
             transform: translateX(1px);
         }
-
-        &:hover {
-            background-color: $mem-yellow;
-            transform: scale(1.06);
-        }
-
-        &:active {
-            transform: scale(0.98);
-        }
     }
 
-    // shuffle / repeat — auxiliary controls. Off = bare glyph on a transparent
-    // box; on = the memphis fill (see below).
-    //
-    // The 2rem box and its 2px border are reserved in BOTH states. Without that
-    // the off state was only as wide as its bare glyph and grew to 2rem when
-    // switched on, which visibly shoved the whole transport row —
-    // prev/play/next included — sideways on every shuffle toggle.
-    //
-    // One glyph size for both: shuffle and repeat come from the shared icon
-    // set and are drawn to the same optical size.
-    .aux {
-        width: 2rem;
-        height: 2rem;
-        flex-shrink: 0;
-        border: $candy-border-w solid transparent;
-        border-radius: $candy-radius-sm;
-
-        svg {
-            width: 1.3rem;
-            height: 1.3rem;
-            opacity: 0.7;
-            transition: opacity 0.15s ease, transform 0.1s ease;
-        }
-
-        &:hover svg {
-            opacity: 1;
-        }
-
-        &:active svg {
-            transform: scale(0.85);
-        }
-    }
-
+    // Off is a STATE, so it stays dimmed — that is the only opacity left in
+    // the row. Idle prev/next used to be dimmed to 0.7 as decoration, which
+    // made "unavailable" and "just sitting there" look the same.
     .aux-off svg {
         opacity: 0.45;
     }
 
-    // Active shuffle / active repeat: the play button's box, one size down and in
-    // yellow. Same hover/press feedback as .play so the three read as one family.
+    // Active shuffle / repeat: the yellow memphis box (v1.4.0 decision, kept).
+    // The footprint is unchanged between off and on — reserved by the quiet
+    // role above — so toggling can never shove the row sideways.
     .aux.shuffle:not(.aux-off),
     .aux.repeat:not(.aux-off) {
-        @include mem-transport-aux-on;
-        transition: transform 0.1s ease, background-color 0.2s ease-out;
+        @include btn-toggle-on;
 
         &:hover {
             background-color: $mem-blush;
             transform: scale(1.06);
-        }
-
-        &:active {
-            transform: scale(0.98);
-
-            svg {
-                // The box already scales; don't shrink the glyph a second time.
-                transform: none;
-            }
         }
     }
 
@@ -233,6 +139,17 @@ const settings = useSettings()
 
         .skip-prev {
             margin-left: $small;
+        }
+    }
+
+    // The narrowest phones cannot fit five controls — prev/next give way so
+    // play/pause keeps its full touch target. Scoped to the transport: the
+    // blanket `.b-bar button:first-child` this replaces also matched the mute
+    // button (first child of .volume-control) and the mobile repeat button,
+    // hiding both by accident.
+    @include smallestPhones {
+        .skip {
+            display: none;
         }
     }
 }

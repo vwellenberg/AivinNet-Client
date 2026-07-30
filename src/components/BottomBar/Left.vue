@@ -82,16 +82,22 @@ defineEmits<{
     display: flex;
     gap: $medium;
 
-    // Devices button in the mobile bar: same footprint as a HotKeys glyph,
-    // pinned to the end so the track title keeps the flexible space.
+    // Devices button in the mobile bar: same footprint as a HotKeys control,
+    // pinned to the end so the track title keeps the flexible space. Reads the
+    // shared bar tokens rather than restating a size — that is the whole point
+    // of them.
     .bar-devices {
         flex-shrink: 0;
-        height: 3rem;
-        width: 3rem;
+        height: $bar-control;
+        width: $bar-control;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
 
         svg {
-            width: 1.35rem;
-            height: 1.35rem;
+            width: $bar-glyph;
+            height: $bar-glyph;
         }
 
         // Idle only: bare glyph on the bar. The joined state keeps the shared
