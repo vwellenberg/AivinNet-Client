@@ -65,8 +65,14 @@ import { menus } from "./navitems";
     // :not(.active): the soft hover fill is dark in dark mode and would
     // override the blush pill (same specificity, later rule) while the
     // pinned ink label stays — dark-on-dark. Active items keep their pill.
+    //
+    // Uses the shared row-hover mixin rather than setting the fill by hand.
+    // Hand-setting only `background-color` is exactly why these rows hovered
+    // without the ink frame while every other hoverable list in the app drew
+    // one — the transparent border is reserved above, hovering just never
+    // coloured it. Same bug, same fix as the playlist rows in index.vue.
     &:hover:not(.active) {
-      background-color: $candy-pink-soft;
+      @include candy-row-hover($candy-pink-soft, $candy-radius-pill);
     }
   }
 
