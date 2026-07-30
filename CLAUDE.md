@@ -159,6 +159,7 @@ gegen `http://localhost:1970/#/<route>` (Hash-Routing).
 - **⚠️ Scrubbing braucht einen eigenen Drag-State.** Der Range-Input ist an den Playhead gebunden, der mehrmals pro Sekunde tickt — ohne lokalen Drag-Zustand reißt jedes Re-Render den Knopf unter dem Finger zurück, und der gemalte Fill bleibt beim Playhead stehen. Muster in `Progress.vue`: `@input` setzt `scrub.active/value`, alle Anzeigen lesen `displayValue`, `change`/`click` beenden den Scrub und seeken.
 - **⚠️ Vitest + `setValue()` auf `input[type=range]`:** Der VTU-Helper feuert `input`, aber die Komponente sieht dabei den **alten** Wert — Tests schlagen dann aus Gründen fehl, die nichts mit dem Code zu tun haben. Stattdessen `element.value = x` setzen und `trigger('input')` (siehe `dragTo()` in `LeftSidebar/NP/__tests__/Progress.test.ts`).
 - **Hover-Behandlung für Listenzeilen ist zentralisiert:** `candy-row-base` + `candy-row-hover` in `_candy.scss`. Die Base-Hälfte ist Pflicht (reservierter transparenter 2px-Rand) — ohne sie springt der Inhalt beim Hover, und genau deshalb hatten die Folder-Zeilen (`border: none`) gar keinen Rahmen. Sidebar- und Queue-Zeilen bleiben bewusst flach (Panel-Fläche statt Page-Ground).
+- **⚠️ Die Queue im NowPlaying ist VIRTUALISIERT — Zeilen zählen misst den Scroller, nicht die Queue.** `DynamicScroller` rendert nur einen Ausschnitt (17 von 22 Zeilen) und lässt nach dem Leeren der Queue **tote Zeilen im DOM** stehen (unsichtbar, aber `querySelectorAll('.songlist-item').length` sagt 16 bei leerer Liste). Ebenso ist die **erste gerenderte Zeile nicht Queue-Index 0** — der Scroller fokussiert den laufenden Track. Für Headless-Checks daher den persistierten Store lesen (`JSON.parse(localStorage['tracklist']).tracklist.length`) statt DOM-Zeilen, und Positionen aus der Server-Wahrheit (`/devicesync/poll` als Beobachter-Gerät) statt aus der Renderreihenfolge ableiten.
 - **⚠️ Preview-Proxy-Ports kollidieren:** In `~/uitest` können alte `previewproxy.js`-Prozesse (z.B. auf 8099/8125) noch laufen und ein **veraltetes `dist`** ausliefern — der neue Proxy stirbt still mit `EADDRINUSE` und man diagnostiziert am falschen Build (real passiert: „Button fehlt" an master-CSS gemessen). Immer die Startzeile `preview proxy on <port> serving <dist>` aus dem Log prüfen, frischen Port nehmen und mit `kill $PROXY` (nicht `pkill -f previewproxy`) aufräumen.
 
 ## Nächste Schritte
@@ -171,7 +172,7 @@ Spotify-Connect + Multiroom: Geräte desselben Accounts können einer **Group Se
 
 **Client-Architektur:**
 - `src/stores/devicesync.ts` — Herzstück: Poll-Loop (1 s joined / 5 s solo), Cristian-Clock-Offset (`utils/deviceSync/clockSync.ts`, lowest-RTT gewinnt), geplante Command-Ausführung (Server-`execute_at_ms` − Offset → lokales setTimeout; Catch-up wenn verpasst; Dedupe per Command-Id), Drift-Steering 250 ms (`utils/deviceSync/driftSteer.ts`: Deadband 50 ms, playbackRate ±4 %, Hard-Seek > 1 s; im Pause-Zustand nur Hard-Seek-Recovery), Mirror unter `applying`-Guard.
-- **Seams**: `queue.ts` (play/playPause/seek/playNext/playPrev/shuffleQueue → `intercept()`, autoPlayNext no-op), `tracklist.ts::insertAt` (Play next / Add to queue → queue-set-Broadcast), `player.ts` (onAudioEnded → Leader plant `track_change`; Gapless/Crossfade im Group-Mode aus), `tracker.ts` (nur Scrobble-Leader submittet; Nicht-Leader verwerfen die Akkumulation), `settings` repeat geteilt.
+- **Seams**: `queue.ts` (play/playPause/seek/playNext/playPrev/shuffleQueue/**clearQueue** → `intercept()`, autoPlayNext no-op), `tracklist.ts::insertAt` **und `removeByIndex`** (Play next / Add to queue / Remove from queue → queue-set-Broadcast), `player.ts` (onAudioEnded → Leader plant `track_change`; Gapless/Crossfade im Group-Mode aus), `tracker.ts` (nur Scrobble-Leader submittet; Nicht-Leader verwerfen die Akkumulation), `settings` repeat geteilt.
 - UI: Cast-Button in `BottomBar/Right.vue` (grün = joined) → `modals/Devices.vue`; `DeviceSync/GestureOverlay.vue` (Autoplay-Block bei Remote-Invite); QR-Pairing = Deep-Link `/#/pair?code=…` → `views/PairView.vue` (Redeem via `/auth/pair?setcookie=true`).
 
 **⚠️ Gotchas:**
@@ -202,5 +203,26 @@ Vier Stellschrauben, die zusammen den hörbaren Versatz bestimmen — in dieser 
 **Gruppen-Bildung:** „Invite" joint das eigene Gerät implizit (seedet die Gruppe mit dem, was hier läuft) — niemand soll „sich selbst beitreten" müssen. „Join group" erscheint nur, wenn bereits eine Gruppe läuft.
 
 **⚠️ Autoplay-Prompt:** Der `GestureOverlay` IST die Meldung — kein zusätzlicher Error-Toast (Autoplay-Rejects feuern mehrfach → gestapelte rote Toasts über dem Dialog). Touch-Targets im Overlay per `min-height` erzwingen; ein globales Button-Height-Rule deckelt reines Padding auf 40 px.
+
+### Queue-Mutationen im Gruppen-Modus (v1.5.0, PR #231)
+
+**Jede** Queue-Mutation muss durch `intercept()` → `sendQueueSet` — die lokale Liste zu splicen ändert die
+Server-`queue_id` NICHT, also re-mirrort niemand und der gespiegelte `currentindex` zeigt danach auf den
+falschen Track (stille Desync). Abgedeckt: `insertTracks`, `removeTracks`, `clearQueue`, `shuffleQueue`.
+
+- **Der Index muss mitreisen.** Nur der Client weiß, ob die Entfernung *vor*, *auf* oder *nach* dem
+  laufenden Track lag: darunter ⇒ `currentindex - 1`; **auf** ihm ⇒ Index bleibt (der nächste rutscht nach)
+  und `position_ms: 0`; letzter Track ⇒ in die verkürzte Liste geklemmt. Der Server klemmt zwar auch
+  (`min(currentindex, len-1)`), aber er kann die Absicht nicht rekonstruieren.
+- **⚠️ „Queue ersetzen" ist nicht „Queue leeren".** `PlayBtn.vue`/`TopTracks.vue` riefen `clearQueue()` als
+  Vorspiel zu `setFromSearch(...)` + `play()`. Lokal ein No-op — mit dem Seam ein **queue-set einer LEEREN
+  Queue**, das gegen das echte rennt (beide `void`, Antwort-Reihenfolge nicht garantiert). Wer eine Queue
+  ersetzt, ruft NUR `setFromX` + `play()`.
+- **⚠️ Eine leere Gruppen-Queue muss überall stoppen.** `reconcileTransport` behandelte „kein aktueller
+  Track" als Resolve-Lücke und stieg früh aus → das alte Audio lief weiter, während der Anker auf 0 stand,
+  und der Steer-Loop riss es alle 250 ms auf 0 zurück. Leere Queue ⇒ `queue.playing = false`,
+  `pausePlayingSource()`, `resetRate`, `loadedTrackhash = ''`. Dazu Guard in `onTrackEnded`: ein
+  `track_change` in eine leere Session beantwortet der Server mit **400** (roter Toast beim Leader).
+- E2E: `~/uitest/queueseams.js`.
 
 **Auto-Rejoin (v1.4.1):** Ein Gerät, das UNFREIWILLIG aus der Gruppe fiel (Reap nach 30 s, Netz-Lücke, Server-Neustart), tritt einer **noch laufenden** Gruppe beim nächsten Poll selbst wieder bei. Marker `aivinnet.group_member` in localStorage (überlebt Reloads); gesetzt beim Join, gelöscht NUR bei bewusstem Ausstieg (Leave, „Not now", per `play_here` entfernt) — `toSolo()` lässt ihn absichtlich stehen, das ist der unfreiwillige Pfad. **Harte Regel: Auto-Rejoin darf NIE eine Gruppe ERZEUGEN** (`groupRunning`-Check auf ein anderes joined Gerät), sonst startet ein geöffnetes Handy ungefragt Gruppen-Wiedergabe. Backoff `AUTO_REJOIN_COOLDOWN_MS` 60 s gegen Flapping, wenn ein Rejoin nicht hält.
