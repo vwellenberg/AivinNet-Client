@@ -75,51 +75,27 @@ function handlePlay() {
 </script>
 
 <style lang="scss">
+// The round teal play disc on every cover card — the same PRIMARY role as the
+// header Play CTA and the transport's play button, just circular. This file
+// used to hand-build that anatomy (teal fill, ink border, sprinkle, 3px offset,
+// scale-on-hover) a fourth time; the role owns it now.
+//
+// Size is deliberately NOT passed: call sites drive it by WIDTH
+// (`.card-play-btn { width: 3.25rem }`) and the aspect ratio squares it. An
+// explicit height would win over `aspect-ratio` and render an oval on every
+// card — which is exactly what the global base's `height: 2.25rem` used to do.
 .play-btn {
+  @include btn-primary(
+    $w: auto,
+    $h: auto,
+    $radius: $candy-radius-pill,
+    $pad: 0,
+    $glyph: 1.75rem
+  );
   aspect-ratio: 1;
-  // The global button base pins `height: 2.25rem`, and an explicit height wins
-  // over aspect-ratio — so the button (sized by WIDTH from card-play-btn:
-  // 3.25rem) rendered as an oval on every cover card. Let the width drive the
-  // box. Call sites that set both dimensions (search top result) still win.
-  height: auto;
-  padding: 0;
-  background: $mem-teal;
-  border: $candy-border;
-  // Ink play glyph on the teal button; play.svg uses currentColor.
-  color: $mem-ink;
-  display: grid;
-  place-items: center;
-  @include candy-shadow(3px, 3px);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  position: relative;
-  overflow: hidden; // clip the sprinkle to the circle
-
-  // Memphis sprinkle over the teal fill (like the header Play CTA).
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    @include mem-sprinkle(24px);
-    opacity: 0.4;
-    pointer-events: none;
-  }
-
-  svg {
-    position: relative;
-    z-index: 1;
-  }
-
-  &:hover {
-    // Primary "play" CTA — keep the teal identity, just scale + deepen the
-    // hard shadow (no colour flip, matching the header Play button).
-    background-color: $mem-teal;
-    transform: scale(1.06);
-    @include candy-shadow(4px, 4px);
-  }
 
   svg {
     transition: transform 0.2s ease;
-    height: 1.75rem;
   }
 }
 </style>

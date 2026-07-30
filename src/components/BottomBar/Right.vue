@@ -103,6 +103,7 @@ defineEmits<{
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: $candy-radius-sm;
         cursor: pointer;
 
         svg {

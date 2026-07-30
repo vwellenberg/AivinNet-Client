@@ -1,7 +1,7 @@
 <template>
   <div v-if="isSmall" class="playlists-nav">
     <div class="buttons">
-      <button @click="showNewPlaylistModal()"><PlusSvg /> New Playlist</button>
+      <button class="btn-pill" @click="showNewPlaylistModal()"><PlusSvg /> New Playlist</button>
     </div>
   </div>
 </template>

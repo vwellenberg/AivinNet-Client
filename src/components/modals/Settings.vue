@@ -116,8 +116,8 @@ $modalheight: 38rem;
             }
 
             .back {
+                @include btn-quiet($size: 2.25rem);
                 margin-left: -1rem;
-                background-color: transparent;
             }
 
             .desc {

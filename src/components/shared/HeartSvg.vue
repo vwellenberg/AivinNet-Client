@@ -37,7 +37,21 @@ defineEmits<{
 <style lang="scss">
 .heart-button {
     line-height: normal;
+    // Stated here rather than inherited: the global button base used to hand
+    // every button its box model, so this component only wrote down the parts
+    // it wanted to CHANGE. With the base reduced to a reset, the parts it was
+    // silently relying on have to be its own.
+    //
+    // The height matters more than it looks: `aspect-ratio: 1.5` needs one
+    // dimension to resolve against. Without it the button shrank to its glyph
+    // (measured 54x36 -> 28x28 in the Now Playing panel). Call sites that
+    // size it themselves — the compact bar check, the header instances — are
+    // more specific and still win.
+    height: 2.25rem;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    cursor: pointer;
     gap: $smaller;
     border: none;
     // Unfavorited: theme-text outline glyph (the plus) on a transparent

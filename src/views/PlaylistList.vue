@@ -96,6 +96,8 @@ const playlists = computed(() => {
     overflow: auto;
 
     .playlist-button {
+        @include btn-pill;
+
         svg {
             height: 1.5rem;
         }

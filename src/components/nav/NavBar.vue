@@ -197,17 +197,15 @@ const mobileTitle = computed(() => {
 
         // Per-route contextual action in the mobile top bar (e.g. New Playlist).
         // Candy square sized to the 36px avatar so the two read as a pair.
+        // Context action in the mobile top bar (e.g. "New playlist"). Same
+        // action role, same blush fill and same 44px touch target as the theme
+        // toggle it sits beside — they are two controls in one row and used to
+        // be two different buttons.
         .mobile-header-action {
-            flex-shrink: 0;
+            @include btn-action($size: 2.75rem);
             margin-right: $smaller;
-            width: 2.25rem;
-            height: 2.25rem;
-            @include candy-box($candy-pink, $candy-radius-sm);
-            display: grid;
-            place-items: center;
+            background-color: $candy-pink;
             color: $candy-black;
-            cursor: pointer;
-            transition: background-color 0.15s ease, transform 0.15s ease;
 
             svg {
                 width: 1.35rem;
@@ -216,10 +214,6 @@ const mobileTitle = computed(() => {
 
             &:hover {
                 background-color: $candy-pink-deep;
-            }
-
-            &:active {
-                transform: scale(0.94);
             }
         }
 

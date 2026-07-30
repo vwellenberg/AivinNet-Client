@@ -3,16 +3,13 @@
   align-items: center;
   gap: $medium;
 
+  // Filter chips — the `pill` role at chip height. The soft fill is
+  // theme-aware (dark in the dark theme), so the label has to be too: the
+  // role's static ink is only legal on a static accent fill.
   .tab {
-    height: 2rem;
-    text-transform: capitalize;
-    @include candy-box($candy-pink-soft, $candy-radius-pill);
+    @include btn-pill($h: 2rem, $radius: $candy-radius-pill, $fill: $candy-pink-soft);
     color: $candy-text;
-
-    transition: background-color 0.3s ease, color 0.3s ease;
-    padding: 0 $medium;
-    line-height: 1.2;
-    font-weight: 700;
+    text-transform: capitalize;
   }
 
   .activetab {
