@@ -10,13 +10,14 @@
             id="progress"
             ref="input"
             type="range"
-            :value="time.current"
+            :value="displayValue"
             min="0"
             :max="time.full"
             step="0.1"
             :style="{
                 background: progressBg,
             }"
+            @input="onScrubInput"
             @change="seek"
             @click="seek"
         />
@@ -128,9 +129,27 @@ const onPointerLeave = () => {
     hover.active = false
 }
 
+// While a scrub is in progress the bar shows the DRAGGED position, not the
+// playhead. Two reasons, both of which made dragging on a touch screen feel
+// broken: the bound `value` is re-rendered from `time.current` a few times a
+// second, which yanks the knob back under the finger mid-drag; and the painted
+// fill (drawn from the same store value) stayed behind while the knob moved.
+const scrub = reactive({ active: false, value: 0 })
+
+const displayValue = computed(() => (scrub.active ? scrub.value : time.current))
+
+const onScrubInput = (e: Event) => {
+    scrub.active = true
+    scrub.value = Number((e.target as HTMLInputElement).value)
+}
+
 let prevHash = ''
 
 const seek = (e: Event) => {
+    // The scrub ends with this event (`change` fires on release, `click` on a
+    // plain tap) — hand the bar back to the playhead either way.
+    scrub.active = false
+
     if (prevHash && prevHash !== q.currenttrackhash) {
         prevHash = ''
         return
@@ -154,7 +173,10 @@ const seek = (e: Event) => {
     q.seek(value)
 }
 
-const currentPercent = computed(() => (time.current / (time.full || 1)) * 100)
+// Drives the painted fill AND the sprinkle overlay — from the scrub position
+// while dragging, so the fill travels with the knob instead of lagging at the
+// playhead.
+const currentPercent = computed(() => (displayValue.value / (time.full || 1)) * 100)
 
 // Seek bar background, layered so the played portion reads as a solid teal
 // fill (the memphis primary-action colour) over a soft-blush track:
@@ -195,7 +217,9 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
         left: 3px;
         top: 50%;
         transform: translateY(-50%);
-        height: calc(0.6rem - 6px);
+        // Derived from the track height (--range-h, ProgressBar.scss) so a
+        // taller touch-friendly bar keeps the texture centred inside it.
+        height: calc(var(--range-h, 0.6rem) - 6px);
         width: calc((100% - 8px) * var(--played-frac, 0));
         border-radius: $candy-radius-pill;
         @include mem-sprinkle(20px);
