@@ -28,6 +28,10 @@ defineProps<{
 button.playbtnrect {
     position: relative;
     width: 6rem;
+    // Phones: the 44px touch target, like the rest of the header row.
+    @include allPhones {
+        height: 2.75rem;
+    }
     display: flex;
     align-items: center;
     justify-content: center;

@@ -144,6 +144,46 @@ $candy-radius-pill: 999px; // pills, sliders
 }
 
 // ---------------------------------------------------------------------------
+// Header action button — the secondary actions in a page header (favourite,
+// pin, download, fetch cover, options, edit, delete). One anatomy for all of
+// them, because they sit in one row and used to be five different sizes.
+//
+//  - 2.75rem square = the 44px touch target; on a phone these were 16-40px and
+//    the widest one got squashed to a sliver when the row ran out of space.
+//  - `flex-shrink: 0` — a header row must drop to a second line, never crush
+//    its own buttons.
+//  - The glyph is theme-aware: these buttons are TRANSPARENT and sit on the
+//    page ground, so the static ink from the global button base made them
+//    invisible in the dark theme (the pin and download buttons literally
+//    disappeared on the playlist header).
+//
+// Every user of this mixin also belongs in the flat-controls list in
+// Global/basic.scss — no fill, no shadow.
+// ---------------------------------------------------------------------------
+@mixin mem-header-action($size: 2.75rem) {
+  width: $size;
+  height: $size;
+  flex-shrink: 0;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  border-radius: $candy-radius-sm;
+  color: $mem-content-text;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, opacity 0.15s ease-out;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  &:hover {
+    background-color: $mem-hover;
+    color: $mem-ink;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Transport auxiliary control (shuffle / repeat), "on" state — THE one
 // decision for both transports: the desktop one (LeftSidebar/NP/HotKeys.vue)
 // and the mobile one (BottomBar/Right.vue), which used to carry two copies of

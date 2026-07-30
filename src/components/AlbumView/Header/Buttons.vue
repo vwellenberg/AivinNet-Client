@@ -88,49 +88,41 @@ async function fetchCover() {
 <style lang="scss">
 .album-buttons {
   display: flex;
+  align-items: center;
   gap: $small;
+  // The row wraps instead of squeezing its buttons — on a 390px phone the
+  // five controls used to be compressed until the cover-fetch button was a
+  // 16px sliver.
+  flex-wrap: wrap;
 
   .options,
   .mb-cover {
-    background-color: transparent;
-    border: none;
+    @include mem-header-action;
+  }
 
-    svg {
-      // Sits on the page ground -> theme-aware (ink on paper, white on dark).
-      color: $mem-content-text;
-    }
+  // The favourite toggle brings its own colour logic (plus glyph vs. green
+  // check) — only its footprint is aligned with the row, not its palette.
+  .heart-button {
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
   }
 
   .options {
     &.context_menu_showing {
       background-color: $darkblue;
-
-      svg {
-        // Yellow accent fill while the menu is open -> pin static ink.
-        color: $mem-ink !important;
-      }
-    }
-
-    svg {
-      transform: scale(1.25);
+      // Yellow accent fill while the menu is open -> pin static ink.
+      color: $mem-ink;
     }
   }
 
   .mb-cover {
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-
-    &:hover { opacity: 0.7; }
     &:disabled { cursor: default; }
-    &.loading {
-      svg { animation: mb-cover-spin 1s linear infinite; }
-    }
-
-    svg { transform: scale(1.1); }
+    &.loading svg { animation: mb-cover-spin 1s linear infinite; }
   }
 }
 
 @keyframes mb-cover-spin {
-  to { transform: scale(1.1) rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 </style>

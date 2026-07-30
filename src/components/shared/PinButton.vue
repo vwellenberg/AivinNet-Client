@@ -26,38 +26,28 @@ defineEmits<{
 
 <style lang="scss">
 .pin-button {
+  // Shared header-action anatomy (44px square, theme-aware glyph, no squeeze).
+  // The glyph used to inherit the global button base's STATIC ink, which made
+  // the pin invisible on the dark page ground.
+  @include mem-header-action;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  border: none;
-  cursor: pointer;
   opacity: 0.7;
-  padding: 0.5rem;
-  // Square, like its neighbours in the header row: the global button base pins
-  // height 2.25rem while the padding made this wider, so the pill hover fill
-  // came out as an ellipse.
-  width: 2.5rem;
-  height: 2.5rem;
-  transition: opacity 0.15s, background 0.15s;
 
   &:hover {
     opacity: 1;
-    background: $candy-pink-soft;
   }
 
   svg {
-    width: 1.5rem;
-    height: 1.5rem;
     display: block;
   }
 
+  // Pinned reads as "on": full strength, and the accent fill behind it.
   &.pinned {
     opacity: 1;
-
-    svg {
-      color: $candy-black;
-    }
+    background-color: $mem-blush;
+    color: $mem-ink;
   }
 }
 </style>

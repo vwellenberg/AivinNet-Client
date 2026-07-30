@@ -153,7 +153,12 @@ button {
 // `.search-input button` — a class that does not exist, so the rule never
 // matched and the glyph carried a floating offset.)
 .gsearch-input button,
+// Header actions (mem-header-action): flat by definition — album/playlist
+// header rows, incl. the edit/delete pair.
 .download-btn,
+.album-buttons .options,
+.mb-cover,
+.pl-action,
 .f-item .options,
 .context-menu-button,
 .pin-button,

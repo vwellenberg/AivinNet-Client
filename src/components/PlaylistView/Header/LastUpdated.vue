@@ -1,10 +1,17 @@
 <template>
     <div class="last-updated">
         <span v-if="!isHeaderSmall" class="status">Last updated {{ playlist.info._last_updated }}</span>
-        <div v-if="Number.isInteger(playlist.info.id)" class="edit">
-            &#160;&#160;|&#160;&#160; <span @click="editPlaylist">Edit</span>&#160;&#160;
-            {{ Number.isInteger(playlist.info.id) ? ' | ' : '' }}
-            <DeleteSvg class="edit" @click="deletePlaylist" />
+        <!-- The separators used to be hardcoded around the actions, so on a
+             narrow header (where the status text is hidden) two stray pipes
+             were left floating. They belong to the text, and only render with
+             it. The actions themselves are real buttons with a touch target,
+             not clickable text. -->
+        <div v-if="Number.isInteger(playlist.info.id)" class="edit-actions">
+            <span v-if="!isHeaderSmall" class="sep">|</span>
+            <button class="pl-action" title="Edit playlist" @click="editPlaylist">Edit</button>
+            <button class="pl-action icon" title="Delete playlist" @click="deletePlaylist">
+                <DeleteSvg />
+            </button>
         </div>
     </div>
 </template>
@@ -45,22 +52,30 @@ function deletePlaylist() {
 
     display: flex;
     align-items: center;
+    gap: $smaller;
 
-    .edit {
+    .edit-actions {
         display: flex;
         align-items: center;
+        gap: $smaller;
     }
 
-    .edit > span {
-        cursor: pointer;
-        color: inherit;
+    .sep {
+        opacity: 0.5;
+        padding: 0 $smaller;
     }
 
-    svg {
-        transform: scale(0.75);
-        margin-bottom: -0.2rem;
-        color: $mem-content-text !important;
-        height: 1.5rem;
+    // Same anatomy as the other header actions; the text one keeps its label,
+    // so it sizes to the word and only takes the height.
+    .pl-action {
+        @include mem-header-action;
+        font-size: 0.9rem;
+        font-weight: 500;
+
+        &:not(.icon) {
+            width: auto;
+            padding: 0 $small;
+        }
     }
 }
 </style>
