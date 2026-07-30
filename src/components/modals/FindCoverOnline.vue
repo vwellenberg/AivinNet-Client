@@ -9,7 +9,7 @@
                 placeholder="Search for a cover"
                 spellcheck="false"
             />
-            <button type="submit" class="search-btn rounded-sm" :disabled="loading">Search</button>
+            <button type="submit" class="search-btn rounded-sm btn-pill" :disabled="loading">Search</button>
         </form>
 
         <div v-if="loading" class="state-box">
@@ -31,10 +31,10 @@
                 </div>
             </div>
             <div class="buttons">
-                <button type="button" class="shuffle-btn rounded-sm" :disabled="saving" @click="shuffle">
+                <button type="button" class="shuffle-btn rounded-sm btn-pill" :disabled="saving" @click="shuffle">
                     Shuffle
                 </button>
-                <button type="button" class="use-btn rounded-sm" :disabled="saving" @click="useImage">
+                <button type="button" class="use-btn rounded-sm btn-pill" :disabled="saving" @click="useImage">
                     {{ saving ? 'Saving…' : 'Use image' }}
                 </button>
             </div>

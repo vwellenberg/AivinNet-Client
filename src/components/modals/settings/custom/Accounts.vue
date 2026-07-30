@@ -13,7 +13,7 @@
         </div>
         <div class="ahead">
             <div class="h2">All users</div>
-            <button class="adduser" @click="showAddUser = true">
+            <button class="adduser btn-pill" @click="showAddUser = true">
                 <PlusSvg />
                 New user
             </button>
