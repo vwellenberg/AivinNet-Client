@@ -88,7 +88,13 @@ defineEmits<{
     // circle; the check itself is fixed white in the asset). Teal is the
     // theme-invariant "active" accent — readable on light and dark chrome
     // and on the yellow playing row.
-    &.is-fav {
+    // Favourited is the teal check-circle — the app's favourite iconography,
+    // never a heart. The `:hover` compound is not redundant: where this button
+    // takes the shared header-action anatomy, that mixin's own `:hover { color }`
+    // is more specific than a bare `.is-fav` and stripped the teal on hover,
+    // and un-hovered it came down to bundle order. State beats chrome here.
+    &.is-fav,
+    &.is-fav:hover {
         color: $mem-teal;
     }
 }
