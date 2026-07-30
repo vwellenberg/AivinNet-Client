@@ -91,7 +91,12 @@ const component = computed(() => {
 onMounted(() => {
   updatePageTitle("Search");
   search.switchTab(route.params.page as string);
-  search.query = route.query.q as string;
+  // `?q=` is optional — opening /search/top directly (deep link, reload, or a
+  // tap on Search in the nav) has no query at all. The old `as string` cast
+  // put `undefined` into the store, and the watcher there calls .trim() on it:
+  // the resulting TypeError aborted the render, which is why the top bar came
+  // up WITHOUT its search field and the page could not be used at all.
+  search.query = (route.query.q as string) ?? "";
 });
 </script>
 
