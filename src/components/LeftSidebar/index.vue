@@ -839,7 +839,11 @@ onBeforeUnmount(teardown);
     font-size: 0.875rem;
     font-weight: 500;
 
-    &:hover { background-color: $candy-pink-soft; }
+    // Hover draws the ink frame too, not just a fill. The transparent border is
+    // already reserved above (that is how `.active` gets its frame without
+    // nudging the row), so hovering only had to colour it — it just never did,
+    // leaving the sidebar the one hoverable list in the app without a frame.
+    &:hover { @include candy-row-hover($candy-pink-soft, $smaller); }
     &.active {
       // Blush accent -> pin static ink for the row text. The selected item is
       // the one filled surface in the sidebar, so it carries the ink frame

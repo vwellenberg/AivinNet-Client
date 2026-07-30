@@ -20,7 +20,23 @@
                     height: containerHeight,
                 }"
             >
-                <img id="artist-avatar" :src="paths.images.artist.large + artist.image" @load="store.setBgColor" />
+                <!-- Defensive only. The image endpoint answers 200 even for an
+                     artist with no photo: it falls back to the backend's own
+                     assets/artist.webp. So `@error` does NOT fire in the common
+                     no-photo case, and what you see there is that asset, not
+                     this tile (it is near-white on white — see the follow-up
+                     issue). This covers the two cases the backend can't: an
+                     empty `image` field, and a genuine network failure. -->
+                <div v-if="imageMissing" class="artist-img-placeholder" title="No artist image">
+                    <ArtistSvg />
+                </div>
+                <img
+                    v-else
+                    id="artist-avatar"
+                    :src="paths.images.artist.large + artist.image"
+                    @load="store.setBgColor"
+                    @error="imageFailed = true"
+                />
             </div>
             <!-- Small-phone only: the photo fills the header and the title sits on
                  it, so a plain dark bottom scrim keeps the text legible. Wide
@@ -41,10 +57,15 @@ import { paths } from '@/config'
 import updatePageTitle from '@/utils/updatePageTitle'
 
 import useArtistStore from '@/stores/pages/artist'
+import ArtistSvg from '@/assets/icons/artist.svg'
 import Info from './HeaderComponents/Info.vue'
 
 const store = useArtistStore()
 const settings = useSettingsStore()
+
+// `@error` only fires for an image that was actually requested, so an artist
+// with an empty `image` (nothing to request) has to be caught up front.
+const imageFailed = ref(false)
 
 const props = defineProps<{
     on_sidebar?: boolean
@@ -52,12 +73,19 @@ const props = defineProps<{
 
 const { info: artist } = storeToRefs(store)
 
+const imageMissing = computed(() => imageFailed.value || !artist.value.image)
+
 function updateTitle() {
     props.on_sidebar ? () => {} : updatePageTitle(artist.value.name)
 }
 
 onMounted(() => updateTitle())
-onBeforeRouteUpdate(() => updateTitle())
+onBeforeRouteUpdate(() => {
+    // Without this the placeholder sticks: the component is reused across
+    // artist routes, so a failure on one artist would hide the next one's photo.
+    imageFailed.value = false
+    updateTitle()
+})
 
 const artistheader: Ref<HTMLElement | null> = ref(null)
 const { width } = useElementSize(artistheader)
@@ -91,9 +119,29 @@ const containerHeight = computed(() => {
 
     // Candy banner: the artist photo is a bordered, rounded image (the circular
     // mode overrides the radius to 50% below but keeps the same 2px border).
-    .artist-img img {
+    // The no-photo placeholder is listed alongside the image in every geometry
+    // rule below, so it inherits the exact same frame, radius and crop box
+    // instead of drifting once someone tweaks one of them.
+    .artist-img img,
+    .artist-img .artist-img-placeholder {
         border: $candy-border;
         border-radius: $candy-radius;
+    }
+
+    // The placeholder itself: a memphis panel tile with the artist glyph.
+    .artist-img-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $mem-panel;
+        color: $mem-content-text;
+        box-sizing: border-box;
+
+        svg {
+            width: 35%;
+            height: 35%;
+            opacity: 0.45;
+        }
     }
 
     // Small-phone overlay: the photo fills the header and the title sits on it,
@@ -110,7 +158,8 @@ const containerHeight = computed(() => {
         align-items: flex-end;
         order: 1;
 
-        img {
+        img,
+        .artist-img-placeholder {
             height: 100%;
             width: 100%;
             aspect-ratio: 1;
@@ -127,7 +176,8 @@ const containerHeight = computed(() => {
             order: -1;
             z-index: 10;
 
-            img {
+            img,
+            .artist-img-placeholder {
                 border-radius: 50%;
                 height: calc(100% - 0rem);
                 width: unset;
@@ -157,7 +207,8 @@ const containerHeight = computed(() => {
             top: 0;
             height: 100% !important;
 
-            img {
+            img,
+            .artist-img-placeholder {
                 height: 100%;
                 width: 100%;
                 aspect-ratio: 1;

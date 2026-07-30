@@ -50,12 +50,34 @@ function showContext(e: MouseEvent) {
 <style lang="scss">
 .artist-buttons {
   display: flex;
+  align-items: center;
   gap: $small;
+  // Wrap rather than squeeze, like the album and playlist header rows.
+  flex-wrap: wrap;
+
+  // This row was the odd one out: it never adopted the shared header-action
+  // anatomy, so the overflow button kept the global button base (a box, but
+  // ~36px tall next to the 44px Play CTA) and the favourite was a bare glyph
+  // with no button surface at all. Both now match their album-header twins.
+  .options,
+  .heart-button {
+    @include mem-header-action;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // The favourite owns its colour — the mixin sets `color`, which outranks a
+  // bare `.is-fav` in HeartSvg, so a favourited artist turned ink. Re-assert
+  // with the compound that wins (same fix as AlbumView/Header/Buttons.vue).
+  .heart-button {
+    &.is-fav,
+    &.is-fav:hover {
+      color: $mem-teal;
+    }
+  }
 
   .options {
-    background-color: transparent;
-    border: none;
-
     &.context_menu_showing {
       background-color: $darkblue;
 
@@ -63,12 +85,6 @@ function showContext(e: MouseEvent) {
         // Yellow accent fill while the menu is open -> pin static ink.
         color: $mem-ink !important;
       }
-    }
-
-    svg {
-      transform: scale(1.25);
-      // Sits on the page ground -> theme-aware.
-      color: $mem-content-text;
     }
   }
 }
