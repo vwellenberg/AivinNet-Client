@@ -98,16 +98,20 @@ function pinPlaylist(pid: number) {
 
   // The meta line — "40 Tracks • 2 hrs, 24 minutes" — is the album header's
   // Stats row by another name, so it reads at the same size and weight.
+  // Same box as the album header's stats row (0.75rem of air above and below,
+  // no padding of its own), so the title and the type label above it land on
+  // the same baselines rather than 11px lower.
   .duration {
     font-size: $detail-meta-size;
     font-weight: $detail-meta-weight;
-    padding: $smaller 0;
+    padding: 0;
+    margin: 0.75rem 0;
     cursor: text;
     text-shadow: 0 0 8px var(--mem-ground);
   }
 
   .btns {
-    margin-top: $smaller;
+    margin-top: 0;
     display: flex;
     gap: $small;
     align-items: center;
