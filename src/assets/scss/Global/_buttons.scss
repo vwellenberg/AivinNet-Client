@@ -286,4 +286,10 @@ $bar-glyph-play: 1.75rem;
 // ---------------------------------------------------------------------------
 @mixin btn-toggle-on {
   @include mem-transport-aux-on;
+  // `mem-transport-aux-on` only PAINTS the box (fill, border, radius,
+  // sprinkle). The offset shadow that makes a filled control look raised used
+  // to arrive by accident, from the global button base — so switching the
+  // control to a role that is flat at rest silently flattened the on-state too.
+  // It is stated here, at the same 3px as the play button it sits next to.
+  @include candy-raised(3px, 3px, $press: false);
 }
