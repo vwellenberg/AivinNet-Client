@@ -28,10 +28,10 @@ defineProps<{
 button.playbtnrect {
     position: relative;
     width: 6rem;
-    // Phones: the 44px touch target, like the rest of the header row.
-    @include allPhones {
-        height: 2.75rem;
-    }
+    // The same 44px height as every other control in the header row. This used
+    // to be phone-only, so on desktop the primary CTA sat 36px tall next to
+    // 44px siblings and the row's baseline visibly stepped.
+    height: 2.75rem;
     display: flex;
     align-items: center;
     justify-content: center;

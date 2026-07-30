@@ -160,6 +160,16 @@ $candy-radius-pill: 999px; // pills, sliders
 // Every user of this mixin also belongs in the flat-controls list in
 // Global/basic.scss — no fill, no shadow.
 // ---------------------------------------------------------------------------
+// A secondary control in a detail-page header row (favourite, pin, download,
+// overflow). One anatomy for all of them: a 44px square touch target, no box
+// until hovered, a theme-aware glyph, and the SAME corner radius as its
+// siblings — a circular one among rounded squares is what made the row read as
+// four unrelated controls.
+//
+// The glyph box is 24px, so an icon only looks right here if its art fills a
+// comparable share of its own viewBox (~2/3). Icons drawn edge-to-edge in their
+// viewBox render visibly larger at the same CSS size; pad them in the viewBox
+// rather than special-casing the size here (see pin.svg).
 @mixin mem-header-action($size: 2.75rem) {
   width: $size;
   height: $size;
@@ -167,10 +177,15 @@ $candy-radius-pill: 999px; // pills, sliders
   padding: 0;
   background-color: transparent;
   border: none;
-  border-radius: $candy-radius-sm;
+  // `!important` beats the global `.circular` pill (border-radius: 10rem) that
+  // some of these controls also carry for their use outside a header row.
+  border-radius: $candy-radius-sm !important;
   color: $mem-content-text;
   cursor: pointer;
-  transition: background-color 0.15s ease-out, opacity 0.15s ease-out;
+  // The play CTA's quick scale is the app's standard button feedback — same
+  // curve and same numbers here, so every control in the row answers the
+  // pointer the same way.
+  transition: background-color 0.15s ease-out, opacity 0.15s ease-out, transform 0.1s ease;
 
   svg {
     width: 1.5rem;
@@ -180,6 +195,11 @@ $candy-radius-pill: 999px; // pills, sliders
   &:hover {
     background-color: $mem-hover;
     color: $mem-ink;
+    transform: scale(1.06);
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 
