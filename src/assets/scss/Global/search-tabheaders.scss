@@ -10,9 +10,17 @@
     @include btn-pill($h: 2rem, $radius: $candy-radius-pill, $fill: $candy-pink-soft);
     color: $candy-text;
     text-transform: capitalize;
+
+    // Blush on hover, not the role's default yellow. The selected tab IS
+    // yellow, so hovering any tab made it look selected — two signals, one
+    // colour, and no way to tell which tab you were actually on.
+    &:hover {
+      background-color: $mem-hover;
+    }
   }
 
-  .activetab {
+  .activetab,
+  .activetab:hover {
     background-color: $candy-pink-deep;
     // Yellow accent fill (light in both themes) → pin static ink.
     color: $mem-ink;
