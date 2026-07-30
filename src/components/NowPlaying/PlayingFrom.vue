@@ -11,7 +11,10 @@
                     :src="data.image"
                     :class="`${tracklist.from.type === FromOptions.artist ? 'circular' : 'rounded-sm'}`"
                 />
-                <div v-else class="from-icon border rounded-sm">
+                <!-- With an empty queue playingFrom() has no glyph to show
+                     (icon: ''), and this rendered as an empty blush box next to
+                     "No source". -->
+                <div v-else-if="data.icon" class="from-icon border rounded-sm">
                     <component :is="data.icon"></component>
                 </div>
                 <div class="pad-sm">

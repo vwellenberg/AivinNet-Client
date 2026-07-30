@@ -34,6 +34,11 @@ defineEmits<{
   cursor: pointer;
   opacity: 0.7;
   padding: 0.5rem;
+  // Square, like its neighbours in the header row: the global button base pins
+  // height 2.25rem while the padding made this wider, so the pill hover fill
+  // came out as an ellipse.
+  width: 2.5rem;
+  height: 2.5rem;
   transition: opacity 0.15s, background 0.15s;
 
   &:hover {

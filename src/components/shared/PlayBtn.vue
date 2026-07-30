@@ -75,6 +75,11 @@ function handlePlay() {
 <style lang="scss">
 .play-btn {
   aspect-ratio: 1;
+  // The global button base pins `height: 2.25rem`, and an explicit height wins
+  // over aspect-ratio — so the button (sized by WIDTH from card-play-btn:
+  // 3.25rem) rendered as an oval on every cover card. Let the width drive the
+  // box. Call sites that set both dimensions (search top result) still win.
+  height: auto;
   padding: 0;
   background: $mem-teal;
   border: $candy-border;

@@ -105,6 +105,11 @@ function pinPlaylist(pid: number) {
       cursor: pointer;
       opacity: 0.7;
       padding: 0.5rem;
+      // Square box, or the 50% radius draws an ellipse: the global button base
+      // pins height 2.25rem while the padding made this 2.5rem wide, and the
+      // resulting oval read as a clipped arc next to the Play button.
+      width: 2.5rem;
+      height: 2.5rem;
       border-radius: 50%;
       transition: opacity 0.15s;
 
