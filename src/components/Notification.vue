@@ -59,10 +59,19 @@ function getSvg(notif: NotifType) {
     align-items: center;
     flex-direction: column-reverse;
     gap: 1rem;
+    // This container spans the FULL viewport width while the toast inside it is
+    // only 18rem and centred. Without this it swallowed every click in its
+    // horizontal band — the whole row left and right of a visible toast was
+    // dead until the toast timed out. It is a layout box, never a click target.
+    pointer-events: none;
 }
 
 .new-notif {
     position: relative;
+    // Re-enable hit-testing on the toast itself — the container above opts the
+    // whole strip out. Without this the action button (`.notif-action`, e.g.
+    // an undo) would be unclickable, which is a worse bug than the one fixed.
+    pointer-events: auto;
     font-size: 0.85rem;
     font-weight: 600;
     color: $candy-text;
