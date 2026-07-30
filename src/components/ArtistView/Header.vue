@@ -20,10 +20,13 @@
                     height: containerHeight,
                 }"
             >
-                <!-- An artist with no photo 404s on this endpoint (the backend
-                     serves no default), which left a bordered but EMPTY frame —
-                     the page ground showing through what looked like a broken
-                     image. Fall back to a memphis placeholder tile instead. -->
+                <!-- Defensive only. The image endpoint answers 200 even for an
+                     artist with no photo: it falls back to the backend's own
+                     assets/artist.webp. So `@error` does NOT fire in the common
+                     no-photo case, and what you see there is that asset, not
+                     this tile (it is near-white on white — see the follow-up
+                     issue). This covers the two cases the backend can't: an
+                     empty `image` field, and a genuine network failure. -->
                 <div v-if="imageMissing" class="artist-img-placeholder" title="No artist image">
                     <ArtistSvg />
                 </div>
