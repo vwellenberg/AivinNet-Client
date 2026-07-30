@@ -89,21 +89,24 @@ function clearAll() {
     padding: 0 $small;
   }
 
+  // The pill role, so these chips carry the same frame and the same hard
+  // offset as the filter chips right above them. Hand-built, they had a 1px
+  // border (while the app is on $candy-border-w) and no shadow at all — the
+  // one row of chips on the page that sat flat.
   .recent-chip {
-    display: flex;
-    align-items: center;
+    @include btn-pill($h: 2.25rem, $radius: $candy-radius-pill, $fill: $candy-pink-soft);
+    // The soft fill is theme-aware (dark in the dark theme), so the label has
+    // to be too — the role's static ink is only legal on a static accent.
+    color: $candy-text;
+    // Asymmetric on purpose: the remove button needs less room on the right
+    // than the search glyph does on the left.
+    padding: 0 0.5rem 0 0.85rem;
     gap: $smaller;
     max-width: 16rem;
-    padding: 0.5rem 0.5rem 0.5rem 0.85rem;
-    border-radius: $candy-radius-pill;
-    background-color: $candy-pink-soft;
-    border: 1px solid $mem-line;
-    color: $candy-text;
-    font-size: 0.9rem;
     font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
 
+    // Blush, not the role's default yellow: yellow means "active" in this
+    // design and a recent search is not a state — it is a thing you can click.
     &:hover {
       background-color: $mem-hover;
     }
