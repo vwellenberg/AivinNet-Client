@@ -17,7 +17,7 @@
 
         <p class="et-warning">Saving writes these tags into the file on disk.</p>
 
-        <button type="submit" :disabled="saving">{{ saving ? 'Saving…' : 'Save' }}</button>
+        <button type="submit" class="btn-pill" :disabled="saving">{{ saving ? 'Saving…' : 'Save' }}</button>
     </form>
 </template>
 

@@ -2,8 +2,8 @@
     <div class="confirm-modal">
         <div class="t-center" style="padding: 0 4rem">{{ text }}</div>
         <div class="buttons">
-            <button class="cancel" @click="cancelAction">Cancel</button>
-            <button class="confirm" @click="confirmAction">Delete</button>
+            <button class="cancel btn-pill" @click="cancelAction">Cancel</button>
+            <button class="confirm btn-pill" @click="confirmAction">Delete</button>
         </div>
     </div>
 </template>
