@@ -121,6 +121,18 @@ defineEmits<{
     // extra footprint reservation.
     button.aux:not(.aux-off) {
         @include mem-transport-aux-on;
+        // A 3rem block of yellow around a 1.35rem glyph dwarfed its bare
+        // neighbours (and the 2.5rem play button) in the Now Playing header.
+        // The box matches the play button now, with a slightly bigger glyph so
+        // it does not look empty; the margins keep the hit areas apart.
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+        margin: 0 0.25rem;
+
+        svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
 
         &:hover {
             background-color: $mem-blush;
