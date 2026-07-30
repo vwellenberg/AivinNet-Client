@@ -100,13 +100,13 @@ const artistitems = [
     }
 
 
+    // The two non-interactive label chips ("Sort By", the chart glyph). They
+    // are not toggles, so they never take the ON state — but they DO sit in the
+    // same row, so they must share its height and border weight. They used to
+    // set `height: max-content` and a 1px border, which rendered them 18.8px
+    // tall with a thinner outline beside 44px/2px siblings.
     .tt {
-        background-color: $candy-white;
         color: $candy-text;
-        border: 1px solid $mem-line;
-        height: max-content;
-
-        display: flex;
         gap: $small;
 
         svg {
