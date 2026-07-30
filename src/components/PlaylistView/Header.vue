@@ -83,10 +83,16 @@ const useSqrImg = computed(() => !playlist.info.has_image || !bg.value.startsWit
   &.use-sqr_img {
     grid-template-columns: max-content 1fr;
     align-items: flex-end;
+    // The album header's grid gap. Its text column starts one gap after the
+    // cover; this one had no gap and made up the distance with 1.25rem of
+    // padding on the text block instead — which is why the two columns began
+    // 4px apart (measured 579 vs 583).
+    gap: 1rem;
 
-    .title {
-      font-size: 3.75rem !important;
-    }
+    // No title override here any more. This `3.75rem !important` was the third
+    // size the playlist title could take (after 4rem in Info.vue and 2rem on
+    // phones) and it is what the album header never had — the size belongs to
+    // the shared token now.
 
     @include largePhones {
       display: flex;
@@ -115,7 +121,7 @@ const useSqrImg = computed(() => !playlist.info.has_image || !bg.value.startsWit
       }
 
       .title {
-        font-size: 2rem !important;
+        font-size: $detail-title-size-phone !important;
       }
     }
   }

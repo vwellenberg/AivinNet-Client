@@ -118,7 +118,7 @@ useVisibility(albumheaderthing, handleVisibilityState)
         }
 
         .title {
-            font-size: 1.5rem !important;
+            font-size: $detail-title-size-phone !important;
             max-width: fit-content;
             margin: 0 auto;
             text-align: center;

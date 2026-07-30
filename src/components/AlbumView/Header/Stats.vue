@@ -41,10 +41,12 @@ const statsText = computed(() => {
 
 <style lang="scss">
 .album-stats {
-  font-weight: 700;
+  font-weight: $detail-meta-weight;
   margin-bottom: 0.75rem;
-  font-size: 14px;
-  padding-left: $smaller;
+  font-size: $detail-meta-size;
+  // No left inset: the playlist's meta line has none, and this 4px was one of
+  // the offsets that made the two headers sit differently.
+  padding-left: 0;
   // Full-strength adaptive text + soft ground halo: the copied reference art
   // puts saturated shapes behind the header, where muted grey failed.
   color: $mem-content-text;

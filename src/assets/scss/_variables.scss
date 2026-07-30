@@ -42,6 +42,25 @@ $larger: 2rem;
 $sidebar-row-radius: $candy-radius-sm;
 $sidebar-row-font: 0.9375rem; // 15px — a step up from the old 14px
 
+// ---------------------------------------------------------------------------
+// DETAIL-PAGE HEADER — one owner for the album and playlist headers.
+//
+// They are the same object (cover + type label + title + meta line + action
+// row) and had drifted into two: 44px/700 title next to 60px/1000, 14px/700
+// meta next to 12.8px/900, and a text column that started 4px further right on
+// one page than the other. Measured, not estimated.
+//
+// The album's scale wins. 1000 is a variable-font extreme used nowhere else in
+// the app, and a 60px title wraps to two lines on titles the 44px one still
+// fits — which is why the playlist header needed a `balanceText` hint in the
+// first place.
+// ---------------------------------------------------------------------------
+$detail-title-size: 2.75rem;
+$detail-title-size-phone: 1.5rem;
+$detail-title-weight: 700;
+$detail-meta-size: 14px;
+$detail-meta-weight: 700;
+
 $banner-height: 18rem;
 $song-item-height: 4.5rem;
 // Track-row grid with the "Date added" column (playlist page, wide layouts):
