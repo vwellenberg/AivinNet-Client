@@ -72,8 +72,8 @@ onBeforeRouteUpdate(() => {
     }
 
     .title {
-      font-size: 2.75rem;
-      font-weight: 700;
+      font-size: $detail-title-size;
+      font-weight: $detail-title-weight;
       width: fit-content;
       cursor: text;
       color: $mem-content-text;
