@@ -40,7 +40,12 @@ import { menus } from "./navitems";
     width: 100%;
     display: flex;
     align-items: center;
-    padding: $small 0;
+    // The frame is reserved as a transparent border on every row, so the
+    // padding subtracts it and the row height stops depending on how thick
+    // the ink frame is. Measured: without this the nav rows grew 44 -> 46px
+    // when $candy-border-w went to 3px, while the library rows right below —
+    // which already compensate — stayed exactly where they were.
+    padding: calc(0.625rem - #{$candy-border-w}) 0;
     font-size: $sidebar-row-font;
     font-weight: 500;
     // The pill came from the generic `.circular` utility in the markup, which
