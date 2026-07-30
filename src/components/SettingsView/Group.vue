@@ -177,10 +177,13 @@ defineProps<{
         // Control buttons (e.g. the cover-fetch button) sit in the max-content
         // column; let long labels wrap and cap the width so they don't overflow
         // and get clipped by the panel's overflow-x: hidden.
+        // A settings control button that may wrap: some labels are long
+        // ("All covers present"). The wrapping pill role owns the anatomy;
+        // only the width cap stays local, because it is about this column.
         > button {
+            @include btn-pill($h: auto);
+            min-height: 2.75rem;
             white-space: normal;
-            height: auto;
-            min-height: 2.25rem;
             max-width: 16rem;
             text-align: center;
             line-height: 1.3;

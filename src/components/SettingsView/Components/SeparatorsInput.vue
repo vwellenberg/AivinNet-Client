@@ -9,7 +9,7 @@
           </b></span
         >
       </div>
-      <button>Save</button>
+      <button class="btn-pill">Save</button>
     </form>
   </div>
 </template>

@@ -35,8 +35,11 @@ function submit(action: "plus" | "minus") {
     font-variant-numeric: tabular-nums;
   }
 
+  // The -/+ steppers are icon-sized controls, not labelled pills, so they take
+  // the action role. 2.25rem -> 2.75rem brings them to the same touch target as
+  // every other control.
   button {
-    width: 2.25rem;
+    @include btn-action;
   }
 }
 </style>
