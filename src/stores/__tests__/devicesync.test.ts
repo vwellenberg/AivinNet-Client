@@ -855,6 +855,59 @@ describe('devicesync store', () => {
         )
     })
 
+    it('mirroring an EMPTY group queue stops audio instead of letting the steerer hammer it to 0', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        // Playing along in a group...
+        requestsMock.resolveTracks.mockResolvedValueOnce([mkTrack('h1'), mkTrack('h2')])
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({ version: 1, joined: true, state: mkState({ playing: true }) })
+        )
+        await ds.poll()
+        useQueue().playing = true
+
+        // ...another device clears the queue: no track to reconcile onto, and
+        // the anchor sits at 0 while this element is 41 s into the old track.
+        requestsMock.resolveTracks.mockResolvedValueOnce([])
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({
+                version: 2,
+                joined: true,
+                state: mkState({ queue_id: 'q-empty', trackhashes: [], playing: false }),
+            })
+        )
+        playerMock.getCurrentTimeMs.mockReturnValue(41000)
+        audioSourceMock.pausePlayingSource.mockClear()
+
+        await ds.poll()
+
+        expect(useTracklist().tracklist).toEqual([])
+        // Stopped — which is also what defuses the steer loop: it may pull the
+        // element onto the zero anchor once, but a PAUSED element stays there
+        // instead of playing on and being yanked back every 250 ms.
+        expect(audioSourceMock.pausePlayingSource).toHaveBeenCalled()
+        expect(useQueue().playing).toBe(false)
+    })
+
+    it('the leader does not fire a track_change into an emptied queue (400 → error toast)', async () => {
+        const { useDeviceSync, useTracklist, useSettings } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+        ds.scrobbleLeader = 'devA'
+
+        useTracklist().tracklist = []
+        useSettings().repeat = 'all'
+
+        ds.onTrackEnded()
+
+        expect(requestsMock.sendCommand).not.toHaveBeenCalled()
+    })
+
     it('solo (not joined) keeps the local queue mutations local', async () => {
         const { useDeviceSync, useTracklist, useQueue } = await setup()
         localStorage.setItem('aivinnet.device_id', 'devA')

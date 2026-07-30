@@ -505,6 +505,17 @@ export default defineStore('devicesync', {
 
             const current = tracklist.tracklist[queue.currentindex]
             if (!current || !current.filepath) {
+                // An EMPTY group queue is not a resolve gap — it means the group
+                // has nothing to play (someone cleared it, or removed the last
+                // track), so stop. Without this the element keeps playing the
+                // now-orphaned track while the steerer hammers it back to the
+                // zero anchor every 250 ms.
+                if (tracklist.tracklist.length === 0) {
+                    queue.playing = false
+                    audioSource.pausePlayingSource()
+                    resetRate(player)
+                    loadedTrackhash = ''
+                }
                 // Missing-track gap: fewer tracks resolved than hashes and the
                 // current one is absent → stay paused-mirroring, do not crash.
                 return
@@ -1092,6 +1103,11 @@ export default defineStore('devicesync', {
             const settings = useSettings()
             const len = tracklist.tracklist.length
             const i = queue.currentindex
+
+            // Nothing left to advance to (the queue was cleared mid-track): a
+            // track_change into an empty session is refused with 400 and would
+            // surface as an error toast on the leader's device.
+            if (len === 0) return
 
             if (settings.repeat === 'one') {
                 void this.sendCmd('track_change', { index: i, position_ms: 0, playing: true })
