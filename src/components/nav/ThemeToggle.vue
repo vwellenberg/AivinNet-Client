@@ -30,19 +30,16 @@ const title = computed(() => {
     // Sized to the avatar it sits next to so the two read as a pair. On phones
     // it grows to the 44px touch target — it is a top-bar control that gets
     // tapped, not decoration.
-    width: 2.25rem;
-    height: 2.25rem;
+    // The action role owns fill, border, shadow and pointer feedback; the size
+    // stays here because this control is sized to the avatar beside it.
+    @include btn-action($size: 2.25rem);
+    background-color: $candy-pink;
+    color: $candy-black;
 
     @include allPhones {
         width: 2.75rem;
         height: 2.75rem;
     }
-    @include candy-box($candy-pink, $candy-radius-sm);
-    display: grid;
-    place-items: center;
-    color: $candy-black;
-    cursor: pointer;
-    transition: background-color 0.15s ease, transform 0.15s ease;
 
     svg {
         width: 1.3rem;
