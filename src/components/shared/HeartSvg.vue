@@ -17,7 +17,7 @@
                 },
             }"
         >
-            <CheckCircleSvg v-if="state" />
+            <CheckCircleSvg v-if="state" class="check-circle" />
             <PlusSvg v-else />
         </Motion>
     </button>
@@ -61,6 +61,22 @@ defineEmits<{
             width: 1.75rem;
             display: block;
         }
+
+        // The two states are drawn to very different scales: the plus fills
+        // ~52% of its viewBox, the check-circle fills 100% of its own (a solid
+        // r=14 circle in a 28 box). At one CSS size the glyph therefore JUMPED
+        // from ~13px to ~25px the moment a track was favourited, and the circle
+        // sat flush against the edges of its button with no breathing room.
+        //
+        // Scaled rather than resized: a percentage height against this
+        // `max-content` parent is indeterminate and silently resolves to auto,
+        // and a fixed rem would only be right in one of the several contexts
+        // this button appears in. A transform stays relative to whatever size
+        // the context set. A disc reads slightly larger than an outline glyph
+        // of equal height, so it keeps a little more than the plus.
+        .check-circle {
+            transform: scale(0.75);
+        }
     }
 
     &:hover {
@@ -72,6 +88,12 @@ defineEmits<{
     // circle; the check itself is fixed white in the asset). Teal is the
     // theme-invariant "active" accent — readable on light and dark chrome
     // and on the yellow playing row.
+    // Favourited is the teal check-circle — the app's favourite iconography,
+    // never a heart.
+    //
+    // NOTE for anyone putting this button inside a `mem-header-action` row:
+    // that mixin sets `color` on hover, which outranks this rule, so the call
+    // site has to re-assert the teal (see AlbumView/Header/Buttons.vue).
     &.is-fav {
         color: $mem-teal;
     }

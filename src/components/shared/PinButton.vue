@@ -29,6 +29,11 @@ defineEmits<{
   // Shared header-action anatomy (44px square, theme-aware glyph, no squeeze).
   // The glyph used to inherit the global button base's STATIC ink, which made
   // the pin invisible on the dark page ground.
+  //
+  // The pin art itself carries padding in its viewBox (see pin.svg): its glyph
+  // filled 95% of the old 28x29 box while every neighbouring glyph fills ~67% of
+  // its own, so at an identical CSS size the pin rendered 23px tall next to
+  // 14-16px siblings — visibly oversized, and its needle tip aliased badly.
   @include mem-header-action;
   display: flex;
   align-items: center;

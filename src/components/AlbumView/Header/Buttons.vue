@@ -101,11 +101,21 @@ async function fetchCover() {
   }
 
   // The favourite toggle brings its own colour logic (plus glyph vs. green
-  // check) — only its footprint is aligned with the row, not its palette.
+  // check) — the shared anatomy aligns its footprint and its corner radius with
+  // the row, not its palette. Without this it kept the global `.circular` pill
+  // and sat as the one round control among rounded squares.
   .heart-button {
-    width: 2.75rem;
-    height: 2.75rem;
-    flex-shrink: 0;
+    @include mem-header-action;
+
+    // ...but the favourite owns its colour. The mixin sets `color` on hover so
+    // its own glyphs stay readable on the light hover fill, and that rule is
+    // more specific than a bare `.is-fav` in HeartSvg — a favourited album
+    // turned ink the moment the pointer touched it. Re-assert here, where the
+    // collision is actually created, with the compound that outranks it.
+    &.is-fav,
+    &.is-fav:hover {
+      color: $mem-teal;
+    }
   }
 
   .options {
