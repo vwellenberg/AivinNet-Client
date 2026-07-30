@@ -44,6 +44,16 @@ const settings = useSettingsStore();
 .f-container.list-mode > #f-items {
   grid-template-columns: 1fr;
   gap: 0;
+  // Translucent plate under the folder rows — the same --mem-veil the track
+  // lists use. List-mode rows are transparent, so the folder names sat
+  // straight on the doodled grid ground and were the worst-reading text in
+  // the app; the plate lifts them while the pattern still shimmers through.
+  // Panel-level, not per row: the rows keep their own hover frame, and the
+  // small padding keeps that frame from doubling up with this one.
+  background-color: var(--mem-veil);
+  border: $candy-border;
+  border-radius: $candy-radius-sm;
+  padding: $smaller;
 
   .f-item {
     line-height: 1.2;
