@@ -153,15 +153,20 @@ button {
 // `.search-input button` — a class that does not exist, so the rule never
 // matched and the glyph carried a floating offset.)
 .gsearch-input button,
-// Header actions (mem-header-action): flat by definition — album/playlist
-// header rows, incl. the edit/delete pair.
-.download-btn,
-.album-buttons .options,
-.mb-cover,
-.pl-action,
+// Header actions used to be flat by definition, so every `mem-header-action`
+// user was listed here. That mixin now emits a real button surface — panel
+// fill, ink border, hard offset shadow (see _candy.scss) — so flattening them
+// here silently cancelled half of it: the download button rendered as a bare
+// glyph and the pin lost its shadow. Those five are therefore gone from this
+// list: .download-btn, .album-buttons .options, .mb-cover, .pl-action,
+// .pin-button.
+//
+// `.heart-button` stays. Flat is still correct for it in track rows and the
+// now-playing panel, and the header instances are scoped
+// (`.album-buttons .heart-button`, `.artist-buttons .heart-button`), so they
+// outrank this rule on specificity and keep their box without an exception.
 .f-item .options,
 .context-menu-button,
-.pin-button,
 .heart-button,
 .chip-x,
 .recent-clear,

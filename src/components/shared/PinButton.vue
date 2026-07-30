@@ -38,19 +38,17 @@ defineEmits<{
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.7;
-
-  &:hover {
-    opacity: 1;
-  }
 
   svg {
     display: block;
   }
 
-  // Pinned reads as "on": full strength, and the accent fill behind it.
+  // No button-level `opacity` here. It used to dim the unpinned state to 0.7,
+  // which was fine while the mixin drew nothing — but opacity fades the whole
+  // element, so once the mixin gained a border and an offset shadow it washed
+  // those out too and the button read as unfinished next to its siblings.
+  // "Off" is now carried by the fill alone: panel (from the mixin) vs. blush.
   &.pinned {
-    opacity: 1;
     background-color: $mem-blush;
     color: $mem-ink;
   }
