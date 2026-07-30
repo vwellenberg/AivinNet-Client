@@ -242,6 +242,15 @@ export default defineStore('Queue', {
             Toast.showNotification(`Added 1 track to queue`, NotifType.Success)
         },
         clearQueue() {
+            // Group mode: "Clear queue" empties the SHARED queue — broadcast it
+            // and let the mirror do the clearing here too, or this device would
+            // sit on an empty list while the group plays on.
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                ds.intercept('clearQueue')
+                return
+            }
+
             const store = useTracklist()
             store.clearList()
             this.currentindex = 0

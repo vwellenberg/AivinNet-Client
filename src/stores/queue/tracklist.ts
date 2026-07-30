@@ -192,6 +192,16 @@ export default defineStore('tracklist', {
             this.tracklist = shuffleArray(this.tracklist)
         },
         removeByIndex(index: number) {
+            // Group mode: same seam as insertAt. A local splice would leave the
+            // server queue untouched, so its queue_id never changes, nothing
+            // re-mirrors — and the mirrored currentindex then points at the
+            // wrong track on every device.
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                ds.intercept('removeTracks', index)
+                return
+            }
+
             const { currentindex, nextindex, playing, playNext, moveForward, setCurrentIndex } = useQueue()
             const player = usePlayer()
 

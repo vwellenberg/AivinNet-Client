@@ -762,4 +762,168 @@ describe('devicesync store', () => {
             expect.objectContaining({ trackhashes: ['h1', 'h9', 'h2'], currentindex: 0 })
         )
     })
+
+    it('intercept(removeTracks) broadcasts the would-be queue and shifts the index up', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('h1'), mkTrack('h2'), mkTrack('h3')]
+        useQueue().currentindex = 2
+        useQueue().playing = true
+        playerMock.getCurrentTimeMs.mockReturnValue(41000)
+
+        // "Remove from queue" funnels through tracklist.removeByIndex.
+        tl.removeByIndex(0)
+
+        // Local list untouched — the server's echo is what changes it.
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['h1', 'h2', 'h3'])
+        expect(useQueue().currentindex).toBe(2)
+        // Removed BELOW the current track → the current one is now index 1, and
+        // playback continues from where it is.
+        expect(requestsMock.setQueue).toHaveBeenCalledWith(
+            expect.objectContaining({
+                trackhashes: ['h2', 'h3'],
+                currentindex: 1,
+                playing: true,
+                position_ms: 41000,
+            })
+        )
+    })
+
+    it('removing the CURRENT track keeps the index (next slides in) and restarts at 0', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('h1'), mkTrack('h2'), mkTrack('h3')]
+        useQueue().currentindex = 1
+        playerMock.getCurrentTimeMs.mockReturnValue(41000)
+
+        tl.removeByIndex(1)
+
+        expect(requestsMock.setQueue).toHaveBeenCalledWith(
+            expect.objectContaining({ trackhashes: ['h1', 'h3'], currentindex: 1, position_ms: 0 })
+        )
+
+        // ...and removing the LAST track clamps into the shortened queue.
+        requestsMock.setQueue.mockClear()
+        useQueue().currentindex = 2
+        tl.removeByIndex(2)
+
+        expect(requestsMock.setQueue).toHaveBeenCalledWith(
+            expect.objectContaining({ trackhashes: ['h1', 'h2'], currentindex: 1, position_ms: 0 })
+        )
+    })
+
+    it('an out-of-range remove is ignored instead of broadcasting a bogus queue', async () => {
+        const { useDeviceSync, useTracklist } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        useTracklist().tracklist = [mkTrack('h1'), mkTrack('h2')]
+        ds.intercept('removeTracks', 7)
+
+        expect(requestsMock.setQueue).not.toHaveBeenCalled()
+    })
+
+    it('intercept(clearQueue) empties the GROUP queue instead of only the local list', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('h1'), mkTrack('h2')]
+        const queue = useQueue()
+        queue.currentindex = 1
+
+        queue.clearQueue()
+
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['h1', 'h2'])
+        expect(requestsMock.setQueue).toHaveBeenCalledWith(
+            expect.objectContaining({ trackhashes: [], currentindex: 0, playing: false, position_ms: 0 })
+        )
+    })
+
+    it('mirroring an EMPTY group queue stops audio instead of letting the steerer hammer it to 0', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        // Playing along in a group...
+        requestsMock.resolveTracks.mockResolvedValueOnce([mkTrack('h1'), mkTrack('h2')])
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({ version: 1, joined: true, state: mkState({ playing: true }) })
+        )
+        await ds.poll()
+        useQueue().playing = true
+
+        // ...another device clears the queue: no track to reconcile onto, and
+        // the anchor sits at 0 while this element is 41 s into the old track.
+        requestsMock.resolveTracks.mockResolvedValueOnce([])
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({
+                version: 2,
+                joined: true,
+                state: mkState({ queue_id: 'q-empty', trackhashes: [], playing: false }),
+            })
+        )
+        playerMock.getCurrentTimeMs.mockReturnValue(41000)
+        audioSourceMock.pausePlayingSource.mockClear()
+
+        await ds.poll()
+
+        expect(useTracklist().tracklist).toEqual([])
+        // Stopped — which is also what defuses the steer loop: it may pull the
+        // element onto the zero anchor once, but a PAUSED element stays there
+        // instead of playing on and being yanked back every 250 ms.
+        expect(audioSourceMock.pausePlayingSource).toHaveBeenCalled()
+        expect(useQueue().playing).toBe(false)
+    })
+
+    it('the leader does not fire a track_change into an emptied queue (400 → error toast)', async () => {
+        const { useDeviceSync, useTracklist, useSettings } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+        ds.scrobbleLeader = 'devA'
+
+        useTracklist().tracklist = []
+        useSettings().repeat = 'all'
+
+        ds.onTrackEnded()
+
+        expect(requestsMock.sendCommand).not.toHaveBeenCalled()
+    })
+
+    it('solo (not joined) keeps the local queue mutations local', async () => {
+        const { useDeviceSync, useTracklist, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = false
+
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('h1'), mkTrack('h2'), mkTrack('h3')]
+        useQueue().currentindex = 0
+
+        tl.removeByIndex(2)
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['h1', 'h2'])
+
+        useQueue().clearQueue()
+        expect(tl.tracklist).toEqual([])
+        expect(requestsMock.setQueue).not.toHaveBeenCalled()
+    })
 })

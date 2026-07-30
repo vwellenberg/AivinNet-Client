@@ -505,6 +505,17 @@ export default defineStore('devicesync', {
 
             const current = tracklist.tracklist[queue.currentindex]
             if (!current || !current.filepath) {
+                // An EMPTY group queue is not a resolve gap — it means the group
+                // has nothing to play (someone cleared it, or removed the last
+                // track), so stop. Without this the element keeps playing the
+                // now-orphaned track while the steerer hammers it back to the
+                // zero anchor every 250 ms.
+                if (tracklist.tracklist.length === 0) {
+                    queue.playing = false
+                    audioSource.pausePlayingSource()
+                    resetRate(player)
+                    loadedTrackhash = ''
+                }
                 // Missing-track gap: fewer tracks resolved than hashes and the
                 // current one is absent → stay paused-mirroring, do not crash.
                 return
@@ -1018,6 +1029,47 @@ export default defineStore('devicesync', {
                     })
                     break
                 }
+                case 'removeTracks': {
+                    // "Remove from queue" while joined: broadcast the would-be
+                    // list, same as insertTracks. The index has to travel with
+                    // it — the server clamps, but only WE know whether the
+                    // removal sits before, on, or after the current track.
+                    const at = args[0] as number
+                    const hashes = tracklist.tracklist.map(t => t.trackhash)
+                    if (!Number.isInteger(at) || at < 0 || at >= hashes.length) break
+                    hashes.splice(at, 1)
+
+                    // Below the current track → everything shifts up by one.
+                    // On it → keep the index: the next track slides into the
+                    // slot and starts from the top (clamped when the removed
+                    // track was the last one).
+                    const removedCurrent = at === queue.currentindex
+                    const shifted = at < queue.currentindex ? queue.currentindex - 1 : queue.currentindex
+                    const index = Math.max(0, Math.min(shifted, hashes.length - 1))
+
+                    void this.sendQueueSet({
+                        trackhashes: hashes,
+                        from: tracklist.from as SyncFrom,
+                        currentindex: index,
+                        playing: queue.playing,
+                        position_ms: removedCurrent ? 0 : usePlayer().getCurrentTimeMs(),
+                        repeat: settings.repeat,
+                    })
+                    break
+                }
+                case 'clearQueue': {
+                    // Empty queue = empty group queue. The server accepts it and
+                    // bounces it back, so every device clears together.
+                    void this.sendQueueSet({
+                        trackhashes: [],
+                        from: {} as SyncFrom,
+                        currentindex: 0,
+                        playing: false,
+                        position_ms: 0,
+                        repeat: settings.repeat,
+                    })
+                    break
+                }
                 case 'shuffleQueue': {
                     const hashes = tracklist.tracklist.map(t => t.trackhash)
                     const currentHash = hashes[queue.currentindex]
@@ -1051,6 +1103,11 @@ export default defineStore('devicesync', {
             const settings = useSettings()
             const len = tracklist.tracklist.length
             const i = queue.currentindex
+
+            // Nothing left to advance to (the queue was cleared mid-track): a
+            // track_change into an empty session is refused with 400 and would
+            // surface as an error toast on the leader's device.
+            if (len === 0) return
 
             if (settings.repeat === 'one') {
                 void this.sendCmd('track_change', { index: i, position_ms: 0, playing: true })

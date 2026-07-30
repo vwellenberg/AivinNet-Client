@@ -54,7 +54,9 @@ function handlePlay() {
       const search = useSearchStore();
       const tracklist = useTracklist();
 
-      queue.clearQueue();
+      // No clearQueue() first: setFromSearch replaces the list wholesale and
+      // play() sets the index, so the clear was a no-op locally — but in group
+      // mode it is a queue-set of an EMPTY queue racing the real one.
       tracklist.setFromSearch(search.query, [props.track]);
       queue.play();
       break;

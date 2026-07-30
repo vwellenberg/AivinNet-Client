@@ -71,6 +71,36 @@ describe('queue group-mode seams', () => {
         expect(q.playing).toBe(true)
     })
 
+    it('joined + not applying: queue removals and clears route to intercept', () => {
+        const q = useQueue()
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('a'), mkTrack('b'), mkTrack('c')]
+        dsMock.joined = true
+
+        tl.removeByIndex(1)
+        expect(dsMock.intercept).toHaveBeenCalledWith('removeTracks', 1)
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['a', 'b', 'c'])
+
+        q.clearQueue()
+        expect(dsMock.intercept).toHaveBeenCalledWith('clearQueue')
+        expect(tl.tracklist).toHaveLength(3)
+    })
+
+    it('applying=true: the mirror removes/clears locally without re-broadcasting', () => {
+        const q = useQueue()
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('a'), mkTrack('b')]
+        dsMock.joined = true
+        dsMock.applying = true
+
+        tl.removeByIndex(1)
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['a'])
+
+        q.clearQueue()
+        expect(tl.tracklist).toEqual([])
+        expect(dsMock.intercept).not.toHaveBeenCalled()
+    })
+
     it('autoPlayNext no-ops when joined', () => {
         const q = useQueue()
         useTracklist().tracklist = [mkTrack('a'), mkTrack('b')]
