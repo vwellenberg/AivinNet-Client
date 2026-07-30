@@ -13,6 +13,7 @@ import folderlistmode from './folderlistmode'
 import layout from './layout'
 import musicbrainz from './musicbrainz'
 import nowPlaying from './now-playing-group'
+import pageGradient from './page-gradient'
 import rootDirSettings from './root-dirs'
 import separators from './separators'
 import sidebarSettings from './sidebar'
@@ -37,6 +38,7 @@ export const general = {
             icon: AppearanceSvg,
             settings: [
                 ...theme,
+                ...pageGradient,
                 ...layout,
                 ...font,
                 ...extendWidth,
