@@ -3,7 +3,11 @@ input[type='range'] {
     appearance: none;
     margin-right: 15px;
     width: calc(100% - 2px);
-    height: 0.6rem;
+    // Track height is a variable so a host can make the bar easier to hit
+    // without every layer having to be re-measured (the seek bar's sprinkle
+    // overlay derives its height from the same value). Phones raise it — see
+    // BottomBar.vue.
+    height: var(--range-h, 0.6rem);
     border-radius: $candy-radius-pill;
     background: $candy-pink;
     border: $candy-border-w solid $mem-line;

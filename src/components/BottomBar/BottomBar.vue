@@ -75,26 +75,29 @@ function handleFav() {
         gap: $small;
         padding: $medium 1rem;
 
-        /* Hiding the dot/thumb/handle for readonly input */
-        /* Webkit browsers, Firefox, IE etc */
-        /* #progress now sits inside a .progress-wrap (#66 hover preview), so
-           these reach it as a descendant rather than a direct child. */
-        &:hover .center #progress::-webkit-slider-thumb {
-            display: none;
-            opacity: 0;
-            visibility: hidden;
-        }
+        // The seek bar used to be decoration on phones: a 1px line, the whole
+        // .center block set to `pointer-events: none`, and the thumb hidden on
+        // :hover — which on a touch screen sticks after the first tap, so the
+        // knob vanished as soon as you touched it and could never be dragged.
+        // It is a real control now: a touch-sized track, a visible knob, and
+        // `touch-action: none` so a horizontal drag scrubs instead of being
+        // swallowed as a page scroll/swipe.
+        .center #progress {
+            --range-h: 1rem;
+            touch-action: none;
 
-        &:hover .center #progress::-moz-range-thumb {
-            display: none;
-            opacity: 0;
-            visibility: hidden;
-        }
+            // Finger-sized knob (the desktop one is tuned for a mouse). Kept
+            // slightly proud of the track so it stays visible while dragging.
+            &::-webkit-slider-thumb {
+                height: 1.25rem;
+                width: 1.25rem;
+                margin-top: -2px;
+            }
 
-        &:hover .center #progress::-ms-thumb {
-            display: none;
-            opacity: 0;
-            visibility: hidden;
+            &::-moz-range-thumb {
+                height: 1.25rem;
+                width: 1.25rem;
+            }
         }
     }
 
@@ -193,15 +196,16 @@ function handleFav() {
 
         @include allPhones {
             width: 100% !important;
-            margin: 4px -16px;
+            // No negative side margins any more: the bar used to be pulled to
+            // the full viewport width (100vw), which cut the knob off at both
+            // ends — exactly where you grab it to seek to the start or end.
+            margin: 4px 0;
             user-select: none;
-            pointer-events: none;
 
             // #progress is wrapped in .progress-wrap (#66), so target it as a
             // descendant instead of a direct child.
             #progress {
-                height: 1px !important;
-                width: 100vw !important;
+                width: 100%;
                 margin: unset;
             }
         }
