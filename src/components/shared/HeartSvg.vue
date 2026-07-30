@@ -17,7 +17,7 @@
                 },
             }"
         >
-            <CheckCircleSvg v-if="state" />
+            <CheckCircleSvg v-if="state" class="check-circle" />
             <PlusSvg v-else />
         </Motion>
     </button>
@@ -60,6 +60,19 @@ defineEmits<{
             height: 1.75rem;
             width: 1.75rem;
             display: block;
+        }
+
+        // The two states are drawn to very different scales: the plus fills
+        // ~52% of its viewBox, the check-circle fills 100% of its own (a solid
+        // r=14 circle in a 28 box). At one CSS size the glyph therefore JUMPED
+        // from ~13px to ~24px the moment a track was favourited, and the circle
+        // sat flush against the edges of its button with no breathing room.
+        // Trim the circle to the same optical weight; a disc reads slightly
+        // larger than an outline glyph of equal height, so it keeps a little
+        // more than the plus.
+        .check-circle {
+            height: 78%;
+            width: 78%;
         }
     }
 
