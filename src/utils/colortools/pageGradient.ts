@@ -1,5 +1,6 @@
 import { parseColor } from '@/utils/colortools'
 import brandColors from '@/brand-colors.json'
+import useSettings from '@/stores/settings'
 
 // AivinNet brand colours — re-exported from the single source of truth
 // (src/brand-colors.json, which also feeds SCSS $brand-green / $brand-red via
@@ -18,9 +19,16 @@ export const MEMPHIS = brandColors.memphis
  * cover-tinted veil over it — a translucent fade from the extracted cover
  * colour (colors.bg) that lets the grid and doodles show through, echoing
  * the old Spotify-style header fade in a memphis-compatible way.
+ *
+ * The veil can be switched off in Settings -> Appearance ("Cover-tinted page
+ * gradient"), which leaves the bare grid-paper ground on those pages. The
+ * setting is read HERE rather than in each view, so the three detail views
+ * keep sharing exactly one decision (see CLAUDE.md: do not duplicate the
+ * gradient per view). Called during render, so the store read makes the views
+ * re-render when the setting flips.
  */
 export function pageGradient(bg?: string): string {
-    if (!bg) return 'transparent'
+    if (!bg || !useSettings().use_page_gradient) return 'transparent'
     const [r, g, b] = parseColor(bg)
     const stop = (a: number) => `rgba(${r}, ${g}, ${b}, ${a})`
     // Slightly stronger than the first memphis iteration (0.55/0.25): with the

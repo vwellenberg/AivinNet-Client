@@ -88,6 +88,12 @@ export default defineStore('settings', {
          * stays open (see App.vue). Toggling the theme by hand switches this off.
          */
         auto_theme: false,
+        /**
+         * Cover-tinted veil over the grid ground on the detail pages (album,
+         * artist, playlist). Off leaves the bare grid paper. Read centrally in
+         * utils/colortools/pageGradient.ts.
+         */
+        use_page_gradient: true,
         // INFO: Default to alternate layout from v2.0.0
         layout: 'alternate',
         use_np_img: false,
@@ -155,6 +161,9 @@ export default defineStore('settings', {
             if (!this.auto_theme) return
 
             this.theme = themeForNow()
+        },
+        togglePageGradient() {
+            this.use_page_gradient = !this.use_page_gradient
         },
         // now playing 👇
         toggleUseNPImg() {
