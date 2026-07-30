@@ -1,6 +1,6 @@
 <template>
   <div class="settingsnav">
-    <button @click="resetClient">
+    <button class="btn-pill" @click="resetClient">
       &nbsp;&nbsp; Reset client &nbsp;&nbsp;
     </button>
   </div>

@@ -1,0 +1,48 @@
+// ---------------------------------------------------------------------------
+// BUTTON ROLE CLASSES — the markup-side half of the role system.
+//
+// `Global/_buttons.scss` holds the mixins and is injected into every component
+// style block (vite.config.ts `additionalData`), so a component with its own
+// selector can `@include btn-action` and be done.
+//
+// This file is different: it emits ACTUAL CSS, so it is imported exactly ONCE,
+// from Global/index.scss. Putting these rules in the injected file instead
+// would stamp a copy into all ~167 component style blocks.
+//
+// Use a class when the button has no meaningful selector of its own — a bare
+// `<button>Save</button>` in a dialog. The class then states the button's role
+// in the template, which is the whole point of the system:
+//
+//   <button class="btn-pill">Save</button>
+//
+// Use the mixin when the component already has a selector worth keeping
+// (sizes, positioning, an on-state), and include the role into it.
+// ---------------------------------------------------------------------------
+
+.btn-primary {
+  @include btn-primary;
+}
+
+.btn-action {
+  @include btn-action;
+}
+
+.btn-quiet {
+  @include btn-quiet;
+}
+
+.btn-pill {
+  @include btn-pill;
+}
+
+// A pill that has to wrap: long labels in settings rows ("All covers present").
+// Height becomes a floor instead of a fixed value, so the label can take a
+// second line rather than overflowing its box.
+.btn-pill--wrap {
+  @include btn-pill($h: auto);
+  min-height: 2.75rem;
+  padding-top: $smaller;
+  padding-bottom: $smaller;
+  text-align: center;
+  line-height: 1.3;
+}

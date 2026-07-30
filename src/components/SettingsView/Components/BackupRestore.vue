@@ -1,6 +1,6 @@
 <template>
     <div class="backup-restore">
-        <button class="backupnow" @click="doBackup">Backup</button>
+        <button class="backupnow btn-pill" @click="doBackup">Backup</button>
         <div class="separator"></div>
         <h4>Restore backup</h4>
         <div class="helptext">
@@ -34,11 +34,11 @@
                 </div>
                 <div class="buttons">
                     <DeleteSvg @click="() => deleteBackup(backup.name)" />
-                    <button class="restore" @click="() => restore(backup.name)">Restore</button>
+                    <button class="restore btn-pill" @click="() => restore(backup.name)">Restore</button>
                 </div>
             </div>
         </div>
-        <button class="restore-all" @click="() => restore()">Restore All</button>
+        <button class="restore-all btn-pill" @click="() => restore()">Restore All</button>
     </div>
 </template>
 
