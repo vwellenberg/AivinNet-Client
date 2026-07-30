@@ -52,6 +52,36 @@ $bar-glyph: 1.5rem;
 $bar-glyph-play: 1.75rem;
 
 // ---------------------------------------------------------------------------
+// APPEARING — the shared "pop in" (#253).
+//
+// Replaces what the favourite button used to do on its own: a <Motion> fade
+// with `delay 0.25s + duration 0.5s`, so the glyph was only fully visible
+// 0.75s after mount — and it re-ran on every page change. In the new header
+// look (panel fill, frame, shadow) that read as an empty button filling in
+// late.
+//
+// A short scale impulse instead: no delay, 130ms, done. Defined ONCE here so
+// every button that appears does the same thing, rather than each component
+// carrying its own Motion config.
+//
+// No `animation-fill-mode`, deliberately: `both` would hold `scale(1)` as an
+// animation-origin value, which outranks every declared `transform` — the
+// hover and press feedback in the roles below would silently stop working.
+//
+// The `@keyframes btn-pop` this refers to lives in `_button-classes.scss`, NOT
+// here. This file is injected into every component style block, and a
+// `@keyframes` block emits real CSS — it would be stamped out ~167 times. Only
+// mixins may live in this file.
+// ---------------------------------------------------------------------------
+@mixin btn-pop {
+  animation: btn-pop 130ms cubic-bezier(0.34, 1.2, 0.64, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // primary — the page's main call to action. One per screen region.
 // Teal, because teal means "play/do the thing" everywhere in this app.
 //
@@ -59,6 +89,12 @@ $bar-glyph-play: 1.75rem;
 // glyph scale and pointer feedback only. A primary that hard-codes 44px and a
 // 10px radius would turn every card's round teal play disc into a rounded
 // square.
+//
+// NO `btn-pop` here, deliberately. The biggest population of primaries is the
+// round play disc on every cover card, and those live inside a recycling
+// scroller: they mount and unmount continuously while you scroll, so a
+// mount animation would make the whole grid twitch. Page-level primaries that
+// mount once (the header Play CTA) opt in at the call site.
 // ---------------------------------------------------------------------------
 @mixin btn-primary($w: auto, $h: 2.75rem, $radius: $candy-radius-sm, $pad: 0 1.25rem, $glyph: 1.75rem) {
   position: relative;
@@ -135,6 +171,7 @@ $bar-glyph-play: 1.75rem;
 //                    never shift the row by 2px.
 // ---------------------------------------------------------------------------
 @mixin btn-action($size: 2.75rem, $width: $size, $rest: surface, $radius: $candy-radius-sm) {
+  @include btn-pop;
   width: $width;
   height: $size;
   flex-shrink: 0;
@@ -235,6 +272,7 @@ $bar-glyph-play: 1.75rem;
 // the global base was actually trying to give everything.
 // ---------------------------------------------------------------------------
 @mixin btn-pill($h: 2.75rem, $radius: $candy-radius-sm, $fill: $candy-pink) {
+  @include btn-pop;
   height: $h;
   padding: 0 $medium;
   display: flex;

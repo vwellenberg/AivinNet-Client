@@ -19,6 +19,19 @@
 // (sizes, positioning, an on-state), and include the role into it.
 // ---------------------------------------------------------------------------
 
+// The "pop in" keyframes belong here rather than next to the `btn-pop` mixin
+// that uses them: `_buttons.scss` is injected into every component style
+// block, and a `@keyframes` block emits real CSS — it would be duplicated
+// ~167 times. Mixins are free there; anything that produces output is not.
+@keyframes btn-pop {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
 .btn-primary {
   @include btn-primary;
 }

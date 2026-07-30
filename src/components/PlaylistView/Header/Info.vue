@@ -69,10 +69,17 @@ function pinPlaylist(pid: number) {
   // to $candy-white in Header.vue (higher specificity), which is preserved.
   color: $mem-content-text;
 
+  // The same treatment the album header already arrived at
+  // (AlbumView/Header/Info.vue `.albumtype`): full-strength adaptive text plus
+  // a soft ground halo. `opacity: 0.85` made the label's contrast depend on
+  // whatever memphis shape happened to sit behind it — over a saturated doodle
+  // it was barely legible, and no opacity value fixes that, because the problem
+  // is the pattern, not the darkness.
   .type {
-    font-size: small;
+    font-size: 14px;
     font-weight: 700;
-    opacity: 0.85;
+    color: $mem-content-text;
+    text-shadow: 0 0 8px var(--mem-ground);
   }
 
   .title {
@@ -87,7 +94,7 @@ function pinPlaylist(pid: number) {
     padding-left: 0;
     font-weight: 900;
     cursor: text;
-    opacity: 0.85;
+    text-shadow: 0 0 8px var(--mem-ground);
   }
 
   .btns {

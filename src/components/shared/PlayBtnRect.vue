@@ -33,6 +33,11 @@ button.playbtnrect {
     // row. (That height used to be phone-only, so on desktop the primary CTA
     // sat 36px next to 44px siblings and the baseline visibly stepped.)
     @include btn-primary($w: 6rem, $h: 2.75rem);
+    // Opted in here rather than in the role: this primary mounts once per page
+    // and belongs to the header's action row, so it pops in with its
+    // neighbours. The role leaves it out because the card play discs are also
+    // primaries and they re-mount constantly inside the recycling scroller.
+    @include btn-pop;
     padding-right: 1rem;
 
     // The label needs the same stacking lift the role gives the glyph, so it
