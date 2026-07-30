@@ -13,7 +13,11 @@ vi.mock('@/requests/searchMusic', () => ({
 }))
 vi.mock('@/router', () => ({
     // A realistic search route: the store reads params.page when it pushes.
-    router: { currentRoute: { value: { name: 'SearchView', params: { page: 'top' }, query: {} } }, push: vi.fn() },
+    router: {
+        currentRoute: { value: { name: 'SearchView', params: { page: 'top' }, query: {} } },
+        push: vi.fn(),
+        replace: vi.fn(),
+    },
     Routes: { search: 'SearchView' },
 }))
 vi.mock('@/requests/plugins', () => ({ pluginSetActive: vi.fn(), updatePluginSettings: vi.fn() }))
