@@ -95,7 +95,12 @@ useVisibility(albumheaderthing, handleVisibilityState)
     @include largePhones {
         grid-template-columns: 1fr;
         padding: 2rem 1rem;
-        height: 25rem;
+        // Grows with its contents instead of clipping them. A fixed 25rem was
+        // enough only as long as the action row was one line of small buttons;
+        // at 44px targets (and wrapping on narrow phones) the row ran into the
+        // disc bar below it.
+        height: auto;
+        min-height: 25rem;
 
         .big-img {
             width: 14rem !important;

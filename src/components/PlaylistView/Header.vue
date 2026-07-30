@@ -5,7 +5,9 @@
       {
         background: bg,
         backgroundPosition: `center ${info.settings.banner_pos}%`,
-        height: `${isSmallPhone ? '24rem' : '18rem'}`,
+        // A floor, not a fixed height: the header has to be able to grow with
+        // its own action row (see the largePhones block below).
+        minHeight: `${isSmallPhone ? '24rem' : '18rem'}`,
       },
     ]"
     :class="{ 'use-sqr_img': useSqrImg }"
@@ -93,8 +95,11 @@ const useSqrImg = computed(() => !playlist.info.has_image || !bg.value.startsWit
       align-items: flex-start;
       gap: 1rem;
 
-      // take up the space left by the gradient element
-      height: 25rem !important;
+      // Take up the space left by the gradient element — as a FLOOR, not a
+      // cap: with 44px action buttons (which wrap on narrow phones) a fixed
+      // height pushes the row into the track list below.
+      height: auto !important;
+      min-height: 25rem;
 
 
       .playlist-info {
