@@ -25,8 +25,8 @@
         </div>
       </div>
       <div class="buttons">
-        <button class="btn-active select-here" @click="selectHere">Add this folder</button>
-        <button class="btn-active finish" @click="submitFolders">Add all checked ({{ getNewDirs().length }})</button>
+        <button class="btn-active select-here btn-pill" @click="selectHere">Add this folder</button>
+        <button class="btn-active finish btn-pill" @click="submitFolders">Add all checked ({{ getNewDirs().length }})</button>
       </div>
     </div>
   </div>

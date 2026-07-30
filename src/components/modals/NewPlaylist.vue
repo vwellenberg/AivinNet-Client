@@ -11,7 +11,7 @@
       spellcheck="false"
     />
     <br /><br />
-    <button type="submit">Create</button>
+    <button type="submit" class="btn-pill">Create</button>
   </form>
 </template>
 

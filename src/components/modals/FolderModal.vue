@@ -11,7 +11,7 @@
       spellcheck="false"
     />
     <br /><br />
-    <button type="submit">{{ folder ? "Rename" : "Create" }}</button>
+    <button type="submit" class="btn-pill">{{ folder ? "Rename" : "Create" }}</button>
   </form>
 </template>
 
