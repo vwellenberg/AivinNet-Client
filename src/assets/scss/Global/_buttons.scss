@@ -1,0 +1,269 @@
+// ---------------------------------------------------------------------------
+// BUTTON ROLES — the opt-in replacement for the opt-out button base.
+//
+// The problem this exists to kill: `Global/basic.scss` gives EVERY <button> a
+// complete look (2.25rem tall, blush fill, ink border, 2px offset shadow,
+// static ink glyph). Because that default is wrong for most buttons, it is
+// subtracted again in three separate places — a central flat-controls
+// blocklist in another file, ~28 components hand-writing
+// `background: transparent; border: none`, and ~116 `!important`. Nothing tells
+// you which applies; you find out by looking at the screen. That is how a
+// mixin's shadow got silently cancelled from a different file, how the same
+// row-hover ended up half-implemented in two places, and how one bar came to
+// hold four button heights.
+//
+// Here a button declares WHAT IT IS and gets the whole anatomy from one place.
+// Nothing is subtracted anywhere.
+//
+//   .my-button { @include btn-action; }
+//
+// ---------------------------------------------------------------------------
+// THEME TOKENS — read this before touching a colour.
+//
+//   $mem-panel         THEME-AWARE  (white on light, near-black on dark)
+//   $mem-line          THEME-AWARE  border colour (ink on light, paper on dark)
+//   $mem-content-text  THEME-AWARE  the correct glyph colour ON $mem-panel
+//   $mem-ink           STATIC dark
+//   $mem-blush         STATIC light pink
+//   $mem-teal          STATIC teal
+//   $mem-yellow        STATIC yellow
+//
+// $mem-ink is legal ONLY on top of a STATIC fill (blush, teal, yellow), where
+// the background is identical in both themes. On $mem-panel it is dark-on-dark
+// in the dark theme — that is the documented "the pin and download buttons
+// literally disappeared" bug. On a theme-aware fill, use $mem-content-text.
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// primary — the page's main call to action. One per screen region.
+// Teal, because teal means "play/do the thing" everywhere in this app.
+//
+// SIZE AND RADIUS STAY AT THE CALL SITE. The role owns fill, border, shadow,
+// glyph scale and pointer feedback only. A primary that hard-codes 44px and a
+// 10px radius would turn every card's round teal play disc into a rounded
+// square.
+// ---------------------------------------------------------------------------
+@mixin btn-primary($w: auto, $h: 2.75rem, $radius: $candy-radius-sm, $pad: 0 1.25rem, $glyph: 1.75rem) {
+  position: relative;
+  overflow: hidden; // clip the sprinkle to the rounded corners
+  width: $w;
+  height: $h;
+  padding: $pad;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background-color: $mem-teal;
+  border: $candy-border;
+  border-radius: $radius;
+  // Static ink is correct here: the teal underneath is identical in both themes.
+  color: $mem-ink;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  // `$press: false` — this role keeps the scale feedback below instead of the
+  // press-into-shadow, so the two never fight over `transform`.
+  @include candy-raised(3px, 3px, $press: false);
+  transition: background-color 0.15s ease-out, box-shadow 0.12s ease-out, transform 0.1s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    @include mem-sprinkle(28px);
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  svg,
+  .text {
+    position: relative;
+    z-index: 1;
+  }
+
+  svg {
+    width: $glyph;
+    height: $glyph;
+  }
+
+  // No colour flip on hover: that keeps the primary distinct from the yellow
+  // "playing/active" states, which is a deliberate call from the v1.4.0 round.
+  &:hover {
+    background-color: $mem-teal;
+    transform: scale(1.06);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// action — a secondary control that must READ as a button: favourite, pin,
+// download, overflow, theme toggle, the bar controls.
+//
+// The Play CTA's anatomy one step down: panel instead of teal, so primary
+// stays primary. This is `mem-header-action` generalised beyond page headers.
+//
+// $rest: surface  -> a plate at rest (default; page headers, bars)
+// $rest: bare     -> transparent at rest, the plate appears on hover. The
+//                    transparent border is still RESERVED so hovering can
+//                    never shift the row by 2px.
+// ---------------------------------------------------------------------------
+@mixin btn-action($size: 2.75rem, $width: $size, $rest: surface, $radius: $candy-radius-sm) {
+  width: $width;
+  height: $size;
+  flex-shrink: 0;
+  padding: if($width == $size, 0, 0 $medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: $radius;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  background-color: if($rest == surface, $mem-panel, transparent);
+  border: $candy-border-w solid if($rest == surface, $mem-line, transparent);
+  // Theme-aware, because the fill under it is. See the token note at the top.
+  color: $mem-content-text;
+  box-shadow: if($rest == surface, 3px 3px 0 var(--mem-shadow), none);
+  transition: background-color 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out,
+    box-shadow 0.12s ease-out, transform 0.1s ease;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  // An open context menu is a HELD hover, not a separate state — same picture.
+  &:hover,
+  &.context_menu_showing {
+    background-color: $mem-blush;
+    border-color: $mem-line;
+    // Static ink is legal here ONLY because the blush fill above is static.
+    color: $mem-ink;
+    box-shadow: if($rest == surface, 4px 4px, 3px 3px) 0 var(--mem-shadow);
+    transform: scale(1.06);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// quiet — deliberately a bare glyph: overlays on artwork, close buttons,
+// in-row affordances. No plate, ever; hover tints the glyph's ground only.
+//
+// A hard offset shadow needs a surface to sit on — under a transparent button
+// it is just a smudge floating next to the icon. That is the whole reason the
+// flat-controls blocklist was invented; this role replaces it.
+// ---------------------------------------------------------------------------
+@mixin btn-quiet($size: 2.75rem, $radius: $candy-radius-sm, $glyph: 1.5rem) {
+  width: $size;
+  height: $size;
+  flex-shrink: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  // Reserved, not absent: hovering must not shift anything by 2px.
+  border: $candy-border-w solid transparent;
+  border-radius: $radius;
+  color: $mem-content-text;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out, transform 0.1s ease;
+
+  svg {
+    width: $glyph;
+    height: $glyph;
+  }
+
+  &:hover {
+    background-color: $mem-hover;
+    transform: scale(1.06);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// pill — a labelled text button: modals, settings, dialogs. This is the look
+// the global base was actually trying to give everything.
+// ---------------------------------------------------------------------------
+@mixin btn-pill($h: 2.75rem, $radius: $candy-radius-sm, $fill: $candy-pink) {
+  height: $h;
+  padding: 0 $medium;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background-color: $fill;
+  border: $candy-border;
+  border-radius: $radius;
+  // The pill fills are static accents, so static ink is correct.
+  color: $mem-ink;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  @include candy-raised(2px, 2px, $press: false);
+  transition: background-color 0.15s ease-out, box-shadow 0.12s ease-out, transform 0.1s ease;
+
+  &:hover {
+    background-color: $candy-pink-deep;
+    transform: scale(1.04);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// toggle ON — for controls with a persistent on/off state.
+//
+// DESIGN DECISION (confirmed with the product owner, and it overrides the
+// audit's blanket "an accent glyph, never a fill" rule): shuffle and repeat
+// KEEP the yellow memphis box from the v1.4.0 round. It is a deliberate,
+// shipped signal, not an accident.
+//
+// What DOES change is size — the yellow box was 32px next to a 40px play
+// button and 36px skips. The caller reserves the footprint in BOTH states via
+// its role, so switching on must never resize the control and shove the row.
+//
+// The fill is the state here, which is exactly why hover must not also be a
+// fill on these controls: see the pin, where "on" and "hovered" were the same
+// picture until they were split apart.
+// ---------------------------------------------------------------------------
+@mixin btn-toggle-on {
+  @include mem-transport-aux-on;
+}
