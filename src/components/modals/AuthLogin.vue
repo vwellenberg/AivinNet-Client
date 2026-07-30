@@ -44,7 +44,7 @@
                     @input="(input: string) => password = input"
                 />
                 <!-- v-if="username.length && password.length" -->
-                <button class="submit" :class="{ long: selected.username !== '' }">Login</button>
+                <button class="submit btn-pill" :class="{ long: selected.username !== '' }">Login</button>
             </form>
         </div>
         <div v-if="guestAllowed" class="guestlink" @click="() => guestLogin()">

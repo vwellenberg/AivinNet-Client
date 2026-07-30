@@ -48,7 +48,7 @@
                 </div>
             </div>
         </div>
-        <button type="button" class="find-cover-online rounded-sm" @click="openFindCoverOnline">
+        <button type="button" class="find-cover-online rounded-sm btn-pill" @click="openFindCoverOnline">
             <SearchIcon />
             Find cover online
         </button>
@@ -70,7 +70,7 @@
             </div>
         </div>
 
-        <button type="submit">
+        <button type="submit" class="btn-pill">
             {{ clicked ? 'Saving' : 'Update' }}
         </button>
     </form>
@@ -319,13 +319,13 @@ function update_playlist(e: Event) {
             display: grid;
             gap: $small;
 
+            // Banner-position steppers: icon controls, so the action role —
+            // but they sit inside the cover preview and must stay small, so
+            // the size stays at the call site (the role owns fill, border,
+            // shadow and feedback, never the footprint).
             button {
-                aspect-ratio: 1;
-                height: 2rem;
-                width: 2rem;
-                border: $candy-border;
+                @include btn-action($size: 2rem);
                 background-color: $candy-pink;
-                padding: 0;
 
                 &:first-child {
                     transform: rotate(-90deg);

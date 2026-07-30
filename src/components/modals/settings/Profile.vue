@@ -40,7 +40,7 @@
                 <Input type="password" placeholder="⏺⏺⏺⏺⏺⏺⏺⏺" @input="input => (confirmPassword = input)" />
                 <label class="error" v-if="errorText">{{ errorText }}</label>
             </div>
-            <button v-if="showSubmit">
+            <button v-if="showSubmit" class="btn-pill">
                 {{ adding_user ? 'Add user' : 'Update' }}
             </button>
         </form>
