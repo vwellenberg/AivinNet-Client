@@ -79,19 +79,15 @@ const artistitems = [
     text-transform: capitalize;
     user-select: none;
 
+    // A sort chip is a toggle, so it takes the action role: panel plate, ink
+    // border, hard offset. It used to carry `border: solid 1px $gray5` and NO
+    // background at all — a leftover from before the memphis redesign — so the
+    // labels sat directly on the doodle ground and were barely readable.
+    // ($gray4/$gray5 are aliases onto blush; they predate the token system.)
     .select {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        border: solid 1px $gray5;
-        padding: $small $medium;
-        transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
-
-        // Phones: these sort chips are tap targets, so give them the 44px
-        // height (they were 36).
-        @include allPhones {
-            min-height: 2.75rem;
-        }
+        @include btn-action($size: 2.75rem, $width: auto);
+        font-size: inherit;
+        font-weight: inherit;
     }
 
     .select.circular {
@@ -103,10 +99,6 @@ const artistitems = [
         transform: rotate(90deg);
     }
 
-    .select:hover {
-        background-color: $gray4;
-        border-color: $gray4;
-    }
 
     .tt {
         background-color: $candy-white;
@@ -130,9 +122,15 @@ const artistitems = [
         transition: transform 0.1s linear;
     }
 
-    .active {
-        background-color: $gray4;
-        border-color: $gray4;
+    // ON state. Yellow is this design system's "active" signal (the playing
+    // row, shuffle on, repeat on); blush means "the pointer is here". Using
+    // blush for both is exactly what made a pinned button look permanently
+    // hovered, so the sort chip keeps the two apart.
+    .select.active,
+    .select.active:hover {
+        background-color: $mem-yellow;
+        border-color: $mem-line;
+        color: $mem-ink;
     }
 
     button {
