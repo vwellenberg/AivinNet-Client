@@ -62,8 +62,11 @@ const handleMouseWheel = (event: WheelEvent) => {
         // the dark bar in dark mode. Drive it from the adaptive text colour.
         color: $candy-text;
 
+        // Same glyph size as its right-group neighbours (they come from the
+        // shared 24x24 set, so one width/height fits all).
         svg {
-            transform: scale(0.72);
+            width: 1.35rem;
+            height: 1.35rem;
         }
 
         // Match the lyrics button (its right-group neighbour): a soft-pink

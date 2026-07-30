@@ -129,6 +129,11 @@ $candy-radius-pill: 999px; // pills, sliders
   @include candy-box($mem-yellow, $candy-radius-sm);
   position: relative;
   overflow: hidden; // clip the sprinkle to the rounded corners
+  // On the yellow accent fill the glyph must be static ink in BOTH themes.
+  // Set through `color`, never `fill`: the transport glyphs are currentColor
+  // and the auxiliary ones (shuffle, repeat) are STROKED — a `fill` rule
+  // would flood their open shapes solid.
+  color: $mem-ink;
 
   // Memphis sprinkle over the accent fill, exactly like the play CTA.
   &::before {
@@ -145,13 +150,6 @@ $candy-radius-pill: 999px; // pills, sliders
     position: relative;
     z-index: 1;
     opacity: 1;
-  }
-
-  // The transport SVGs hardcode a light fill (#F2F2F2), and $candy-text turns
-  // them paper-light in dark mode — on the yellow fill the glyph must be
-  // static ink in BOTH themes.
-  svg path {
-    fill: $mem-ink;
   }
 }
 

@@ -90,7 +90,8 @@ defineEmits<{
         width: 3rem;
 
         svg {
-            transform: scale(0.75);
+            width: 1.35rem;
+            height: 1.35rem;
         }
 
         // Idle only: bare glyph on the bar. The joined state keeps the shared
@@ -100,10 +101,7 @@ defineEmits<{
         &:not(.ds-joined) {
             border: none;
             background-color: transparent;
-
-            path {
-                fill: $candy-text;
-            }
+            color: $candy-text;
         }
     }
     align-items: center;

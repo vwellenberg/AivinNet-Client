@@ -182,8 +182,11 @@ function handleFav() {
             border: none;
             cursor: pointer;
 
+            // Shared 24x24 icon set: size it directly instead of scaling off
+            // the viewBox, so it matches the other controls on this screen.
             svg {
-                transform: scale(0.8);
+                width: 1.45rem;
+                height: 1.45rem;
             }
         }
 
