@@ -1,6 +1,6 @@
 <template>
   <button
-    class="pin-button circular"
+    class="pin-button"
     :class="{ pinned }"
     :title="pinned ? 'Unpin from library' : 'Pin to library'"
     @click.prevent="$emit('toggle')"
@@ -34,7 +34,7 @@ defineEmits<{
   // filled 95% of the old 28x29 box while every neighbouring glyph fills ~67% of
   // its own, so at an identical CSS size the pin rendered 23px tall next to
   // 14-16px siblings — visibly oversized, and its needle tip aliased badly.
-  @include mem-header-action;
+  @include btn-action;
   display: flex;
   align-items: center;
   justify-content: center;

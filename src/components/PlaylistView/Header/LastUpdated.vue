@@ -68,7 +68,7 @@ function deletePlaylist() {
     // Same anatomy as the other header actions; the text one keeps its label,
     // so it sizes to the word and only takes the height.
     .pl-action {
-        @include mem-header-action;
+        @include btn-action;
         font-size: 0.9rem;
         font-weight: 500;
 

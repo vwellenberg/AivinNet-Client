@@ -97,7 +97,7 @@ async function fetchCover() {
 
   .options,
   .mb-cover {
-    @include mem-header-action;
+    @include btn-action;
   }
 
   // The favourite toggle brings its own colour logic (plus glyph vs. green
@@ -105,7 +105,7 @@ async function fetchCover() {
   // the row, not its palette. Without this it kept the global `.circular` pill
   // and sat as the one round control among rounded squares.
   .heart-button {
-    @include mem-header-action;
+    @include btn-action;
 
     // ...but the favourite owns its colour. The mixin sets `color` on hover so
     // its own glyphs stay readable on the light hover fill, and that rule is

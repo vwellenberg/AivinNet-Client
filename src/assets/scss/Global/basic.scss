@@ -153,7 +153,7 @@ button {
 // `.search-input button` — a class that does not exist, so the rule never
 // matched and the glyph carried a floating offset.)
 .gsearch-input button,
-// Header actions used to be flat by definition, so every `mem-header-action`
+// Header actions used to be flat by definition, so every `btn-action`
 // user was listed here. That mixin now emits a real button surface — panel
 // fill, ink border, hard offset shadow (see _candy.scss) — so flattening them
 // here silently cancelled half of it: the download button rendered as a bare
