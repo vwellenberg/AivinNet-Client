@@ -18,16 +18,19 @@
       •
       {{ formatSeconds(playlist.info.duration, true) }}
     </div>
+    <!-- Same relative order as the album header's row (play → pin → download);
+         a playlist simply has no favourite or overflow button to sit between
+         them. It used to be play → download → pin. -->
     <div class="btns">
       <PlayBtnRect :source="playSources.playlist" />
-      <button class="download-btn" @click="downloadPlaylist" title="Download as ZIP">
-        <span v-html="DownloadIcon" class="icon"></span>
-      </button>
       <PinButton
         v-if="Number.isInteger(playlist.info.id)"
         :pinned="playlist.info.pinned"
         @toggle="pinPlaylist(playlist.info.id)"
       />
+      <button class="download-btn" @click="downloadPlaylist" title="Download as ZIP">
+        <span v-html="DownloadIcon" class="icon"></span>
+      </button>
     </div>
   </div>
 </template>
