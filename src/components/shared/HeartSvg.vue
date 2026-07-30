@@ -5,27 +5,21 @@
         :class="{ 'is-fav': state }"
         @click="!no_emit && $emit('handleFav')"
     >
-        <Motion
-            :initial="{
-                opacity: 0,
-            }"
-            :animate="{
-                opacity: 1,
-                transition: {
-                    delay: 0.25,
-                    duration: 0.5,
-                },
-            }"
-        >
+        <!-- A plain div, deliberately: this used to be a <Motion> fading the
+             glyph in over `delay 0.25s + duration 0.5s`, so the icon only
+             became fully visible 0.75s after mount — and re-ran on every
+             mount, i.e. every page change. Once the header buttons gained a
+             panel fill and a border, that read as an empty button that fills
+             in late. <Motion> renders a div, so keeping a div here preserves
+             the `div { ... }` rules below verbatim. -->
+        <div>
             <CheckCircleSvg v-if="state" class="check-circle" />
             <PlusSvg v-else />
-        </Motion>
+        </div>
     </button>
 </template>
 
 <script setup lang="ts">
-import { Motion } from 'motion/vue'
-
 import CheckCircleSvg from '@/assets/icons/check.circle.fill.svg'
 import PlusSvg from '@/assets/icons/plus.svg'
 
