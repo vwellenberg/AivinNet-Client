@@ -65,14 +65,17 @@ defineEmits<{
         // The two states are drawn to very different scales: the plus fills
         // ~52% of its viewBox, the check-circle fills 100% of its own (a solid
         // r=14 circle in a 28 box). At one CSS size the glyph therefore JUMPED
-        // from ~13px to ~24px the moment a track was favourited, and the circle
+        // from ~13px to ~25px the moment a track was favourited, and the circle
         // sat flush against the edges of its button with no breathing room.
-        // Trim the circle to the same optical weight; a disc reads slightly
-        // larger than an outline glyph of equal height, so it keeps a little
-        // more than the plus.
+        //
+        // Scaled rather than resized: a percentage height against this
+        // `max-content` parent is indeterminate and silently resolves to auto,
+        // and a fixed rem would only be right in one of the several contexts
+        // this button appears in. A transform stays relative to whatever size
+        // the context set. A disc reads slightly larger than an outline glyph
+        // of equal height, so it keeps a little more than the plus.
         .check-circle {
-            height: 78%;
-            width: 78%;
+            transform: scale(0.75);
         }
     }
 
