@@ -37,8 +37,12 @@ button.playbtnrect {
     border-radius: $candy-radius-sm;
     padding-right: 1rem;
     overflow: hidden; // clip the sprinkle overlay to the rounded corners
+    // The page's primary CTA — a deeper offset than the 2px every button gets.
+    // It keeps its own scale feedback below instead of the press-into-shadow,
+    // so `$press: false`.
+    @include candy-raised(3px, 3px, $press: false);
     // Quick scale on hover/press — matches the bottom-bar play button.
-    transition: transform 0.1s ease;
+    transition: transform 0.1s ease, box-shadow 0.12s ease-out;
 
     // Subtle sprinkle (terrazzo) texture over the teal fill. A translucent
     // ::before keeps the dashes faint so the "Play" label stays legible;

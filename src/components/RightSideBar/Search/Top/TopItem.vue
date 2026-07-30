@@ -128,6 +128,8 @@ function onContextMenu(e: MouseEvent) {
 <style lang="scss">
 .top-result-item {
     @include candy-box($mem-panel, $candy-radius);
+    // Hard offset shadow: the tile sits above the grid ground (memphis).
+    @include candy-raised(3px, 3px, $press: false);
     padding: 1rem;
     display: grid;
     gap: 1rem;

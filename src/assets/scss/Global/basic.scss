@@ -86,10 +86,19 @@ button {
   justify-content: center;
   height: 2.25rem;
   padding: 0 $small;
-  transition: background-color 0.2s ease-out, color 0.2s ease-out, border 0.2s ease-out;
 
   background-color: $candy-pink;
   cursor: pointer;
+  // Every filled button sits on its own hard offset shadow and presses into it.
+  // Controls that are deliberately FLAT (transparent icon buttons in the bars,
+  // image overlays, header aux buttons) would show an offset under nothing —
+  // they are switched off in one reviewable list below.
+  @include candy-raised(2px, 2px);
+  // Restated AFTER the mixin (which sets its own shadow/transform transition)
+  // so the colour transitions survive — a bare `transition` further up would
+  // simply be overwritten.
+  transition: background-color 0.2s ease-out, color 0.2s ease-out, border 0.2s ease-out,
+    box-shadow 0.12s ease-out, transform 0.12s ease-out;
 
   svg {
     transition: all 0.2s;
@@ -110,8 +119,51 @@ button {
   }
 }
 
-.btn-active {
-  background-color: $candy-pink-deep;
+// ---------------------------------------------------------------------------
+// Flat controls — no offset shadow.
+//
+// These are the places that strip a button down to a bare glyph
+// (`background: transparent; border: none`): the player bars, the transport,
+// image overlays and the aux buttons in page headers. A hard offset needs a
+// surface to sit on; under a transparent button it is just a smudge floating
+// next to the icon.
+//
+// Kept as ONE list instead of a `box-shadow: none` sprinkled across ~20
+// component files: the rule is "flattened controls stay flat", and it should
+// be readable in one place. The filled exceptions inside those same bars —
+// play/pause, an active shuffle/repeat, the joined devices button — are
+// excluded, they keep their box AND their shadow.
+// ---------------------------------------------------------------------------
+// An auxiliary control is flat only while it is OFF — switched on it wears the
+// filled memphis box, so it keeps the shadow with it.
+.b-bar button:not(.play):not(.aux):not(.ds-joined),
+.b-bar .aux.aux-off,
+.hotkeys button:not(.play):not(.aux),
+.hotkeys .aux.aux-off,
+.right-group button:not(.aux):not(.ds-joined),
+.right-group .aux.aux-off,
+.left-group .np-fav,
+.left-group .bar-devices:not(.ds-joined),
+.volume-control .speaker-icon,
+.np-devices button:not(.ds-joined),
+.pl-play-overlay,
+.sidebar-newfolder,
+.queue-actions .save,
+.search-input button,
+.f-item .options,
+.context-menu-button,
+.pin-button,
+.heart-button,
+.chip-x,
+.recent-clear,
+.back {
+  box-shadow: none;
+
+  // …and no press-into-the-shadow either: there is no shadow to press into,
+  // and these controls have their own glyph-level active feedback.
+  &:active {
+    transform: none;
+  }
 }
 
 .btn-disabled {

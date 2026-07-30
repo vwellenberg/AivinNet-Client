@@ -59,11 +59,13 @@ const showContextMenu = (e: MouseEvent) => {
     position: relative;
 
     @include candy-box($mem-panel, $candy-radius);
+    // Hard offset shadow: the tile sits above the grid ground (memphis).
+    @include candy-raised(3px, 3px, $press: false);
     padding: $medium;
     font-size: 0.95rem;
     font-weight: 700;
     height: max-content;
-    transition: background-color 0.2s ease-out;
+    transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
 
     &.context-menu-open {
         background-color: $mem-hover;
