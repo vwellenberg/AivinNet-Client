@@ -752,9 +752,12 @@ onBeforeUnmount(teardown);
       align-items: center;
       gap: $small;
       // Match a playlist row's height exactly (2rem thumbnail + 2x0.35rem
-      // padding) so folders sit in the same rhythm as the other items.
+      // padding) so folders sit in the same rhythm as the other items — which
+      // is also why the reserved transparent frame and the shrunk padding
+      // below mirror .sidebar-playlist-item exactly.
       min-height: 2.7rem;
-      padding: 0.35rem $small;
+      border: $candy-border-w solid transparent;
+      padding: calc(0.35rem - #{$candy-border-w}) calc(#{$small} - #{$candy-border-w});
       border-radius: $smaller;
       cursor: pointer;
       font-size: 0.875rem;
@@ -826,7 +829,11 @@ onBeforeUnmount(teardown);
     display: flex;
     align-items: center;
     gap: $small;
-    padding: 0.35rem $small;
+    // The ink frame of the active row is reserved as a transparent border on
+    // every row (and shaved off the padding), so selecting a playlist draws
+    // the frame without nudging the row's contents or changing its height.
+    border: $candy-border-w solid transparent;
+    padding: calc(0.35rem - #{$candy-border-w}) calc(#{$small} - #{$candy-border-w});
     border-radius: $smaller;
     transition: background-color 0.15s;
     font-size: 0.875rem;
@@ -834,8 +841,11 @@ onBeforeUnmount(teardown);
 
     &:hover { background-color: $candy-pink-soft; }
     &.active {
-      // Blush accent -> pin static ink for the row text.
+      // Blush accent -> pin static ink for the row text. The selected item is
+      // the one filled surface in the sidebar, so it carries the ink frame
+      // like every other filled surface in this design.
       background-color: $candy-pink;
+      border-color: $mem-line;
       color: $mem-ink;
     }
 

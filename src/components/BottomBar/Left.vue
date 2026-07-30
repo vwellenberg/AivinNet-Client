@@ -88,19 +88,22 @@ defineEmits<{
         flex-shrink: 0;
         height: 3rem;
         width: 3rem;
-        border: none;
-        background-color: transparent;
 
         svg {
             transform: scale(0.75);
         }
 
-        path {
-            fill: $candy-text;
-        }
+        // Idle only: bare glyph on the bar. The joined state keeps the shared
+        // green box + ink frame from DevicesButton.vue, so these must not
+        // strip its border/fill (they are more specific than the component's
+        // own rule and used to win).
+        &:not(.ds-joined) {
+            border: none;
+            background-color: transparent;
 
-        &.ds-joined path {
-            fill: $brand-green;
+            path {
+                fill: $candy-text;
+            }
         }
     }
     align-items: center;
