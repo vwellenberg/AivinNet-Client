@@ -24,8 +24,12 @@ vi.mock('@/context_menus/hashing', () => ({ getLastFmApiSig: vi.fn() }))
 vi.mock('@/utils/recentSearches', () => ({ recordRecentSearch: vi.fn(), getRecentSearches: vi.fn(() => []) }))
 // The store watches a DEBOUNCED copy of the query. Debounce timers do not
 // advance reliably under fake timers here, and the debounce is not what these
-// tests are about — pass the ref straight through.
-vi.mock('@vueuse/core', () => ({ useDebounce: (value: unknown) => value }))
+// tests are about — pass the ref straight through. Partial mock: other parts
+// of the app (useBreakpoints) pull real exports from the same module.
+vi.mock('@vueuse/core', async () => {
+    const actual = await vi.importActual<Record<string, unknown>>('@vueuse/core')
+    return { ...actual, useDebounce: (value: unknown) => value }
+})
 
 import useSearchStore from '@/stores/search'
 
