@@ -9,7 +9,7 @@
         params: menu?.params,
         query: menu.query && menu.query(),
       }"
-      class="circular nav-item"
+      class="nav-item"
       :class="{
         separator: menu.separator,
         active: $route.name === menu.route_name,
@@ -41,8 +41,12 @@ import { menus } from "./navitems";
     display: flex;
     align-items: center;
     padding: $small 0;
-    font-size: 14px;
+    font-size: $sidebar-row-font;
     font-weight: 500;
+    // The pill came from the generic `.circular` utility in the markup, which
+    // made these rows the roundest thing in the app while the library rows
+    // right below them were nearly square. Both read the same token now.
+    border-radius: $sidebar-row-radius;
     // Transparent border on every item so the active state can colour it in
     // without shifting the row (border-box keeps the footprint constant).
     border: $candy-border-w solid transparent;
@@ -72,7 +76,7 @@ import { menus } from "./navitems";
     // one — the transparent border is reserved above, hovering just never
     // coloured it. Same bug, same fix as the playlist rows in index.vue.
     &:hover:not(.active) {
-      @include candy-row-hover($candy-pink-soft, $candy-radius-pill);
+      @include candy-row-hover($candy-pink-soft, $sidebar-row-radius);
     }
   }
 
@@ -100,7 +104,7 @@ import { menus } from "./navitems";
   }
 
   @include allPhones {
-    .circular.nav-item:last-child {
+    .nav-item:last-child {
       display: none;
     }
   }

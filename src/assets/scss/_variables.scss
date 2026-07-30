@@ -30,6 +30,18 @@ $medium: 0.75rem;
 $large: 1.5rem;
 $larger: 2rem;
 
+// ---------------------------------------------------------------------------
+// LEFT SIDEBAR ROWS — one owner for the nav items and the library entries.
+//
+// They are the same thing (a hoverable, selectable row in the same column) and
+// had drifted into two looks: the nav wore a full pill from the generic
+// `.circular` utility, the library wore an almost-square 4px. Neither matched
+// the app's own row radius, which is what `candy-row-base` has always
+// defaulted to.
+// ---------------------------------------------------------------------------
+$sidebar-row-radius: $candy-radius-sm;
+$sidebar-row-font: 0.9375rem; // 15px — a step up from the old 14px
+
 $banner-height: 18rem;
 $song-item-height: 4.5rem;
 // Track-row grid with the "Date added" column (playlist page, wide layouts):
