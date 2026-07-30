@@ -714,27 +714,17 @@ onBeforeUnmount(teardown);
     padding: 0 $small 0.5rem;
     letter-spacing: 0.05em;
 
+    // "New folder". Its blush circle came from the global button base — the
+    // comment here used to say so — which meant a control with no owner: no
+    // border, no shadow, and 22px across in a design where every other button
+    // has a frame it sits in. It takes the action role now, at the smallest
+    // size that still reads as a button next to the section caption.
     .sidebar-newfolder {
-      display: grid;
-      place-items: center;
-      width: 1.4rem;
-      height: 1.4rem;
-      border-radius: 50%;
-      // Blush accent fill (button base) -> static ink glyph, full opacity;
-      // inherited panel text was washed out on the pink circle in dark.
-      color: $mem-ink;
-      opacity: 1;
-      cursor: pointer;
-      transition: background-color 0.15s ease, opacity 0.15s ease;
+      @include btn-action($size: 1.75rem, $radius: 50%);
 
       svg {
-        width: 0.85rem;
-        height: 0.85rem;
-      }
-
-      &:hover {
-        background-color: $candy-pink-soft;
-        opacity: 1;
+        width: 0.9rem;
+        height: 0.9rem;
       }
     }
   }
@@ -896,6 +886,7 @@ onBeforeUnmount(teardown);
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
       opacity: 0;
       transition: opacity 0.15s ease;
 

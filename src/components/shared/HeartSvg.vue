@@ -37,7 +37,14 @@ defineEmits<{
 <style lang="scss">
 .heart-button {
     line-height: normal;
+    // Stated here rather than inherited: the global button base used to hand
+    // every button its box model, so this component only wrote down the parts
+    // it wanted to CHANGE. With the base reduced to a reset, the parts it was
+    // silently relying on have to be its own.
+    display: flex;
     align-items: center;
+    justify-content: center;
+    cursor: pointer;
     gap: $smaller;
     border: none;
     // Unfavorited: theme-text outline glyph (the plus) on a transparent

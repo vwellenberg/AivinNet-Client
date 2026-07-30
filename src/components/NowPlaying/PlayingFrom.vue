@@ -64,11 +64,17 @@ function showContextMenu(e: MouseEvent) {
     align-items: center;
     margin-bottom: 1rem;
 
+    // Overflow menu for the playing track — the same action role and size as
+    // the overflow button in the album and artist headers.
+    //
+    // The dots are rotated on the GLYPH, not on the button: the button's
+    // `transform` belongs to the role (scale on hover, press on active), and a
+    // rotation there would be overwritten by the first of them.
     .options {
-        transform: rotate(90deg);
+        @include btn-action($size: 2.75rem);
 
         svg {
-            transform: scale(1.25);
+            transform: rotate(90deg);
         }
     }
 }

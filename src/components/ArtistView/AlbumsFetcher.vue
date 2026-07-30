@@ -1,6 +1,6 @@
 <template>
   <div style="height: 1px">
-    <button v-if="show_text" @click="fetch_callback">Load More</button>
+    <button v-if="show_text" class="btn-pill" @click="fetch_callback">Load More</button>
   </div>
 </template>
 

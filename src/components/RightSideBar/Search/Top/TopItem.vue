@@ -171,17 +171,20 @@ function onContextMenu(e: MouseEvent) {
         }
     }
 
+    // Overflow menu on the top search result. Rotation on the GLYPH: the
+    // button's own transform belongs to the role (scale on hover / press).
     .context-menu-button {
-        transform: rotate(90deg);
-        background-color: transparent;
+        @include btn-quiet($size: 2.25rem);
 
         svg {
-            transform: scale(1.2);
+            transform: rotate(90deg) scale(1.2);
         }
     }
 
+    // Open menu = yellow, the app-wide "active" signal (blush is the pointer).
     .context_menu_showing {
-        background-color: $candy-pink-deep;
+        background-color: $mem-yellow;
+        color: $mem-ink;
     }
 
     img {

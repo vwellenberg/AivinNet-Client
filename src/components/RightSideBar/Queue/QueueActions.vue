@@ -49,19 +49,9 @@ defineProps<{
   margin: 1rem;
   margin-bottom: 0;
 
-  .lyricsversion {
-    display: flex;
-    gap: 1rem;
-
-    .save {
-      background-color: transparent;
-    }
-
-    // hide on screens less than 600px
-    @media only screen and (max-width: 600px) {
-      display: none;
-    }
-  }
+  // `.lyricsversion` used to live here; the template has not rendered it for a
+  // long time, and its only remaining job was cancelling the global button
+  // base's fill on a button that no longer exists.
 
   .left {
     display: flex;
@@ -69,8 +59,10 @@ defineProps<{
     gap: $small;
   }
 
+  // "Shuffle" — a labelled button, so the pill role. It used to get this look
+  // from the global button base and only wrote down its padding.
   .action {
-    padding: 0 $medium;
+    @include btn-pill($h: 2.25rem);
 
     svg {
       transform: scale(0.8);
@@ -81,12 +73,21 @@ defineProps<{
     display: flex;
     gap: $medium;
 
+    // Queue overflow menu.
     .menu {
-      padding: 0 $smaller;
+      @include btn-action($size: 2.25rem);
 
       svg {
         transform: scale(1.2) rotate(90deg);
       }
+    }
+
+    // Open menu = yellow, the app-wide "active" signal. Kept out of the role
+    // on purpose: blush there is the POINTER signal, and folding the two
+    // together is what once made a pinned button look permanently hovered.
+    .menu.btn-active {
+      background-color: $mem-yellow;
+      color: $mem-ink;
     }
   }
 }

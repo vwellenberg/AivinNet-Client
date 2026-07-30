@@ -69,114 +69,52 @@ a {
   @include candy-box($candy-white);
 }
 
-// BUTTONS
+// ---------------------------------------------------------------------------
+// BUTTONS — a reset, and nothing else.
+//
+// This rule used to give EVERY <button> a finished look: 2.25rem tall, blush
+// fill, ink border, a 2px offset shadow, a static ink glyph and a pink hover.
+// Because that is the wrong look for most buttons, it was subtracted again in
+// three separate places — a flat-controls blocklist right below, ~28 components
+// hand-writing `background: transparent; border: none`, and ~116 `!important`.
+// Nothing told you which of the three applied to the button in front of you;
+// you found out by looking at the screen.
+//
+// That is how a mixin's shadow got silently cancelled from a different file
+// (the download button rendered as a bare glyph, the pin lost its shadow), how
+// one player bar came to hold four button heights, and how a `:first-child`
+// aimed at the transport also hid the mute control on small phones.
+//
+// So: nothing here paints. A button declares WHAT IT IS with a role from
+// Global/_buttons.scss — primary, action, quiet, pill, toggle — and gets the
+// whole anatomy from one place. Nothing is subtracted anywhere.
+//
+// What stays is what a browser default gets wrong for every button regardless
+// of role: the font (buttons do not inherit it), the pointer, centring its
+// contents, and a visible keyboard focus ring.
+// ---------------------------------------------------------------------------
 button {
   font-family: var(--app-font);
-  font-size: 0.9rem !important;
+  font-size: 0.9rem;
   font-weight: 700;
   line-height: 1.2;
-  // Buttons carry the static blush fill (and yellow hover/active) in both
-  // themes -> the label/icon must be static ink too. Transparent icon
-  // buttons that need the adaptive colour set it locally.
-  color: $mem-ink;
-  border-radius: $candy-radius-sm;
-  border: $candy-border;
-  display: flex;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 2.25rem;
-  padding: 0 $small;
-
-  background-color: $candy-pink;
   cursor: pointer;
-  // Every filled button sits on its own hard offset shadow and presses into it.
-  // Controls that are deliberately FLAT (transparent icon buttons in the bars,
-  // image overlays, header aux buttons) would show an offset under nothing —
-  // they are switched off in one reviewable list below.
-  @include candy-raised(2px, 2px);
-  // Restated AFTER the mixin (which sets its own shadow/transform transition)
-  // so the colour transitions survive — a bare `transition` further up would
-  // simply be overwritten.
-  transition: background-color 0.2s ease-out, color 0.2s ease-out, border 0.2s ease-out,
-    box-shadow 0.12s ease-out, transform 0.12s ease-out;
 
-  svg {
-    transition: all 0.2s;
+  // Keyboard focus was app-wide invisible: the old base set `outline: none` on
+  // :focus with nothing put back, so tabbing through the app left no trace at
+  // all. `:focus-visible` shows the ring for keyboard users without putting an
+  // outline around every mouse click.
+  &:focus-visible {
+    outline: 2px solid $mem-line;
+    outline-offset: 2px;
   }
-
-  &:active {
-    svg {
-      transform: scale(0.75);
-    }
-  }
-
-  &:focus {
-    outline: none;
-  }
-
-  &:hover {
-    background-color: $candy-pink-deep;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Flat controls — no offset shadow.
-//
-// These are the places that strip a button down to a bare glyph
-// (`background: transparent; border: none`): the player bars, the transport,
-// image overlays and the aux buttons in page headers. A hard offset needs a
-// surface to sit on; under a transparent button it is just a smudge floating
-// next to the icon.
-//
-// Kept as ONE list instead of a `box-shadow: none` sprinkled across ~20
-// component files: the rule is "flattened controls stay flat", and it should
-// be readable in one place. The filled exceptions inside those same bars —
-// play/pause, an active shuffle/repeat, the joined devices button — are
-// excluded, they keep their box AND their shadow.
-// ---------------------------------------------------------------------------
-// The player bar used to own eleven of these entries — the transport, the aux
-// group, the volume speaker, the devices button. They are gone: those controls
-// now take the `quiet` role, which IS flat, so there is nothing left to
-// subtract. What remains below is the shrinking tail.
-.left-group .np-fav,
-.left-group .bar-devices:not(.ds-joined),
-.np-devices button:not(.ds-joined),
-.pl-play-overlay,
-.sidebar-newfolder,
-.queue-actions .save,
-// The magnifier inside the top-bar search pill. (Was listed as
-// `.search-input button` — a class that does not exist, so the rule never
-// matched and the glyph carried a floating offset.)
-.gsearch-input button,
-// Header actions used to be flat by definition, so every `btn-action`
-// user was listed here. That mixin now emits a real button surface — panel
-// fill, ink border, hard offset shadow (see _candy.scss) — so flattening them
-// here silently cancelled half of it: the download button rendered as a bare
-// glyph and the pin lost its shadow. Those five are therefore gone from this
-// list: .download-btn, .album-buttons .options, .mb-cover, .pl-action,
-// .pin-button.
-//
-// `.heart-button` stays. Flat is still correct for it in track rows and the
-// now-playing panel, and the header instances are scoped
-// (`.album-buttons .heart-button`, `.artist-buttons .heart-button`), so they
-// outrank this rule on specificity and keep their box without an exception.
-.f-item .options,
-.context-menu-button,
-.heart-button,
-.chip-x,
-.recent-clear,
-.back {
-  box-shadow: none;
-
-  // …and no press-into-the-shadow either: there is no shadow to press into,
-  // and these controls have their own glyph-level active feedback.
-  &:active {
-    transform: none;
-  }
-}
-
-.btn-more {
-  width: 2.5rem;
 }
 
 // POSITION

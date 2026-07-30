@@ -183,12 +183,20 @@ onMounted(async () => {
         justify-content: space-between;
         align-items: center;
 
+        // A labelled text button, so no icon role. The markup reads
+        // "back ->"; it used to be rendered as "<- back" by rotating the whole
+        // BUTTON 180deg and counter-rotating the label. `row-reverse` says the
+        // same thing with one transform instead of two — and leaves the
+        // button's own transform free, which matters now that hover/press
+        // feedback lives there.
         .back {
-            background: none;
-            transform: rotate(180deg);
+            flex-direction: row-reverse;
+            gap: $smaller;
+            height: 2.25rem;
+            padding: 0 $small;
             opacity: 0;
 
-            span {
+            svg {
                 transform: rotate(180deg);
             }
         }
