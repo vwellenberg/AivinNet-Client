@@ -92,7 +92,15 @@ $candy-text-muted: $mem-text-muted; // theme var
 $candy-text-faint: var(--mem-content-faint); // placeholders, disabled
 
 // Structure
-$candy-border-w: 2px;
+//
+// 3px, not 2px: the memphis look lives on a hard, punched-out frame, and at
+// 2px the app read visibly softer than the design reference. 72 places pull
+// this token, so the weight of every card, row, chip and button moves together
+// — which is also why it must stay a whole pixel. 2.5px lands on a half-pixel
+// at 100% zoom and frays on fractional DPI scaling, and the reserved
+// transparent borders (candy-row-base, the sidebar rows) subtract this exact
+// value from their padding to keep a row's height constant.
+$candy-border-w: 3px;
 // Every border/outline: ink in light, paper in dark.
 $candy-border: $candy-border-w solid $mem-line;
 $candy-radius: 14px; // cards, panels, modals
