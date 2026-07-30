@@ -149,7 +149,11 @@ button {
 .pl-play-overlay,
 .sidebar-newfolder,
 .queue-actions .save,
-.search-input button,
+// The magnifier inside the top-bar search pill. (Was listed as
+// `.search-input button` — a class that does not exist, so the rule never
+// matched and the glyph carried a floating offset.)
+.gsearch-input button,
+.download-btn,
 .f-item .options,
 .context-menu-button,
 .pin-button,
