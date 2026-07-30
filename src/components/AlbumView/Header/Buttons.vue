@@ -106,6 +106,16 @@ async function fetchCover() {
   // and sat as the one round control among rounded squares.
   .heart-button {
     @include mem-header-action;
+
+    // ...but the favourite owns its colour. The mixin sets `color` on hover so
+    // its own glyphs stay readable on the light hover fill, and that rule is
+    // more specific than a bare `.is-fav` in HeartSvg — a favourited album
+    // turned ink the moment the pointer touched it. Re-assert here, where the
+    // collision is actually created, with the compound that outranks it.
+    &.is-fav,
+    &.is-fav:hover {
+      color: $mem-teal;
+    }
   }
 
   .options {

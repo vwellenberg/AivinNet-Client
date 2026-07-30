@@ -89,12 +89,12 @@ defineEmits<{
     // theme-invariant "active" accent — readable on light and dark chrome
     // and on the yellow playing row.
     // Favourited is the teal check-circle — the app's favourite iconography,
-    // never a heart. The `:hover` compound is not redundant: where this button
-    // takes the shared header-action anatomy, that mixin's own `:hover { color }`
-    // is more specific than a bare `.is-fav` and stripped the teal on hover,
-    // and un-hovered it came down to bundle order. State beats chrome here.
-    &.is-fav,
-    &.is-fav:hover {
+    // never a heart.
+    //
+    // NOTE for anyone putting this button inside a `mem-header-action` row:
+    // that mixin sets `color` on hover, which outranks this rule, so the call
+    // site has to re-assert the teal (see AlbumView/Header/Buttons.vue).
+    &.is-fav {
         color: $mem-teal;
     }
 }
