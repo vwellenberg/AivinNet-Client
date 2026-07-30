@@ -215,7 +215,12 @@ export default defineStore('search', () => {
         newQuery => {
             // Clearing the query resets results so the page falls back to its
             // idle / recent-searches state instead of showing stale matches.
-            if (newQuery.trim() == '') {
+            //
+            // `!newQuery` is not paranoia: a missing `?q=` used to arrive here
+            // as undefined, and the .trim() threw during render — which took
+            // the whole search page (including its input) down with it. An
+            // absent query IS an empty one; treat it that way.
+            if (!newQuery || newQuery.trim() == '') {
                 top_results.top_result = <Track>{}
                 top_results.tracks = []
                 top_results.albums = []

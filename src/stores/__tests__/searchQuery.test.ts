@@ -22,37 +22,48 @@ vi.mock('@/stores/devicesync', () => ({ default: () => ({ joined: false, applyin
 vi.mock('@/stores/player', () => ({ usePlayer: () => ({ setVolume: vi.fn(), setMute: vi.fn() }) }))
 vi.mock('@/context_menus/hashing', () => ({ getLastFmApiSig: vi.fn() }))
 vi.mock('@/utils/recentSearches', () => ({ recordRecentSearch: vi.fn(), getRecentSearches: vi.fn(() => []) }))
+// The store watches a DEBOUNCED copy of the query. Debounce timers do not
+// advance reliably under fake timers here, and the debounce is not what these
+// tests are about — pass the ref straight through.
+vi.mock('@vueuse/core', () => ({ useDebounce: (value: unknown) => value }))
 
 import useSearchStore from '@/stores/search'
 
-describe('search store: the query is always a string', () => {
+describe('search store: an absent query is an empty one', () => {
     beforeEach(() => {
         setActivePinia(createPinia())
-        vi.useFakeTimers()
     })
 
-    // The regression: SearchView assigned `route.query.q as string`, and on a
-    // deep link / reload of /search/top there IS no `q`. The store then held
-    // `undefined`, its watcher called .trim() on it, and the TypeError aborted
-    // the render — the page came up without its search field.
-    it('survives an empty query and clears the results (idle state)', async () => {
+    it('clears the results when the query is emptied (idle state)', async () => {
         const search = useSearchStore()
-
-        // Search for something first — clearing has to be a real transition,
-        // and the store starts out empty.
         search.query = 'genesis'
-        vi.advanceTimersByTime(600)
         await nextTick()
 
         search.top_results.tracks = [{ title: 'stale' } as any]
         search.tracks = [{ title: 'stale' } as any]
 
         search.query = ''
-        vi.advanceTimersByTime(600)
         await nextTick()
 
         expect(search.top_results.tracks).toEqual([])
         expect(search.tracks).toEqual([])
+    })
+
+    // The regression: SearchView assigned `route.query.q as string`, and on a
+    // deep link / reload of /search/top there IS no `q`. The store then held
+    // `undefined`, the watcher called .trim() on it, and the TypeError aborted
+    // the render — the page came up without its search field, unusable.
+    it('does not throw when the query goes missing entirely', async () => {
+        const search = useSearchStore()
+        search.query = 'genesis'
+        await nextTick()
+
+        search.top_results.tracks = [{ title: 'stale' } as any]
+
+        search.query = undefined as unknown as string
+        await expect(nextTick()).resolves.not.toThrow()
+
+        expect(search.top_results.tracks).toEqual([])
     })
 
     it('starts out empty rather than undefined', () => {
