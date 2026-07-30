@@ -47,10 +47,17 @@ defineEmits<{
   // which was fine while the mixin drew nothing — but opacity fades the whole
   // element, so once the mixin gained a border and an offset shadow it washed
   // those out too and the button read as unfinished next to its siblings.
-  // "Off" is now carried by the fill alone: panel (from the mixin) vs. blush.
-  &.pinned {
-    background-color: $mem-blush;
-    color: $mem-ink;
+  //
+  // "Pinned" is carried by the GLYPH, not by a fill: the filled pin plus the
+  // teal accent, exactly how the favourite toggle signals "on". It used to take
+  // the blush fill — the same fill the mixin uses for HOVER — so a pinned
+  // button looked permanently hovered and the two states were indistinguishable.
+  // Blush now means "the pointer is here"; teal means "this is on".
+  // `:hover` is restated because the mixin sets `color` there and would
+  // otherwise flip the teal back to ink.
+  &.pinned,
+  &.pinned:hover {
+    color: $mem-teal;
   }
 }
 </style>
