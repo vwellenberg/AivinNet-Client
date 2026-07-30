@@ -144,9 +144,12 @@
     height: 1.5rem;
   }
 
-  // An open context menu is a HELD hover, not a separate state — same picture.
-  &:hover,
-  &.context_menu_showing {
+  // Hover only. An open context menu is deliberately NOT folded in here: in
+  // this design system yellow means "active" (the playing row, shuffle on,
+  // repeat on), and the open-menu state already uses it. Making it blush would
+  // turn a state signal into the pointer signal — the same conflation that made
+  // a pinned button look permanently hovered. Call sites keep their yellow.
+  &:hover {
     background-color: $mem-blush;
     border-color: $mem-line;
     // Static ink is legal here ONLY because the blush fill above is static.

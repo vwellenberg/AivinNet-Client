@@ -61,7 +61,7 @@ function showContext(e: MouseEvent) {
   // with no button surface at all. Both now match their album-header twins.
   .options,
   .heart-button {
-    @include mem-header-action;
+    @include btn-action;
     display: flex;
     align-items: center;
     justify-content: center;

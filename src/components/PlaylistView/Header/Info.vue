@@ -101,7 +101,7 @@ function pinPlaylist(pid: number) {
     .download-btn {
       // Shared header-action anatomy: 44px touch target, theme-aware glyph
       // (it was static ink and vanished on the dark ground), no squeezing.
-      @include mem-header-action;
+      @include btn-action;
       display: flex;
       align-items: center;
       justify-content: center;

@@ -85,7 +85,7 @@ defineEmits<{
     // Favourited is the teal check-circle — the app's favourite iconography,
     // never a heart.
     //
-    // NOTE for anyone putting this button inside a `mem-header-action` row:
+    // NOTE for anyone putting this button inside a `btn-action` row:
     // that mixin sets `color` on hover, which outranks this rule, so the call
     // site has to re-assert the teal (see AlbumView/Header/Buttons.vue).
     &.is-fav {
