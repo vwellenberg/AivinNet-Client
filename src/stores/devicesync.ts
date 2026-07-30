@@ -102,6 +102,37 @@ let applyDepth = 0
 let leaveSuppressUntil = 0
 
 /**
+ * Auto-rejoin: a device that dropped out involuntarily (app closed longer than
+ * the reap window, network gap, server restart) rejoins a STILL-RUNNING group
+ * on its own. The marker survives reloads in localStorage; it is cleared only
+ * on a deliberate exit (Leave, "Not now", being removed), never by toSolo().
+ *
+ * Hard rule: this may only ever join an existing group — it must never create
+ * one, or opening the app on a phone would start a group nobody asked for.
+ */
+const GROUP_MEMBER_KEY = 'aivinnet.group_member'
+/** Backoff after an auto-rejoin attempt, so a failing one cannot loop. */
+const AUTO_REJOIN_COOLDOWN_MS = 60000
+let autoRejoinSuppressUntil = 0
+
+function rememberMembership(isMember: boolean) {
+    try {
+        if (isMember) localStorage.setItem(GROUP_MEMBER_KEY, '1')
+        else localStorage.removeItem(GROUP_MEMBER_KEY)
+    } catch {
+        // storage unavailable (private mode) — auto-rejoin simply stays off
+    }
+}
+
+function wasGroupMember(): boolean {
+    try {
+        return localStorage.getItem(GROUP_MEMBER_KEY) === '1'
+    } catch {
+        return false
+    }
+}
+
+/**
  * TEST-ONLY: reset every module-level singleton. `vi.resetModules()` is not
  * reliable here (it can hand the re-imported store a different pinia module
  * copy, silently reusing the previous test's store state), so the test suite
@@ -112,6 +143,7 @@ export function __resetDeviceSyncTestState() {
     executedCommandIds.clear()
     estimator = new ClockOffsetEstimator()
     leaveSuppressUntil = 0
+    autoRejoinSuppressUntil = 0
     applyDepth = 0
     lastTransportAt = 0
     loadedTrackhash = ''
@@ -343,6 +375,19 @@ export default defineStore('devicesync', {
             }
             if (!res.joined) {
                 leaveSuppressUntil = 0
+            }
+
+            // Auto-rejoin: we are outside the group, we used to be in one, and
+            // one is STILL running → walk back in. Never fires when no group
+            // exists (would create one) or right after a deliberate exit.
+            if (!res.joined && !this.joined && wasGroupMember()) {
+                const groupRunning = (res.devices ?? []).some(d => d.joined)
+                const now = Date.now()
+                if (groupRunning && now > autoRejoinSuppressUntil && now > leaveSuppressUntil) {
+                    autoRejoinSuppressUntil = now + AUTO_REJOIN_COOLDOWN_MS
+                    void this.joinInternal()
+                    return
+                }
             }
             let forceStateRefresh = false
             if (res.joined && !this.joined) {
@@ -726,6 +771,8 @@ export default defineStore('devicesync', {
             this.joined = true
             this.status = 'joined'
             this.pollFailures = 0
+            // Remembered across reloads so an involuntary drop-out can rejoin.
+            rememberMembership(true)
 
             // A crossfade/preload timer armed while solo must not fire a local
             // advance into the group session.
@@ -802,6 +849,8 @@ export default defineStore('devicesync', {
         async leave() {
             const id = this.deviceId
             leaveSuppressUntil = Date.now() + 10000
+            // Deliberate exit → do not walk back in on the next poll.
+            rememberMembership(false)
             this.toSolo()
             if (id) await leaveGroup(id)
         },
@@ -810,13 +859,20 @@ export default defineStore('devicesync', {
         playHereLeave() {
             const id = this.deviceId
             leaveSuppressUntil = Date.now() + 10000
+            // Removed on purpose (by another device) → no auto-rejoin either.
+            rememberMembership(false)
             if (id) void leaveGroup(id)
             audioSource.pausePlayingSource()
             useQueue().playing = false
             this.toSolo()
         },
 
-        /** Internal graceful fallback to solo — never stops local playback. */
+        /**
+         * Internal graceful fallback to solo — never stops local playback and
+         * deliberately KEEPS the membership marker: this is the involuntary
+         * path (reaped, network gap, server restart) that auto-rejoin exists
+         * for. Deliberate exits clear the marker themselves.
+         */
         toSolo() {
             this.joined = false
             this.stopSteerLoop()
