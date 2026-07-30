@@ -63,6 +63,12 @@ function handleFav() {
     grid-template-columns: 1fr max-content 1fr;
     align-items: center;
     z-index: 1;
+    // Moved here from the deleted assets/scss/BottomBar/BottomBar.scss, which
+    // was the only other owner of `.b-bar`. The rest of that file styled
+    // `.controlsx`, `.durationx`, `.progress-bottom` and `.r-group` — none of
+    // which this markup renders any more — so this line was all that was left
+    // of it. One owner for `.b-bar` now.
+    height: 100%;
     // Side inset for the NP block / volume group. Used to be an inline style
     // gated on is_default_layout, which left the alternate (links) layout with
     // zero padding — the NP cover sat flush against the window edge.
