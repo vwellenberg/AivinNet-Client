@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { DOMWrapper, mount } from '@vue/test-utils'
 import { reactive } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -18,6 +18,17 @@ vi.mock('@/utils/colortools/pageGradient', () => ({
 
 import Progress from '@/components/LeftSidebar/NP/Progress.vue'
 
+// One drag step. Written by hand instead of `setValue()`: on a range input that
+// helper leaves the component's @input handler reading the OLD value, so the
+// assertions would pass or fail for reasons that have nothing to do with the
+// component. A real browser sets the value before dispatching `input`.
+async function dragTo(input: DOMWrapper<Element>, value: string) {
+    ;(input.element as HTMLInputElement).value = value
+    await input.trigger('input')
+}
+
+const valueOf = (input: DOMWrapper<Element>) => (input.element as HTMLInputElement).value
+
 describe('seek bar scrubbing', () => {
     beforeEach(() => {
         queue.duration.current = 40
@@ -27,14 +38,14 @@ describe('seek bar scrubbing', () => {
 
     it('shows the playhead while nothing is being dragged', () => {
         const w = mount(Progress)
-        expect((w.find('#progress').element as HTMLInputElement).value).toBe('40')
+        expect(valueOf(w.find('#progress'))).toBe('40')
     })
 
     it('does not seek on every drag step — only when the drag ends', async () => {
         const w = mount(Progress)
         const input = w.find('#progress')
 
-        await input.setValue('120')
+        await dragTo(input, '120')
         expect(queue.seek).not.toHaveBeenCalled()
 
         await input.trigger('change')
@@ -42,22 +53,22 @@ describe('seek bar scrubbing', () => {
     })
 
     it('keeps the dragged position while the playhead moves under it', async () => {
-        // The regression: the input's value is bound to the store, which ticks
-        // several times a second, so mid-drag re-renders used to yank the knob
-        // back to the playhead — on touch that read as "the knob will not move".
+        // The regression: the input's value is bound to the playhead, which
+        // ticks several times a second, so mid-drag re-renders used to yank the
+        // knob back — on touch that read as "the knob will not move".
         const w = mount(Progress)
         const input = w.find('#progress')
 
-        await input.setValue('120')
+        await dragTo(input, '120')
         queue.duration.current = 41
         await w.vm.$nextTick()
 
-        expect((input.element as HTMLInputElement).value).toBe('120')
+        expect(valueOf(input)).toBe('120')
     })
 
     it('paints the fill at the dragged position, not the playhead', async () => {
         const w = mount(Progress)
-        await w.find('#progress').setValue('100')
+        await dragTo(w.find('#progress'), '100')
 
         // 100 of 200 seconds -> the fill (and its sprinkle overlay) sit at 50%.
         expect(w.find('.progress-wrap').attributes('style')).toContain('--played-frac: 0.5')
@@ -67,11 +78,11 @@ describe('seek bar scrubbing', () => {
         const w = mount(Progress)
         const input = w.find('#progress')
 
-        await input.setValue('120')
+        await dragTo(input, '120')
         await input.trigger('change')
 
         queue.duration.current = 130
         await w.vm.$nextTick()
-        expect((input.element as HTMLInputElement).value).toBe('130')
+        expect(valueOf(input)).toBe('130')
     })
 })
