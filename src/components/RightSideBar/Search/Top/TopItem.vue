@@ -174,7 +174,7 @@ function onContextMenu(e: MouseEvent) {
     // Overflow menu on the top search result. Rotation on the GLYPH: the
     // button's own transform belongs to the role (scale on hover / press).
     .context-menu-button {
-        @include btn-quiet($size: 2.25rem);
+        @include btn-quiet($size: 2.75rem);
 
         svg {
             transform: rotate(90deg) scale(1.2);

@@ -93,6 +93,10 @@ defineEmits<{
         display: flex;
         align-items: center;
         justify-content: center;
+        // Stated, not inherited: the rounded corner used to come from the
+        // global button base. The joined state re-declares it with its own
+        // green box, so only the idle one was left square.
+        border-radius: $candy-radius-sm;
         cursor: pointer;
 
         svg {
