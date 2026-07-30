@@ -85,38 +85,40 @@ defineEmits<{
             background-color: $candy-pink-soft;
         }
 
-        // Normalize every control icon (repeat, shuffle, lyrics, volume speaker)
-        // to one size. The volume speaker's own scaling lives in Volume.vue but
-        // is scoped under a .b-bar ancestor; in the Now Playing header this group
-        // is NOT inside .b-bar, so without this the speaker rendered full-size and
-        // looked bigger than its neighbours. (In the bottom bar Volume.vue's more
-        // specific rule still wins, so that context is unchanged.)
-        svg {
-            transform: scale(0.75);
-        }
-
         &:active > svg {
-            transform: scale(0.6);
+            transform: scale(0.85);
         }
+    }
+
+    // Normalize every control icon (repeat, shuffle, lyrics, devices, volume
+    // speaker) to one size. They all come from the shared 24x24 icon set, so a
+    // plain width/height does it — the old `transform: scale(0.75)` sized each
+    // glyph off its own viewBox, which is why the lyrics bubble (filling its
+    // box edge to edge) towered over its neighbours. The favorite check is
+    // excluded: HeartSvg brings its own geometry.
+    > button:not(.heart-button) svg {
+        width: 1.35rem;
+        height: 1.35rem;
     }
 
     button.aux.aux-off svg {
         opacity: 0.45;
     }
 
-    // The transport glyphs (repeat, shuffle, lyrics) hardcode a light fill in
-    // their SVG assets — force them to the theme text colour so they read on
-    // the panel bar in BOTH themes. The favorite check is excluded: its circle
-    // is currentColor-driven (see HeartSvg) and its check mark is a separate
-    // white-stroked path that must stay white.
-    > button:not(.heart-button) svg path {
-        fill: $candy-text;
+    // The control glyphs are currentColor (filled bodies, stroked details) —
+    // colour them through `color`, never `fill`, or the stroked ones (shuffle,
+    // repeat, lyrics) get flooded solid. Two exclusions: HeartSvg brings its
+    // own colours (currentColor circle + a white check mark), and the joined
+    // devices button keeps the white glyph on its green box (DevicesButton.vue)
+    // — spelled out here rather than left to specificity luck.
+    > button:not(.heart-button):not(.ds-joined) {
+        color: $candy-text;
     }
 
     // Active shuffle / repeat wear the play button's memphis box, mirroring the
     // desktop transport (LeftSidebar/NP/HotKeys.vue) — the shared treatment from
-    // _candy.scss. The glyph keeps this bar's own 0.75 scale; the buttons are a
-    // fixed 3rem square here, so the box needs no extra footprint reservation.
+    // _candy.scss. The buttons are a fixed 3rem square here, so the box needs no
+    // extra footprint reservation.
     button.aux:not(.aux-off) {
         @include mem-transport-aux-on;
 

@@ -264,7 +264,12 @@ function runChildAction(action: () => void) {
         // light panel. Redirect every glyph to the inherited menu text colour
         // (currentColor) so they read in BOTH themes and still flip to ink on
         // the yellow critical-hover fill.
-        svg path {
+        //
+        // Paths that carry a `stroke` are skipped: those come from the shared
+        // 24x24 icon set (shuffle, repeat, ...) and are OPEN shapes — filling
+        // them turns the glyph into a solid blob. They are currentColor
+        // already, so the inherited colour reaches them anyway.
+        svg path:not([stroke]) {
             fill: currentColor;
         }
     }

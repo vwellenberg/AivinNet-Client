@@ -27,11 +27,9 @@ const title = computed(() => (ds.joined ? 'Devices — group playback active' : 
 // state is the app's loudest "on" and was the one that did not.
 .devices-btn.ds-joined {
     @include candy-box($brand-green, $candy-radius-sm);
-
     // White glyph on the green fill — static in both themes, like the ink
-    // glyph on the yellow transport boxes.
-    svg path {
-        fill: $mem-panel-static;
-    }
+    // glyph on the yellow transport boxes. Through `color` (the glyph is
+    // currentColor), so it holds for stroked icons too.
+    color: $mem-panel-static;
 }
 </style>

@@ -1,3 +1,5 @@
-<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M8.8 6.25391H11.7A0.8 0.8 0 0 1 12.5 7.05391V20.2723A0.8 0.8 0 0 1 11.7 21.0723H8.8A0.8 0.8 0 0 1 8 20.2723V7.05391A0.8 0.8 0 0 1 8.8 6.25391ZM16.3 6.25391H19.2A0.8 0.8 0 0 1 20 7.05391V20.2723A0.8 0.8 0 0 1 19.2 21.0723H16.3A0.8 0.8 0 0 1 15.5 20.2723V7.05391A0.8 0.8 0 0 1 16.3 6.25391Z" fill="#F2F2F2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+    <!-- Transport set: 24x24 box, ~14px optical glyph, currentColor. -->
+    <rect x="7" y="5.5" width="3.8" height="13" rx="1.2" fill="currentColor" />
+    <rect x="13.2" y="5.5" width="3.8" height="13" rx="1.2" fill="currentColor" />
 </svg>
