@@ -351,6 +351,118 @@ describe('devicesync store', () => {
         expect(ds.joined).toBe(false)
     })
 
+    // --- auto-rejoin ---------------------------------------------------------
+    // A device that dropped out involuntarily (reaped, network gap, server
+    // restart) walks back into a STILL-RUNNING group by itself.
+
+    const peer = (over: Partial<any> = {}): any => ({
+        device_id: 'devB',
+        name: 'Chrome on Android',
+        type: 'mobile',
+        online: true,
+        joined: true,
+        volume: 1,
+        mute: false,
+        is_leader: true,
+        ...over,
+    })
+
+    it('remembers membership across reloads and forgets it on a deliberate leave', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        await ds.join()
+        expect(localStorage.getItem('aivinnet.group_member')).toBe('1')
+
+        await ds.leave()
+        expect(localStorage.getItem('aivinnet.group_member')).toBeNull()
+    })
+
+    it('rejoins a still-running group after an involuntary drop-out', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        localStorage.setItem('aivinnet.group_member', '1')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        // Server says: you are not a member, but devB is → group is alive.
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ joined: false, devices: [peer()] }))
+        await ds.poll()
+        await Promise.resolve()
+
+        expect(requestsMock.joinGroup).toHaveBeenCalledWith('devA')
+    })
+
+    it('never CREATES a group on its own (no running group → no rejoin)', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        localStorage.setItem('aivinnet.group_member', '1')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        // Marker set, but nobody is in a group — opening the app must not
+        // start group playback nobody asked for.
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({ joined: false, devices: [peer({ joined: false })] })
+        )
+        await ds.poll()
+        await Promise.resolve()
+
+        expect(requestsMock.joinGroup).not.toHaveBeenCalled()
+    })
+
+    it('does not rejoin without the membership marker', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ joined: false, devices: [peer()] }))
+        await ds.poll()
+        await Promise.resolve()
+
+        expect(requestsMock.joinGroup).not.toHaveBeenCalled()
+    })
+
+    it('does not rejoin right after the user left (marker cleared + suppress window)', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        await ds.join()
+        await ds.leave()
+        requestsMock.joinGroup.mockClear()
+
+        requestsMock.pollSession.mockResolvedValueOnce(mkPoll({ joined: false, devices: [peer()] }))
+        await ds.poll()
+        await Promise.resolve()
+
+        expect(requestsMock.joinGroup).not.toHaveBeenCalled()
+    })
+
+    it('backs off between rejoin attempts so a failing one cannot loop', async () => {
+        const { useDeviceSync } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        localStorage.setItem('aivinnet.group_member', '1')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        requestsMock.pollSession.mockResolvedValue(mkPoll({ joined: false, devices: [peer()] }))
+        await ds.poll()
+        await Promise.resolve()
+        expect(requestsMock.joinGroup).toHaveBeenCalledTimes(1)
+
+        // The rejoin did not stick (server still reports us outside) — the next
+        // polls must not hammer /join.
+        ds.joined = false
+        await ds.poll()
+        await ds.poll()
+        await Promise.resolve()
+        expect(requestsMock.joinGroup).toHaveBeenCalledTimes(1)
+    })
+
     it('a solo (non-joined) device never mirrors group state onto its local queue', async () => {
         const { useDeviceSync, useTracklist, useQueue } = await setup()
         localStorage.setItem('aivinnet.device_id', 'devA')
