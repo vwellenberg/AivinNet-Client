@@ -48,16 +48,13 @@ defineEmits<{
   // element, so once the mixin gained a border and an offset shadow it washed
   // those out too and the button read as unfinished next to its siblings.
   //
-  // "Pinned" is carried by the GLYPH, not by a fill: the filled pin plus the
-  // teal accent, exactly how the favourite toggle signals "on". It used to take
-  // the blush fill — the same fill the mixin uses for HOVER — so a pinned
-  // button looked permanently hovered and the two states were indistinguishable.
-  // Blush now means "the pointer is here"; teal means "this is on".
-  // `:hover` is restated because the mixin sets `color` there and would
-  // otherwise flip the teal back to ink.
-  &.pinned,
-  &.pinned:hover {
-    color: $mem-teal;
-  }
+  // "Pinned" is carried by the GLYPH SHAPE alone — the template swaps
+  // pin.fill.svg for pin.svg. No colour override and no fill override:
+  //   - the blush fill is reserved for HOVER, so using it for state made a
+  //     pinned button look permanently hovered (both were the same pixel);
+  //   - an accent colour was tried here and read as an unexplained green pin,
+  //     out of step with the rest of the ink-on-panel header row.
+  // Filled vs. outlined is the whole signal, and it stays theme-correct for
+  // free because the glyph inherits the mixin's `color`.
 }
 </style>
