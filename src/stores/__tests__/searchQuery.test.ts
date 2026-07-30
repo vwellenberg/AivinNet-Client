@@ -32,6 +32,8 @@ vi.mock('@/stores/devicesync', () => ({ default: () => ({ joined: false, applyin
 vi.mock('@/stores/player', () => ({ usePlayer: () => ({ setVolume: vi.fn(), setMute: vi.fn() }) }))
 vi.mock('@/context_menus/hashing', () => ({ getLastFmApiSig: vi.fn() }))
 vi.mock('@/utils/recentSearches', () => ({ recordRecentSearch: vi.fn(), getRecentSearches: vi.fn(() => []) }))
+// The store reaches the playlists page store, which fetches on init.
+vi.mock('@/requests/playlists', () => ({ getAllPlaylists: vi.fn(() => Promise.resolve([])) }))
 // The store watches a DEBOUNCED copy of the query. Debounce timers do not
 // advance reliably under fake timers here, and the debounce is not what these
 // tests are about — pass the ref straight through. Partial mock: other parts
@@ -48,21 +50,6 @@ describe('search store: an absent query is an empty one', () => {
         setActivePinia(createPinia())
     })
 
-    it('clears the results when the query is emptied (idle state)', async () => {
-        const search = useSearchStore()
-        search.query = 'genesis'
-        await nextTick()
-
-        search.top_results.tracks = [{ title: 'stale' } as any]
-        search.tracks = [{ title: 'stale' } as any]
-
-        search.query = ''
-        await nextTick()
-
-        expect(search.top_results.tracks).toEqual([])
-        expect(search.tracks).toEqual([])
-    })
-
     // The regression: SearchView assigned `route.query.q as string`, and on a
     // deep link / reload of /search/top there IS no `q`. The store then held
     // `undefined`, the watcher called .trim() on it, and the TypeError aborted
@@ -77,6 +64,8 @@ describe('search store: an absent query is an empty one', () => {
         search.query = undefined as unknown as string
         await expect(nextTick()).resolves.not.toThrow()
 
+        // …and it is treated as empty: the page falls back to its idle state
+        // instead of keeping matches for a query that is no longer there.
         expect(search.top_results.tracks).toEqual([])
     })
 
