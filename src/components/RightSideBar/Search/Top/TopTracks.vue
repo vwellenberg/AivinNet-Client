@@ -26,7 +26,8 @@ const queue = useQueueStore()
 const tracklist = useTracklist()
 
 function handlePlay(track: Track) {
-    queue.clearQueue()
+    // Replacing the queue, not clearing it — see PlayBtn.vue: a clearQueue()
+    // here would broadcast an empty group queue against the one play() sends.
     tracklist.setFromSearch(search.query, [track])
     queue.play(0)
 }
