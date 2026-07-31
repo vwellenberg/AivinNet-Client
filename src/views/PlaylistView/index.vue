@@ -40,7 +40,7 @@ import { computed, watch } from 'vue'
 import { onBeforeUnmount, onMounted, onUpdated } from 'vue'
 
 import { isMedium, isSmall, isSmallPhone } from '@/stores/content-width'
-import { dropSources } from '@/enums'
+import { dropSources, FromOptions } from '@/enums'
 import useQueue from '@/stores/queue'
 import useTracklist from '@/stores/queue/tracklist'
 import usePlaylistStore from '@/stores/pages/playlist'
@@ -187,15 +187,37 @@ async function onTrackDropped(_source: dropSources, _track: Track, newIndex: num
     const move = resolveMove(playlist.allTracks, oldIndex, newIndex)
     if (!move) return
 
+    // Is the queue currently playing exactly this playlist, in exactly this
+    // order? Then the same move has to happen there, or the running queue keeps
+    // playing the order the user just dragged away from. Checked BEFORE the
+    // local splice, and by trackhash rather than by trusting the "from" label:
+    // the queue may have been added to or reordered since it was built, in which
+    // case its indices no longer line up with the playlist's and mirroring the
+    // move by index would shuffle the wrong track.
+    const queueFrom = tracklist.from
+    const mirrorToQueue =
+        queueFrom?.type === FromOptions.playlist &&
+        queueFrom.id === playlist.info.id &&
+        tracklist.tracklist.length === playlist.allTracks.length &&
+        tracklist.tracklist[oldIndex]?.trackhash === move.trackhash
+
     playlist.moveTrack(oldIndex, newIndex)
 
     const ok = await movePlaylistTrack(playlist.info.id, move.trackhash, move.beforeTrackhash)
 
     if (!ok) {
         // Put the row back so the list stops claiming an order the server never
-        // accepted.
+        // accepted. The queue was deliberately left alone until now, so there is
+        // nothing to roll back there.
         playlist.moveTrack(move.undo.from, move.undo.to)
+        return
     }
+
+    // Mirrored only after the server agreed: rolling a queue move back is not
+    // free in a group session (the mutation goes out as a broadcast and comes
+    // back asynchronously), and there is no reason to risk it for an order the
+    // server may reject.
+    if (mirrorToQueue) tracklist.moveTrack(oldIndex, newIndex)
 }
 
 // Edge auto-scroll while reordering: dragging a row near the top/bottom edge of

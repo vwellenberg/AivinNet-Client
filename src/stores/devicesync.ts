@@ -20,6 +20,7 @@ import { computeCorrection, HARD_MS } from '@/utils/deviceSync/driftSteer'
 import { ClockOffsetEstimator } from '@/utils/deviceSync/clockSync'
 import { detectDeviceName, detectDeviceType, getOrCreateDeviceId } from '@/utils/deviceSync/deviceId'
 import { expectedPositionMs } from '@/utils/deviceSync/expectedPosition'
+import { resolveQueueMove } from '@/utils/queueMove'
 import type {
     DeviceSummary,
     PollResponse,
@@ -1053,6 +1054,31 @@ export default defineStore('devicesync', {
                         currentindex: index,
                         playing: queue.playing,
                         position_ms: removedCurrent ? 0 : usePlayer().getCurrentTimeMs(),
+                        repeat: settings.repeat,
+                    })
+                    break
+                }
+                case 'moveTrack': {
+                    // Reordering the queue while joined: broadcast the would-be
+                    // list, same as insertTracks/removeTracks. The index travels
+                    // with it because only this client knows whether the dragged
+                    // row passed OVER the playing track — the server would have
+                    // to guess, and a reorder must never become a track change.
+                    const at = args[0] as number
+                    const gap = args[1] as number
+                    const hashes = tracklist.tracklist.map(t => t.trackhash)
+                    const move = resolveQueueMove(hashes.length, at, gap, queue.currentindex)
+                    if (!move) break
+
+                    const [hash] = hashes.splice(at, 1)
+                    hashes.splice(move.finalIndex, 0, hash)
+
+                    void this.sendQueueSet({
+                        trackhashes: hashes,
+                        from: tracklist.from as SyncFrom,
+                        currentindex: move.currentindex,
+                        playing: queue.playing,
+                        position_ms: usePlayer().getCurrentTimeMs(),
                         repeat: settings.repeat,
                     })
                     break

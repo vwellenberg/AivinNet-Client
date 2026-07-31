@@ -7,9 +7,15 @@
         currentInQueue: isCurrent,
       },
       { contexton: context_on },
+      dragOverClass,
     ]"
+    :draggable="droppable"
     @click="playThis(track)"
     @contextmenu.prevent="showMenu"
+    @dragstart="onDragStart"
+    @dragover.prevent="onDragOver"
+    @dragleave="onDragLeave"
+    @drop.prevent="onDrop"
   >
     <div class="album-art">
       <img :src="paths.images.thumb.small + track.image" class="rounded-sm" />
@@ -42,15 +48,16 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 
 import useTracklist from "@/stores/queue/tracklist";
 
 import { paths } from "@/config";
-import { favType } from "@/enums";
+import { dropSources, favType } from "@/enums";
 import { showTrackContextMenu as showContext } from "@/helpers/contextMenuHandler";
 import favoriteHandler from "@/helpers/favoriteHandler";
 import { Track } from "@/interfaces";
+import { showDragStart } from "@/utils/songItemMethods";
 
 import DelSvg from "@/assets/icons/plus.svg";
 import ArtistName from "./ArtistName.vue";
@@ -62,6 +69,8 @@ const props = defineProps<{
   isCurrentPlaying: boolean;
   isQueueTrack?: boolean;
   index?: number;
+  /** Opt in to reordering by drag. Only the queue panel does. */
+  droppable?: boolean;
 }>();
 
 const player = useTracklist();
@@ -75,11 +84,69 @@ function showMenu(e: MouseEvent) {
 
 const emit = defineEmits<{
   (e: "playThis"): void;
+  (e: "trackDropped", source: dropSources, track: Track, newIndex: number, oldIndex: number): void;
 }>();
 
 const playThis = (track: Track) => {
   emit("playThis");
 };
+
+// --- reordering by drag (queue panel) --------------------------------------
+// Mirrors SongItem's drag handling with one difference that matters: the index
+// carried through the drag is the `index` PROP (the row's position in the
+// queue), not `track.index`. The latter is the refIndex into whatever list the
+// track originally came from and says nothing about where it sits in the queue.
+const dragOverTop = ref(false);
+const dragOverBottom = ref(false);
+const dragOverClass = computed(() => {
+  if (dragOverTop.value) return "drag-over-top";
+  if (dragOverBottom.value) return "drag-over-bottom";
+  return "";
+});
+
+function onDragStart(e: DragEvent) {
+  showDragStart(e, props.track, props.index ?? 0, dropSources.queue);
+}
+
+function onDragOver(e: DragEvent) {
+  if (!props.droppable) return;
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const top = e.clientY < rect.top + rect.height / 2;
+  if (dragOverTop.value !== top) dragOverTop.value = top;
+  if (dragOverBottom.value !== !top) dragOverBottom.value = !top;
+}
+
+function onDragLeave() {
+  dragOverTop.value = false;
+  dragOverBottom.value = false;
+}
+
+function onDrop(e: DragEvent) {
+  dragOverTop.value = false;
+  dragOverBottom.value = false;
+  if (!props.droppable) return;
+
+  const data = e.dataTransfer?.getData("swing-track");
+  if (!data) return;
+
+  const { track, source, oldIndex } = JSON.parse(data) as {
+    track: Track;
+    source: dropSources;
+    oldIndex: number;
+  };
+
+  // A row dragged in from a page carries an index into THAT list; treating it
+  // as a queue position would reorder the wrong track.
+  if (source !== dropSources.queue) return;
+
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const top = e.clientY < rect.top + rect.height / 2;
+  const own = props.index ?? 0;
+  const newIndex = top ? own : own + 1;
+  if (oldIndex === newIndex || oldIndex === newIndex - 1) return;
+
+  emit("trackDropped", source, track, newIndex, oldIndex);
+}
 
 function addToFav(trackhash: string) {
   favoriteHandler(
@@ -140,6 +207,9 @@ onBeforeUnmount(() => {
   align-items: center;
   padding: $small 1rem;
   transition: background-color 0.2s ease-out;
+  // Anchor for the drop marker below. `.currentInQueue` already sets this; the
+  // base row needs it too or the marker would position against the scroller.
+  position: relative;
 
   .tags {
     .title {
@@ -229,5 +299,40 @@ onBeforeUnmount(() => {
     width: fit-content;
     font-weight: 700;
   }
+}
+
+.track-item[draggable="true"] {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// Drop marker. Drawn as a pseudo-element rather than a real border (which is
+// what the song rows use): those reserve a transparent border up front,
+// TrackItem does not, so a border here would shift the row by 3px the moment
+// the pointer crosses it. `.currentInQueue` clips its own overflow and owns
+// ::after for the zigzag, so the marker is inset and lives on ::before.
+.track-item.drag-over-top,
+.track-item.drag-over-bottom {
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0.5rem;
+    right: 0.5rem;
+    height: 3px;
+    background-color: $mem-line;
+    pointer-events: none;
+    z-index: 2;
+  }
+}
+
+.track-item.drag-over-top::before {
+  top: 0;
+}
+
+.track-item.drag-over-bottom::before {
+  bottom: 0;
 }
 </style>

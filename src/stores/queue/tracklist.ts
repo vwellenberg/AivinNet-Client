@@ -20,6 +20,7 @@ import {
     fromSearch,
     Track,
 } from '@/interfaces'
+import { resolveQueueMove } from '@/utils/queueMove'
 
 export type From =
     | fromFolder
@@ -183,6 +184,39 @@ export default defineStore('tracklist', {
             if (index == queue.nextindex) {
                 player.clearNextAudio()
             }
+        },
+        /**
+         * Reorder the queue itself: drag a row in the queue panel, or mirror a
+         * playlist reorder into the queue that is playing that playlist.
+         *
+         * `to` is the drop GAP, the same convention SongItem emits and
+         * `playlistMove.ts` uses. The index arithmetic — including where the
+         * playing track ends up — lives in `utils/queueMove.ts` and is tested
+         * against a model of this splice.
+         */
+        moveTrack(from: number, to: number) {
+            const queue = useQueue()
+            const move = resolveQueueMove(this.tracklist.length, from, to, queue.currentindex)
+            if (!move) return
+
+            // Group mode: the same seam as insertAt/removeByIndex. Splicing the
+            // local list leaves the server's queue_id untouched, so nothing
+            // re-mirrors and every other device keeps playing the old order.
+            const ds = useDeviceSync()
+            if (ds.joined && !ds.applying) {
+                ds.intercept('moveTrack', from, to)
+                return
+            }
+
+            const [track] = this.tracklist.splice(from, 1)
+            this.tracklist.splice(move.finalIndex, 0, track)
+
+            // A reorder is not a track change: whatever is playing keeps playing,
+            // it just sits at a different index now.
+            queue.setCurrentIndex(move.currentindex)
+
+            // Whatever was preloaded as "next" may be a different track now.
+            usePlayer().clearNextAudio()
         },
         clearList() {
             this.tracklist = []
