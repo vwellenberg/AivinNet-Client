@@ -1,8 +1,11 @@
 <template>
-  <div class="album-buttons">
+  <!-- Canonical order: Play · Favourite · Pin · Secondary action · Overflow.
+       `header-actions` is the row's shared anatomy (flex, gap, wrap, stagger);
+       `album-buttons` only scopes what is peculiar to THIS header. -->
+  <div class="album-buttons header-actions">
     <PlayBtnRect :source="playSources.album" />
 
-    <HeartSvg :state="album.is_favorite" @handleFav="handleFav" />
+    <HeartSvg btn_role="action" :state="album.is_favorite" @handleFav="handleFav" />
     <PinButton :pinned="album.is_pinned" @toggle="handlePin" />
     <button
       class="mb-cover"
@@ -91,42 +94,23 @@ async function fetchCover() {
 </script>
 
 <style lang="scss">
+// Flex, gap and wrapping now come from `.header-actions` (Global/
+// _button-classes.scss). What is left here is what only this header has.
 .album-buttons {
-  display: flex;
-  align-items: center;
-  gap: $small;
-  // The row wraps instead of squeezing its buttons — on a 390px phone the
-  // five controls used to be compressed until the cover-fetch button was a
-  // 16px sliver.
-  flex-wrap: wrap;
-
   .options,
   .mb-cover {
     @include btn-action;
-  }
-
-  // The favourite toggle brings its own colour logic (plus glyph vs. green
-  // check) — the shared anatomy aligns its footprint and its corner radius with
-  // the row, not its palette. Without this it kept the global `.circular` pill
-  // and sat as the one round control among rounded squares.
-  .heart-button {
-    @include btn-action;
-
-    // ...but the favourite owns its colour. The mixin sets `color` on hover so
-    // its own glyphs stay readable on the light hover fill, and that rule is
-    // more specific than a bare `.is-fav` in HeartSvg — a favourited album
-    // turned ink the moment the pointer touched it. Re-assert here, where the
-    // collision is actually created, with the compound that outranks it.
-    &.is-fav,
-    &.is-fav:hover {
-      color: $mem-teal;
-    }
   }
 
   .options {
     &.context_menu_showing {
       background-color: $darkblue;
       // Yellow accent fill while the menu is open -> pin static ink.
+      //
+      // On the BUTTON, not on `svg { color: … !important }`. The glyph is
+      // currentColor, so the button is where the state belongs, and the artist
+      // header (the only other overflow button) writes it the same way. Two
+      // spellings of one state is how they drift apart.
       color: $mem-ink;
     }
   }

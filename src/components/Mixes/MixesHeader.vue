@@ -10,7 +10,11 @@
             <div class="bunchofstuff">
                 {{ mix.trackcount }} track{{ mix.trackcount === 1 ? '' : 's' }} ▸ {{ mix.duration }}
             </div>
-            <div class="buttons">
+            <!-- Canonical order: Play · Favourite · Pin · Secondary action ·
+                 Overflow. "Save mix" is this page's favourite (bookmark glyph,
+                 the app's favourite iconography for a saved collection); the
+                 remaining slots have no action here. -->
+            <div class="buttons header-actions">
                 <PlayBtnRect :source="playSources.mix" @click.prevent="$emit('playThis')" />
                 <button class="savebtn" :title="saved ? 'Saved Mix' : 'Save Mix'" @click="saveMix">
                     <SaveFilledSvg v-if="saved" />
@@ -110,15 +114,10 @@ async function saveMix() {
         font-weight: 500;
     }
 
-    // The fourth detail header, and the last one still building its own
-    // anatomy: `gap: 1rem` against the $small the other three use, and no
-    // `flex-wrap`, so this row squeezed on phones where they wrap.
+    // The fourth detail header. Its row is `.header-actions` like the other
+    // three now; only the gap to the meta line above it is this header's own.
     .buttons {
         margin-top: 1rem;
-        display: flex;
-        gap: $small;
-        align-items: center;
-        flex-wrap: wrap;
 
         // Was a bare `background: transparent; border: none; padding: 0` with a
         // 1.5rem glyph — verbatim the pattern #244 existed to delete, and a
