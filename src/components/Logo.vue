@@ -32,8 +32,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: $candy-black;
-  border-radius: $candy-radius-sm;
+  // The full bordered surface, not just a fill: on the dark theme the tile is
+  // ink on an ink-dark top bar, so without the frame it disappeared and left
+  // its paper-coloured offset shadow sitting under nothing — the exact "shadow
+  // under nothing" failure the shadow system warns about. The frame is also
+  // what makes this tile and the home button the same object at last: the home
+  // button has carried candy-box (fill + border + radius) all along.
+  @include candy-box($candy-black, $candy-radius-sm);
   padding: 0.35rem;
   @include candy-raised(4px, 4px, $press: false);
   // candy-raised's own transition covers box-shadow + transform; the tilt below
