@@ -44,6 +44,9 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 | `rangeshot.js` + `rangemeasure.py` | Regler-Geometrie in **Pixeln**, Chromium und Firefox |
 | `wavecheck.js` | welches Element beim Klick eine `v-wave`-Welle wirft, mit Farbe und Dauer |
 | `popcheck.js` | liest die **laufende** Transform-Matrix aus, statt der Keyframe-Deklaration zu glauben |
+| `coldpop.js` | **welche Buttons ploppen wirklich**, pro Route kalt geladen: `TOKEN=… [MOBILE=1] node coldpop.js "#/albums" "#/playlist/60"` |
+| `popaudit.js` | derselbe Befund über alle Routen in **einer** SPA-Sitzung, plus Staffel-Soll/Ist je Header-Reihe; kennt `REDUCED=1` |
+| `popframes.js` | tastet die laufende Skalierung **aller** Buttons einer Reihe ab (0,82 → 1,05 → 1,00) und schneidet einen Filmstreifen |
 | `btnaudit.js`, `bordermeasure.js`, `audit-shadows.js`, `mobile-audit.js` | Computed-Style-Audits über Routen × Themes |
 | `previewproxy.js` + `run*.sh` | Branch-`dist` über einen Proxy servieren und messen |
 | `queueseams.js`, `verify3.js` | E2E für Queue-Seams und Group-Sync |
@@ -58,6 +61,16 @@ Die Routen sind Hash-Routen: `http://localhost:1970/#/<route>`.
 
 - **Gegen `master` kontrollieren, immer.** Eine Null beweist ohne Kontrolllauf nur, dass man
   nicht misst.
+- **Ob eine Animation LÄUFT, weiß nur `document.getAnimations()`.** Ein computed `animation-name`
+  sagt bloß, dass eine laufen *dürfte* — die Chrome-Buttons in Nav und Sidebar tragen `btn-pop`
+  dauerhaft und feuern trotzdem nur beim App-Start. Wer die Deklaration misst, hält jeden
+  Seitenwechsel für ein Ploppen. `getAnimations()` liefert zusätzlich `getComputedTiming()` mit dem
+  **effektiven** Delay, also die Staffelung als Zahl statt als Absicht.
+- **Ein zu kurzes Messfenster liest sich wie „ploppt gar nicht".** Auf einer kalt geladenen
+  Detailseite steht die Header-Reihe erst nach 500–1000 ms; ein 2-Sekunden-Fenster, das vor dem
+  Rendern beginnt, meldet sauber „0 Pops" (real passiert: mobile Album-, Artist- und
+  Playlist-Seite gleichzeitig „kaputt", alle drei in Ordnung). Den Collector per
+  `addInitScript` **vor** dem Boot setzen und mindestens 8 s messen.
 - **Außerhalb des Viewports gibt es kein `elementFromPoint`.** Ein `page.mouse.down()` auf den
   Koordinaten eines Elements unterhalb der Falz landet auf **nichts** — der Test meldet „kein
   Effekt", der Code ist in Ordnung (real passiert: Ordner-Kopf bei y≈1044 in einem 900-px-
