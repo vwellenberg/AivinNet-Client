@@ -185,6 +185,48 @@ describe('queue store: permanent shuffle', () => {
         expect(queue.previndex).toBe(-1)
     })
 
+    describe('moveForward — the gapless advance', () => {
+        // This is how a track that plays out to its end actually advances: the
+        // player switches to the pre-loaded audio and only reports the new index.
+        // It used to skip the re-roll, so the target kept pointing at the track
+        // that had just started and shuffle replayed the same song forever.
+        it('never leaves the next target sitting on the current track', () => {
+            const queue = useQueue()
+            queue.currentindex = 3
+            queue.toggleShuffle()
+
+            const visited: number[] = []
+
+            for (let i = 0; i < 20; i++) {
+                queue.moveForward()
+                visited.push(queue.currentindex)
+                expect(queue.nextindex).not.toBe(queue.currentindex)
+            }
+
+            // A stuck target would visit exactly one track, twenty times over.
+            expect(new Set(visited).size).toBeGreaterThan(1)
+        })
+
+        it('records the advance in the shuffle history', () => {
+            const queue = useQueue()
+            queue.toggleShuffle()
+            queue.play(2, false)
+
+            queue.moveForward()
+
+            expect(queue.shuffleRecent[queue.shuffleRecent.length - 1]).toBe(queue.currentindex)
+        })
+
+        it('still steps one row forward with shuffle off', () => {
+            const queue = useQueue()
+            queue.currentindex = 3
+
+            queue.moveForward()
+
+            expect(queue.currentindex).toBe(4)
+        })
+    })
+
     describe('autoPlayNext', () => {
         it('follows the shuffle roll instead of the next row', () => {
             const queue = useQueue()

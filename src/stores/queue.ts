@@ -203,8 +203,16 @@ export default defineStore('Queue', {
             this.play(this.previndex)
             usePlayer().clearNextAudio()
         },
+        /**
+         * Advance to the pre-loaded next track. The gapless player switches audio
+         * sources itself and only tells the queue where it landed — so this is a
+         * track change like `play`, and it owes the same re-roll: without it the
+         * shuffle target still points at the track that just STARTED, `nextindex`
+         * hands out the current index, and shuffle plays the same song forever.
+         */
         moveForward() {
             this.currentindex = this.nextindex
+            this.rollShuffleNext()
         },
         seek(pos: number) {
             const ds = useDeviceSync()
