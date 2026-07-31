@@ -59,6 +59,7 @@ import { Track } from '@/interfaces'
 import { pageGradient } from '@/utils/colortools/pageGradient'
 import { createDragAutoScroller } from '@/utils/dragAutoScroll'
 import { resolveMove } from '@/utils/playlistMove'
+import { rangeAligns } from '@/utils/queueMove'
 
 const queue = useQueue()
 const tracklist = useTracklist()
@@ -187,19 +188,30 @@ async function onTrackDropped(_source: dropSources, _track: Track, newIndex: num
     const move = resolveMove(playlist.allTracks, oldIndex, newIndex)
     if (!move) return
 
-    // Is the queue currently playing exactly this playlist, in exactly this
-    // order? Then the same move has to happen there, or the running queue keeps
-    // playing the order the user just dragged away from. Checked BEFORE the
-    // local splice, and by trackhash rather than by trusting the "from" label:
-    // the queue may have been added to or reordered since it was built, in which
-    // case its indices no longer line up with the playlist's and mirroring the
-    // move by index would shuffle the wrong track.
+    // Is the queue playing this playlist, and do its indices still line up with
+    // the ones this drag is expressed in? Then the same move has to happen
+    // there, or the running queue keeps playing the order the user just dragged
+    // away from.
+    //
+    // Alignment is proven over the SLICE the move touches, by trackhash, not by
+    // comparing lengths: the two lists are legitimately different lengths. The
+    // page paginates (a fresh visit holds ~13 of 43 rows) while the queue was
+    // built from the fully fetched list — a length test rejected every mirror in
+    // the normal case and only ever passed on a playlist small enough to load in
+    // one page. What actually matters is that the queue agrees with the page
+    // about every row between the drag's two ends; if it does not (tracks added
+    // to the queue, queue reordered on its own), mirroring by index would move
+    // the wrong track, and we skip.
     const queueFrom = tracklist.from
     const mirrorToQueue =
         queueFrom?.type === FromOptions.playlist &&
         queueFrom.id === playlist.info.id &&
-        tracklist.tracklist.length === playlist.allTracks.length &&
-        tracklist.tracklist[oldIndex]?.trackhash === move.trackhash
+        rangeAligns(
+            playlist.allTracks,
+            tracklist.tracklist,
+            Math.min(oldIndex, move.finalIndex),
+            Math.max(oldIndex, move.finalIndex)
+        )
 
     playlist.moveTrack(oldIndex, newIndex)
 

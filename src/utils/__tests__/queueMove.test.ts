@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { resolveQueueMove } from '@/utils/queueMove'
+import { rangeAligns, resolveQueueMove } from '@/utils/queueMove'
 
 /** Mirror of the splice the store performs, so the maths can be checked end to end. */
 function applyMove<T>(items: T[], from: number, finalIndex: number): T[] {
