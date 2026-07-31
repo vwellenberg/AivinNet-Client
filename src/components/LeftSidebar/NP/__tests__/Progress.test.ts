@@ -72,7 +72,6 @@ describe('seek bar scrubbing', () => {
 
         // 100 of 200 seconds -> the fill (and its sprinkle overlay) sit at 50%.
         expect(w.find('.progress-wrap').attributes('style')).toContain('--texture-frac: 0.5')
-        expect((w.find('#progress').element as HTMLElement).style.background).toContain('50%')
     })
 
     it('follows the playhead again once the drag is released', async () => {
@@ -95,25 +94,40 @@ describe('seek bar hover preview', () => {
     const BAR = { left: 0, top: 0, width: 200, height: 10 }
     const realRect = Element.prototype.getBoundingClientRect
 
+    // jsdom's CSS parser drops a multi-layer `background` shorthand on the
+    // floor — reading it back off the element returns ''. Capture what the
+    // component writes instead, which is the thing under test anyway.
+    let lastBg = ''
+    const realBg = Object.getOwnPropertyDescriptor(CSSStyleDeclaration.prototype, 'background')
+
     beforeEach(() => {
         queue.duration.current = 40 // playhead at 20%
         queue.duration.full = 200
+        lastBg = ''
         Element.prototype.getBoundingClientRect = () =>
             ({ ...BAR, right: BAR.width, bottom: BAR.height, x: 0, y: 0 } as DOMRect)
+        Object.defineProperty(CSSStyleDeclaration.prototype, 'background', {
+            configurable: true,
+            get: () => lastBg,
+            set: (v: string) => {
+                lastBg = v
+            },
+        })
     })
 
-    // Put the prototype back: a patched getBoundingClientRect left lying around
-    // is exactly the kind of cross-test bleed that is hard to trace later.
+    // Put the prototypes back: a patched getBoundingClientRect or background
+    // left lying around is exactly the kind of cross-test bleed that is hard to
+    // trace later.
     afterEach(() => {
         Element.prototype.getBoundingClientRect = realRect
+        if (realBg) Object.defineProperty(CSSStyleDeclaration.prototype, 'background', realBg)
     })
 
     // The span is a background layer on the input, placed with hard colour
     // stops: `transparent <from>%, YELLOW <from>%, YELLOW <to>%, transparent`.
     // Its edges are sub-pixel floats, so read the stops back as numbers.
-    const span = (w: ReturnType<typeof mount>) => {
-        const bg = (w.find('#progress').element as HTMLElement).style.background
-        const stops = [...bg.matchAll(/#F5B23C ([\d.]+)%/gi)].map(m => Number(m[1]))
+    const span = () => {
+        const stops = [...lastBg.matchAll(/#F5B23C ([\d.]+)%/gi)].map(m => Number(m[1]))
         return stops.length === 2 ? { from: stops[0], to: stops[1] } : null
     }
     const textureFrac = (w: ReturnType<typeof mount>) =>
@@ -131,8 +145,8 @@ describe('seek bar hover preview', () => {
         // Cursor at 70% with the playhead at 20% -> the span runs 20%..70%.
         // Painting from zero would bury the played fill under the preview.
         await hoverAt(w, 140)
-        expect(span(w)?.from).toBeCloseTo(20)
-        expect(span(w)?.to).toBeCloseTo(70)
+        expect(span()?.from).toBeCloseTo(20)
+        expect(span()?.to).toBeCloseTo(70)
     })
 
     it('paints backwards when the cursor is behind the playhead', async () => {
@@ -140,8 +154,8 @@ describe('seek bar hover preview', () => {
 
         // Cursor at 5%, playhead at 20% -> the span is the 15% being given up.
         await hoverAt(w, 10)
-        expect(span(w)?.from).toBeCloseTo(5)
-        expect(span(w)?.to).toBeCloseTo(20)
+        expect(span()?.from).toBeCloseTo(5)
+        expect(span()?.to).toBeCloseTo(20)
     })
 
     it('keeps up with the playhead while the pointer holds still', async () => {
@@ -153,12 +167,13 @@ describe('seek bar hover preview', () => {
 
         // The span shrinks from its left edge instead of drifting: a geometry
         // measured once on pointermove would still claim to start at 20%.
-        expect(span(w)?.from).toBeCloseTo(30)
-        expect(span(w)?.to).toBeCloseTo(70)
+        expect(span()?.from).toBeCloseTo(30)
+        expect(span()?.to).toBeCloseTo(70)
     })
 
     it('paints nothing while the bar is not hovered', () => {
-        expect(span(mount(Progress))).toBeNull()
+        mount(Progress)
+        expect(span()).toBeNull()
     })
 
     it('carries the sprinkle texture across the span, not just the played fill', async () => {
