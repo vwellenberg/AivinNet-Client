@@ -197,6 +197,52 @@ describe('queue store: permanent shuffle', () => {
         expect(queue.previndex).toBe(-1)
     })
 
+    describe('playSource — starting a source', () => {
+        it('starts on the first row while shuffle is off', () => {
+            const queue = useQueue()
+            queue.currentindex = 7
+
+            queue.playSource()
+
+            expect(queue.currentindex).toBe(0)
+        })
+
+        it('enters somewhere random once shuffle is on', () => {
+            const queue = useQueue()
+            queue.toggleShuffle()
+
+            const starts = new Set<number>()
+            for (let i = 0; i < 40; i++) {
+                queue.playSource()
+                starts.add(queue.currentindex)
+            }
+
+            // Always row 0 would mean "Play" opens with the same song every time.
+            expect(starts.size).toBeGreaterThan(1)
+        })
+
+        it('never re-enters on the track that is already playing', () => {
+            const queue = useQueue()
+            queue.toggleShuffle()
+
+            for (let i = 0; i < 60; i++) {
+                const before = queue.currentindex
+                queue.playSource()
+                expect(queue.currentindex).not.toBe(before)
+            }
+        })
+
+        it('starts on the only track of a one-track queue', () => {
+            seedQueue(1)
+            const queue = useQueue()
+            queue.toggleShuffle()
+
+            queue.playSource()
+
+            expect(queue.currentindex).toBe(0)
+        })
+    })
+
     describe('moveForward — the gapless advance', () => {
         // This is how a track that plays out to its end actually advances: the
         // player switches to the pre-loaded audio and only reports the new index.

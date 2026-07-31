@@ -477,7 +477,7 @@ function onFolderContextMenu(e: MouseEvent, folder: PlaylistFolder) {
         const tracks = await getFolderTracks(folder);
         if (!tracks) return;
         tracklist.setFromPlaylistFolder(folder.name, folder.id, tracks);
-        queue.play();
+        queue.playSource();
       },
     },
     {

@@ -26,14 +26,16 @@ export async function utilPlayFromArtist(index: number = 0) {
 
     if (artist.info.trackcount <= settings.artist_top_tracks_count) {
         tracklist.setFromArtist(artist.info.artisthash, artist.info.name, artist.tracks)
-        queue.play()
+        queue.playSource()
         return
     }
 
     const tracks = await getArtistTracks(artist.info.artisthash)
 
     tracklist.setFromArtist(artist.info.artisthash, artist.info.name, tracks)
-    queue.play(index)
+
+    // No index given = "play this artist", which under shuffle starts anywhere.
+    index ? queue.play(index) : queue.playSource()
 }
 
 export async function playFromAlbumCard(albumhash: string, albumname: string) {
@@ -48,7 +50,7 @@ export async function playFromAlbumCard(albumhash: string, albumname: string) {
     }
 
     tracklist.setFromAlbum(albumname, albumhash, tracks)
-    queue.play()
+    queue.playSource()
 }
 
 export async function playFromArtistCard(artisthash: string, artistname: string) {
@@ -62,7 +64,7 @@ export async function playFromArtistCard(artisthash: string, artistname: string)
     }
 
     tracklist.setFromArtist(artisthash, artistname, tracks)
-    queue.play()
+    queue.playSource()
 }
 
 export async function playFromFolderCard(folderpath: string) {
@@ -78,7 +80,7 @@ export async function playFromFolderCard(folderpath: string) {
     }
 
     tracklist.setFromFolder(folderpath, tracks)
-    queue.play()
+    queue.playSource()
 }
 
 export async function playFromFavorites(track: Track | undefined) {
@@ -91,13 +93,14 @@ export async function playFromFavorites(track: Track | undefined) {
         tracklist.setFromFav(res.tracks)
     }
 
-    let index = 0
-
-    if (track) {
-        index = tracklist.tracklist.findIndex(t => t.trackhash === track?.trackhash)
+    // A track was picked → play exactly that one. Without it this is "play my
+    // favourites", so shuffle decides where to enter.
+    if (!track) {
+        queue.playSource()
+        return
     }
 
-    queue.play(index)
+    queue.play(tracklist.tracklist.findIndex(t => t.trackhash === track.trackhash))
 }
 
 export async function playFromPlaylist(id: string, track?: Track) {
@@ -115,7 +118,7 @@ export async function playFromPlaylist(id: string, track?: Track) {
         const index = tracks.findIndex(t => t.trackhash === track.trackhash)
         queue.play(index)
     } else {
-        queue.play()
+        queue.playSource()
     }
 }
 
@@ -128,7 +131,7 @@ export const playFrom = async (source: playSources) => {
             const album = useAlbum()
 
             tracklist.setFromAlbum(album.info.title, album.info.albumhash, album.srcTracks)
-            queue.play()
+            queue.playSource()
             break
         }
 
@@ -143,7 +146,7 @@ export const playFrom = async (source: playSources) => {
                 await playlist.fetchAll(playlist.info.id, false, true)
             }
             tracklist.setFromPlaylist(playlist.info.name, playlist.info.id, playlist.tracks)
-            queue.play()
+            queue.playSource()
 
             break
         }
