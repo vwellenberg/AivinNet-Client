@@ -61,27 +61,32 @@
 //
 // Reduced motion needs nothing here: the mixin drops to `animation: none`, at
 // which point a delay has nothing to delay.
+//
+// The `#{}` around each value is not optional. Sass treats a custom property's
+// value as an opaque token and does NOT evaluate expressions inside it, so
+// `$motion-stagger * 3` reached the stylesheet verbatim and every delay
+// silently became invalid. Caught by diffing the built CSS against master.
 .album-buttons,
 .artist-buttons,
 .playlist-info .btns {
   > *:nth-child(2) {
-    --btn-pop-delay: $motion-stagger;
+    --btn-pop-delay: #{$motion-stagger};
   }
 
   > *:nth-child(3) {
-    --btn-pop-delay: $motion-stagger * 2;
+    --btn-pop-delay: #{$motion-stagger * 2};
   }
 
   > *:nth-child(4) {
-    --btn-pop-delay: $motion-stagger * 3;
+    --btn-pop-delay: #{$motion-stagger * 3};
   }
 
   > *:nth-child(5) {
-    --btn-pop-delay: $motion-stagger * 4;
+    --btn-pop-delay: #{$motion-stagger * 4};
   }
 
   > *:nth-child(n + 6) {
-    --btn-pop-delay: $motion-stagger * 5;
+    --btn-pop-delay: #{$motion-stagger * 5};
   }
 }
 
