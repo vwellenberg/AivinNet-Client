@@ -311,9 +311,12 @@ export default defineStore('settings', {
             // control anyway, which leaves an in-app mute nothing worth
             // restoring across sessions. Muting WITHIN a session still works
             // (and is undone from the bar, see BottomBar/Left.vue).
+            //
+            // Through the speaker button's own action, so startup recovers
+            // exactly the way a tap does — including keeping a perfectly good
+            // volume that merely happened to be muted, instead of resetting it.
             if (isMobile.value && this.is_silent) {
-                this.mute = false
-                this.volume = this.last_audible_volume || 1.0
+                this.toggleMute()
             }
 
             setVolume(this.volume)
