@@ -108,7 +108,7 @@ Wohin — nach Umfang und Lesehäufigkeit:
 |---|---|---|
 | Falle oder Konvention, die **überall** gilt; Befehl, den man ständig braucht | **diese `CLAUDE.md`** | in *jeder* Session |
 | Falle oder Konvention, die nur **einen Bereich** betrifft | **`.claude/rules/<thema>.md`** mit `paths:`-Frontmatter | nur wenn eine passende Datei gelesen wird |
-| Etwas, das **zwingend** passieren muss (nicht nur beraten) | **`.claude/settings.json`** als Hook | deterministisch beim Event |
+| Etwas, das **zwingend** passieren muss und sonst echten Schaden anrichtet | **`.claude/settings.json`** als Hook | deterministisch beim Event — sparsam einsetzen, siehe unten |
 | Bauplan, Store-Landkarte, Datenfluss | **[docs/architecture.md](docs/architecture.md)**, hier nur ein Zeiger | nur auf Anforderung |
 | Präferenz des Users, repo-übergreifende Policy | Memory (`~/.claude/projects/…/memory/`) | gehört nicht ins geteilte Repo |
 | Offene Arbeit, Bug, Idee | GitHub-Issue (`gh issue list --repo vwellenberg/AivinNet-Client`) | einzige Backlog-Quelle, auch für Backend-Themen |
@@ -118,20 +118,12 @@ Bestehende Bereichsregeln: `styling` · `stores-and-state` · `device-sync` · `
 `.claude/rules/` mit `paths:`-Glob im Frontmatter; **ohne `paths` lädt sie unbedingt** und ist
 damit nur CLAUDE.md unter anderem Namen.
 
-**Aktive Hooks** (`.claude/settings.json`, mit `/hooks` einsehbar):
-- Nach jedem Write/Edit an `.ts`/`.vue`/`.js` läuft `eslint --fix` auf genau dieser Datei.
-  ⚠️ Der Hook steigt **still aus, wenn kein `npx` im PATH ist** — auf dem Windows-Arbeitsrechner
-  ist node nicht installiert, dort passiert also nichts. Er greift auf Maschinen mit node.
-- `git commit` und `git push` werden **abgelehnt**, solange der aktuelle Branch `master`/`main` ist.
-  Die Worktree-Regel oben ist damit erzwungen statt nur aufgeschrieben. Erkannt wird auch
-  `git -C <repo> commit` — dann wird der Branch **dieses** Repos geprüft.
-  ⚠️ Der Guard liest den Kommando**text**. Er schlägt deshalb auch an, wenn „git commit" nur als
-  Zeichenkette im Befehl vorkommt (z. B. in einem Heredoc oder in Testdaten). Das ist bewusst
-  konservativ; im Zweifel den Text umformulieren.
-
-⚠️ Hooks greifen nur, wenn Claude Code **in diesem Verzeichnis** gestartet wurde — Projekt-Settings
-kommen aus dem Arbeitsverzeichnis, nicht aus Unterordnern. Wer eine Ebene höher arbeitet, braucht
-sie dort zusätzlich.
+**Hooks: bewusst keine.** Ein eslint-Hook und ein Branch-Guard waren kurz da und sind wieder
+raus — der eslint-Hook lief auf dem Windows-Arbeitsrechner mangels node ohnehin nie, und der
+Guard hat mehr behindert als geschützt. Lint und Format gaten schon in der CI; die Worktree-Regel
+oben wurde nie gebrochen. Wenn hier je wieder einer entsteht: er greift nur, wenn Claude Code
+**in diesem Verzeichnis** gestartet wurde (Projekt-Settings kommen aus dem Arbeitsverzeichnis,
+nicht aus Unterordnern).
 
 Regeln dazu:
 
