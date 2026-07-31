@@ -70,6 +70,12 @@ const artistitems = [
         flex-wrap: wrap;
         align-items: flex-start;
         gap: 1rem;
+
+        // A row of chips arrives left to right, like every other button row in
+        // the app. Without this the banner was the one place where a line of
+        // buttons flashed in as a block: nine chips on the album list, all at
+        // 0s, while the detail header two clicks away staggered its five.
+        @include btn-pop-stagger;
     }
 
     padding: 1rem $medium 2rem $medium;
@@ -108,6 +114,12 @@ const artistitems = [
     .tt {
         color: $candy-text;
         gap: $small;
+
+        // They borrow `btn-action` for the plate ONLY. A label carries
+        // `pointer-events: none` — it cannot be pressed, so it must not arrive
+        // like something that can. The pop is the role's "a control appeared"
+        // signal, and on a caption it is a promise the chip does not keep.
+        animation: none;
 
         svg {
             height: 1rem;

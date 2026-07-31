@@ -100,6 +100,60 @@ $bar-glyph-play: 1.75rem;
   }
 }
 
+// A row of buttons arrives left to right instead of all at once. Include it on
+// the element whose DIRECT CHILDREN are the buttons.
+//
+// It lived inside the `.header-actions` block until a second row wanted it (the
+// sort banner on the album and artist lists, which flashed all eleven of its
+// chips in at 0s while every header row next door arrived as one gesture).
+// Copying five nth-child rules into the second call site is how the four detail
+// headers each ended up hand-writing the same row in the first place.
+//
+// Deliberately NOT folded into `btn-action`: a delay is only wanted where
+// buttons stand in a line and read as a group. In a role it would also stagger a
+// lone button by its accidental position among unrelated siblings, and emit five
+// extra rules at each of ~40 call sites.
+//
+// Set as `--btn-pop-delay`, never as `animation-delay`. The roles state the whole
+// `animation` SHORTHAND, which resets the delay longhand, and they do it from a
+// deeper selector than a row-level rule can reach — the first version of this
+// used `animation-delay` and measured 0s on four of five buttons. A custom
+// property is not part of the shorthand, so it survives. `backwards` lives with
+// `btn-pop` for the same reason.
+//
+// Reduced motion needs nothing here: `btn-pop` drops to `animation: none`, at
+// which point a delay has nothing to delay.
+//
+// The `#{}` around each value is not optional. Sass treats a custom property's
+// value as an opaque token and does NOT evaluate expressions inside it, so
+// `$motion-stagger * 3` reached the stylesheet verbatim and every delay silently
+// became invalid. Caught by diffing the built CSS against master.
+//
+// The cap at the sixth child is what keeps a long row from turning into a queue:
+// the sort banner has up to nine chips, and 45ms each would have it still
+// arriving 400ms in.
+@mixin btn-pop-stagger {
+  > *:nth-child(2) {
+    --btn-pop-delay: #{$motion-stagger};
+  }
+
+  > *:nth-child(3) {
+    --btn-pop-delay: #{$motion-stagger * 2};
+  }
+
+  > *:nth-child(4) {
+    --btn-pop-delay: #{$motion-stagger * 3};
+  }
+
+  > *:nth-child(5) {
+    --btn-pop-delay: #{$motion-stagger * 4};
+  }
+
+  > *:nth-child(n + 6) {
+    --btn-pop-delay: #{$motion-stagger * 5};
+  }
+}
+
 // ---------------------------------------------------------------------------
 // primary — the page's main call to action. One per screen region.
 // Teal, because teal means "play/do the thing" everywhere in this app.
