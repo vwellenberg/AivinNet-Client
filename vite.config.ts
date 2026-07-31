@@ -164,7 +164,7 @@ export default defineConfig({
           `$candy-pink-deep: ${brandColors.memphis.yellow}; $candy-white: ${brandColors.memphis.panel}; ` +
           `$candy-lavender: ${brandColors.memphis.lavender}; $candy-black: ${brandColors.memphis.ink}; ` +
           `$candy-text-muted: ${brandColors.memphis.textMuted}; ` +
-          `@import "@/assets/scss/_variables.scss", "@/assets/scss/_mixins.scss", "@/assets/scss/_candy.scss", "@/assets/scss/Global/_buttons.scss";`,
+          `@import "@/assets/scss/_variables.scss", "@/assets/scss/_mixins.scss", "@/assets/scss/_candy.scss", "@/assets/scss/_motion.scss", "@/assets/scss/Global/_buttons.scss";`,
       },
     },
   },
