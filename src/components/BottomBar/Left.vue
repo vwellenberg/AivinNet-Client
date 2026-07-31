@@ -1,5 +1,14 @@
 <template>
     <div v-auto-animate class="left-group">
+        <!-- The track row's meter always sits on the yellow playing row, where
+             an accent cannot clear 3:1 (see #357). Here the ground is the dark
+             panel, so this is the one place the coral peak is legible. Desktop
+             only: the phone bar already trades this space for navigation. -->
+        <PlayingMeter
+            v-if="!isMobile && queue.currenttrack"
+            class="bar-meter"
+            :playing="queue.playing"
+        />
         <HeartSvg
             v-if="settings.use_np_img && !isMobile"
             :state="queue.currenttrack?.is_favorite"
@@ -101,6 +110,7 @@ import DevicesButton from '../DeviceSync/DevicesButton.vue'
 import HotKeys from '../LeftSidebar/NP/HotKeys.vue'
 import HeartSvg from '../shared/HeartSvg.vue'
 import MasterFlag from '../shared/MasterFlag.vue'
+import PlayingMeter from '../shared/PlayingMeter.vue'
 import Actions from './Right.vue'
 import ExplicitIcon from '@/assets/icons/explicit.svg'
 
@@ -133,6 +143,15 @@ defineEmits<{
 .left-group {
     display: flex;
     gap: $medium;
+
+    // Sized off the bar's own glyph token rather than a fresh number, and
+    // pinned so the flexible track title cannot squeeze it.
+    .bar-meter {
+        flex-shrink: 0;
+        width: $bar-glyph;
+        height: $bar-glyph;
+        color: $candy-text;
+    }
 
     // The way out of silence, phone bar only (see the template). It is not a
     // volume control — it exists only while there is nothing to hear — so it
