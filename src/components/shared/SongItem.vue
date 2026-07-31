@@ -10,7 +10,7 @@
             { 'is-last': is_last },
             dragOverClass,
         ]"
-        :draggable="droppable && source === dropSources.playlist"
+        :draggable="droppable"
         @dragstart="onDragStart"
         @dragover.prevent="onDragOver"
         @dragleave="onDragLeave"
@@ -91,6 +91,11 @@ const props = defineProps<{
     index: number | string
     hide_album?: boolean
     is_queue_track?: boolean
+    // Opt in to reordering by drag. This alone decides it: the `draggable`
+    // binding used to additionally require `source === playlist`, which quietly
+    // made the flag a no-op everywhere else — the Now Playing queue set
+    // `droppable` and still could not be dragged. Every call site that passes
+    // the flag means it.
     droppable?: boolean
     // First/last row of a list section — closes the ink frame around the
     // translucent list plate (top/bottom edge + corner radii).
