@@ -101,6 +101,56 @@ describe('queue group-mode seams', () => {
         expect(dsMock.intercept).not.toHaveBeenCalled()
     })
 
+    it('joined + not applying: reordering the queue routes to intercept', () => {
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('a'), mkTrack('b'), mkTrack('c')]
+        dsMock.joined = true
+
+        tl.moveTrack(0, 3)
+
+        expect(dsMock.intercept).toHaveBeenCalledWith('moveTrack', 0, 3)
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['a', 'b', 'c'])
+    })
+
+    it('solo: reordering splices locally and carries the playing track with it', () => {
+        const q = useQueue()
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('a'), mkTrack('b'), mkTrack('c'), mkTrack('d')]
+        q.currentindex = 2 // "c" is playing
+
+        // Drag "a" to the very bottom: everything above the playing track shifts
+        // up, so "c" must end up at index 1 and still be the current track.
+        tl.moveTrack(0, 4)
+
+        expect(dsMock.intercept).not.toHaveBeenCalled()
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['b', 'c', 'd', 'a'])
+        expect(q.currentindex).toBe(1)
+        expect(tl.tracklist[q.currentindex].trackhash).toBe('c')
+    })
+
+    it('solo: dragging the playing track moves the index with it', () => {
+        const q = useQueue()
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('a'), mkTrack('b'), mkTrack('c')]
+        q.currentindex = 0
+
+        tl.moveTrack(0, 3)
+
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['b', 'c', 'a'])
+        expect(q.currentindex).toBe(2)
+    })
+
+    it('a no-op drop neither splices nor broadcasts', () => {
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('a'), mkTrack('b')]
+        dsMock.joined = true
+
+        tl.moveTrack(1, 2) // the gap directly below the row itself
+
+        expect(dsMock.intercept).not.toHaveBeenCalled()
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['a', 'b'])
+    })
+
     it('autoPlayNext no-ops when joined', () => {
         const q = useQueue()
         useTracklist().tracklist = [mkTrack('a'), mkTrack('b')]
