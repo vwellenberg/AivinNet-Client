@@ -75,51 +75,15 @@
   // until the last of them was a 16px sliver.
   flex-wrap: wrap;
 
-  // An action row pops left to right instead of all at once.
-  //
-  // Scoped to the header rows rather than folded into the roles: a delay is only
-  // wanted where buttons stand in a line and read as a group. Baked into
-  // `btn-action` it would also stagger a lone button by its accidental position
-  // among unrelated siblings — and emit five extra rules at each of ~40 call
-  // sites.
+  // An action row pops left to right instead of all at once. The rules that do
+  // it are `btn-pop-stagger` in Global/_buttons.scss, because the sort banner on
+  // the album and artist lists needs the same gesture and a second copy of five
+  // nth-child rules is exactly the drift this file exists to end.
   //
   // This used to list all four rows by their own class names, which is how the
   // mix header came to be missing from the group until #293 went looking. One
   // shared class is one place to be on.
-  //
-  // Set as `--btn-pop-delay`, never as `animation-delay`. The roles state the
-  // whole `animation` SHORTHAND, which resets the delay longhand, and they do it
-  // from a deeper selector than this one — the first version of this used
-  // `animation-delay` here and measured 0s on four of five buttons. The mixin
-  // reads this custom property instead, and a custom property is not part of the
-  // shorthand it survives. `backwards` lives with the mixin for the same reason.
-  //
-  // Reduced motion needs nothing here: the mixin drops to `animation: none`, at
-  // which point a delay has nothing to delay.
-  //
-  // The `#{}` around each value is not optional. Sass treats a custom property's
-  // value as an opaque token and does NOT evaluate expressions inside it, so
-  // `$motion-stagger * 3` reached the stylesheet verbatim and every delay
-  // silently became invalid. Caught by diffing the built CSS against master.
-  > *:nth-child(2) {
-    --btn-pop-delay: #{$motion-stagger};
-  }
-
-  > *:nth-child(3) {
-    --btn-pop-delay: #{$motion-stagger * 2};
-  }
-
-  > *:nth-child(4) {
-    --btn-pop-delay: #{$motion-stagger * 3};
-  }
-
-  > *:nth-child(5) {
-    --btn-pop-delay: #{$motion-stagger * 4};
-  }
-
-  > *:nth-child(n + 6) {
-    --btn-pop-delay: #{$motion-stagger * 5};
-  }
+  @include btn-pop-stagger;
 }
 
 .btn-primary {
