@@ -11,7 +11,12 @@
       :disabled="mbLoading"
       @click.prevent="fetchCover"
     >
-      <DownloadSvg />
+      <!-- A magnifier, not the download glyph. This button SEARCHES for a
+           cover; "Download as ZIP" wears the download glyph in the playlist
+           header and in this album's own context menu. One glyph for two
+           unrelated actions is a trap, and the context menu already uses the
+           magnifier for exactly this action. -->
+      <SearchSvg />
     </button>
     <button
       class="options"
@@ -31,7 +36,7 @@ import { favType, playSources } from "@/enums";
 import useAlbumStore from "@/stores/pages/album";
 
 import MoreSvg from "@/assets/icons/more.svg";
-import DownloadSvg from "@/assets/icons/download.svg";
+import SearchSvg from "@/assets/icons/search.svg";
 import PinButton from "@/components/shared/PinButton.vue";
 import HeartSvg from "@/components/shared/HeartSvg.vue";
 import PlayBtnRect from "@/components/shared/PlayBtnRect.vue";
