@@ -30,8 +30,59 @@ Stroke: `svg path:not([stroke])`. Neue Icons daher **immer** mit `stroke="curren
 Größen mit `width`/`height` setzen, **nicht** mit `transform: scale()`: beim Skalieren hängt die
 optische Größe am Füllgrad der jeweiligen viewBox (daher kam „Lyrics-Icon zu groß").
 
-Legacy-Icons (Sidebar, Kontextmenü, Settings) sind weiterhin gemischt — manche `currentColor`,
-viele hardcoded `#F2F2F2`/`white`.
+## Der Chrome-Satz: ein Raster, keine Kompensation (#311)
+
+Seit #311 sind die Navigations- und Chrome-Glyphen (home, search, folder\*, bookmark\*, playlist\*,
+chart, settings, album, artist, delete, plus, queue, more, expand, arrow\*, volume-\*, pin\*,
+download, pencil, reload, devices, headphones, clock, a, square, check.filled) **ein** Satz:
+
+- **24×24-Box, ~18 px optisches Glyph** (Ink von 3 bis 21), 2 px Strich, runde Kappen und Ecken.
+- `stroke="currentColor"` auf **jedem** `<path>` (siehe die Regel darüber).
+- Füllung nur, wo die Form geschlossen ist (`*.fill`-Varianten, Notenkopf, Lautsprecher).
+
+**Wer ein Icon ersetzt, zeichnet es auf dieses Raster** — sonst kommt die Kompensations-Mechanik
+zurück, die #311 abgeräumt hat: `NavButtons.vue` trug sechs `--nav-k * (viewBoxSeite / Ink-Höhe)`-
+Faktoren und `navitems.ts` ein `iconClass`-Feld, nur weil drei Fremdsätze ihre Box unterschiedlich
+stark füllten (Bookmark ~92 %, Home/Ordner/Suche ~60–67 %, Chart ~79 %). Ein Satz = eine Größe.
+
+Zwei Fallen beim Ersetzen eines Legacy-Glyphs:
+
+- **Eine `fill`-Regel, die genau dieses Icon reparierte, wird zur Waffe.** Der Untermenü-Chevron
+  hatte `svg path { fill: currentColor }`, weil `expand.svg` `#F2F2F2` hartcodierte — auf dem neuen,
+  gestrichenen Chevron hätte dieselbe Regel einen schwarzen Keil ergeben. Beim Neuzeichnen also
+  **nach der Kompensation suchen und sie mit entfernen**.
+- **Ein Glyph kann anderswo als roher Pfad einkopiert sein.** `FolderCard.vue` trug eine private
+  Kopie von `folder-1.svg` im Template, die keine Icon-Änderung je erreicht hätte.
+
+Zeichnerisch gilt: **abgesetzte Radialstriche lesen sich als Sonne, nicht als Zahnrad.** Die Zähne
+von `settings.svg` beginnen deshalb *innerhalb* der Ring-Außenkante — und die Sonne ist in dieser
+App der Theme-Toggle.
+
+Neu gezeichnete Icons vor dem Commit **ansehen, nicht nur schreiben**: ein Kontaktbogen aus allen
+Glyphen, hell und dunkel, bei 24/36/64 px, headless gerendert. Genau daran fiel das Zahnrad auf.
+
+Noch im alten Stil (selten, einzeln, kein sichtbarer Stilbruch): `mic`, `paintbrush`, `tag`,
+`calendar`, `explicit`, `lastfm`, `sdcard`, `symlink`, `grid`, `radio`, `sparkles`, `timer`,
+`hifi`, `phone`, `image`, `info`, `eye*`, `logout`, `avatar`, `upload`, `lyrics*`, `add_to_queue`,
+`add-to-queue`, `play-next`, `previous`, `heart*`.
+
+## ⚠️ Der Inhalt läuft HINTER der Player-Bar — jeder Scroller reserviert sie
+
+`#acontent` spannt die Grid-Zeilen 2–4 (`grid-row: 2 / 4`), damit der Memphis-Grund hinter der Bar
+durchläuft und die Seite nicht in einer Naht endet. Die Konsequenz: die Bar überdeckt den unteren
+Rand **jedes** Scroll-Containers, und jeder muss sich `$bottombarheight` (bzw.
+`$bottombarheight-phone`) selbst reservieren.
+
+`.content-page` tat das seit jeher, `.v-scroll-page .scroller` nicht — 4rem Reserve gegen eine
+5,125rem hohe Bar, also lagen die letzten ~18 px der letzten Zeile darunter, auf dem Handy ~88 px
+(#307). Betroffen war damit **jede** virtualisierte Seite, weil sie alle durch denselben Scroller
+laufen. Die Höhe hat jetzt eine Quelle in `_variables.scss`; nicht wieder ausschreiben.
+
+Beim Messen: **erst scrollen, bis die Liste nicht mehr wächst.** Ein einzelnes
+`scrollTop = scrollHeight` löst den Infinite-Scroll-Sentinel aus, der nachlädt und den Boden
+verschiebt — man misst dann eine Zeile, die gar nicht die letzte ist. Und eine Freiraum-Zahl
+beweist nichts ohne Gegenprobe: den alten Wert im laufenden Browser zurücksetzen und zeigen, dass
+er verdeckt wird (gemessen: 836 gegen Bar-Oberkante 818, mit Fix 754).
 
 ## ⚠️ SVG-Icons abgeschnitten beim Verkleinern (viewBox)
 

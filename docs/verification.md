@@ -92,3 +92,21 @@ Die Routen sind Hash-Routen: `http://localhost:1970/#/<route>`.
 - **Group-Sync nur über echte UI-Klicks verifizieren**, ohne `--autoplay-policy`-Flag: Der erste
   E2E jointe per API und umging damit genau die Pfade, die im Alltag brechen — grün, während das
   Feature kaputt war.
+- **`waitUntil: 'networkidle'` läuft ins Timeout, sobald etwas spielt.** Der Audio-Stream hält eine
+  Verbindung offen; jede Navigation *nach* dem ersten Play braucht `domcontentloaded` plus eine
+  feste Wartezeit. Symptom sonst: „Seite lädt nicht", obwohl sie längst da ist.
+- **Erst scrollen, bis die Liste nicht mehr wächst.** Ein einzelnes `scrollTop = scrollHeight`
+  triggert den Infinite-Scroll-Sentinel, der nachlädt und den Boden verschiebt — die „letzte"
+  Zeile ist dann gar nicht die letzte. In einer Schleife scrollen, bis `scrollHeight` stabil ist.
+  Und weil der Scroller recycelte Zeilen im DOM stehen lässt, ist die letzte Zeile die mit der
+  **größten Unterkante**, nicht der letzte Knoten.
+- **Die Now-Playing-Queue liegt unter der Falz.** Ihr Header füllt fast den ganzen Viewport, die
+  erste Zeile beginnt bei y≈738 von 900. Ohne vorheriges Scrollen des Scrollers gibt es genau eine
+  sichtbare Zeile — ein Drag darauf hat kein Ziel und meldet „Feature kaputt".
+- **Ein Test-Schritt kann die Vorbedingung des nächsten zerstören.** Ein Queue-Reorder bringt die
+  Queue absichtlich aus dem Tritt mit der Playlist-Seite; der Spiegelungs-Wächter verweigert dann
+  **korrekt**. Rot heißt hier „falsche Reihenfolge im Test", nicht „Bug". Schritte so ordnen, dass
+  jeder seine Vorbedingung selbst herstellt.
+- **Nach einem `play()` neu rendern, bevor gezogen wird.** `playFromPlaylistPage` lädt die
+  vollständige Tracklist nach und baut den Scroller neu auf; ein Drag in eine noch wackelnde Liste
+  landet zwischen zwei wandernden Zeilen und geht verloren.

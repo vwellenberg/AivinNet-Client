@@ -83,6 +83,37 @@ Für Headless-Checks deshalb den persistierten Store lesen
 Positionen aus der Server-Wahrheit (`/devicesync/poll` als Beobachter-Gerät) ableiten statt aus
 der Renderreihenfolge.
 
+## Die Queue umsortieren: `tracklist.moveTrack` ist die einzige Operation (#309, #312, #315)
+
+Es gibt **zwei** Queue-Ansichten, und beide müssen bedient werden: das Panel der rechten Sidebar
+(`RightSideBar/Queue.vue`, rendert `TrackItem` — und existiert nur bei `use_sidebar && xl`) und
+die ganzseitige Liste unter `/nowplaying/home` (`views/NowPlaying/main.vue`, rendert `SongItem`).
+#309 hat nur die erste erwischt; für die meisten Fenstergrößen war die zweite die einzige
+sichtbare Queue.
+
+Drei Dinge, die man dabei falsch machen kann:
+
+- **Der Index muss mitreisen.** `utils/queueMove.ts::resolveQueueMove()` rechnet die Drop-Lücke in
+  einen Zielindex um **und** sagt, wohin der laufende Track dabei wandert. Nur der Client weiß, ob
+  die gezogene Zeile *über* ihn hinweggegangen ist — **ein Reorder darf nie zum Trackwechsel
+  werden.** Der DeviceSync-Seam (`intercept('moveTrack')`) trägt denselben Index mit.
+- **Der Drag muss einen Index dieser Liste tragen.** `SongItem` verschickt `track.index`; in der
+  Now-Playing-Liste wird der vorher auf die Queue-Position überschrieben, in einer Playlist ist es
+  der refIndex in `allTracks`. `TrackItem` nimmt dagegen die `index`-Prop. Wer eine dritte Liste
+  ziehbar macht, prüft zuerst, welcher Index dort eigentlich drin steht — und lehnt fremde Drops
+  (`source !== dropSources.queue`) ab, deren Index in eine ganz andere Liste zeigt.
+- **Eine Zeile mit `<img>` ist immer ziehbar.** Bilder sind nativ draggable, ein Drag auf dem Cover
+  feuert also `dragstart` auf der Zeile — auch auf Zeilen, die kein Drag angemeldet haben.
+  `onDragStart` gehört deshalb hinter denselben Guard wie `draggable`, und das Cover auf
+  `draggable="false"`.
+
+**Spiegeln nur, wenn die Ausrichtung bewiesen ist — und nicht über die Länge.** Eine Playlist-Seite
+und die aus ihr gebaute Queue sind legitim unterschiedlich lang: die Seite paginiert (~13 von 43
+Zeilen bei einem frischen Besuch), die Queue hält alles. Der erste Wächter verglich die Längen und
+war damit im Normalfall falsch — die Spiegelung griff **nie** (#315). Richtig ist
+`rangeAligns(seite, queue, lo, hi)`: trackhash für trackhash über genau den Abschnitt, den der Move
+berührt.
+
 ## Requests
 
 Alles läuft über `requests/useAxios.ts` — es schaltet den Ladebalken, öffnet bei 401 das
