@@ -194,12 +194,6 @@ function runChildAction(action: () => void) {
         right: 2px;
         bottom: 6px;
         transform: scale(0.65);
-
-        // The submenu chevron (ExpandIcon) hardcodes a light fill in its asset —
-        // make it follow the inherited menu text colour like the option icons.
-        svg path {
-            fill: currentColor;
-        }
     }
 
     .children {

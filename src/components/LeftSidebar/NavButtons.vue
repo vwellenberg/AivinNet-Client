@@ -17,7 +17,7 @@
       @click="menu.action && menu.action()"
     >
       <div v-if="!menu.separator">
-        <component :is="menu.icon" :class="menu.iconClass" />
+        <component :is="menu.icon" />
         <span>{{ menu.name }}</span>
       </div>
     </router-link>
@@ -114,21 +114,17 @@ import { menus } from "./navitems";
     }
   }
 
-  // These nav icons come from different icon sets and their artwork fills its
-  // square viewBox by very different amounts (measured glyph ink height:
-  // bookmark ~92% of the box, home/folder/search ~60-67%, chart ~79%). A single
-  // uniform svg size therefore rendered them at visibly different optical sizes
-  // and a bit small overall. We keep a fixed 1.5rem element box — so the desktop
-  // sidebar's row rhythm never shifts — and scale each glyph by
-  //   --nav-k * (viewBoxSide / glyphInkHeight)
-  // so every glyph lands at the same optical height. `--nav-k` is bumped on
-  // phones so the bottom-bar icons read a touch larger. The transparent box
-  // keeps a constant footprint, so icon spacing stays even regardless of scale.
-  // Recompute a factor from svg.getBBox() if an icon is ever swapped.
-  --nav-k: 0.633; // desktop: ~previous overall size, just equalised
+  // These six glyphs used to come from three different icon sets and filled
+  // their viewBox by wildly different amounts (measured ink height: bookmark
+  // ~92% of the box, home/folder/search ~60-67%, chart ~79%), which is why each
+  // one carried its own `--nav-k * (viewBoxSide / glyphInkHeight)` correction.
+  // They are now one set, drawn on one 24x24 grid with the same 18px optical
+  // glyph, so there is nothing left to correct: one size for all of them.
+  // `--nav-k` survives only to bump the mobile bottom bar a touch.
+  --nav-k: 1;
 
   @include allPhones {
-    --nav-k: 0.78; // larger glyphs for the mobile bottom bar
+    --nav-k: 1.1; // larger glyphs for the mobile bottom bar
   }
 
   svg {
@@ -139,30 +135,6 @@ import { menus } from "./navitems";
     opacity: 0.75;
     transform: scale(var(--nav-k));
   }
-
-  svg.nav-ico-home {
-    transform: scale(calc(var(--nav-k) * 1.489));
-  } // 28 / 18.81
-
-  svg.nav-ico-folder {
-    transform: scale(calc(var(--nav-k) * 1.684));
-  } // 28 / 16.63
-
-  svg.nav-ico-search {
-    transform: scale(calc(var(--nav-k) * 1.655));
-  } // 28 / 16.92
-
-  svg.nav-ico-bookmark {
-    transform: scale(calc(var(--nav-k) * 1.091));
-  } // 28 / 25.67
-
-  svg.nav-ico-playlist {
-    transform: scale(calc(var(--nav-k) * 1.564));
-  } // 64 / 40.92
-
-  svg.nav-ico-chart {
-    transform: scale(calc(var(--nav-k) * 1.261));
-  } // 28 / 22.20
 
   svg.radiosvg {
     transform: scale(0.7);

@@ -1,4 +1,5 @@
-<svg viewBox="-5 -5 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M3.42607 18.5857L16.593 5.42412L14.344 3.16546L1.1674 16.3366L0.0267015 19.0816C-0.10197 19.4303 0.258496 19.8049 0.592479 19.6708L3.42607 18.5857ZM17.715 4.32139L18.9829 3.07476C19.6122 2.44546 19.6378 1.7482 19.0703 1.16906L18.6128 0.709452C18.0454 0.139922 17.3439 0.200625 16.7125 0.808593L15.4467 2.06273L17.715 4.32139Z" fill="currentColor"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+    <!-- Chrome set: body, ferrule, tip. -->
+    <path d="M16.4 3.9a2 2 0 0 1 2.8 0l.9.9a2 2 0 0 1 0 2.8L8.3 19.4l-4.7 1.1 1.1-4.7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M14.6 5.7 18.3 9.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 </svg>
-
