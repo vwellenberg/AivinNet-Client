@@ -141,7 +141,9 @@ const mobileTitle = computed(() => {
         .nav-logo {
             // Icon-only logo; width hugs the glyph.
             width: max-content;
-            height: 2.5rem;
+            // Matches the logo tile itself (3rem, same as the home button). A
+            // shorter slot clipped the tile's offset shadow at the bottom.
+            height: 3rem;
             align-self: center;
             // Logo component centres its icon at flex-start by default; center
             // it vertically so it sits in the middle of the top bar.
@@ -231,7 +233,14 @@ const mobileTitle = computed(() => {
             @include candy-box($candy-pink, $candy-radius-sm);
             color: $candy-black;
             flex-shrink: 0;
-            transition: background-color 0.15s ease, transform 0.15s ease;
+            // The home button is an <a>, not a <button>, so it never picked up
+            // any of the button roles — it was the one raised surface in the top
+            // bar with no offset shadow under it. candy-raised also brings the
+            // press-into-the-shadow feedback the rest of the chrome has.
+            @include candy-raised(4px, 4px);
+            transition: background-color $motion-tint $motion-curve,
+                box-shadow $motion-shadow $motion-curve,
+                transform $motion-press $motion-curve;
 
             svg {
                 width: 1.5rem;
@@ -240,7 +249,6 @@ const mobileTitle = computed(() => {
 
             &:hover {
                 background-color: $candy-pink-deep;
-                transform: scale(1.05);
             }
         }
 
