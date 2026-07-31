@@ -124,9 +124,11 @@ Hover-Vertiefung + Press-in-den-Schatten.
 
 - **Kacheln nehmen `$press: false`** — CSS-`:active` matcht auch **Vorfahren**, eine pressende
   Karte würde also bei jedem Klick auf ihren eigenen Play-Button hüpfen.
-- Jeder `button` bekommt den Schatten global. **Wer einen Button flach macht, MUSS ihn in die
-  Ausnahmeliste in [Global/basic.scss](../../src/assets/scss/Global/basic.scss) eintragen** —
-  sonst schwebt ein Offset unter nichts (auf runden Buttons als Sichel sichtbar).
+- **Den Schatten trägt die ROLLE, nicht die Button-Basis.** Bis #244 bekam jeder `button` ihn
+  global und musste sich zum Flachmachen in eine Ausnahmeliste in `Global/basic.scss` eintragen —
+  **beides gibt es nicht mehr**, die Basis ist ein reiner Reset. Wer heute einen Schatten will,
+  nimmt `btn-action`/`btn-primary`/`btn-pill`; wer keinen will, nimmt `btn-quiet` und trägt sich
+  nirgends ein.
 - Ein `transition`, das **nach** dem Mixin steht, überschreibt dessen Schatten-Transition —
   dann `box-shadow` mit auflisten.
 
@@ -206,6 +208,34 @@ in die man sich eintragen müsste**.
 **Reihenfolge und Vollständigkeit sind getestet**
 (`src/components/__tests__/headerActionOrder.test.ts`): Ein Button am falschen Ende der Reihe oder
 eine fünfte `.header-actions`-Reihe, die der Test nicht kennt, lässt die Suite rot laufen.
+
+## ⚠️ Die Chrome hat EINE Kantenlänge: `$bar-control`
+
+Player-Bar **und** Top-Bar lesen `$bar-control` (2.75rem = 44 px) aus
+[Global/_buttons.scss](../../src/assets/scss/Global/_buttons.scss). Die Top-Bar hatte die
+Geschichte der Player-Bar in ihrer eigenen Zeile wiederholt — gemessen 48/48/48/36/36 px, zwei
+Schattentiefen (4 px Home, 3 px Toggle), **drei** Press-Antworten (in-den-Schatten, `scale(0.94)`,
+gar keine) und ein 20,8-px-Glyph in einer Reihe aus 24-px-Glyphen.
+
+Die Ursache ist nicht Schlamperei, sondern **Kompensationsketten**: der Toggle war „auf den Avatar
+gesized", die Such-Pille „auf den Home-Button", die Pille auf dem Handy wieder „auf den Avatar".
+Jede Zahl war für sich begründet, keine kannte die Norm — und wer eine davon korrigiert, strandet
+still die anderen. Deshalb: **kein Bedienelement der Chrome schreibt eine eigene Kantenlänge**,
+auch nicht in einem `@include allPhones`-Block.
+
+Zwei Fallen, die dabei aufgefallen sind:
+
+- **Was wie ein Button aussieht, ist nicht immer ein `<button>`.** Der Home-Button ist ein
+  RouterLink und fiel deshalb durch **jeden** Element-Selektor: keine Rolle, kein Fokusring aus
+  `basic.scss`. Ein Element-Selektor ist keine Anatomie — die Rolle (und `focus-ring`) muss
+  explizit dran.
+- **Ein `<div>` mit `@click` ist kein Bedienelement.** Der Avatar öffnet ein Menü, war aber per
+  Tastatur nicht erreichbar, meldete keinen Namen und konnte kein `aria-expanded` tragen.
+
+Der Zensus ist getestet (`src/components/__tests__/topBarAnatomy.test.ts`): Er kennt jedes
+Top-Bar-Bauteil, verlangt `$bar-control` statt einer Literal-Größe (inklusive Breakpoint-Blöcken),
+verbietet ein lokales `transform:` (Hover 1.06 / Press 0.98 gehören der Rolle) und besteht darauf,
+dass der Avatar-Trigger ein `<button>` mit `aria-expanded` ist.
 
 ⚠️ **Eine geteilte Komponente nimmt ihre Rolle selbst.** `HeartSvg.vue` trug seine Maße lange von
 Hand, also wiederholten Album- und Artist-Header wortgleich denselben Patch. Jetzt trägt die

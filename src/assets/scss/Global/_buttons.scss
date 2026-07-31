@@ -35,12 +35,18 @@
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
-// PLAYER-BAR GEOMETRY — one owner for the transport footprint.
+// CHROME GEOMETRY — one owner for the footprint of a bar control.
 //
-// The bar used to hold four heights (32 / 36 / 40 / 48px) and four glyph sizes
-// (20.8 / 21.6 / 24.8 / 28.8) side by side, because five files each sized their
-// own controls. These two values are what "the bar is uniform" MEANS, so they
-// live in one place and every bar control reads them.
+// The player bar used to hold four heights (32 / 36 / 40 / 48px) and four glyph
+// sizes (20.8 / 21.6 / 24.8 / 28.8) side by side, because five files each sized
+// their own controls. These two values are what "the bar is uniform" MEANS, so
+// they live in one place and every bar control reads them.
+//
+// The TOP bar repeated that history in its own row and was measured at
+// 48 / 48 / 48 / 36 / 36 px with two shadow depths (4px on the home button,
+// 3px on the theme toggle) and three different press answers. It reads this
+// same value now — one number for the whole chrome, top bar and player bar,
+// which also collapses the top bar's own 36px-desktop / 44px-phone split.
 //
 // 44px is the touch target, and it is the size the most-tapped control in the
 // app should have had all along.
@@ -50,6 +56,20 @@ $bar-glyph: 1.5rem;
 // Play/pause is the same BOX as its neighbours — only its glyph is bigger, so
 // the primary reads as primary without breaking the row's rhythm.
 $bar-glyph-play: 1.75rem;
+
+// ---------------------------------------------------------------------------
+// The keyboard focus ring. `Global/basic.scss` gives it to every <button>; this
+// mixin exists because a control that WEARS a button role is not always a
+// <button> element — the top bar's home button is a RouterLink, so it fell
+// through the element selector and showed the browser's own ring instead of the
+// app's ink one. Anything that looks like a button includes this.
+// ---------------------------------------------------------------------------
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 2px solid $mem-line;
+    outline-offset: 2px;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // APPEARING — the shared "pop in" (#253).
