@@ -7,11 +7,22 @@
 //
 // Scoped to .cardscroller on purpose — grid pages (playlists, discography)
 // show a single card type and keep their own flow.
+//
+// EVERY card type CardScroller can render belongs in this list. The folder,
+// mix and favourites tiles were missing from it and each one drifted on its
+// own: the folder card measured 176x245 next to a 176x248 playlist in the same
+// "Recently played" row, at a 16px radius instead of 14px and with no offset
+// shadow at all — three ways of being the odd one out in one tile.
+// `src/components/__tests__/cardAnatomy.test.ts` fails if a new card type is
+// added to CardScroller without being listed here.
 .cardscroller {
     .p-card,
     .trackcard,
     .artist-card,
-    .album-card {
+    .album-card,
+    .foldercard,
+    .mixcard,
+    .favoritescard {
         display: grid;
         // Square image row + fixed text zone => identical totals across types.
         // The text zone fits label + name + count/artist (3 lines); cards with
@@ -35,6 +46,11 @@
         > :last-child {
             overflow: hidden;
             min-width: 0;
+            // Same reason as the image box above: the distance between picture
+            // and text is the grid gap's business. The mix tile also stated it
+            // as `margin-top: $small` on its own text block, which added a
+            // second 8px on top of the gap.
+            margin: 0;
         }
 
         img {

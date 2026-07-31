@@ -7,7 +7,7 @@
             },
             query: mix.extra.type === 'artist' ? { src: mix.sourcehash } : { src: mix.extra.og_sourcehash },
         }"
-        class="mixcard rounded"
+        class="mixcard"
     >
         <MixImage :mix="mix" :on_header="on_header" />
         <div class="info">

@@ -1,5 +1,5 @@
 <template>
-    <RouterLink :to="{ name: Routes.favoriteTracks }" class="favoritescard rounded">
+    <RouterLink :to="{ name: Routes.favoriteTracks }" class="favoritescard">
         <div class="img"></div>
         <div class="overlay">
             <PlayBtn :source="playSources.favorite" />
