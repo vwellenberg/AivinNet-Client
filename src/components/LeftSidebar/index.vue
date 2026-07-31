@@ -609,7 +609,10 @@ onBeforeUnmount(teardown);
   right: $small;
   height: 2px;
   border-radius: 2px;
-  background-color: $candy-black;
+  // The theme's ink line, not static black: on the dark ground the drop
+  // indicator was black on near-black, so the one piece of feedback telling
+  // you where the item would land was invisible in exactly half the themes.
+  background-color: $mem-line;
   pointer-events: none;
 }
 
