@@ -751,16 +751,18 @@ onBeforeUnmount(teardown);
       // is also why the reserved transparent frame and the shrunk padding
       // below mirror .sidebar-playlist-item exactly.
       min-height: 2.7rem;
-      border: $candy-border-w solid transparent;
+      @include candy-row-base($sidebar-row-radius);
       padding: calc(0.35rem - #{$candy-border-w}) calc(#{$small} - #{$candy-border-w});
-      border-radius: $sidebar-row-radius;
       cursor: pointer;
       font-size: $sidebar-row-font;
       font-weight: 600;
-      transition: background-color 0.15s;
 
+      // Same shared hover as every other row in the library list. Hand-setting
+      // only the fill here is why a folder header lit up without the ink frame
+      // that the playlist row directly above it draws — the reserved border was
+      // already there, hovering just never coloured it.
       &:hover {
-        background-color: $candy-pink-soft;
+        @include candy-row-hover($candy-pink-soft, $sidebar-row-radius);
       }
 
       .folder-icon-slot {
@@ -827,10 +829,8 @@ onBeforeUnmount(teardown);
     // The ink frame of the active row is reserved as a transparent border on
     // every row (and shaved off the padding), so selecting a playlist draws
     // the frame without nudging the row's contents or changing its height.
-    border: $candy-border-w solid transparent;
+    @include candy-row-base($sidebar-row-radius);
     padding: calc(0.35rem - #{$candy-border-w}) calc(#{$small} - #{$candy-border-w});
-    border-radius: $sidebar-row-radius;
-    transition: background-color 0.15s;
     font-size: $sidebar-row-font;
     font-weight: 500;
 
