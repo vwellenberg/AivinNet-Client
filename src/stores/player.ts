@@ -14,6 +14,7 @@ import useTracker from './tracker'
 import { getBaseUrl, paths } from '@/config'
 import updateMediaNotif from '@/helpers/mediaNotification'
 import { crossFade } from '@/utils/audio/crossFade'
+import { stopsAtQueueEnd } from '@/utils/playbackAdvance'
 
 class AudioSource {
     private sources: HTMLAudioElement[] = []
@@ -347,7 +348,7 @@ export const usePlayer = defineStore('player', () => {
         const { submitData } = tracker
         submitData()
 
-        if (settings.repeat == 'none') {
+        if (stopsAtQueueEnd(settings.repeat, settings.shuffle, tracklist.length)) {
             queue.playPause()
             queue.moveForward()
             return
@@ -467,10 +468,12 @@ export const usePlayer = defineStore('player', () => {
 
         const { currentindex } = queue
         const { length } = tracklist
-        const { repeat } = settings
+        const { repeat, shuffle } = settings
 
-        // if no repeat && is last track, return
-        if (currentindex === length - 1 && repeat == 'none') {
+        // Last track and nothing follows it: no next audio to pre-load. Under
+        // shuffle the last ROW is not the last track — the next one is rolled,
+        // so the preload has to run there too or playback dies at that row.
+        if (currentindex === length - 1 && stopsAtQueueEnd(repeat, shuffle, length)) {
             return
         }
 
