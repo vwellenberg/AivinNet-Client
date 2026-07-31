@@ -477,7 +477,14 @@ export default defineStore('devicesync', {
                 }
 
                 const queue = useQueue()
+                // A mirrored index move IS a track change for this device, so the
+                // shuffle target has to be rolled again — otherwise it still points
+                // at the track that just started. Only on an actual change: the
+                // poll runs every second and re-rolling on every tick would make
+                // `nextindex` a moving target.
+                const indexMoved = queue.currentindex !== state.currentindex
                 queue.currentindex = state.currentindex
+                if (indexMoved) queue.rollShuffleNext()
 
                 // Direct state write, not toggleRepeatMode() — mirroring must not
                 // re-broadcast as a set_repeat command.
@@ -666,7 +673,12 @@ export default defineStore('devicesync', {
                                 : queue.currentindex
                         const wantPlaying = p.playing !== false
 
+                        const indexMoved = queue.currentindex !== index
                         queue.currentindex = index
+                        // Same reason as in applyState: the group's track change
+                        // is this device's track change, and the shuffle target
+                        // is stale the moment the index moves.
+                        if (indexMoved) queue.rollShuffleNext()
                         queue.playing = wantPlaying
                         resetRate(player)
 
@@ -1139,6 +1151,20 @@ export default defineStore('devicesync', {
                 void this.sendCmd('track_change', { index: i, position_ms: 0, playing: true })
                 return
             }
+
+            // Permanent shuffle: the leader rolls for the whole group. It sends
+            // the same pre-rolled target the solo path follows (`queue.nextindex`),
+            // so the group jumps instead of walking the list — and because the
+            // index travels inside the command, every device lands on the same
+            // track. Sequential order below would otherwise ignore the toggle
+            // entirely: shuffle only ever reached the group through a manual
+            // "Next". The queue end is no end while shuffling (#323), so this
+            // sits above both repeat branches.
+            if (settings.shuffle && len > 1) {
+                void this.sendCmd('track_change', { index: queue.nextindex, position_ms: 0, playing: true })
+                return
+            }
+
             if (settings.repeat === 'all') {
                 const next = len > 0 ? (i + 1) % len : 0
                 void this.sendCmd('track_change', { index: next, position_ms: 0, playing: true })

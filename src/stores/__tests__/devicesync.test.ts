@@ -333,6 +333,63 @@ describe('devicesync store', () => {
         expect(requestsMock.sendCommand).not.toHaveBeenCalled()
     })
 
+    it('onTrackEnded: with shuffle on the leader sends the rolled target, not the next row (#324)', async () => {
+        const { useDeviceSync, useTracklist, useQueue, useSettings } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+        ds.scrobbleLeader = 'devA'
+
+        useTracklist().tracklist = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].map(mkTrack)
+        const queue = useQueue()
+        // The LAST row with repeat 'none': sequential order would pause the group
+        // here, which is exactly how the ignored toggle showed up.
+        queue.currentindex = 5
+        useSettings().repeat = 'none'
+        queue.toggleShuffle()
+
+        ds.onTrackEnded()
+
+        const target = queue.nextindex
+        expect(target).not.toBe(5)
+        expect(requestsMock.sendCommand).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                type: 'track_change',
+                payload: { index: target, position_ms: 0, playing: true },
+            })
+        )
+    })
+
+    it('a mirrored index move re-rolls the shuffle target (#324)', async () => {
+        const { useDeviceSync, useQueue } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+
+        requestsMock.resolveTracks.mockResolvedValue([mkTrack('h1'), mkTrack('h2')])
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({ version: 1, joined: true, state: mkState({ currentindex: 0 }) })
+        )
+        await ds.poll()
+
+        const queue = useQueue()
+        queue.toggleShuffle()
+        expect(queue.shuffleNextIndex).toBe(1)
+
+        // The group moved on: the mirror writes currentindex directly, so nothing
+        // re-rolls unless applyState does it — and a target equal to the current
+        // index means the leader would broadcast the track that is already playing.
+        requestsMock.pollSession.mockResolvedValueOnce(
+            mkPoll({ version: 2, joined: true, state: mkState({ currentindex: 1 }) })
+        )
+        await ds.poll()
+
+        expect(queue.currentindex).toBe(1)
+        expect(queue.shuffleNextIndex).not.toBe(1)
+        expect(queue.nextindex).not.toBe(1)
+    })
+
     it('poll failures escalate to reconnecting then dissolve to solo (joined=false)', async () => {
         const { useDeviceSync } = await setup()
         localStorage.setItem('aivinnet.device_id', 'devA')
