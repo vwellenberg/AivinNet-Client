@@ -1,7 +1,7 @@
 <template>
     <button
-        class="heart-button circular"
-        :class="{ 'is-fav': state }"
+        class="heart-button"
+        :class="{ 'is-fav': state, 'role-action': btn_role === 'action' }"
         @click="!no_emit && $emit('handleFav')"
     >
         <!-- A plain div, deliberately: this used to be a <Motion> fading the
@@ -22,10 +22,30 @@
 import CheckCircleSvg from '@/assets/icons/check.circle.fill.svg'
 import PlusSvg from '@/assets/icons/plus.svg'
 
-defineProps<{
-    state: Boolean | undefined
-    no_emit?: Boolean
-}>()
+withDefaults(
+    defineProps<{
+        state: Boolean | undefined
+        // Primitive `boolean`, not the `Boolean` wrapper the other prop still
+        // uses: `withDefaults` treats an object type as one that needs a
+        // FACTORY default, so `no_emit: false` against `Boolean` fails the
+        // typecheck with "boolean is not assignable to (props) => Boolean".
+        no_emit?: boolean
+        // Which button role this toggle wears (see Global/_buttons.scss).
+        // `quiet` is the bare in-context glyph — the player bar, track rows,
+        // the Now Playing panel. `action` is the plate-and-frame control the
+        // detail headers put in their action row.
+        //
+        // Named `btn_role` rather than `role` on purpose: `role` is the ARIA
+        // attribute, and a prop of that name would shadow it for anyone
+        // reading the template.
+        btn_role?: 'quiet' | 'action'
+    }>(),
+    // `no_emit` was implicitly undefined before this component had a
+    // `withDefaults` wrapper at all; stated now because the wrapper is what
+    // makes a missing default a lint finding, and `undefined` and `false` mean
+    // the same thing to the click handler either way.
+    { btn_role: 'quiet', no_emit: false }
+)
 
 defineEmits<{
     // eslint-disable-next-line no-unused-vars
@@ -34,41 +54,30 @@ defineEmits<{
 </script>
 
 <style lang="scss">
+// The favourite toggle takes a ROLE, like every other button in the app (#90).
+//
+// It used to hand-write its own anatomy — `height: 2.25rem` plus
+// `aspect-ratio: 1.5` for the box, a global `.circular` utility class for the
+// radius — and that cost twice over. The height was silently load-bearing (a
+// ratio needs one dimension to resolve, and the button base stopped supplying
+// one at #244; this button measured 54x36 -> 28x28 the day it did). And the
+// radius came from a utility class sitting at the SAME specificity as this
+// rule, so which of the two won was decided by bundle order rather than by
+// anyone's intention.
+//
+// Both dimensions are stated now, through the role: 3.375rem x 2.25rem is the
+// same 54x36 box the ratio produced, and 10rem is the pill radius `.circular`
+// was handing it. Same pixels, one owner, no ordering luck.
 .heart-button {
-    line-height: normal;
-    // Stated here rather than inherited: the global button base used to hand
-    // every button its box model, so this component only wrote down the parts
-    // it wanted to CHANGE. With the base reduced to a reset, the parts it was
-    // silently relying on have to be its own.
-    //
-    // The height matters more than it looks: `aspect-ratio: 1.5` needs one
-    // dimension to resolve against. Without it the button shrank to its glyph
-    // (measured 54x36 -> 28x28 in the Now Playing panel). Call sites that
-    // size it themselves — the compact bar check, the header instances — are
-    // more specific and still win.
-    height: 2.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    gap: $smaller;
-    border: none;
-    // Unfavorited: theme-text outline glyph (the plus) on a transparent
-    // button — ink on light chrome, paper on dark.
-    color: $candy-text;
-    aspect-ratio: 1.5;
-    background: transparent;
-    // Same timings the button roles use, so this hand-built button reacts at
-    // the same speed as the rolled ones next to it.
-    transition: background-color 0.15s ease-out, transform 0.1s ease;
+    @include btn-quiet($size: 2.25rem, $width: 3.375rem, $radius: 10rem, $glyph: 1.75rem);
 
     div {
         height: max-content;
         transform: scale(1);
 
         svg {
-            height: 1.75rem;
-            width: 1.75rem;
+            // Size comes from the role; this only stops the inline baseline gap
+            // from making the wrapper taller than the glyph.
             display: block;
         }
 
@@ -89,30 +98,31 @@ defineEmits<{
         }
     }
 
-    &:hover {
-        background: $candy-pink-soft;
-        border: none;
-    }
-
-    // The press feedback every button role carries. This button is hand-built
-    // rather than rolled, so it had none of its own and leaned on a v-wave
-    // ripple instead — the only favourite button in the app that did. The
-    // ripple belongs to rows now (see main.ts), so the press comes from here.
-    &:active {
-        transform: scale(0.98);
-    }
-
     // Favorited state: teal check circle (drives the SVG's currentColor
     // circle; the check itself is fixed white in the asset). Teal is the
     // theme-invariant "active" accent — readable on light and dark chrome
-    // and on the yellow playing row.
-    // Favourited is the teal check-circle — the app's favourite iconography,
-    // never a heart.
-    //
-    // NOTE for anyone putting this button inside a `btn-action` row:
-    // that mixin sets `color` on hover, which outranks this rule, so the call
-    // site has to re-assert the teal (see AlbumView/Header/Buttons.vue).
+    // and on the yellow playing row. Never a heart; that is the app's
+    // favourite iconography.
     &.is-fav {
+        color: $mem-teal;
+    }
+}
+
+// The header variant. Four detail headers stand this toggle in a row of
+// plate-and-frame controls, and two of them used to patch it from the OUTSIDE
+// with a verbatim copy of the same two rules — `@include btn-action`, then a
+// re-assert of the teal to survive the hover colour the mixin brings with it.
+// Two copies of one correction is precisely the drift #90 exists to remove, so
+// the correction lives with the button that needs it.
+.heart-button.role-action {
+    @include btn-action;
+
+    // btn-action sets `color` on hover so ITS glyphs stay readable on the blush
+    // fill, and that rule outranks a bare `.is-fav` — a favourited album turned
+    // ink the moment the pointer touched it. The favourite owns its colour, so
+    // re-assert with the compound that wins.
+    &.is-fav,
+    &.is-fav:hover {
         color: $mem-teal;
     }
 }

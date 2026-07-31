@@ -18,10 +18,11 @@
       •
       {{ formatSeconds(playlist.info.duration, true) }}
     </div>
-    <!-- Same relative order as the album header's row (play → pin → download);
-         a playlist simply has no favourite or overflow button to sit between
-         them. It used to be play → download → pin. -->
-    <div class="btns">
+    <!-- Canonical order: Play · Favourite · Pin · Secondary action · Overflow.
+         A playlist has no favourite and no overflow button, so those slots are
+         absent and the rest keep their places. It used to be play → download →
+         pin, which put the secondary action ahead of the pin. -->
+    <div class="btns header-actions">
       <PlayBtnRect :source="playSources.playlist" />
       <PinButton
         v-if="Number.isInteger(playlist.info.id)"
@@ -113,21 +114,15 @@ function pinPlaylist(pid: number) {
     text-shadow: 0 0 8px var(--mem-ground);
   }
 
+  // Flex, gap and wrapping come from `.header-actions`; the margin is this
+  // column's business, not the row's.
   .btns {
     margin-top: 0;
-    display: flex;
-    gap: $small;
-    align-items: center;
-    // Wrap rather than squeeze (see AlbumView/Header/Buttons.vue).
-    flex-wrap: wrap;
 
     .download-btn {
       // Shared header-action anatomy: 44px touch target, theme-aware glyph
       // (it was static ink and vanished on the dark ground), no squeezing.
       @include btn-action;
-      display: flex;
-      align-items: center;
-      justify-content: center;
 
       .icon {
         display: flex;

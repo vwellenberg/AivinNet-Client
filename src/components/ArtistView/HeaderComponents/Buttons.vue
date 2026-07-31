@@ -1,7 +1,10 @@
 <template>
-  <div class="artist-buttons">
+  <!-- Canonical order: Play · Favourite · Pin · Secondary action · Overflow.
+       An artist has no pin and no secondary action, so those slots are simply
+       absent — the remaining ones keep their places. -->
+  <div class="artist-buttons header-actions">
     <PlayBtnRect :source="playSources.artist" />
-    <HeartSvg :state="artist.info.is_favorite" @handleFav="handleFav" />
+    <HeartSvg btn_role="action" :state="artist.info.is_favorite" @handleFav="handleFav" />
     <button
       class="options"
       :class="{ context_menu_showing }"
@@ -48,43 +51,26 @@ function showContext(e: MouseEvent) {
 </script>
 
 <style lang="scss">
+// Flex, gap and wrapping now come from `.header-actions` (Global/
+// _button-classes.scss). The favourite brings its own role via `btn_role`, so
+// the two rules that used to patch it from out here — the role include and the
+// re-assert of the teal — are gone with it.
 .artist-buttons {
-  display: flex;
-  align-items: center;
-  gap: $small;
-  // Wrap rather than squeeze, like the album and playlist header rows.
-  flex-wrap: wrap;
-
   // This row was the odd one out: it never adopted the shared header-action
   // anatomy, so the overflow button kept the global button base (a box, but
-  // ~36px tall next to the 44px Play CTA) and the favourite was a bare glyph
-  // with no button surface at all. Both now match their album-header twins.
-  .options,
-  .heart-button {
-    @include btn-action;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  // The favourite owns its colour — the mixin sets `color`, which outranks a
-  // bare `.is-fav` in HeartSvg, so a favourited artist turned ink. Re-assert
-  // with the compound that wins (same fix as AlbumView/Header/Buttons.vue).
-  .heart-button {
-    &.is-fav,
-    &.is-fav:hover {
-      color: $mem-teal;
-    }
-  }
-
+  // ~36px tall next to the 44px Play CTA). It matches its album-header twin now.
   .options {
+    @include btn-action;
+
     &.context_menu_showing {
       background-color: $darkblue;
-
-      svg {
-        // Yellow accent fill while the menu is open -> pin static ink.
-        color: $mem-ink !important;
-      }
+      // Yellow accent fill while the menu is open -> pin static ink.
+      //
+      // On the BUTTON. This used to be `svg { color: … !important }`, which
+      // said the same thing in a second dialect (the glyph is currentColor, so
+      // the button reaches it) and needed an `!important` to say it. Same state,
+      // same spelling as the album header now.
+      color: $mem-ink;
     }
   }
 }

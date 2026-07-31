@@ -257,8 +257,13 @@ $bar-glyph-play: 1.75rem;
 // the chrome that frames every page, not feedback. Where a quiet button really
 // does appear as an event, the call site opts in.
 // ---------------------------------------------------------------------------
-@mixin btn-quiet($size: 2.75rem, $radius: $candy-radius-sm, $glyph: 1.5rem) {
-  width: $size;
+// $width defaults to $size (square, which every bar and row control wants) but
+// is a knob, exactly like `btn-action`'s. The favourite toggle is the one quiet
+// control that is deliberately wider than tall, and it used to state that as
+// `aspect-ratio: 1.5` — a ratio needs a dimension to resolve against, and the
+// button base stopped supplying one at #244. Both dimensions come from here now.
+@mixin btn-quiet($size: 2.75rem, $width: $size, $radius: $candy-radius-sm, $glyph: 1.5rem) {
+  width: $width;
   height: $size;
   flex-shrink: 0;
   padding: 0;

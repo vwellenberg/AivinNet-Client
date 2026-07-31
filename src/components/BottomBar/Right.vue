@@ -81,7 +81,7 @@ defineEmits<{
     // of the bar cannot drift apart again.
     //
     // Two exclusions, both because they bring their own complete anatomy:
-    // HeartSvg (its own geometry and its teal favourited state) and the joined
+    // HeartSvg (it takes its own role, plus a teal favourited state) and the joined
     // devices button (white glyph on a green box, owned by DevicesButton.vue).
     // Spelled out rather than left to specificity luck.
     > button:not(.heart-button):not(.ds-joined) {

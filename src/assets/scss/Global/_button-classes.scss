@@ -44,32 +44,63 @@
   }
 }
 
-// An action row pops left to right instead of all at once.
+// ---------------------------------------------------------------------------
+// HEADER ACTION ROW — the container half of the detail-header anatomy.
 //
-// Scoped to the three header rows rather than folded into the roles: a delay
-// is only wanted where buttons stand in a line and read as a group. Baked into
-// `btn-action` it would also stagger a lone button by its accidental position
-// among unrelated siblings — and emit five extra rules at each of ~40 call
-// sites.
+// There are FOUR detail headers (album, artist, playlist, mix) and each one
+// hand-wrote the same four declarations for its action row. They are one thing,
+// so they are written once.
 //
-// Set as `--btn-pop-delay`, never as `animation-delay`. The roles state the
-// whole `animation` SHORTHAND, which resets the delay longhand, and they do it
-// from a deeper selector than this one — the first version of this used
-// `animation-delay` here and measured 0s on four of five buttons. The mixin
-// reads this custom property instead, and a custom property is not part of the
-// shorthand it survives. `backwards` lives with the mixin for the same reason.
+// A CLASS and not a Vue component, deliberately. The row has no behaviour, no
+// props and no shared markup — its children differ per header (a playlist has
+// no favourite, a mix has no pin), so a wrapper component would exist purely to
+// emit a <div>. It would also cost something real: the stagger below reads
+// `:nth-child` off the DOM, and every header would have to keep passing its
+// buttons through a slot for that to keep resolving to the same positions. A
+// class states the row's role in the template, which is exactly what
+// `.btn-action` and friends below do for a single button.
 //
-// Reduced motion needs nothing here: the mixin drops to `animation: none`, at
-// which point a delay has nothing to delay.
-//
-// The `#{}` around each value is not optional. Sass treats a custom property's
-// value as an opaque token and does NOT evaluate expressions inside it, so
-// `$motion-stagger * 3` reached the stylesheet verbatim and every delay
-// silently became invalid. Caught by diffing the built CSS against master.
-.album-buttons,
-.artist-buttons,
-.playlist-info .btns,
-.mixheader .buttons {
+// CANONICAL ORDER — Play · Favourite · Pin · Secondary action · Overflow.
+// A header omits the slots it has no action for; it never reorders them. That
+// is what makes the stagger read as one gesture across all four pages, and it
+// is enforced by src/components/__tests__/headerActionOrder.test.ts rather than
+// left to a comment — a pointer in prose is exactly what rotted when #244
+// deleted `mem-header-action` out from under the CLAUDE.md.
+// ---------------------------------------------------------------------------
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: $small;
+  // Wrap instead of squeezing: on a 390px phone five controls used to compress
+  // until the last of them was a 16px sliver.
+  flex-wrap: wrap;
+
+  // An action row pops left to right instead of all at once.
+  //
+  // Scoped to the header rows rather than folded into the roles: a delay is only
+  // wanted where buttons stand in a line and read as a group. Baked into
+  // `btn-action` it would also stagger a lone button by its accidental position
+  // among unrelated siblings — and emit five extra rules at each of ~40 call
+  // sites.
+  //
+  // This used to list all four rows by their own class names, which is how the
+  // mix header came to be missing from the group until #293 went looking. One
+  // shared class is one place to be on.
+  //
+  // Set as `--btn-pop-delay`, never as `animation-delay`. The roles state the
+  // whole `animation` SHORTHAND, which resets the delay longhand, and they do it
+  // from a deeper selector than this one — the first version of this used
+  // `animation-delay` here and measured 0s on four of five buttons. The mixin
+  // reads this custom property instead, and a custom property is not part of the
+  // shorthand it survives. `backwards` lives with the mixin for the same reason.
+  //
+  // Reduced motion needs nothing here: the mixin drops to `animation: none`, at
+  // which point a delay has nothing to delay.
+  //
+  // The `#{}` around each value is not optional. Sass treats a custom property's
+  // value as an opaque token and does NOT evaluate expressions inside it, so
+  // `$motion-stagger * 3` reached the stylesheet verbatim and every delay
+  // silently became invalid. Caught by diffing the built CSS against master.
   > *:nth-child(2) {
     --btn-pop-delay: #{$motion-stagger};
   }
