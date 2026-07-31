@@ -6,7 +6,7 @@
         path: folder.path,
       },
     }"
-    class="foldercard rounded"
+    class="foldercard"
   >
     <div class="rimg rounded-sm">
       <svg width="30" height="30" fill="currentColor" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" class="bg">
@@ -18,15 +18,19 @@
       <PlayBtn :source="playSources.folder" :folderpath="folder.path" />
     </div>
 
-    <div v-if="folder.help_text" class="rhelp folder">
-      <span class="help">{{ folder.help_text }}</span>
-      <span class="time">{{ folder.time }}</span>
-    </div>
-    <div class="ellip title" :title="name(folder.path)">
-      {{ name(folder.path) }}
-    </div>
-    <div class="rtcount">
-      <b>{{ folder.count }} Track{{ folder.count == 1 ? "" : "s" }}</b>
+    <!-- Single text wrapper so the shared card anatomy (Global/cards.scss) can
+         treat every card as image + one text zone. -->
+    <div class="card-text">
+      <div v-if="folder.help_text" class="rhelp folder">
+        <span class="help">{{ folder.help_text }}</span>
+        <span class="time">{{ folder.time }}</span>
+      </div>
+      <div class="ellip title" :title="name(folder.path)">
+        {{ name(folder.path) }}
+      </div>
+      <div class="rtcount">
+        <b>{{ folder.count }} Track{{ folder.count == 1 ? "" : "s" }}</b>
+      </div>
     </div>
   </RouterLink>
 </template>
@@ -63,8 +67,11 @@ const name = (path: string) => {
   display: flex;
   flex-direction: column;
   height: max-content;
-  transition: background-color 0.2s ease-out;
   @include candy-box($mem-panel, $candy-radius);
+  // Hard offset shadow: the tile sits above the grid ground (memphis). Every
+  // other card row tile had this; the folder tile read as flat next to them.
+  @include candy-raised(3px, 3px, $press: false);
+  transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
 
   .title {
     font-weight: 700;
