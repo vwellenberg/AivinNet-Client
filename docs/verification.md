@@ -57,6 +57,12 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 
 Die Routen sind Hash-Routen: `http://localhost:1970/#/<route>`.
 
+⚠️ **Now Playing ist `/nowplaying/home`, und nur das.** Die Route ist `/nowplaying/:tab`, aber
+`main.vue` rendert ihren Inhalt hinter `v-if="$route.params.tab == 'home'"` — jeder andere Tab
+liefert eine **leere Seite mit gültiger URL**. Kein 404, keine Konsolenmeldung: Titelleiste und
+Bottom-Bar stehen, der Messcode findet null Elemente und meldet, das Feature fehle. `/nowplaying`
+ohne Tab ist dagegen ehrlich und zeigt „404! Page Not Found!".
+
 ## ⚠️ Fallen beim Messen
 
 - **Gegen `master` kontrollieren, immer.** Eine Null beweist ohne Kontrolllauf nur, dass man

@@ -263,6 +263,23 @@ Regler-`input` bläht den Wrapper auf (Inline-Block: die Margin-Box zählt zur Z
 Mitte des Inputs mitzubewegen → Knopf und Overlay 7 px auseinander, während jede Knopf-Messung
 ±0,00 px meldet. **Abstände gehören auf den Wrapper.**
 
+## ⚠️ Eine Trennlinie gehört der Textseite, nicht der Medienzelle
+
+Ein `border-right` auf einem Element mit `border-radius` wird **entlang dieses Radius gezeichnet** —
+auf einem runden Element also als Bogen, nicht als gerade Linie. In der Now-Playing-Quelle
+(`PlayingFrom.vue`) trägt das Vorschaubild auf der **Artist**-Quelle `.circular`
+(`border-radius: 10rem`), auf der Album-Quelle `rounded-sm` und beim Playlist-Fall gar keinen —
+dieselbe Regel ergab drei verschiedene Bilder, und ausgerechnet der geprüfte Fall (Playlist,
+eckiges Glyph-Feld) sah richtig aus.
+
+Die Regel: **Die Linie zwischen zwei Zellen gehört an die Kante, deren Form man kennt.** Als
+Geschwister-Paar formuliert (`img + .from-text, .from-icon + .from-text`), damit sie nur erscheint,
+wenn wirklich etwas davorsteht — bei leerer Queue rendert `playingFrom()` weder Bild noch Glyph.
+
+Allgemeiner: Eine Medienzelle kann ihre Form von einer Utility-Klasse bekommen, die die View gar
+nicht setzt. Wer eine Kante auf so eine Zelle legt, prüft **jede** Quelle einzeln — Element-
+Screenshot pro Variante, nicht nur die, die man gerade offen hat.
+
 ## Weitere Fallen
 
 - **CSS-Spezifität statt `!important`.** `.b-bar .with-time button{background:transparent}` (0,2,1)
