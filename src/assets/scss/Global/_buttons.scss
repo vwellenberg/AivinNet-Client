@@ -93,7 +93,7 @@ $bar-glyph-play: 1.75rem;
   // forbidden `both` — `both` also holds the LAST frame afterwards, and an
   // animation-origin `scale(1)` outranks every declared transform, which would
   // silently kill hover and press in all five roles.
-  animation: btn-pop 200ms cubic-bezier(0.22, 1, 0.36, 1) var(--btn-pop-delay, 0s) backwards;
+  animation: btn-pop $motion-move $motion-curve-settle var(--btn-pop-delay, 0s) backwards;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -139,7 +139,8 @@ $bar-glyph-play: 1.75rem;
   // `$press: false` — this role keeps the scale feedback below instead of the
   // press-into-shadow, so the two never fight over `transform`.
   @include candy-raised(3px, 3px, $press: false);
-  transition: background-color 0.15s ease-out, box-shadow 0.12s ease-out, transform 0.1s ease;
+  transition: background-color $motion-tint $motion-curve, box-shadow $motion-shadow $motion-curve,
+    transform $motion-press ease;
 
   &::before {
     content: "";
@@ -210,8 +211,8 @@ $bar-glyph-play: 1.75rem;
   // Theme-aware, because the fill under it is. See the token note at the top.
   color: $mem-content-text;
   box-shadow: if($rest == surface, 3px 3px 0 var(--mem-shadow), none);
-  transition: background-color 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out,
-    box-shadow 0.12s ease-out, transform 0.1s ease;
+  transition: background-color $motion-tint $motion-curve, border-color $motion-tint $motion-curve,
+    color $motion-tint $motion-curve, box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
 
   svg {
     width: 1.5rem;
@@ -271,7 +272,8 @@ $bar-glyph-play: 1.75rem;
   color: $mem-content-text;
   box-shadow: none;
   cursor: pointer;
-  transition: background-color 0.15s ease-out, color 0.15s ease-out, transform 0.1s ease;
+  transition: background-color $motion-tint $motion-curve, color $motion-tint $motion-curve,
+    transform $motion-press ease;
 
   svg {
     width: $glyph;
@@ -315,7 +317,8 @@ $bar-glyph-play: 1.75rem;
   line-height: 1.2;
   cursor: pointer;
   @include candy-raised(2px, 2px, $press: false);
-  transition: background-color 0.15s ease-out, box-shadow 0.12s ease-out, transform 0.1s ease;
+  transition: background-color $motion-tint $motion-curve, box-shadow $motion-shadow $motion-curve,
+    transform $motion-press ease;
 
   &:hover {
     background-color: $candy-pink-deep;
