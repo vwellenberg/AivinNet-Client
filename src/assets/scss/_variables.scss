@@ -118,6 +118,16 @@ $margright: 0;
 $padbottom: 4rem;
 $maxwidth: 1438px;
 $navheight: 4.5rem;
+
+// Height of the player bar's grid row. `#acontent` spans rows 2–4 on purpose
+// (the memphis ground has to run behind the bar, or the page would end in a
+// seam), so the bar covers the bottom of every scroll container and each of
+// them has to reserve this much room for its last row. It was written out as a
+// bare `5.125rem` in three places and reserved in none of the virtualised
+// pages, which is how the last track of a playlist ended up under the bar.
+$bottombarheight: 5.125rem;
+// The phone bar is taller: it carries the navigation as well as the transport.
+$bottombarheight-phone: 9.5rem;
 $cardwidth: 12rem;
 $maxpadleft: 5rem;
 
