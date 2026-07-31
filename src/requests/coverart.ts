@@ -94,3 +94,51 @@ export async function undoAlbumCover(albumhash: string): Promise<boolean> {
 
     return true
 }
+
+/**
+ * Removes an album's cover so it falls back to the placeholder.
+ *
+ * The server also records the removal, which is what stops the next library
+ * scan from re-deriving the same picture out of the audio files — without
+ * that, this would appear to do nothing.
+ */
+export async function removeAlbumCover(albumhash: string): Promise<boolean> {
+    const { data, status } = await useAxios({
+        url: `${paths.api.coverart}/album/remove`,
+        props: { albumhash },
+        method: 'POST',
+    })
+
+    if (status !== 200 || !data?.success) {
+        new Notification('Failed to remove cover', NotifType.Error)
+        return false
+    }
+
+    return true
+}
+
+/**
+ * Uploads a local image file as an album's cover.
+ *
+ * multipart/form-data, not JSON: this is the only album request that carries
+ * a file. The field is named `image` to match the server's form model.
+ */
+export async function uploadAlbumCover(albumhash: string, file: File): Promise<string | null> {
+    const form = new FormData()
+    form.append('albumhash', albumhash)
+    form.append('image', file)
+
+    const { data, status } = await useAxios({
+        url: `${paths.api.coverart}/album/upload`,
+        props: form,
+        method: 'POST',
+        headers: { 'Content-Type': 'multipart/form-data' },
+    })
+
+    if (status !== 200 || !data?.image) {
+        new Notification(data?.error || 'Failed to upload cover', NotifType.Error)
+        return null
+    }
+
+    return data.image
+}
