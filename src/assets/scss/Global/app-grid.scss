@@ -30,6 +30,13 @@ $g-border: solid $candy-border-w $mem-line;
             'bottombar';
         grid-template-rows: auto 1fr auto;
     }
+
+    // A landscape phone: the chrome is a fixed cost, and at 390px of height it
+    // was eating two thirds of the screen (measured 133px of usable content out
+    // of 390). Both bars shrink to one row apiece.
+    @include shortViewport {
+        grid-template-rows: $navheight-short minmax(0, 1fr) $bottombarheight-short;
+    }
 }
 
 #acontent {
@@ -70,6 +77,14 @@ $g-border: solid $candy-border-w $mem-line;
         background-color: $candy-white;
         border: $candy-border;
     }
+
+    // The phone pill keeps its shape, on a shorter row: the margin above it is
+    // what the grid row has left over, so it has to shrink with the row or the
+    // pill grows past it and sits on the content card.
+    @include shortViewport {
+        margin: $smaller 1rem;
+        padding: 3px 6px;
+    }
 }
 
 .b-bar {
@@ -94,6 +109,13 @@ $g-border: solid $candy-border-w $mem-line;
         padding-left: 1rem;
         padding-right: 1rem;
         padding-bottom: calc($padbottom + $bottombarheight-phone);
+    }
+
+    // The reserve follows the bar. Keeping the phone value here would hand back
+    // 92px of the little height a landscape phone has, in the one viewport
+    // where it is scarce.
+    @include shortViewport {
+        padding-bottom: calc($padbottom + $bottombarheight-short);
     }
 }
 
@@ -190,6 +212,12 @@ $g-border: solid $candy-border-w $mem-line;
             'nav'
             'content'
             'bottombar' !important;
+    }
+
+    // Same one-row chrome in the alternate layout — it declares its rows with
+    // `!important`, so this has to as well or the phone stack wins.
+    @include shortViewport {
+        grid-template-rows: $navheight-short minmax(0, 1fr) $bottombarheight-short !important;
     }
 
     .vue-recycle-scroller,
@@ -345,6 +373,11 @@ $g-border: solid $candy-border-w $mem-line;
             padding-left: 1rem;
             padding-right: 1rem;
             padding-bottom: calc($padbottom + $bottombarheight-phone);
+        }
+
+        // See the note on the same override in `.content-page`.
+        @include shortViewport {
+            padding-bottom: calc($padbottom + $bottombarheight-short);
         }
     }
 }

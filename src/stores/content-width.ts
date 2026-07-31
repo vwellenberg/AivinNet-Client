@@ -53,7 +53,19 @@ const ALL_MOBILE_WIDTH = 900
 const LARGE_MOBILE_WIDTH = 660
 const SMALL_MOBILE_WIDTH = 460
 
-const { width: win_width } = useWindowSize()
+// A landscape phone. Every other breakpoint in this file is a function of WIDTH
+// alone, and a phone held sideways is WIDE and SHORT — so the width said "large
+// phone, give it the richer bar" while nothing at all watched the height. The
+// chrome (title bar + player bar) is a fixed 249px: 30% of a 390x844 portrait
+// screen, but 64% of the same device turned over, measured 133px of usable
+// content out of 390.
+//
+// `orientation: landscape` as well as the height, deliberately: a tablet held
+// UPRIGHT also falls in the 660-900px width band, and nothing about it is short.
+// It must keep the layout it has.
+const SHORT_HEIGHT = 500
+
+const { width: win_width, height: win_height } = useWindowSize()
 
 export const isSmallPhone = computed(() => win_width.value <= LARGE_MOBILE_WIDTH)
 export const isMobile = computed(() => win_width.value <= ALL_MOBILE_WIDTH)
@@ -62,6 +74,9 @@ export const isLargerMobile = computed(
 )
 
 export const isSmallestPhone = computed(() => win_width.value <= SMALL_MOBILE_WIDTH)
+
+/** Keep in step with the `shortViewport` mixin in `assets/scss/_mixins.scss`. */
+export const isShort = computed(() => win_height.value <= SHORT_HEIGHT && win_width.value > win_height.value)
 
 const updateCardWidth = () => {
     // if (album_card_with.value !== 161.6) return;

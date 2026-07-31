@@ -82,6 +82,28 @@ useVisibility(albumheaderthing, handleVisibilityState)
         }
     }
 
+    // A landscape phone: `$banner-height` (18rem) plus a 16rem cover is taller
+    // than the whole 390px viewport, so the header pushed its own action row
+    // and the disc bar off the bottom. Measured 288 -> 163px.
+    @include shortViewport {
+        height: auto;
+        min-height: 0;
+        padding: $medium 1rem;
+
+        .big-img,
+        .big-img img,
+        .big-img.imgSmall,
+        .big-img.imgSmall img {
+            height: 7rem;
+            width: auto;
+            max-width: 7rem;
+        }
+
+        .title {
+            font-size: $detail-title-size-phone !important;
+        }
+    }
+
     .nocontrast {
         color: $black;
 
