@@ -1,5 +1,4 @@
 import { readFileSync } from "node:fs";
-import { resolve as resolvePath } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -20,10 +19,11 @@ import { describe, expect, it } from "vitest";
 // test — it hands back an empty string, and every check below would pass
 // vacuously. Read it off disk instead (guarded by `it("reads the anatomy")`).
 const SOURCES = import.meta.glob("/src/**/*.vue", { as: "raw", eager: true }) as Record<string, string>;
-// Vitest runs from the project root, so cwd is the anchor. `import.meta.url` is
-// not one here — Vitest's transform leaves it as something `fileURLToPath()`
-// rejects with ERR_INVALID_ARG_TYPE.
-const ANATOMY_FILE = resolvePath(process.cwd(), "src/assets/scss/Global/cards.scss");
+// Relative to the runner's cwd, which is the project root. The two anchors that
+// look more principled do not work here: `import.meta.url` is left in a shape
+// `fileURLToPath()` rejects (ERR_INVALID_ARG_TYPE), and `process.cwd()` trips
+// `no-undef` because the lint config gives test files no node env.
+const ANATOMY_FILE = "src/assets/scss/Global/cards.scss";
 
 const SCROLLER = "/src/components/shared/CardScroller.vue";
 
