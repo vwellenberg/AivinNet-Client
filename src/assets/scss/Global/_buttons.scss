@@ -81,7 +81,19 @@ $bar-glyph-play: 1.75rem;
 // mixins may live in this file.
 // ---------------------------------------------------------------------------
 @mixin btn-pop {
-  animation: btn-pop 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  // The delay is a custom property rather than a longhand a caller could set,
+  // and that is load-bearing. This is the `animation` SHORTHAND, so it resets
+  // `animation-delay` and `animation-fill-mode` to their initial values — and
+  // a role is included at a deeper selector than any row-level rule, so a
+  // longhand `animation-delay` set on the row's children was wiped every time.
+  // A custom property survives the shorthand because it is not part of it.
+  //
+  // `backwards` is safe to carry unconditionally: it applies only DURING the
+  // delay, and with the default 0s there is no such period. It is NOT the
+  // forbidden `both` — `both` also holds the LAST frame afterwards, and an
+  // animation-origin `scale(1)` outranks every declared transform, which would
+  // silently kill hover and press in all five roles.
+  animation: btn-pop 200ms cubic-bezier(0.22, 1, 0.36, 1) var(--btn-pop-delay, 0s) backwards;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
