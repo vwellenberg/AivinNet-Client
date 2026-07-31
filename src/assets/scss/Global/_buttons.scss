@@ -60,13 +60,20 @@ $bar-glyph-play: 1.75rem;
 // look (panel fill, frame, shadow) that read as an empty button filling in
 // late.
 //
-// A short scale impulse instead: no delay, 130ms, done. Defined ONCE here so
-// every button that appears does the same thing, rather than each component
-// carrying its own Motion config.
+// A scale impulse instead: no delay, 200ms, done. Defined ONCE here so every
+// button that appears does the same thing, rather than each component carrying
+// its own Motion config.
+//
+// 200ms and an overshoot that goes past 1, not the original 130ms from 0.9.
+// That version leaned on the easing curve's 1.2 control point for its bounce
+// and the short duration ate it, so it read as a twitch (#279). The bounce is
+// a keyframe now; the curve here only has to decelerate.
 //
 // No `animation-fill-mode`, deliberately: `both` would hold `scale(1)` as an
 // animation-origin value, which outranks every declared `transform` — the
 // hover and press feedback in the roles below would silently stop working.
+// (The staggered header rows in `_button-classes.scss` do set `backwards`,
+// which is the safe half: it applies only DURING the delay.)
 //
 // The `@keyframes btn-pop` this refers to lives in `_button-classes.scss`, NOT
 // here. This file is injected into every component style block, and a
@@ -74,7 +81,19 @@ $bar-glyph-play: 1.75rem;
 // mixins may live in this file.
 // ---------------------------------------------------------------------------
 @mixin btn-pop {
-  animation: btn-pop 130ms cubic-bezier(0.34, 1.2, 0.64, 1);
+  // The delay is a custom property rather than a longhand a caller could set,
+  // and that is load-bearing. This is the `animation` SHORTHAND, so it resets
+  // `animation-delay` and `animation-fill-mode` to their initial values — and
+  // a role is included at a deeper selector than any row-level rule, so a
+  // longhand `animation-delay` set on the row's children was wiped every time.
+  // A custom property survives the shorthand because it is not part of it.
+  //
+  // `backwards` is safe to carry unconditionally: it applies only DURING the
+  // delay, and with the default 0s there is no such period. It is NOT the
+  // forbidden `both` — `both` also holds the LAST frame afterwards, and an
+  // animation-origin `scale(1)` outranks every declared transform, which would
+  // silently kill hover and press in all five roles.
+  animation: btn-pop 200ms cubic-bezier(0.22, 1, 0.36, 1) var(--btn-pop-delay, 0s) backwards;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -90,11 +109,12 @@ $bar-glyph-play: 1.75rem;
 // 10px radius would turn every card's round teal play disc into a rounded
 // square.
 //
-// NO `btn-pop` here, deliberately. The biggest population of primaries is the
-// round play disc on every cover card, and those live inside a recycling
-// scroller: they mount and unmount continuously while you scroll, so a
-// mount animation would make the whole grid twitch. Page-level primaries that
-// mount once (the header Play CTA) opt in at the call site.
+// NO `btn-pop` here, and that is a decision rather than an oversight (#279).
+// The biggest population of primaries is the round play disc on every cover
+// card, and those live inside a recycling scroller: they mount and unmount
+// continuously while you scroll, so a mount animation would make the whole
+// grid twitch. Page-level primaries that mount once (the header Play CTA) opt
+// in at the call site.
 // ---------------------------------------------------------------------------
 @mixin btn-primary($w: auto, $h: 2.75rem, $radius: $candy-radius-sm, $pad: 0 1.25rem, $glyph: 1.75rem) {
   position: relative;
@@ -229,6 +249,12 @@ $bar-glyph-play: 1.75rem;
 // A hard offset shadow needs a surface to sit on — under a transparent button
 // it is just a smudge floating next to the icon. That is the whole reason the
 // flat-controls blocklist was invented; this role replaces it.
+//
+// NO `btn-pop` here, and that is a decision rather than an oversight (#279).
+// This role's largest population is the player bar and the row affordances —
+// bare glyphs that are simply *there*. A pop per page change would be noise in
+// the chrome that frames every page, not feedback. Where a quiet button really
+// does appear as an event, the call site opts in.
 // ---------------------------------------------------------------------------
 @mixin btn-quiet($size: 2.75rem, $radius: $candy-radius-sm, $glyph: 1.5rem) {
   width: $size;
@@ -330,4 +356,10 @@ $bar-glyph-play: 1.75rem;
   // control to a role that is flat at rest silently flattened the on-state too.
   // It is stated here, at the same 3px as the play button it sits next to.
   @include candy-raised(3px, 3px, $press: false);
+  // The one role where the pop fires on a STATE CHANGE rather than on mount:
+  // this block applies when the "on" class is added, so shuffle and repeat pop
+  // at the moment you switch them on — which is precisely when feedback is
+  // wanted. The other roles pop when they appear, which is why the two below
+  // stay out of it.
+  @include btn-pop;
 }

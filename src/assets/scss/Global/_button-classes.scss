@@ -23,12 +23,65 @@
 // that uses them: `_buttons.scss` is injected into every component style
 // block, and a `@keyframes` block emits real CSS — it would be duplicated
 // ~167 times. Mixins are free there; anything that produces output is not.
+// A real overshoot, not a curve that merely aims at one. The old version went
+// scale(0.9) -> scale(1) in 130ms and leaned on a `cubic-bezier` whose 1.2
+// control point was supposed to supply the bounce — at that duration it was
+// swallowed, and what was left read as a twitch rather than a pop (#279).
+//
+// The overshoot is stated as a keyframe instead, so it survives regardless of
+// the easing: down further, past 1, and back.
 @keyframes btn-pop {
-  from {
-    transform: scale(0.9);
+  0% {
+    transform: scale(0.82);
   }
-  to {
+
+  62% {
+    transform: scale(1.05);
+  }
+
+  100% {
     transform: scale(1);
+  }
+}
+
+// An action row pops left to right instead of all at once.
+//
+// Scoped to the three header rows rather than folded into the roles: a delay
+// is only wanted where buttons stand in a line and read as a group. Baked into
+// `btn-action` it would also stagger a lone button by its accidental position
+// among unrelated siblings — and emit five extra rules at each of ~40 call
+// sites.
+//
+// Set as `--btn-pop-delay`, never as `animation-delay`. The roles state the
+// whole `animation` SHORTHAND, which resets the delay longhand, and they do it
+// from a deeper selector than this one — the first version of this used
+// `animation-delay` here and measured 0s on four of five buttons. The mixin
+// reads this custom property instead, and a custom property is not part of the
+// shorthand it survives. `backwards` lives with the mixin for the same reason.
+//
+// Reduced motion needs nothing here: the mixin drops to `animation: none`, at
+// which point a delay has nothing to delay.
+.album-buttons,
+.artist-buttons,
+.playlist-info .btns {
+  > *:nth-child(2) {
+    --btn-pop-delay: 45ms;
+  }
+
+  > *:nth-child(3) {
+    --btn-pop-delay: 90ms;
+  }
+
+  > *:nth-child(4) {
+    --btn-pop-delay: 135ms;
+  }
+
+  > *:nth-child(5) {
+    --btn-pop-delay: 180ms;
+  }
+
+  > *:nth-child(n + 6) {
+    --btn-pop-delay: 225ms;
   }
 }
 
