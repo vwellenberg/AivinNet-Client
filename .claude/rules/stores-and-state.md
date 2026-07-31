@@ -44,6 +44,20 @@ anderen Track. Muster: in einer **Action** würfeln (`rollShuffleNext`), Ergebni
 (`shuffleNextIndex`), der Getter liest nur. Neu würfeln bei Track-Wechsel, Queue-Ersetzung
 (`tracklist.setNewList`) und Toggle.
 
+## ⚠️ Ein ausgespielter Track geht NICHT durch `play()`
+
+Der reale Auto-Übergang ist der lückenlose: der Player hat das nächste Audio-Element vorgeladen,
+`moveLoadedForward()` schaltet die Quellen um und meldet der Queue nur noch das Ergebnis — über
+**`moveForward()`**. Wer „was passiert beim Track-Ende" in `play()` oder `autoPlayNext()` sucht,
+sucht falsch: `autoPlayNext()` ruft außerhalb der Tests **niemand** auf.
+
+Deshalb blieb der vorgewürfelte Shuffle-Index dort stehen, wo der gerade gestartete Track liegt →
+`nextindex` gab den aktuellen Index heraus → Zufallswiedergabe wiederholte einen Song endlos, und
+grüne Store-Tests behaupteten das Gegenteil, weil sie `autoPlayNext()` prüften. **Jede Logik am
+Track-Wechsel gehört an `moveForward()` genauso wie an `play()`** — und was eine Invariante ist
+(„next ist nie der laufende Track"), wird zusätzlich im Getter abgesichert, weil der
+Gruppen-Mirror `currentindex` bewusst direkt schreibt.
+
 ## ⚠️ Scrubbing braucht einen eigenen Drag-State
 
 Der Range-Input ist an den Playhead gebunden, der mehrmals pro Sekunde tickt — ohne lokalen
