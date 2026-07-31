@@ -4,12 +4,8 @@
              now that the button toggles AUDIBILITY rather than the mute flag:
              from here they are the same thing, and one tap gets sound back
              either way. The title says so. -->
-        <button
-            class="speaker-icon"
-            :title="settings.mute || settings.volume === 0 ? 'Unmute' : 'Mute'"
-            @click="settings.toggleMute"
-        >
-            <VolumeMuteSvg v-if="settings.mute || settings.volume == 0.0" />
+        <button class="speaker-icon" :title="settings.is_silent ? 'Unmute' : 'Mute'" @click="settings.toggleMute">
+            <VolumeMuteSvg v-if="settings.is_silent" />
             <VolumeMidSvg v-else-if="settings.volume > 0.5" />
             <VolumeLowSvg v-else />
         </button>

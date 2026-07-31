@@ -7,7 +7,7 @@ import { pluginSetActive, updatePluginSettings } from '@/requests/plugins'
 import { updateConfig } from '@/requests/settings'
 import useDeviceSync from '@/stores/devicesync'
 import { usePlayer } from '@/stores/player'
-import { content_width } from '../content-width'
+import { content_width, isMobile } from '../content-width'
 import { getLastFmApiSig } from '@/context_menus/hashing'
 import useAxios from '@/requests/useAxios'
 import { paths } from '@/config'
@@ -281,9 +281,7 @@ export default defineStore('settings', {
          */
         toggleMute() {
             const { setMute, setVolume } = usePlayer()
-            const silent = this.mute || this.volume === 0
-
-            if (silent) {
+            if (this.is_silent) {
                 this.mute = false
 
                 if (this.volume === 0) {
@@ -301,6 +299,26 @@ export default defineStore('settings', {
         },
         initializeVolume() {
             const { setVolume, setMute } = usePlayer()
+
+            // A phone never starts silent.
+            //
+            // `mute` and `volume` are persisted, but a phone-width viewport
+            // renders no volume control outside the Now Playing page — the
+            // bottom bar swaps the whole right group for the navigation. So a
+            // silent state that survives a reload is an app that plays nothing
+            // with no control in sight; for a first-time user it just looks
+            // broken. On a phone the hardware volume rocker is the real volume
+            // control anyway, which leaves an in-app mute nothing worth
+            // restoring across sessions. Muting WITHIN a session still works
+            // (and is undone from the bar, see BottomBar/Left.vue).
+            //
+            // Through the speaker button's own action, so startup recovers
+            // exactly the way a tap does — including keeping a perfectly good
+            // volume that merely happened to be muted, instead of resetting it.
+            if (isMobile.value && this.is_silent) {
+                this.toggleMute()
+            }
+
             setVolume(this.volume)
             setMute(this.mute)
         },
@@ -505,6 +523,13 @@ export default defineStore('settings', {
         crossfade_on(): boolean {
             return this.use_crossfade && this.crossfade_duration > 0
         },
+        /**
+         * No sound is coming out — muted, or turned all the way down. The two
+         * are the same thing to a listener, so everything that reacts to
+         * silence (the speaker glyph, its title, the mobile unmute button)
+         * reads this one getter instead of restating the pair.
+         */
+        is_silent: state => state.mute || state.volume === 0,
         is_default_layout: state => state.layout === '',
         is_alt_layout: state => state.layout === 'alternate' && content_width.value > 900,
         highlightFavoriteTracks(): boolean {

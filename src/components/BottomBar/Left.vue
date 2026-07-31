@@ -43,6 +43,21 @@
             :state="queue.currenttrack?.is_favorite"
             @handleFav="$emit('handleFav')"
         />
+        <!-- Silence is a dead end on a small phone: this bar has no volume
+             control (the right group is the navigation there), so the only
+             speaker in the app sits far down the Now Playing page — and a
+             muted state is persisted, or arrives from another device in a
+             group session. Whenever there is no sound, the way back is right
+             here on every page; when there is, nothing is shown and the bar
+             keeps its room for the track title. -->
+        <button
+            v-if="isMobile && !isLargerMobile && settings.is_silent"
+            class="bar-unmute"
+            title="Unmute"
+            @click="settings.toggleMute"
+        >
+            <VolumeMuteSvg />
+        </button>
         <Actions v-if="isLargerMobile" @handleFav="$emit('handleFav')" />
         <HotKeys v-if="isMobile" />
         <!-- Small phones only get HotKeys here (Actions covers the larger ones),
@@ -61,6 +76,7 @@ import useQStore from '@/stores/queue'
 import useSettingsStore from '@/stores/settings'
 
 import ExpandSvg from '@/assets/icons/expand.svg'
+import VolumeMuteSvg from '@/assets/icons/volume-mute.svg'
 import ArtistName from '@/components/shared/ArtistName.vue'
 import DevicesButton from '../DeviceSync/DevicesButton.vue'
 import HotKeys from '../LeftSidebar/NP/HotKeys.vue'
@@ -81,6 +97,15 @@ defineEmits<{
 .left-group {
     display: flex;
     gap: $medium;
+
+    // The way out of silence, phone bar only (see the template). It is not a
+    // volume control — it exists only while there is nothing to hear — so it
+    // wears the same yellow "on" box as an active shuffle or repeat: a state
+    // that is switched off with one tap, rather than a glyph to interpret.
+    .bar-unmute {
+        @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
+        @include btn-toggle-on;
+    }
 
     // Devices button in the mobile bar: same footprint as a HotKeys control,
     // pinned to the end so the track title keeps the flexible space. Reads the
@@ -254,7 +279,14 @@ defineEmits<{
 
     @include allPhones {
         display: grid;
-        grid-template-columns: max-content 1fr max-content max-content;
+        // Cover, then the title takes the rest, then one max-content column per
+        // control that happens to be there. The controls are conditional — the
+        // unmute button only exists while the player is silent — so the trailing
+        // columns are implicit; a fixed four-column template dropped the fifth
+        // control onto a second row and doubled the bar's height.
+        grid-auto-flow: column;
+        grid-template-columns: max-content 1fr;
+        grid-auto-columns: max-content;
         margin-right: unset;
 
         .heart-button {
