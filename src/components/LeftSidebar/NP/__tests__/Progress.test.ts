@@ -1,6 +1,6 @@
 import { DOMWrapper, mount } from '@vue/test-utils'
 import { reactive } from 'vue'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // The seek bar only needs the playhead and a seek() from the queue store;
 // mounting the real one would drag in the player, device sync and requests.
@@ -84,5 +84,81 @@ describe('seek bar scrubbing', () => {
         queue.duration.current = 130
         await w.vm.$nextTick()
         expect(valueOf(input)).toBe('130')
+    })
+})
+
+describe('seek bar hover preview', () => {
+    // jsdom lays nothing out, so the component would measure a zero-width bar
+    // and bail out of the hover path entirely. Give it a 200px track starting
+    // at the wrapper's left edge; then a pixel is a half percent.
+    const BAR = { left: 0, top: 0, width: 200, height: 10 }
+    const realRect = Element.prototype.getBoundingClientRect
+
+    beforeEach(() => {
+        queue.duration.current = 40 // playhead at 20%
+        queue.duration.full = 200
+        Element.prototype.getBoundingClientRect = () =>
+            ({ ...BAR, right: BAR.width, bottom: BAR.height, x: 0, y: 0 } as DOMRect)
+    })
+
+    // Put the prototype back: a patched getBoundingClientRect left lying around
+    // is exactly the kind of cross-test bleed that is hard to trace later.
+    afterEach(() => {
+        Element.prototype.getBoundingClientRect = realRect
+    })
+
+    // The span is laid out in sub-pixel floats (0.15 * 200 is 30.000000000000004),
+    // so read the numbers back instead of matching the style string.
+    const px = (w: ReturnType<typeof mount>, sel: string, prop: string) => {
+        const style = w.find(sel).attributes('style') ?? ''
+        return Number(new RegExp(`${prop}: (-?[\\d.]+)px`).exec(style)?.[1] ?? NaN)
+    }
+    const span = (w: ReturnType<typeof mount>) => ({
+        left: px(w, '.progress-preview', 'left'),
+        width: px(w, '.progress-preview', 'width'),
+    })
+
+    const hoverAt = (w: ReturnType<typeof mount>, clientX: number) =>
+        w.find('.progress-wrap').trigger('pointermove', { pointerType: 'mouse', clientX })
+
+    it('paints only the stretch between the playhead and the cursor', async () => {
+        const w = mount(Progress)
+
+        // Cursor at 70% with the playhead at 20% -> the span starts at the
+        // playhead (40px) and is 50% of the bar wide (100px). Painting from
+        // zero would bury the played fill and the thumb under the preview.
+        await hoverAt(w, 140)
+        expect(span(w).left).toBeCloseTo(40)
+        expect(span(w).width).toBeCloseTo(100)
+    })
+
+    it('paints backwards when the cursor is behind the playhead', async () => {
+        const w = mount(Progress)
+
+        // Cursor at 5%, playhead at 20% -> the span is the 15% being given up.
+        await hoverAt(w, 10)
+        expect(span(w).left).toBeCloseTo(10)
+        expect(span(w).width).toBeCloseTo(30)
+    })
+
+    it('keeps up with the playhead while the pointer holds still', async () => {
+        const w = mount(Progress)
+        await hoverAt(w, 140)
+
+        queue.duration.current = 60 // playhead moves on to 30%
+        await w.vm.$nextTick()
+
+        // The span shrinks from its left edge instead of drifting: a geometry
+        // measured once on pointermove would still claim to start at 20%.
+        expect(span(w).left).toBeCloseTo(60)
+        expect(span(w).width).toBeCloseTo(80)
+    })
+
+    it('puts the tooltip on the cursor, not on the span', async () => {
+        const w = mount(Progress)
+        await hoverAt(w, 140)
+
+        expect(px(w, '.progress-tooltip', 'left')).toBeCloseTo(140)
+        expect(w.find('.progress-tooltip').text()).toBe('02:20') // 70% of 200s
     })
 })
