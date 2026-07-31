@@ -55,6 +55,11 @@ Pro Aufgabe/Issue:
 4. **CI grün abwarten** (Lint/Tests/Build).
 5. **Autonom (squash) mergen**, sobald Review sauber: `gh pr merge --repo vwellenberg/AivinNet-Client --squash --delete-branch --auto` — `--auto` merged automatisch, sobald die Required Checks grün sind. Keine Rückfrage, kein Review-Zwang.
 6. **Deploy von `master`** + verifizieren (bei UI: Headless-Screenshot), dann **Worktree entfernen** (`git worktree remove`) + lokalen Branch löschen.
+7. **Issue-Abgleich — Pflicht, nicht Kür.** Nach **jeder** Implementierung prüfen, ob es dazu ein Issue gibt (`gh issue list --repo vwellenberg/AivinNet-Client --state open`), und es schließen **mit einem Kommentar, der die Lösung beschreibt** — was geändert wurde, in welchem PR, womit belegt.
+   - Das gilt auch für Arbeit, die **nebenbei** ein Issue erledigt: Features lösen regelmäßig fremde Issues mit, ohne dass jemand die Verbindung zieht. Real passiert: die Album-Hash-Migration aus #255 hat den halben Punkt B von #31 miterledigt, und die Ordner-Arbeit aus #83 die halbe Akzeptanzliste von #94 — beide Issues standen danach monatelang offen und sahen unangetastet aus.
+   - **Nie den Issue-Text als Status wiedergeben.** Er ist hier regelmäßig Monate hinter dem Code. Vor jeder Aussage über ein Issue die genannten Dateien, Funktionen und Endpunkte im Code nachschlagen (real passiert: #2 und #97 wurden als „offen" zusammengefasst, obwohl Backend und Frontend fertig waren).
+   - Teilweise erledigt ⇒ nicht schließen, sondern kommentieren, welche Punkte stehen und welche nicht — mit Dateiverweis als Beleg.
+   - **Englisches Schließwort** im PR-Text (`Fixes #N` / `Closes #N`); das deutsche „Behebt #N" schließt nichts.
 
 - Kein `dev`-Branch (Branches gehen direkt von `master` aus).
 - **`master` ändert sich laufend = normal und gewollt:** jeder gemergte PR bewegt `master`. Das ist KEIN Zeichen für Direkt-Commits, sondern der vorgesehene Fluss (Worktree → Branch → PR → Merge).
