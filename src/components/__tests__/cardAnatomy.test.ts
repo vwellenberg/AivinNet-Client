@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { resolve as resolvePath } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -23,7 +23,7 @@ const SOURCES = import.meta.glob("/src/**/*.vue", { as: "raw", eager: true }) as
 // Vitest runs from the project root, so cwd is the anchor. `import.meta.url` is
 // not one here — Vitest's transform leaves it as something `fileURLToPath()`
 // rejects with ERR_INVALID_ARG_TYPE.
-const ANATOMY_FILE = resolve(process.cwd(), "src/assets/scss/Global/cards.scss");
+const ANATOMY_FILE = resolvePath(process.cwd(), "src/assets/scss/Global/cards.scss");
 
 const SCROLLER = "/src/components/shared/CardScroller.vue";
 
