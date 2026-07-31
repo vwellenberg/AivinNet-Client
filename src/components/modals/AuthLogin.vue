@@ -218,10 +218,9 @@ onMounted(async () => {
         background: none;
         border: none;
         pointer-events: none;
-
-        svg {
-            transform: scale(0.85);
-        }
+        // No `svg` rule here: the logo has been a PNG (`.logo-img`) since the
+        // pixel planet arrived, so the old `svg { transform: scale(.85) }`
+        // matched nothing. Size belongs to the component anyway.
     }
 
     .selected-user {

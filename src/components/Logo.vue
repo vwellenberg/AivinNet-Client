@@ -2,6 +2,9 @@
   <router-link class="swing-logo" :to="{ name: 'Home' }" title="Home">
     <div class="logo-orbit-wrapper">
       <img src="@/assets/icons/logos/logo-subspaceradio.png" alt="AivinNet" class="logo-img" />
+      <span class="logo-orbit" aria-hidden="true">
+        <i class="logo-orbit-spin"><i class="logo-moon"></i></i>
+      </span>
     </div>
   </router-link>
 </template>
@@ -17,13 +20,22 @@
   gap: 0.6rem;
   width: 100%;
   height: 100%;
+  // The hover orbit reaches 7px past the planet — never clip it.
   overflow: visible;
 }
 
-// Flat candy treatment: the pixel-art planet sits in a black rounded square.
-// Same 3rem footprint, radius and offset shadow as the home button it shares
-// the top bar with — they are the two pieces of navigation chrome up there and
-// used to be two different sizes (2.25rem vs 3rem), with only one of them lit.
+// The one piece of chrome that is NOT a tile: the pixel planet stands on its
+// own, no box around it.
+//
+// It used to sit on an ink fill, which was the only place in the app where ink
+// was used as a SURFACE rather than as a line — and it read wrong in both
+// themes: a hard black hole next to the white/blush chrome in light, and
+// practically invisible in dark, where ink (#17171A) lands on the panel colour
+// (#141416) and only the border kept the tile on screen (#318).
+//
+// Dropping the box is not just a subtraction: border + padding used to eat a
+// third of the footprint, so the artwork goes from ~31px to the full 48px and
+// the pixel art is finally legible.
 .logo-orbit-wrapper {
   position: relative;
   width: 3rem;
@@ -32,47 +44,94 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  // The full bordered surface, not just a fill: on the dark theme the tile is
-  // ink on an ink-dark top bar, so without the frame it disappeared and left
-  // its paper-coloured offset shadow sitting under nothing — the exact "shadow
-  // under nothing" failure the shadow system warns about. The frame is also
-  // what makes this tile and the home button the same object at last: the home
-  // button has carried candy-box (fill + border + radius) all along.
-  @include candy-box($candy-black, $candy-radius-sm);
-  padding: 0.35rem;
-  @include candy-raised(4px, 4px, $press: false);
-  // candy-raised's own transition covers box-shadow + transform; the tilt below
-  // travels on transform too, so it is restated here with the one curve in the
-  // system that anticipates — this is the character moment it is reserved for.
-  transition: box-shadow $motion-shadow $motion-curve, transform $motion-move $motion-curve-back;
+  // No candy-box/candy-raised here on purpose: an offset shadow needs a surface
+  // to fall off, and there is none. The tilt below is the whole transition — on
+  // the one curve in the system that anticipates, reserved for character
+  // moments like this.
+  transition: transform $motion-move $motion-curve-back;
 
   .logo-img {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    // What replaces the frame: a hard 2px outline hugging the pixel silhouette,
+    // in the theme's line colour (ink on paper, paper on the dark ground), so
+    // the planet keeps an edge on both themes without a box. Four orthogonal
+    // drop-shadows are enough — they apply cumulatively, so the diagonals come
+    // out closed. No blur: this design has no soft edges.
+    filter: drop-shadow(2px 0 0 $mem-line) drop-shadow(-2px 0 0 $mem-line)
+      drop-shadow(0 2px 0 $mem-line) drop-shadow(0 -2px 0 $mem-line);
   }
 }
 
-// The planet spins once per hover, and the tile flicks against it. Deliberately
-// hover/press-driven rather than an ambient loop: an idle animation on the one
-// element that is always on screen is exactly what stops being charming on the
-// tenth viewing (see _motion.scss on why the long loops are not part of the
-// scale).
-.swing-logo:hover .logo-orbit-wrapper {
-  transform: rotate(-8deg);
+// The orbit: the frame's job (marking the target) moves into the hover, where
+// it can be a character moment instead of permanent furniture.
+//
+// Two nested elements on purpose. The ring carries the entrance (opacity +
+// scale on a transition); the inner layer carries the rotation. Put both on one
+// element and the keyframes' `transform` wins over the declared `scale(1)`, so
+// the ring would pop in at full size instead of growing.
+.logo-orbit {
+  position: absolute;
+  inset: -7px;
+  border: 2px dashed $mem-line;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.72);
+  transition: opacity $motion-move $motion-curve, transform $motion-move $motion-curve-back;
+  pointer-events: none;
 
-  .logo-img {
-    animation: logo-planet-spin 0.7s $motion-curve-settle;
+  .logo-orbit-spin {
+    position: absolute;
+    inset: 0;
+  }
+
+  // A pixel moon riding the orbit — coral, the design's secondary accent and
+  // the one accent the planet's own palette does not already carry.
+  .logo-moon {
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    margin-left: -3px;
+    width: 6px;
+    height: 6px;
+    background-color: $mem-coral;
+    border: 1px solid $mem-line;
   }
 }
 
-// Pressed: into its own shadow, like every other raised surface — plus the tilt,
-// so the press does not undo the flick.
+// Scoped to pointer devices: `:hover` latches after a tap on touch, which would
+// leave the orbit parked around the planet for good. (The top bar hides the
+// logo on phones entirely — this covers tablets and touch laptops.)
+@media (hover: hover) {
+  .swing-logo:hover .logo-orbit-wrapper {
+    transform: rotate(-8deg);
+
+    .logo-img {
+      animation: logo-planet-spin 0.7s $motion-curve-settle;
+    }
+
+    .logo-orbit {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .logo-orbit-spin {
+      animation: logo-orbit-turn 3s linear infinite;
+    }
+  }
+}
+
+// Pressed: squeezed rather than pushed into its own shadow, because there is no
+// shadow to push into — plus the tilt, so the press does not undo the flick.
 .swing-logo:active .logo-orbit-wrapper {
-  transform: translate(4px, 4px) rotate(-8deg);
-  box-shadow: none;
+  transform: scale(0.9) rotate(-8deg);
 }
 
+// The planet spins once per hover. Deliberately hover/press-driven rather than
+// an ambient loop: an idle animation on the one element that is always on
+// screen is exactly what stops being charming on the tenth viewing (see
+// _motion.scss on why the long loops are not part of the scale).
 @keyframes logo-planet-spin {
   from {
     transform: rotate(0deg) scale(1);
@@ -87,6 +146,12 @@
   }
 }
 
+@keyframes logo-orbit-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .swing-logo:hover .logo-orbit-wrapper {
     transform: none;
@@ -94,10 +159,16 @@
     .logo-img {
       animation: none;
     }
+
+    // The ring still appears — it is the affordance, not the decoration. Only
+    // the travelling parts stop.
+    .logo-orbit-spin {
+      animation: none;
+    }
   }
 
   .swing-logo:active .logo-orbit-wrapper {
-    transform: translate(4px, 4px);
+    transform: scale(0.94);
   }
 }
 </style>

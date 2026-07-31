@@ -178,7 +178,11 @@ Kurzfassung: Vue 3 + Pinia + Vite, **Hash-Routing** (Deeplinks brauchen `#`), Wi
   die Kollision entsteht. Neue Varianten also als **Rollen-Prop an der Komponente**, nicht als
   Regel in der aufrufenden View.
 - `SearchInput :on_nav="true"` in `NavBar.vue` beibehalten — nie durch Router-Link ersetzen.
-- Logo-Ring (`::after` auf `.logo-orbit-wrapper`): `inset: 0`, kein Padding zwischen Ring und Icon.
+- **Das Logo ist bewusst rahmenlos** (`Logo.vue`): der Pixelplanet steht ohne Kachel, seine Kante
+  ist eine harte 2-px-`drop-shadow`-Kontur in `$mem-line`, der Ring (`.logo-orbit`) erscheint nur
+  beim Hover. Wer ihm wieder eine Fläche gibt, holt sich das Problem aus #318 zurück: Ink als
+  *Fläche* ist sonst nirgends in der App, und im Dark-Theme liegt sie auf der Panel-Farbe
+  (#17171A auf #141416) — die Kachel verschwindet, nur der Rahmen bleibt.
 - **Vitest 0.x, nicht 1.x** — Vite-3-Kompatibilität.
 
 Die bereichsgebundenen Regeln stehen in `.claude/rules/` und laden sich selbst, sobald eine
