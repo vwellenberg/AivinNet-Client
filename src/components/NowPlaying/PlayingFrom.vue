@@ -62,10 +62,9 @@ function showContextMenu(e: MouseEvent) {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    // The plate and the button must not touch when the name is long; the
+    // shrinking itself is the link's job (`min-width: 0` on it).
     gap: $small;
-    // Without this the source plate cannot shrink, so on a phone it pushes the
-    // overflow button past the right edge instead of ellipsing its own name.
-    min-width: 0;
     margin-bottom: 1rem;
 
     // Overflow menu for the playing track — the same action role and size as
@@ -121,19 +120,27 @@ function showContextMenu(e: MouseEvent) {
         width: $bar-control;
         height: $bar-control;
         flex-shrink: 0;
-        border-right: $candy-border;
     }
 
     img {
         object-fit: cover;
     }
 
-    // The artist thumbnail is a disc (`.circular`), so it needs a ground of its
-    // own to sit on — otherwise the round edge floats against the panel with
-    // the dividing rule cutting past it.
+    // The artist thumbnail is a disc (`.circular`), so it gets a ground of its
+    // own rather than floating against the bare panel.
     img.circular {
         padding: 2px;
         background-color: $candy-pink-soft;
+    }
+
+    // The dividing rule belongs to the TEXT side, not to the media cell. On the
+    // artist source the thumbnail is fully rounded, and a `border-right` there
+    // is drawn as an ARC following that radius, not as a straight rule. Stated
+    // as an adjacent-sibling pair so an empty queue — which renders neither an
+    // image nor a glyph (`icon: ''`) — does not get a rule against nothing.
+    img + .from-text,
+    .from-icon + .from-text {
+        border-left: $candy-border;
     }
 
     .from-icon {

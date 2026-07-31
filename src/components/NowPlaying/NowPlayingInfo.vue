@@ -57,10 +57,12 @@ function showMenu(e: MouseEvent) {
 // cover. Title and artist used to sit straight on the memphis ground, where a
 // muted grey line lands on whatever doodle happens to be behind it.
 //
-// It was a `1fr max-content` grid, which sounds like it reserves room for the
-// actions — it does not. A grid item defaults to `min-width: auto`, so the
-// title grew past its own track and ran under the buttons; that is the overlap
-// in the phone screenshot, not a missing padding.
+// It was a `1fr max-content` grid whose text item had no `min-width: 0`, so a
+// long title wrapped to a second line and the whole block grew with it
+// (measured on a 390px viewport: 42px -> 63px for "Brandenburgisches Konzert
+// Nr. 4 G-Dur"). One line with an ellipsis keeps the height constant — and
+// `min-width: 0` is what makes that possible here, because a flex item with
+// `nowrap` would otherwise push the actions out instead of shrinking.
 .now-playing-info {
   display: flex;
   align-items: center;
@@ -85,13 +87,6 @@ function showMenu(e: MouseEvent) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  // ArtistName writes `width: fit-content` as an INLINE style, which no rule
-  // can outrank — `max-width` is the one lever left that keeps it inside the
-  // plate instead of pushing the actions out.
-  .artistname {
-    max-width: 100%;
   }
 
   .artist {
