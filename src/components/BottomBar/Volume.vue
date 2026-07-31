@@ -4,7 +4,12 @@
              now that the button toggles AUDIBILITY rather than the mute flag:
              from here they are the same thing, and one tap gets sound back
              either way. The title says so. -->
-        <button class="speaker-icon" :title="settings.is_silent ? 'Unmute' : 'Mute'" @click="settings.toggleMute">
+        <button
+            class="speaker-icon"
+            :class="{ silent: settings.is_silent }"
+            :title="settings.is_silent ? 'Unmute' : 'Mute'"
+            @click="settings.toggleMute"
+        >
             <VolumeMuteSvg v-if="settings.is_silent" />
             <VolumeMidSvg v-else-if="settings.volume > 0.5" />
             <VolumeLowSvg v-else />
@@ -64,6 +69,15 @@ const handleMouseWheel = (event: WheelEvent) => {
         // The speaker glyph is currentColor; drive it from the adaptive text
         // colour so it reads on the bar in both themes.
         color: $candy-text;
+
+        // Silence is a STATE, and it wears the state box — the same yellow an
+        // active shuffle or repeat wears. A crossed-out speaker in the quiet
+        // role differs from a plain one by a few strokes; on a phone held in
+        // landscape (>900px, so it gets this bar) that difference was missed
+        // entirely, and a muted player just looked like a broken one. See #335.
+        &.silent {
+            @include btn-toggle-on;
+        }
     }
 
     // Horizontal volume slider. Track pill, 2px ink border and the white
