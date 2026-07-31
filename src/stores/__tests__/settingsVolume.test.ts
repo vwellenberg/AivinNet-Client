@@ -17,9 +17,11 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { setVolumeMock, setMuteMock } = vi.hoisted(() => ({
+const { setVolumeMock, setMuteMock, viewport } = vi.hoisted(() => ({
     setVolumeMock: vi.fn(),
     setMuteMock: vi.fn(),
+    // Stand-ins for the reactive breakpoints; the store only ever reads `.value`.
+    viewport: { content_width: { value: 1200 }, isMobile: { value: false } },
 }))
 
 // The settings store drags in requests, the router and device sync. None of it
@@ -32,6 +34,7 @@ vi.mock('@/stores/player', () => ({
     usePlayer: () => ({ setVolume: setVolumeMock, setMute: setMuteMock }),
 }))
 vi.mock('@/context_menus/hashing', () => ({ getLastFmApiSig: vi.fn() }))
+vi.mock('@/stores/content-width', () => viewport)
 vi.mock('@/router', () => ({ router: { currentRoute: { value: { name: 'other' } } }, Routes: {} }))
 
 import useSettings from '@/stores/settings'
@@ -46,6 +49,7 @@ describe('settings store: the speaker button toggles audibility', () => {
         setActivePinia(createPinia())
         setVolumeMock.mockReset()
         setMuteMock.mockReset()
+        viewport.isMobile.value = false
     })
 
     it('mutes a normally playing setup', () => {
@@ -131,5 +135,84 @@ describe('settings store: the speaker button toggles audibility', () => {
         }
 
         expect(heard).toEqual([true, false, true, false, true, false])
+    })
+})
+
+/**
+ * Startup on a phone (#320).
+ *
+ * The persisted silent state was a one-way door there: at phone width the
+ * bottom bar swaps its whole right group for the navigation, so the only
+ * speaker in the app sits far down the Now Playing page — measured headless,
+ * a portrait viewport had ZERO reachable mute controls on every other page,
+ * while the same phone in landscape (>900px) got the desktop bar and could
+ * un-mute anywhere. Rotating the device was the fix. So a phone starts audible.
+ */
+describe('settings store: a phone never starts silent', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia())
+        setVolumeMock.mockReset()
+        setMuteMock.mockReset()
+        viewport.isMobile.value = true
+    })
+
+    it('drops a persisted mute at startup', () => {
+        const settings = useSettings()
+        settings.mute = true
+        settings.volume = 0.6
+
+        settings.initializeVolume()
+
+        expect(isAudible(settings)).toBe(true)
+        expect(settings.volume).toBe(0.6)
+        expect(setMuteMock).toHaveBeenLastCalledWith(false)
+    })
+
+    it('comes back to the last audible level from a persisted 0', () => {
+        const settings = useSettings()
+        settings.volume = 0
+        settings.last_audible_volume = 0.4
+
+        settings.initializeVolume()
+
+        expect(isAudible(settings)).toBe(true)
+        expect(settings.volume).toBe(0.4)
+        expect(setVolumeMock).toHaveBeenLastCalledWith(0.4)
+    })
+
+    it('falls back to full volume when nothing audible was ever remembered', () => {
+        const settings = useSettings()
+        settings.mute = true
+        settings.volume = 0
+        settings.last_audible_volume = 0
+
+        settings.initializeVolume()
+
+        expect(settings.volume).toBe(1.0)
+        expect(isAudible(settings)).toBe(true)
+    })
+
+    it('leaves an audible phone exactly as it was', () => {
+        const settings = useSettings()
+        settings.volume = 0.3
+
+        settings.initializeVolume()
+
+        expect(settings.volume).toBe(0.3)
+        expect(setVolumeMock).toHaveBeenLastCalledWith(0.3)
+        expect(setMuteMock).toHaveBeenLastCalledWith(false)
+    })
+
+    it('leaves a desktop muted — there the speaker is on screen at all times', () => {
+        viewport.isMobile.value = false
+
+        const settings = useSettings()
+        settings.mute = true
+        settings.volume = 0.6
+
+        settings.initializeVolume()
+
+        expect(settings.mute).toBe(true)
+        expect(setMuteMock).toHaveBeenLastCalledWith(true)
     })
 })
