@@ -40,16 +40,16 @@
             v-show="hover.active"
             class="progress-preview"
             :style="{
-                left: `${hover.barLeft}px`,
+                left: `${previewLeft}px`,
                 top: `${hover.barTop}px`,
                 height: `${hover.barHeight}px`,
-                width: `${hover.fillWidth}px`,
+                width: `${previewWidth}px`,
             }"
         />
         <div
             v-show="hover.active"
             class="progress-tooltip"
-            :style="{ left: `${hover.tooltipLeft}px`, top: `${hover.barTop}px` }"
+            :style="{ left: `${tooltipLeft}px`, top: `${hover.barTop}px` }"
         >
             {{ hoverLabel }}
         </div>
@@ -70,17 +70,18 @@ const { duration: time } = q
 const wrap = ref<HTMLElement | null>(null)
 const input = ref<HTMLInputElement | null>(null)
 
-// Hover-preview geometry, all in pixels relative to the wrapper so it overlays
-// the range track exactly regardless of the input's margins (which differ
-// between the bottom bar and the Now-Playing header).
+// Where the pointer is, plus the track's own box in pixels relative to the
+// wrapper, so the overlays sit on the range track exactly regardless of the
+// input's margins (which differ between the bottom bar and the Now-Playing
+// header). Only measurements live here — the preview's own geometry is derived
+// below, so it keeps up with the playhead while the pointer holds still.
 const hover = reactive({
     active: false,
     ratio: 0,
     barLeft: 0,
     barTop: 0,
     barHeight: 0,
-    fillWidth: 0,
-    tooltipLeft: 0,
+    barWidth: 0,
 })
 
 // Pointer X (px) -> clamped 0..1 ratio across the input's own width. Shared by
@@ -120,8 +121,7 @@ const onPointerMove = (e: PointerEvent) => {
     hover.barLeft = inRect.left - wrapRect.left
     hover.barTop = inRect.top - wrapRect.top
     hover.barHeight = inRect.height
-    hover.fillWidth = ratio * inRect.width
-    hover.tooltipLeft = hover.barLeft + hover.fillWidth
+    hover.barWidth = inRect.width
     hover.active = true
 }
 
@@ -197,6 +197,24 @@ const progressBg = computed(() => {
 
 // Seek target under the cursor, formatted like every other time in the app.
 const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
+
+// The preview spans playhead <-> cursor, i.e. it paints exactly the stretch the
+// click would skip (or give back), not the whole bar up to the cursor. Painting
+// from zero meant the yellow covered the played fill and the thumb whenever the
+// cursor was ahead of the playhead, hiding both how far you had listened and
+// where you actually are.
+//
+// Derived rather than stored so the left edge tracks the playhead while the
+// pointer holds still — the fill grows a percent a second, and a span measured
+// once on pointermove would drift away from it.
+const playedRatio = computed(() => currentPercent.value / 100)
+const previewLeft = computed(
+    () => hover.barLeft + Math.min(playedRatio.value, hover.ratio) * hover.barWidth
+)
+const previewWidth = computed(() => Math.abs(hover.ratio - playedRatio.value) * hover.barWidth)
+
+// The tooltip stays on the cursor: it names the seek target, not the span.
+const tooltipLeft = computed(() => hover.barLeft + hover.ratio * hover.barWidth)
 </script>
 
 <style lang="scss">
@@ -238,15 +256,15 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
         z-index: 1;
     }
 
-    // Preview fill from 0 to the cursor. Flat YELLOW, not a translucent teal:
-    // the seek target has to read against the played fill, which is teal, and
-    // a teal-on-teal wash left the two indistinguishable (the played portion
-    // and the hovered portion looked like the same bar). Yellow is the memphis
-    // role for hover/active states, so the preview now says "this is where you
-    // would land" in the palette's own vocabulary. Opaque like every other
-    // memphis fill — the playhead itself stays readable as the white thumb.
-    // Never intercepts pointer events, so clicks still reach the range input
-    // and seek as before.
+    // The seek span (playhead <-> cursor, geometry in the script block), in
+    // flat YELLOW rather than a translucent teal: the preview has to read
+    // against the played fill, which is teal, and a teal-on-teal wash left the
+    // two indistinguishable — hovering the bar just made it a slightly
+    // different green. Yellow is the memphis role for hover/active states, so
+    // the span now says "this is the jump" in the palette's own vocabulary, and
+    // it can be opaque like every other memphis fill because it no longer
+    // covers the played portion. Never intercepts pointer events, so clicks
+    // still reach the range input and seek as before.
     .progress-preview {
         position: absolute;
         pointer-events: none;
