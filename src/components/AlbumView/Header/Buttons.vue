@@ -7,10 +7,13 @@
 
     <HeartSvg btn_role="action" :state="album.is_favorite" @handleFav="handleFav" />
     <PinButton :pinned="album.is_pinned" @toggle="handlePin" />
+    <!-- The title is NOT "Find cover online": that names the manual gallery in
+         the context menu, where you pick from suggestions. This button searches
+         and decides on its own, and only accepts a verified match. -->
     <button
       class="mb-cover"
       :class="{ loading: mbLoading }"
-      :title="mbLoading ? 'Loading…' : 'Find cover via MusicBrainz'"
+      :title="mbLoading ? 'Loading…' : 'Fetch cover automatically'"
       :disabled="mbLoading"
       @click.prevent="fetchCover"
     >
@@ -80,10 +83,10 @@ async function fetchCover() {
     const res = await fetchCoverFromMusicBrainz(album.value.albumhash);
     if (res.success) {
       store.bumpCoverVersion();
-      new Notification("Cover found via MusicBrainz", NotifType.Success);
+      new Notification("Cover found", NotifType.Success);
     } else {
       new Notification(
-        res.error || "No cover found on MusicBrainz",
+        res.error || "No cover found online",
         NotifType.Error
       );
     }

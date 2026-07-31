@@ -5,8 +5,8 @@ import { SettingType } from '../enums'
 const store = () => useMusicBrainzStore()
 
 const fetchMissingCovers: Setting = {
-    title: 'Fetch missing covers via MusicBrainz',
-    desc: 'Fetches missing album covers from MusicBrainz / Cover Art Archive (~1s per album).',
+    title: 'Fetch missing covers online',
+    desc: 'Searches MusicBrainz, then the iTunes and Deezer stores (~1s per album). Albums whose tags cannot be verified are skipped rather than guessed at.',
     type: SettingType.button,
     state: null,
     inactive: () => store().isRunning || store().starting,
