@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -20,7 +20,10 @@ import { describe, expect, it } from "vitest";
 // test — it hands back an empty string, and every check below would pass
 // vacuously. Read it off disk instead (guarded by `it("reads the anatomy")`).
 const SOURCES = import.meta.glob("/src/**/*.vue", { as: "raw", eager: true }) as Record<string, string>;
-const ANATOMY_FILE = fileURLToPath(new URL("../../assets/scss/Global/cards.scss", import.meta.url));
+// Vitest runs from the project root, so cwd is the anchor. `import.meta.url` is
+// not one here — Vitest's transform leaves it as something `fileURLToPath()`
+// rejects with ERR_INVALID_ARG_TYPE.
+const ANATOMY_FILE = resolve(process.cwd(), "src/assets/scss/Global/cards.scss");
 
 const SCROLLER = "/src/components/shared/CardScroller.vue";
 
