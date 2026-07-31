@@ -2,12 +2,12 @@
     <div class="devices-modal">
         <p class="group-hint">{{ hint }}</p>
 
-        <div v-if="sortedDevices.length === 0" class="empty">
+        <div v-if="ds.devices.length === 0" class="empty">
             No devices yet. Open AivinNet on another device — it shows up here automatically.
         </div>
 
         <div
-            v-for="device in sortedDevices"
+            v-for="device in shownDevices"
             :key="device.device_id"
             class="device-row rounded-sm"
             :class="{ offline: !device.online, 'in-group': device.joined }"
@@ -91,6 +91,14 @@
             </div>
         </div>
 
+        <!-- Offline devices carry no control at all (see partitionDevices), so
+             they are folded away behind their count rather than pushing the one
+             device you can invite off the screen. -->
+        <button v-if="offline.length" class="offline-toggle" @click="showOffline = !showOffline">
+            {{ showOffline ? 'Hide' : 'Show' }} {{ offline.length }} offline
+            {{ offline.length === 1 ? 'device' : 'devices' }}
+        </button>
+
         <button v-if="ds.joined && joinedOthers.length > 0" class="play-here rounded-sm" @click="playHereOnly">
             Play here only
         </button>
@@ -98,12 +106,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import type { DeviceSummary } from '@/requests/devicesync'
 import useDeviceSync from '@/stores/devicesync'
 import useSettings from '@/stores/settings'
 import { OFFSET_MAX_MS, OFFSET_MIN_MS, OFFSET_STEP_MS } from '@/utils/deviceSync/audioOffset'
+import { partitionDevices } from '@/utils/deviceSync/deviceList'
 
 const emit = defineEmits<{
     (event: 'setTitle', title: string): void
@@ -116,13 +125,14 @@ onMounted(() => emit('setTitle', 'Devices'))
 
 const isSelf = (device: DeviceSummary) => device.device_id === ds.deviceId
 
-// This device first, then group members, then online, offline last.
-const sortedDevices = computed(() =>
-    [...ds.devices].sort((a, b) => {
-        if (isSelf(a)) return -1
-        if (isSelf(b)) return 1
-        return Number(b.joined) - Number(a.joined) || Number(b.online) - Number(a.online)
-    })
+const showOffline = ref(false)
+
+// This device first, then group members, then anything else online. Offline
+// devices are inert here and fold away behind a count — see partitionDevices.
+const partitioned = computed(() => partitionDevices(ds.devices, ds.deviceId))
+const offline = computed(() => partitioned.value.offline)
+const shownDevices = computed(() =>
+    showOffline.value ? [...partitioned.value.active, ...offline.value] : partitioned.value.active
 )
 
 const joinedOthers = computed(() => ds.devices.filter(d => d.joined && !isSelf(d)))
@@ -348,6 +358,23 @@ function playHereOnly() {
                 font-size: 0.72rem;
                 opacity: 0.6;
             }
+        }
+    }
+
+    // A quiet disclosure line, not a call to action: it reveals rows you
+    // usually do not want to see.
+    .offline-toggle {
+        justify-self: start;
+        border: none;
+        cursor: pointer;
+        padding: 0.4rem 0;
+        font-size: 0.85rem;
+        font-weight: 500;
+        opacity: 0.7;
+        text-decoration: underline;
+
+        &:hover {
+            opacity: 1;
         }
     }
 
