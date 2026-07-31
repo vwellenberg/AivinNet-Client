@@ -1,8 +1,6 @@
 <template>
   <div
-    v-wave="{
-      duration: 0.35,
-    }"
+    v-wave
     class="track-item"
     :class="[
       {

@@ -1,7 +1,7 @@
 <template>
   <div class="queue-actions">
     <div class="left">
-      <button v-if="!onNowPlaying" v-wave class="shuffle-queue action" @click="queue.shuffleQueue">
+      <button v-if="!onNowPlaying" class="shuffle-queue action" @click="queue.shuffleQueue">
         <ShuffleSvg />
         <span>Shuffle</span>
       </button>

@@ -22,6 +22,7 @@
               @drop="onDropToFolder(entry.id, $event)"
             >
               <div
+                v-wave
                 class="sidebar-folder-header"
                 :class="markerClass('folder', entry.id)"
                 draggable="true"
@@ -57,6 +58,7 @@
             <!-- Pinned album -->
             <RouterLink
               v-else-if="entry.kind === 'album'"
+              v-wave
               :to="{ name: Routes.album, params: { albumhash: entry.al.albumhash } }"
               class="sidebar-playlist-item"
               :class="[{ active: $route.params.albumhash == entry.al.albumhash }, markerClass('album', entry.id)]"
