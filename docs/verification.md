@@ -47,6 +47,7 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 | `btnaudit.js`, `bordermeasure.js`, `audit-shadows.js`, `mobile-audit.js` | Computed-Style-Audits über Routen × Themes |
 | `previewproxy.js` + `run*.sh` | Branch-`dist` über einen Proxy servieren und messen |
 | `queueseams.js`, `verify3.js` | E2E für Queue-Seams und Group-Sync |
+| `shuffleverify.js`, `endlessverify.js`, `groupshuffle.js` | E2E für die Zufallswiedergabe: wiederholt sie einen Song, stoppt sie auf der letzten Zeile, würfelt die Gruppe? |
 
 **Für Mobile-Befunde immer `MOBILE=1`** — erst mit `hasTouch` greifen die
 `@media (hover: none)`-Zweige, und genau dort stecken die Touch-Bugs.
@@ -92,6 +93,23 @@ Die Routen sind Hash-Routen: `http://localhost:1970/#/<route>`.
 - **Group-Sync nur über echte UI-Klicks verifizieren**, ohne `--autoplay-policy`-Flag: Der erste
   E2E jointe per API und umging damit genau die Pfade, die im Alltag brechen — grün, während das
   Feature kaputt war.
+- **Eine Gruppe entsteht über „Invite" auf der Zeile des ANDEREN Geräts.** Die eigene Zeile bietet
+  „Join" erst an, wenn schon eine Gruppe läuft — ein E2E, der blind das eigene „Join" sucht,
+  findet nichts und meldet „nicht beigetreten" (real passiert, `verify3.js` stammt aus der Zeit
+  davor). Ablauf: A klickt *Invite* in der Fremdzeile (A tritt implizit bei), B beantwortet den
+  `.gesture-overlay`-Prompt mit `button.accept` — der Klick ist zugleich die Autoplay-Geste.
+- **Ein Gruppen-Seek direkt nach einem Track-Wechsel wird verschluckt.** Er ist ein Broadcast,
+  kein lokaler Sprung: im Fenster, in dem der geplante `track_change` noch aussteht, bewegt sich
+  der Playhead nicht (gemessen: `t=5.6` von `247.6` beim ersten Versuch, Sekunden später
+  gelandet). Also **bestätigen statt annehmen** — nach dem Seek die Restzeit lesen und
+  gegebenenfalls wiederholen (Muster `seekAndConfirm` in `groupshuffle.js`).
+- **Für ein reproduzierbares Track-Ende den Playhead über den persistierten Store parken.** Ein
+  bestimmter Queue-Index (z. B. „die letzte Zeile") ist über die Oberfläche mühsam zu treffen:
+  `Queue` aus `localStorage` lesen, `currentindex` setzen, zurückschreiben, neu laden — die
+  Wiedergabe danach mit einem **echten Klick** starten (Muster in `endlessverify.js`).
+- **node löst `localhost` hier zuerst nach `::1` auf, wo nichts antwortet.** Beobachter-Polls aus
+  dem Skript heraus (`fetch`) sterben dann mit „fetch failed", während der Browser dieselbe URL
+  problemlos lädt. Für node-seitige API-Aufrufe `http://127.0.0.1:1970` nehmen.
 - **`waitUntil: 'networkidle'` läuft ins Timeout, sobald etwas spielt.** Der Audio-Stream hält eine
   Verbindung offen; jede Navigation *nach* dem ersten Play braucht `domcontentloaded` plus eine
   feste Wartezeit. Symptom sonst: „Seite lädt nicht", obwohl sie längst da ist.
