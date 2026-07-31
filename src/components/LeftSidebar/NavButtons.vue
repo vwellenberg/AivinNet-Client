@@ -132,7 +132,12 @@ import { menus } from "./navitems";
     width: 1.5rem;
     margin: 0 $small 0 $small;
     border-radius: $small;
-    opacity: 0.75;
+    // NOTE: no opacity here on purpose. The old set was filled SF-Symbols mass,
+    // and 0.75 took the edge off it; on 2.4px strokes the same rule just made
+    // every glyph a mid grey next to its own label, which reads as "weaker" and
+    // was exactly the reported complaint. The active row already carries the
+    // state (blush fill + ink frame) - the glyph does not have to whisper.
+    // Measured: ink #17171A at .75 over white lands around #515154.
     transform: scale(var(--nav-k));
   }
 
