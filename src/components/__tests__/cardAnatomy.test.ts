@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, it } from "vitest";
 
 // ---------------------------------------------------------------------------
@@ -11,11 +14,13 @@ import { describe, expect, it } from "vitest";
 // measured 176x245 next to a 176x248 playlist tile in "Recently played", with a
 // 16px radius instead of 14px and no offset shadow.
 // ---------------------------------------------------------------------------
+// Components come through Vite, so the test sees exactly the files the build
+// sees. The stylesheet cannot: `import.meta.glob(..., { as: "raw" })` on a
+// `.scss` runs it through the CSS pipeline first, which is stubbed out under
+// test — it hands back an empty string, and every check below would pass
+// vacuously. Read it off disk instead (guarded by `it("reads the anatomy")`).
 const SOURCES = import.meta.glob("/src/**/*.vue", { as: "raw", eager: true }) as Record<string, string>;
-const ANATOMY = import.meta.glob("/src/assets/scss/Global/cards.scss", { as: "raw", eager: true }) as Record<
-  string,
-  string
->;
+const ANATOMY_FILE = fileURLToPath(new URL("../../assets/scss/Global/cards.scss", import.meta.url));
 
 const SCROLLER = "/src/components/shared/CardScroller.vue";
 
@@ -116,7 +121,7 @@ function anatomyClasses(): Set<string> {
   // class names being looked for (".cardscroller", ".foldercard"), so parsing
   // the raw text would let a card pass this test by being mentioned in a
   // comment rather than by being in the selector list.
-  const scss = ANATOMY["/src/assets/scss/Global/cards.scss"]
+  const scss = readFileSync(ANATOMY_FILE, "utf8")
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/[^\n]*/g, "");
 
@@ -133,6 +138,13 @@ describe("card row anatomy", () => {
     // A guard on the parsing above: if the switch is rewritten in a shape this
     // test cannot read, the checks below would pass vacuously.
     expect(cards.size).toBeGreaterThanOrEqual(6);
+  });
+
+  it("reads the anatomy selector list", () => {
+    // The other guard. An unreadable or renamed stylesheet must fail loudly
+    // rather than let every card through against an empty set.
+    expect(listed.size).toBeGreaterThanOrEqual(6);
+    expect(listed).toContain("album-card");
   });
 
   it.each([...cards])("%s is covered by the shared anatomy", (_name, file) => {
