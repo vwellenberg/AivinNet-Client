@@ -265,13 +265,21 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // on the overflow container don't scroll), like paper under the UI.
 // Cell + line weight follow the reference art's proportions (cell ~47px with a
 // bold ~2px line on the 750px-wide reference).
+//
+// The doodle layer is placed at its natural pixel size, never stretched: scaling
+// it to the viewport would shrink the shapes on a laptop and blow them up on a
+// wide screen, and the grid underneath keeps its own fixed cell either way. So
+// the artwork's canvas is what decides when it repeats — it is 3840x1600, which
+// covers an ultrawide (3440x1440 leaves ~3150x1370 of ground) in one copy. Keep
+// these two numbers equal to the SVG's width/height; a smaller value here crops
+// the artwork, a larger one stretches it.
 @mixin mem-grid($size: 46px, $w: 2px, $doodles: true) {
   background-color: $mem-ground;
   @if $doodles {
     background-image: url("@/assets/images/memphis-doodles.svg"),
       linear-gradient(var(--mem-grid-line) $w, transparent $w),
       linear-gradient(90deg, var(--mem-grid-line) $w, transparent $w);
-    background-size: 1500px 960px, $size $size, $size $size;
+    background-size: 3840px 1600px, $size $size, $size $size;
   } @else {
     background-image: linear-gradient(var(--mem-grid-line) $w, transparent $w),
       linear-gradient(90deg, var(--mem-grid-line) $w, transparent $w);
