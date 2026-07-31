@@ -1,38 +1,20 @@
 <template>
-    <div class="last-updated">
-        <span v-if="!isHeaderSmall" class="status">Last updated {{ playlist.info._last_updated }}</span>
-        <!-- The separators used to be hardcoded around the actions, so on a
-             narrow header (where the status text is hidden) two stray pipes
-             were left floating. They belong to the text, and only render with
-             it. The actions themselves are real buttons with a touch target,
-             not clickable text. -->
-        <div v-if="Number.isInteger(playlist.info.id)" class="edit-actions">
-            <span v-if="!isHeaderSmall" class="sep">|</span>
-            <button class="pl-action" title="Edit playlist" @click="editPlaylist">Edit</button>
-            <button class="pl-action icon" title="Delete playlist" @click="deletePlaylist">
-                <DeleteSvg />
-            </button>
-        </div>
+    <!-- Status text only. Edit and Delete used to live here too, and that was
+         the bug: this box is absolutely positioned in the header's bottom-right
+         corner, so on a phone — where the status text hides — the two buttons
+         landed beside the action row without belonging to it (4px higher, 30px
+         away instead of the row's 8px). They are overflow actions and sit in
+         the header's own row now, behind the ⋯ button in Header/Info.vue. -->
+    <div v-if="!isHeaderSmall" class="last-updated">
+        <span class="status">Last updated {{ playlist.info._last_updated }}</span>
     </div>
 </template>
 <script setup lang="ts">
-import DeleteSvg from '@/assets/icons/delete.svg'
-
 import { isHeaderSmall } from '@/stores/content-width'
 
-import useModalStore from '@/stores/modal'
 import usePStore from '@/stores/pages/playlist'
 
 const playlist = usePStore()
-const modal = useModalStore()
-
-function editPlaylist() {
-    modal.showEditPlaylistModal()
-}
-
-function deletePlaylist() {
-    modal.showDeletePlaylistModal(playlist.info.id)
-}
 </script>
 
 <style lang="scss">
@@ -53,29 +35,5 @@ function deletePlaylist() {
     display: flex;
     align-items: center;
     gap: $smaller;
-
-    .edit-actions {
-        display: flex;
-        align-items: center;
-        gap: $smaller;
-    }
-
-    .sep {
-        opacity: 0.5;
-        padding: 0 $smaller;
-    }
-
-    // Same anatomy as the other header actions; the text one keeps its label,
-    // so it sizes to the word and only takes the height.
-    .pl-action {
-        @include btn-action;
-        font-size: 0.9rem;
-        font-weight: 500;
-
-        &:not(.icon) {
-            width: auto;
-            padding: 0 $small;
-        }
-    }
 }
 </style>
