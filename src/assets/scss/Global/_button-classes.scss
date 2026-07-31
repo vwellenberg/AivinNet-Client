@@ -68,7 +68,8 @@
 // silently became invalid. Caught by diffing the built CSS against master.
 .album-buttons,
 .artist-buttons,
-.playlist-info .btns {
+.playlist-info .btns,
+.mixheader .buttons {
   > *:nth-child(2) {
     --btn-pop-delay: #{$motion-stagger};
   }
