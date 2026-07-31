@@ -181,6 +181,13 @@ function handleFav() {
         .speaker-icon {
             @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
             color: $candy-text;
+
+            // ...and the same state box as everywhere else the speaker lives
+            // (BottomBar/Volume.vue), so silence looks the same on every
+            // surface instead of being loud in the bar and quiet here.
+            &.silent {
+                @include btn-toggle-on;
+            }
         }
 
         // Track pill, border and the white bordered thumb come from the global
