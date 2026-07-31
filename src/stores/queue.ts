@@ -333,7 +333,19 @@ export default defineStore('Queue', {
             }
 
             // Pre-rolled in an action, never rolled here — see shuffleNextIndex.
-            if (shuffle && this.shuffleNextIndex !== null && this.shuffleNextIndex < tracklist.length) {
+            // A target equal to the current index would hand the playing track
+            // back as "next", which is the same song on repeat. It can only be
+            // stale state — something moved currentindex without a re-roll, and
+            // not every such write can roll: the group-session mirror writes it
+            // directly on purpose, and removeByIndex corrects it after the fact.
+            // Falling back to the row below is deterministic, so the value stays
+            // stable across reads for the preload and the group broadcast.
+            if (
+                shuffle &&
+                this.shuffleNextIndex !== null &&
+                this.shuffleNextIndex < tracklist.length &&
+                this.shuffleNextIndex !== this.currentindex
+            ) {
                 return this.shuffleNextIndex
             }
 

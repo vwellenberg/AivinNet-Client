@@ -152,6 +152,18 @@ describe('queue store: permanent shuffle', () => {
         expect(queue.nextindex).toBe(5)
     })
 
+    it('falls back to sequential when a stale roll points at the current track', () => {
+        // Not every write to currentindex can re-roll: the group-session mirror
+        // sets it directly by design. The getter must still never answer "next =
+        // the track playing right now".
+        const queue = useQueue()
+        queue.toggleShuffle()
+        queue.currentindex = 4
+        queue.shuffleNextIndex = 4
+
+        expect(queue.nextindex).toBe(5)
+    })
+
     it('falls back to sequential when a stale roll points past the queue', () => {
         const queue = useQueue()
         queue.currentindex = 1
