@@ -40,10 +40,10 @@
             v-show="hover.active"
             class="progress-preview"
             :style="{
-                left: `${previewLeft}px`,
+                left: `${previewSpan.left}px`,
                 top: `${hover.barTop}px`,
                 height: `${hover.barHeight}px`,
-                width: `${previewWidth}px`,
+                width: `${previewSpan.width}px`,
             }"
         />
         <div
@@ -173,10 +173,11 @@ const seek = (e: Event) => {
     q.seek(value)
 }
 
-// Drives the painted fill AND the sprinkle overlay — from the scrub position
-// while dragging, so the fill travels with the knob instead of lagging at the
-// playhead.
-const currentPercent = computed(() => (displayValue.value / (time.full || 1)) * 100)
+// How far along the bar the playhead sits, 0..1 — from the scrub position while
+// dragging, so the fill travels with the knob instead of lagging behind. Drives
+// the painted fill, the sprinkle overlay and the hover span below.
+const playedRatio = computed(() => displayValue.value / (time.full || 1))
+const currentPercent = computed(() => playedRatio.value * 100)
 
 // Seek bar background, layered so the played portion reads as a solid teal
 // fill (the memphis primary-action colour) over a soft-blush track:
@@ -207,11 +208,14 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
 // Derived rather than stored so the left edge tracks the playhead while the
 // pointer holds still — the fill grows a percent a second, and a span measured
 // once on pointermove would drift away from it.
-const playedRatio = computed(() => currentPercent.value / 100)
-const previewLeft = computed(
-    () => hover.barLeft + Math.min(playedRatio.value, hover.ratio) * hover.barWidth
-)
-const previewWidth = computed(() => Math.abs(hover.ratio - playedRatio.value) * hover.barWidth)
+const previewSpan = computed(() => {
+    const from = Math.min(playedRatio.value, hover.ratio)
+    const to = Math.max(playedRatio.value, hover.ratio)
+    return {
+        left: hover.barLeft + from * hover.barWidth,
+        width: (to - from) * hover.barWidth,
+    }
+})
 
 // The tooltip stays on the cursor: it names the seek target, not the span.
 const tooltipLeft = computed(() => hover.barLeft + hover.ratio * hover.barWidth)
