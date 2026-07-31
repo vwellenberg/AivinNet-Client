@@ -133,6 +133,45 @@ Hover-Vertiefung + Press-in-den-Schatten.
 Prüfen statt hoffen: `~/uitest/audit-shadows.js` läuft alle Routen in Desktop **und** Phone ab
 und listet jeden transparenten Button, der noch einen Schatten wirft.
 
+## ⚠️ Breakpoints lesen die Breite — bis auf einen
+
+`content-width.ts` und die Mixins in `_mixins.scss` sind bis auf **eine** Ausnahme reine
+`max-width`-Regeln. Ein quer gehaltenes Telefon ist aber **breit UND niedrig**: 844×390 fiel in
+`isLargerMobile` (660–900) und bekam deshalb die reichere Leisten-Gruppe, während `isMobile`
+zusätzlich die Navigationszeile einblendete. Die Höhe kam in keiner Bedingung vor.
+
+Gemessen war das kein Schönheitsfehler: die Chrome ist ein **fester** Posten von 249 px — 30 %
+eines 390×844-Bildschirms, aber **64 %** desselben Geräts gedreht (nutzbar 133 statt 579 px).
+Dazu waren die drei Detail-Header (288/288/208 px) **höher als der ganze Inhaltsbereich**, ihre
+eigene Aktionsreihe hing also unten heraus.
+
+Die Ausnahme ist ein Paar, und **beide Hälften müssen synchron bleiben**:
+
+| | |
+|---|---|
+| `isShort` in `content-width.ts` | `win_height <= 500 && win_width > win_height` |
+| `@mixin shortViewport` in `_mixins.scss` | `(max-height: 500px) and (orientation: landscape)` |
+
+**Die Orientierung gehört zwingend dazu.** Ein hochkant gehaltenes Tablet liegt in derselben
+Breiten-Spanne (834 px) und ist nicht niedrig — ohne die zweite Hälfte verlöre es seine Leiste
+mit. Der Test dazu (`stores/__tests__/shortViewport.test.ts`) prüft genau diesen Fall.
+
+Zwei Dinge, die daran hängen:
+
+- **Die Leiste im kurzen Viewport ist die PHONE-Leiste.** Die Bedingung steht als `phoneBar`
+  einmal in `BottomBar/Left.vue` und wird dreimal gelesen. Wer nur einen der Zweige anfasst,
+  baut die stille Sackgasse aus #326 wieder auf: ein Gerät, das mit `Actions` die Lautstärke
+  verliert und den Unmute-Knopf nicht bekommt, ist stumm ohne Weg zurück.
+- **Wer die Bar-Höhe ändert, ändert die Scroller-Reserve mit** (`$bottombarheight-short`) —
+  siehe die Regel weiter unten: `#acontent` läuft hinter der Bar, jeder Scroller reserviert sie
+  selbst.
+
+⚠️ **Ein `min-height` ist ein Boden und will gelöst werden, nicht gesenkt** — und die Reihenfolge
+im Block entscheidet: der `shortViewport`-Block im Playlist-Header stand zuerst **vor**
+`.sqr_img`. Gleiche Spezifität, früher im Block ⇒ das 16rem-Cover gewann, und der Header stand bei
+264 statt 127 px, obwohl `min-height` und Titelgröße nachweislich griffen. Solche Blöcke gehören
+ans **Ende** ihres Selektors.
+
 ## ⚠️ Touch-Ziele: 44 px, Header-Aktionen haben EINE Anatomie
 
 Sekundäre Aktionen in Seiten-Headern (Favorit, Pin, Download, Cover holen, Optionen, Edit,
