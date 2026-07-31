@@ -48,12 +48,39 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 | `popaudit.js` | derselbe Befund über alle Routen in **einer** SPA-Sitzung, plus Staffel-Soll/Ist je Header-Reihe; kennt `REDUCED=1` |
 | `popframes.js` | tastet die laufende Skalierung **aller** Buttons einer Reihe ab (0,82 → 1,05 → 1,00) und schneidet einen Filmstreifen |
 | `btnaudit.js`, `bordermeasure.js`, `audit-shadows.js`, `mobile-audit.js` | Computed-Style-Audits über Routen × Themes |
+| `tokencensus.js` | **Design-Token-Zensus**: gruppiert Rahmenbreite, Radius, Schriftgröße und Schatten-Versatz über 12 Routen × hell/dunkel — siehe unten |
 | `previewproxy.js` + `run*.sh` | Branch-`dist` über einen Proxy servieren und messen |
 | `queueseams.js`, `verify3.js` | E2E für Queue-Seams und Group-Sync |
 | `shuffleverify.js`, `endlessverify.js`, `groupshuffle.js` | E2E für die Zufallswiedergabe: wiederholt sie einen Song, stoppt sie auf der letzten Zeile, würfelt die Gruppe? |
 
 **Für Mobile-Befunde immer `MOBILE=1`** — erst mit `hasTouch` greifen die
 `@media (hover: none)`-Zweige, und genau dort stecken die Touch-Bugs.
+
+## Drift finden, ohne zu wissen wonach man sucht
+
+Die Audits oben prüfen je **eine** bekannte Regel. Für die Frage „wo driftet das Design
+überhaupt?" taugen sie nicht, und ein `grep` erst recht nicht: Er findet nur die Schreibweise,
+die man vermutet.
+
+`tokencensus.js` dreht das um — er liest, was der Browser **tatsächlich malt**, und gruppiert es:
+
+```bash
+TOKEN=… node tokencensus.js > /tmp/census.json
+```
+
+Ein Design mit drei Radius-Tokens sollte drei Radien zeigen. Zeigt es zehn, sind die seltenen
+Werte die Drift — und die **häufigen ohne Token** sind ein zweites System, das niemand beschlossen
+hat. Genau so gefunden (#354): `8px` war mit 2100 Vorkommen der zweithäufigste Radius der App und
+gehörte keinem Token, sondern der Utility-Klasse `.rounded-sm` aus der Zeit vor dem Redesign. Der
+Verteilungs-Anteil ist dabei das Werkzeug, nicht die absolute Zahl.
+
+Zwei Dinge beim Lesen der Ausgabe:
+
+- **Ein seltener Wert ist ein Kandidat, kein Befund.** `50%` auf einem Avatar ist richtig, `40%`
+  daneben nicht — das entscheidet der Blick auf das Element, nicht die Statistik.
+- **Zähle nur, was gezeichnet wird.** Ein `border-width` ohne `border-style` oder mit
+  transparenter Farbe ist keine Kante (die halbe App reserviert genau so ihren Hover-Rahmen) —
+  der Zensus filtert das, wer selbst misst, muss es auch tun.
 
 Die Routen sind Hash-Routen: `http://localhost:1970/#/<route>`.
 
