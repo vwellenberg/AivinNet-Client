@@ -116,7 +116,7 @@ onMounted(() => {
 
     .tabheaders {
       margin: 0;
-      border-radius: 10rem;
+      border-radius: $candy-radius-pill;
       max-width: calc(100% - 16px);
       overflow: auto;
       overflow-y: hidden;
