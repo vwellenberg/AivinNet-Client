@@ -222,8 +222,24 @@ export default defineStore('tracklist', {
             this.tracklist = []
             this.from = {} as From
         },
-        shuffleList() {
-            this.tracklist = shuffleArray(this.tracklist)
+        /**
+         * Reorder the queue once (the panel's "Shuffle" action).
+         *
+         * `avoidFront` is the index of the track playing right now: it must not
+         * land first, because the caller restarts playback at index 0 — and a
+         * shuffle that restarts the same song at 0:00 is the one outcome nobody
+         * presses that button for.
+         */
+        shuffleList(avoidFront?: number) {
+            const playing = avoidFront === undefined ? undefined : this.tracklist[avoidFront]
+            const shuffled = shuffleArray(this.tracklist)
+
+            if (playing && shuffled.length > 1 && shuffled[0] === playing) {
+                const swap = 1 + Math.floor(Math.random() * (shuffled.length - 1))
+                ;[shuffled[0], shuffled[swap]] = [shuffled[swap], shuffled[0]]
+            }
+
+            this.tracklist = shuffled
         },
         removeByIndex(index: number) {
             // Group mode: same seam as insertAt. A local splice would leave the

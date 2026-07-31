@@ -85,6 +85,31 @@ export default defineStore('Queue', {
             focusCurrentInSidebar()
         },
         /**
+         * Start a source that was just put into the queue — the header "Play",
+         * a card's play disc, "Play" in a context menu.
+         *
+         * With permanent shuffle on this enters at a RANDOM track instead of the
+         * first row: pressing Play on a playlist should not open with the same
+         * song every time (Spotify's behaviour, and what "Zufallswiedergabe"
+         * promises). Clicking a specific row is a different intent and keeps its
+         * index — that path calls `play(index)` and is untouched.
+         *
+         * The track playing right now is excluded, so hitting Play again on the
+         * source you are already listening to moves on instead of restarting the
+         * same song at 0:00.
+         */
+        playSource() {
+            const settings = useSettings()
+            const { tracklist } = useTracklist()
+
+            if (!settings.shuffle || tracklist.length <= 1) {
+                this.play(0)
+                return
+            }
+
+            this.play(pickShuffleIndex(tracklist.length, this.currentindex))
+        },
+        /**
          * Roll the next shuffle target (no-op unless permanent shuffle is on).
          * Call this whenever the current track or the tracklist changes.
          */
@@ -273,7 +298,10 @@ export default defineStore('Queue', {
             const { shuffleList } = useTracklist()
             const { focusCurrentInSidebar } = useInterface()
 
-            shuffleList()
+            // Keep the track playing right now out of the front row: playback
+            // restarts at index 0 below, and restarting the same song is not a
+            // shuffle.
+            shuffleList(this.currentindex)
             this.currentindex = 0
             this.play(this.currentindex)
             focusCurrentInSidebar()
