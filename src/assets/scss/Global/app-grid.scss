@@ -6,7 +6,7 @@ $g-border: solid $candy-border-w $mem-line;
     grid-template-columns: min-content 1fr;
     // minmax(0, 1fr) so a tall sidebar/content can't blow the middle row past
     // 100% and push the bottom bar off-screen.
-    grid-template-rows: $navheight minmax(0, 1fr) 5.125rem;
+    grid-template-rows: $navheight minmax(0, 1fr) $bottombarheight;
     // Full-width top bar across sidebar + content (Spotify-style).
     grid-template-areas:
         'nav nav'
@@ -85,12 +85,15 @@ $g-border: solid $candy-border-w $mem-line;
     scrollbar-gutter: stable;
     padding-left: $padleft;
     padding-right: $padright;
-    padding-bottom: calc($padbottom + 5.125rem);
+    // Reserve the player bar's row — see $bottombarheight for why the content
+    // area runs underneath it in the first place.
+    padding-bottom: calc($padbottom + $bottombarheight);
     -webkit-overflow-scrolling: touch;
 
     @include allPhones {
         padding-left: 1rem;
         padding-right: 1rem;
+        padding-bottom: calc($padbottom + $bottombarheight-phone);
     }
 }
 
@@ -174,7 +177,7 @@ $g-border: solid $candy-border-w $mem-line;
 
 #app-grid.is_alt_layout {
     grid-template-columns: min-content 1fr;
-    grid-template-rows: max-content minmax(0, 1fr) 5.125rem;
+    grid-template-rows: max-content minmax(0, 1fr) $bottombarheight;
     grid-template-areas:
         'nav nav'
         'l-sidebar content'
@@ -182,7 +185,7 @@ $g-border: solid $candy-border-w $mem-line;
 
     @include allPhones {
         grid-template-columns: 1fr !important;
-        grid-template-rows: max-content 1fr 9.5rem !important;
+        grid-template-rows: max-content 1fr $bottombarheight-phone !important;
         grid-template-areas:
             'nav'
             'content'
@@ -328,13 +331,20 @@ $g-border: solid $candy-border-w $mem-line;
         padding-right: $padright;
         height: 100%;
         width: 100%;
-        padding-bottom: $content-padding-bottom;
-        padding-bottom: $padbottom;
+        // Every virtualised page (playlist, album, artist, folder, mix, search,
+        // now playing, the song lists) scrolls through this element, and all of
+        // them sit in a content area that deliberately runs BEHIND the player
+        // bar. Reserving only $padbottom (4rem) against a 5.125rem bar left the
+        // bottom ~18px of the last row covered — the reported "last track of a
+        // playlist is hidden by the bottom bar". The `.content-page` pages next
+        // door had reserved the bar's height all along; these never did.
+        padding-bottom: calc($padbottom + $bottombarheight);
         -webkit-overflow-scrolling: touch;
 
         @include allPhones {
             padding-left: 1rem;
             padding-right: 1rem;
+            padding-bottom: calc($padbottom + $bottombarheight-phone);
         }
     }
 }
