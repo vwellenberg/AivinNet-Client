@@ -44,6 +44,10 @@ export default defineStore('settings', {
         folder_list_mode: true,
         volume: 1.0,
         mute: false,
+        // The volume to come back to when the speaker button turns sound back
+        // on. Without it, un-muting a player whose volume happens to be 0 is
+        // silent — and on a phone there is no slider to fix that with.
+        last_audible_volume: 1.0,
 
         feat: true,
         prodby: true,
@@ -258,10 +262,41 @@ export default defineStore('settings', {
 
             setVolume(new_value)
             this.volume = new_value
+
+            // Remember the last level that actually made a sound, so the
+            // speaker button has somewhere to return to.
+            if (new_value > 0) {
+                this.last_audible_volume = new_value
+            }
         },
+        /**
+         * The speaker button toggles AUDIBILITY, not the `mute` flag.
+         *
+         * Those came apart in practice: `volume` at 0 is just as silent as
+         * `mute`, and the button used to flip only the flag. Un-muting then
+         * changed nothing you could hear, and the icon did not change either
+         * (it shows the muted glyph for both states) — so the control looked
+         * broken. On a phone that was a dead end: the volume slider is hidden
+         * there, and the persisted 0 survived every reload.
+         */
         toggleMute() {
-            this.mute = !this.mute
-            const { setMute } = usePlayer()
+            const { setMute, setVolume } = usePlayer()
+            const silent = this.mute || this.volume === 0
+
+            if (silent) {
+                this.mute = false
+
+                if (this.volume === 0) {
+                    // `last_audible_volume` can itself be 0 on a profile that
+                    // was saved in this state before the fix existed.
+                    this.volume = this.last_audible_volume || 1.0
+                    setVolume(this.volume)
+                }
+            } else {
+                this.last_audible_volume = this.volume
+                this.mute = true
+            }
+
             setMute(this.mute)
         },
         initializeVolume() {

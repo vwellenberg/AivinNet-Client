@@ -1,6 +1,14 @@
 <template>
     <div class="volume-control" @wheel.passive="handleMouseWheel">
-        <button class="speaker-icon" title="Mute" @click="settings.toggleMute">
+        <!-- One glyph for both silent states (muted, or volume at 0) is right
+             now that the button toggles AUDIBILITY rather than the mute flag:
+             from here they are the same thing, and one tap gets sound back
+             either way. The title says so. -->
+        <button
+            class="speaker-icon"
+            :title="settings.mute || settings.volume === 0 ? 'Unmute' : 'Mute'"
+            @click="settings.toggleMute"
+        >
             <VolumeMuteSvg v-if="settings.mute || settings.volume == 0.0" />
             <VolumeMidSvg v-else-if="settings.volume > 0.5" />
             <VolumeLowSvg v-else />
