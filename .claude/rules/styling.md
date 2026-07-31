@@ -20,7 +20,7 @@ nicht pro View kopieren.
 
 Der Transport-/Chrome-Satz (play, pause, next, shuffle, repeat, repeat-one, lyrics, volume-*) ist
 ein einheitlicher **24×24-Satz in `currentColor`**: gefüllte Körper, wo die Form geschlossen ist,
-**2px-Strokes**, wo sie offen ist. Eine `svg path { fill: … }`-Regel **flutet die gestrichenen
+**2,4px-Strokes**, wo sie offen ist. Eine `svg path { fill: … }`-Regel **flutet die gestrichenen
 Glyphen zu schwarzen Klecksen**. Deshalb liegt die Farbe überall auf `color`.
 
 Die eine verbliebene Pauschal-Regel (Kontextmenü-Icons mit Legacy-Glyphen) überspringt Pfade mit
@@ -36,7 +36,9 @@ Seit #311 sind die Navigations- und Chrome-Glyphen (home, search, folder\*, book
 chart, settings, album, artist, delete, plus, queue, more, expand, arrow\*, volume-\*, pin\*,
 download, pencil, reload, devices, headphones, clock, a, square, check.filled) **ein** Satz:
 
-- **24×24-Box, ~18 px optisches Glyph** (Ink von 3 bis 21), 2 px Strich, runde Kappen und Ecken.
+- **24×24-Box, ~18 px optisches Glyph** (Ink von 3 bis 21), **2,4 px** Strich, runde Kappen und
+  Ecken. 2 px war der erste Wurf und las sich neben den 3-px-Rahmen und der fetten Schrift dieses
+  Designs zu dünn.
 - `stroke="currentColor"` auf **jedem** `<path>` (siehe die Regel darüber).
 - Füllung nur, wo die Form geschlossen ist (`*.fill`-Varianten, Notenkopf, Lautsprecher).
 
@@ -53,6 +55,22 @@ Zwei Fallen beim Ersetzen eines Legacy-Glyphs:
   **nach der Kompensation suchen und sie mit entfernen**.
 - **Ein Glyph kann anderswo als roher Pfad einkopiert sein.** `FolderCard.vue` trug eine private
   Kopie von `folder-1.svg` im Template, die keine Icon-Änderung je erreicht hätte.
+
+## ⚠️ Ein Icon nicht mit `opacity` dämpfen, wenn es kein Zustand ist
+
+Die Sidebar-Glyphen liefen unter `opacity: 0.75` — ein Rest aus der Zeit der gefüllten
+SF-Symbols-Masse, wo das die Härte nahm. Auf 2,4-px-Strichen macht dieselbe Regel aus reiner Tinte
+ein **mittleres Grau neben dem eigenen Label** (gemessen: `#17171A` bei 0,75 über Weiß landet bei
+etwa `#515154`). Genau das kam als „die Icons wirken schwächer" zurück.
+
+Die Regel dahinter: **`opacity` auf einem Glyph ist eine Zustandsaussage, keine Dekoration.**
+Legitim sind deshalb nur `aux-off` (Shuffle/Repeat AUS, 0,45 — beide Transport-Reihen) und
+Platzhalter-Glyphen in leeren Bildflächen. Der aktive Nav-Zustand trägt seine Aussage schon in der
+Zeile (Blush-Fläche + Ink-Rahmen); das Glyph muss nicht zusätzlich flüstern.
+
+Prüfen statt schätzen: das Glyph und sein Label im **selben** 4×-Element-Screenshot ansehen. Das
+Label ist die eigene Referenz-Schwärze des Designs — nebeneinander sieht man den Unterschied
+sofort, isoliert nie.
 
 Zeichnerisch gilt: **abgesetzte Radialstriche lesen sich als Sonne, nicht als Zahnrad.** Die Zähne
 von `settings.svg` beginnen deshalb *innerhalb* der Ring-Außenkante — und die Sonne ist in dieser

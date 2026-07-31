@@ -4,7 +4,7 @@
          replaces turned to mush at 18px. The teeth deliberately START INSIDE
          the rim (r 5.4 against the rim's outer edge at 6.0): detached teeth
          read as a sun, and the app already has a sun for the theme toggle. -->
-    <path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
     <path d="M17.4 12h2.2" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" />
     <path d="M15.82 8.18 17.37 6.63" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" />
     <path d="M12 6.6V4.4" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" />
