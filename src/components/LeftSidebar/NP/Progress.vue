@@ -2,7 +2,7 @@
     <div
         ref="wrap"
         class="progress-wrap"
-        :style="{ '--played-frac': currentPercent / 100 }"
+        :style="{ '--texture-frac': textureFrac }"
         @pointermove="onPointerMove"
         @pointerleave="onPointerLeave"
     >
@@ -22,30 +22,20 @@
             @click="seek"
         />
 
-        <!-- Memphis sprinkle texture over the played (teal) fill. An overlay
-             div (the range input can't host pseudo-elements) whose width
-             follows the playhead via --played-frac; fixed tile size, so the
-             pattern never stretches. pointer-events off — seeks untouched. -->
+        <!-- Memphis sprinkle texture over the coloured part of the bar — the
+             played teal fill plus, while hovering, the yellow seek span. An
+             overlay div (the range input can't host pseudo-elements) whose
+             width follows --texture-frac; fixed tile size, so the pattern never
+             stretches. pointer-events off — seeks untouched. -->
         <div class="progress-fill-sprinkle" />
 
         <!--
-            Spotify-style hover preview (#66): a light fill from 0 to the cursor
-            plus a time tooltip showing the seek target. Both layers keep
-            pointer-events off so clicks still hit the range input and seek
-            exactly as before. Mouse/pen only — touch is ignored (onPointerMove)
-            and the layers are also hidden on no-hover pointers (CSS), so mobile
-            sees no stray preview.
+            Spotify-style hover preview (#66): the seek span is painted as a
+            background layer on the input itself (see progressBg), so the thumb
+            keeps its ink ring on top of it. Only the time tooltip is an overlay.
+            Mouse/pen only — touch is ignored (onPointerMove) and the tooltip is
+            hidden on no-hover pointers (CSS), so mobile sees no stray preview.
         -->
-        <div
-            v-show="hover.active"
-            class="progress-preview"
-            :style="{
-                left: `${previewSpan.left}px`,
-                top: `${hover.barTop}px`,
-                height: `${hover.barHeight}px`,
-                width: `${previewSpan.width}px`,
-            }"
-        />
         <div
             v-show="hover.active"
             class="progress-tooltip"
@@ -80,7 +70,6 @@ const hover = reactive({
     ratio: 0,
     barLeft: 0,
     barTop: 0,
-    barHeight: 0,
     barWidth: 0,
 })
 
@@ -120,7 +109,6 @@ const onPointerMove = (e: PointerEvent) => {
     hover.ratio = ratio
     hover.barLeft = inRect.left - wrapRect.left
     hover.barTop = inRect.top - wrapRect.top
-    hover.barHeight = inRect.height
     hover.barWidth = inRect.width
     hover.active = true
 }
@@ -179,43 +167,59 @@ const seek = (e: Event) => {
 const playedRatio = computed(() => displayValue.value / (time.full || 1))
 const currentPercent = computed(() => playedRatio.value * 100)
 
+// The stretch a click would skip (or hand back): playhead <-> cursor, in
+// percent. Painting the hover preview from zero instead covered the played fill
+// whenever the cursor was ahead of the playhead, so it hid how far you had
+// listened. Null while nothing is hovered.
+//
+// Derived rather than stored so the edges track the playhead while the pointer
+// holds still — the fill grows a percent a second, and a span measured once on
+// pointermove would drift away from it.
+const seekSpan = computed(() => {
+    if (!hover.active) return null
+    const from = Math.min(playedRatio.value, hover.ratio) * 100
+    const to = Math.max(playedRatio.value, hover.ratio) * 100
+    return { from, to }
+})
+
 // Seek bar background, layered so the played portion reads as a solid teal
 // fill (the memphis primary-action colour) over a soft-blush track:
-//   1. played [0..current%]  — flat $mem-teal
-//   2. buffered [0..max%]     — flat $mem-blush, sits UNDER the played fill so
+//   1. seek span [from..to%]  — flat $mem-yellow, only while hovering
+//   2. played [0..current%]   — flat $mem-teal
+//   3. buffered [0..max%]     — flat $mem-blush, sits UNDER the played fill so
 //                               it only shows between the playhead and buffer edge
-//   3. track (base)           — flat $mem-blush-soft fills the remainder
+//   4. track (base)           — flat $mem-blush-soft fills the remainder
 // The 2px ink border, pill radius and white bordered thumb come from the
 // global range styling (ProgressBar.scss); this only paints the fill. The
 // sprinkle texture lives on the .progress-fill-sprinkle overlay div (the
 // background layers here clip via background-size, which would stretch a
 // fixed-tile pattern).
+//
+// The span belongs in THIS stack rather than in an overlay div: the thumb is a
+// pseudo-element of the input, so anything stacked on top of the input covers
+// its ink ring — the yellow used to swallow the knob it was drawn next to. As a
+// background layer it sits under the thumb by construction. Hard colour stops
+// place it (rather than background-position, whose percentages are measured
+// against the leftover width and would need the span's own size folded in).
 const progressBg = computed(() => {
+    const span = seekSpan.value
+    const seek = span
+        ? `linear-gradient(to right, transparent ${span.from}%, ${MEMPHIS.yellow} ${span.from}%, ${MEMPHIS.yellow} ${span.to}%, transparent ${span.to}%) left center / 100% 100% no-repeat, `
+        : ''
     const played = `linear-gradient(${MEMPHIS.teal}, ${MEMPHIS.teal}) left center / ${currentPercent.value}% 100% no-repeat`
     const buffered = `linear-gradient(${MEMPHIS.blush}, ${MEMPHIS.blush}) left center / ${maxSeekPercent.value}% 100% no-repeat`
-    return `${played}, ${buffered}, ${MEMPHIS.blushSoft}`
+    return `${seek}${played}, ${buffered}, ${MEMPHIS.blushSoft}`
 })
 
 // Seek target under the cursor, formatted like every other time in the app.
 const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
 
-// The preview spans playhead <-> cursor, i.e. it paints exactly the stretch the
-// click would skip (or give back), not the whole bar up to the cursor. Painting
-// from zero meant the yellow covered the played fill and the thumb whenever the
-// cursor was ahead of the playhead, hiding both how far you had listened and
-// where you actually are.
-//
-// Derived rather than stored so the left edge tracks the playhead while the
-// pointer holds still — the fill grows a percent a second, and a span measured
-// once on pointermove would drift away from it.
-const previewSpan = computed(() => {
-    const from = Math.min(playedRatio.value, hover.ratio)
-    const to = Math.max(playedRatio.value, hover.ratio)
-    return {
-        left: hover.barLeft + from * hover.barWidth,
-        width: (to - from) * hover.barWidth,
-    }
-})
+// How much of the bar carries the sprinkle texture: everything painted, so the
+// yellow span is textured exactly like the teal fill instead of reading as a
+// flat patch pasted over a patterned bar.
+const textureFrac = computed(() =>
+    hover.active ? Math.max(playedRatio.value, hover.ratio) : playedRatio.value
+)
 
 // The tooltip stays on the cursor: it names the seek target, not the span.
 const tooltipLeft = computed(() => hover.barLeft + hover.ratio * hover.barWidth)
@@ -238,7 +242,8 @@ const tooltipLeft = computed(() => hover.barLeft + hover.ratio * hover.barWidth)
     // it does not nudge the bar down a couple of pixels.
     line-height: 0;
 
-    // Sprinkle overlay tracking the played fill (width via --played-frac set
+    // Sprinkle overlay tracking the painted part of the bar — the played fill,
+    // and while hovering the yellow seek span too (width via --texture-frac set
     // on the wrapper). The insets keep it inside the input's ink border, so
     // they are the border width — not a number that happens to match it today.
     .progress-fill-sprinkle {
@@ -252,29 +257,12 @@ const tooltipLeft = computed(() => hover.barLeft + hover.ratio * hover.barWidth)
         // it could not see the value a host set there anyway, so on phones it
         // stayed a 3.6px strip in a 20px bar.
         height: var(--range-track, #{$range-track-default});
-        width: calc((100% - #{$candy-border-w * 2}) * var(--played-frac, 0));
+        width: calc((100% - #{$candy-border-w * 2}) * var(--texture-frac, 0));
         border-radius: $candy-radius-pill;
         @include mem-sprinkle(20px);
         opacity: 0.4;
         pointer-events: none;
         z-index: 1;
-    }
-
-    // The seek span (playhead <-> cursor, geometry in the script block), in
-    // flat YELLOW rather than a translucent teal: the preview has to read
-    // against the played fill, which is teal, and a teal-on-teal wash left the
-    // two indistinguishable — hovering the bar just made it a slightly
-    // different green. Yellow is the memphis role for hover/active states, so
-    // the span now says "this is the jump" in the palette's own vocabulary, and
-    // it can be opaque like every other memphis fill because it no longer
-    // covers the played portion. Never intercepts pointer events, so clicks
-    // still reach the range input and seek as before.
-    .progress-preview {
-        position: absolute;
-        pointer-events: none;
-        border-radius: $candy-radius-pill; // match the range track radius (ProgressBar.scss)
-        background: $mem-yellow;
-        z-index: 2;
     }
 
     // Floating time pill centred on the cursor, sitting just above the bar.
@@ -295,10 +283,10 @@ const tooltipLeft = computed(() => hover.barLeft + hover.ratio * hover.barWidth)
         z-index: 3;
     }
 
-    // Hover effects are desktop-only. onPointerMove already ignores touch; this
-    // is the CSS belt-and-braces for no-hover pointers (#66 acceptance).
+    // Hover effects are desktop-only. onPointerMove already ignores touch, which
+    // is what keeps the yellow span out of the input's background there; this is
+    // the CSS belt-and-braces for the one part CSS can reach (#66 acceptance).
     @media (hover: none) {
-        .progress-preview,
         .progress-tooltip {
             display: none !important;
         }

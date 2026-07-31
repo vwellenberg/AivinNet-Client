@@ -13,7 +13,7 @@ const queue = reactive({
 vi.mock('@/stores/queue', () => ({ default: () => queue }))
 vi.mock('@/stores/player', () => ({ maxSeekPercent: { value: 100 } }))
 vi.mock('@/utils/colortools/pageGradient', () => ({
-    MEMPHIS: { teal: '#2fbfa3', blush: '#f5c6ce', blushSoft: '#fbe3e7' },
+    MEMPHIS: { teal: '#2fbfa3', yellow: '#F5B23C', blush: '#f5c6ce', blushSoft: '#fbe3e7' },
 }))
 
 import Progress from '@/components/LeftSidebar/NP/Progress.vue'
@@ -71,7 +71,8 @@ describe('seek bar scrubbing', () => {
         await dragTo(w.find('#progress'), '100')
 
         // 100 of 200 seconds -> the fill (and its sprinkle overlay) sit at 50%.
-        expect(w.find('.progress-wrap').attributes('style')).toContain('--played-frac: 0.5')
+        expect(w.find('.progress-wrap').attributes('style')).toContain('--texture-frac: 0.5')
+        expect((w.find('#progress').element as HTMLElement).style.background).toContain('50%')
     })
 
     it('follows the playhead again once the drag is released', async () => {
@@ -107,16 +108,19 @@ describe('seek bar hover preview', () => {
         Element.prototype.getBoundingClientRect = realRect
     })
 
-    // The span is laid out in sub-pixel floats (0.15 * 200 is 30.000000000000004),
-    // so read the numbers back instead of matching the style string.
-    const px = (w: ReturnType<typeof mount>, sel: string, prop: string) => {
-        const style = w.find(sel).attributes('style') ?? ''
-        return Number(new RegExp(`${prop}: (-?[\\d.]+)px`).exec(style)?.[1] ?? NaN)
+    // The span is a background layer on the input, placed with hard colour
+    // stops: `transparent <from>%, YELLOW <from>%, YELLOW <to>%, transparent`.
+    // Its edges are sub-pixel floats, so read the stops back as numbers.
+    const span = (w: ReturnType<typeof mount>) => {
+        const bg = (w.find('#progress').element as HTMLElement).style.background
+        const stops = [...bg.matchAll(/#F5B23C ([\d.]+)%/gi)].map(m => Number(m[1]))
+        return stops.length === 2 ? { from: stops[0], to: stops[1] } : null
     }
-    const span = (w: ReturnType<typeof mount>) => ({
-        left: px(w, '.progress-preview', 'left'),
-        width: px(w, '.progress-preview', 'width'),
-    })
+    const textureFrac = (w: ReturnType<typeof mount>) =>
+        Number(
+            /--texture-frac: ([\d.]+)/.exec(w.find('.progress-wrap').attributes('style') ?? '')?.[1] ??
+                NaN
+        )
 
     const hoverAt = (w: ReturnType<typeof mount>, clientX: number) =>
         w.find('.progress-wrap').trigger('pointermove', { pointerType: 'mouse', clientX })
@@ -124,12 +128,11 @@ describe('seek bar hover preview', () => {
     it('paints only the stretch between the playhead and the cursor', async () => {
         const w = mount(Progress)
 
-        // Cursor at 70% with the playhead at 20% -> the span starts at the
-        // playhead (40px) and is 50% of the bar wide (100px). Painting from
-        // zero would bury the played fill and the thumb under the preview.
+        // Cursor at 70% with the playhead at 20% -> the span runs 20%..70%.
+        // Painting from zero would bury the played fill under the preview.
         await hoverAt(w, 140)
-        expect(span(w).left).toBeCloseTo(40)
-        expect(span(w).width).toBeCloseTo(100)
+        expect(span(w)?.from).toBeCloseTo(20)
+        expect(span(w)?.to).toBeCloseTo(70)
     })
 
     it('paints backwards when the cursor is behind the playhead', async () => {
@@ -137,8 +140,8 @@ describe('seek bar hover preview', () => {
 
         // Cursor at 5%, playhead at 20% -> the span is the 15% being given up.
         await hoverAt(w, 10)
-        expect(span(w).left).toBeCloseTo(10)
-        expect(span(w).width).toBeCloseTo(30)
+        expect(span(w)?.from).toBeCloseTo(5)
+        expect(span(w)?.to).toBeCloseTo(20)
     })
 
     it('keeps up with the playhead while the pointer holds still', async () => {
@@ -150,15 +153,36 @@ describe('seek bar hover preview', () => {
 
         // The span shrinks from its left edge instead of drifting: a geometry
         // measured once on pointermove would still claim to start at 20%.
-        expect(span(w).left).toBeCloseTo(60)
-        expect(span(w).width).toBeCloseTo(80)
+        expect(span(w)?.from).toBeCloseTo(30)
+        expect(span(w)?.to).toBeCloseTo(70)
+    })
+
+    it('paints nothing while the bar is not hovered', () => {
+        expect(span(mount(Progress))).toBeNull()
+    })
+
+    it('carries the sprinkle texture across the span, not just the played fill', async () => {
+        const w = mount(Progress)
+
+        // Ahead of the playhead the texture has to reach the cursor, otherwise
+        // the yellow reads as a flat patch pasted onto a patterned bar.
+        await hoverAt(w, 140)
+        expect(textureFrac(w)).toBeCloseTo(0.7)
+
+        // Behind it the span sits inside the played fill, which is already
+        // textured — the texture stays at the playhead.
+        await hoverAt(w, 10)
+        expect(textureFrac(w)).toBeCloseTo(0.2)
     })
 
     it('puts the tooltip on the cursor, not on the span', async () => {
         const w = mount(Progress)
         await hoverAt(w, 140)
 
-        expect(px(w, '.progress-tooltip', 'left')).toBeCloseTo(140)
+        const left = /left: ([\d.]+)px/.exec(
+            w.find('.progress-tooltip').attributes('style') ?? ''
+        )?.[1]
+        expect(Number(left)).toBeCloseTo(140)
         expect(w.find('.progress-tooltip').text()).toBe('02:20') // 70% of 200s
     })
 })
