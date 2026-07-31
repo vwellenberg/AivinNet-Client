@@ -95,11 +95,23 @@
       <path d="M0 0 q40 -28 50 12 q8 34 -28 40"
             fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round"/>
     </g>
-    <!-- the looping "hook" squiggle, drawn in yellow throughout the reference -->
+    <!-- rolling wave, the reference's four-bump squiggle.
+         NOTE: a shape with a bow on top and a straight descender below reads as
+         a QUESTION MARK once it is scattered across a page — the first draft of
+         this one did, about ten times over. Keep these squiggles free of a
+         single dominant vertical, or the ground starts asking questions. -->
     <g id="sqD">
-      <path d="M0 36 q2 -36 32 -36 q30 0 30 32 q0 30 -30 30 q-26 0 -22 34 q4 30 34 28"
+      <path d="M0 26 q16 -26 32 0 q16 26 32 0 q16 -26 32 0 q16 26 32 0"
             fill="none" stroke="#2B2733" stroke-width="18" stroke-linecap="round" transform="translate(7,8)"/>
-      <path d="M0 36 q2 -36 32 -36 q30 0 30 32 q0 30 -30 30 q-26 0 -22 34 q4 30 34 28"
+      <path d="M0 26 q16 -26 32 0 q16 26 32 0 q16 -26 32 0 q16 26 32 0"
+            fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round"/>
+    </g>
+    <!-- open curl: a tail running into a loop, the reference's calligraphic
+         flourish. No straight stroke anywhere in it, per the note above. -->
+    <g id="sqE">
+      <path d="M0 96 q-10 -52 40 -52 q48 0 38 42 q-10 40 -46 26"
+            fill="none" stroke="#2B2733" stroke-width="18" stroke-linecap="round" transform="translate(7,8)"/>
+      <path d="M0 96 q-10 -52 40 -52 q48 0 38 42 q-10 40 -46 26"
             fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round"/>
     </g>
     <!-- sharp scribble zigzag -->
@@ -304,7 +316,7 @@
   <use href="#sqA" transform="translate(1280,812) scale(0.85)" color="#EFA0C8"/>
   <!-- added with the widening, at the original composition's density -->
   <use href="#chev" transform="translate(268,182) rotate(16)" color="#D9603F"/>
-  <use href="#sqD" transform="translate(920,150) scale(0.9)" color="#F5D547"/>
+  <use href="#sqE" transform="translate(930,120) scale(0.9)" color="#F5D547"/>
   <use href="#sqC" transform="translate(1180,60) scale(1.1)" color="#F5D547"/>
   <use href="#cone" transform="translate(150,668) rotate(-12) scale(0.9)"/>
   <use href="#conePale" transform="translate(1080,560) rotate(9) scale(0.8)"/>
@@ -320,7 +332,7 @@
   <use href="#ringO" transform="translate(2144,186) scale(0.75)" color="#F5D547"/>
   <use href="#chev" transform="translate(2470,88) rotate(28)" color="#D9603F"/>
   <use href="#barTeal" transform="translate(2560,150) rotate(-14) scale(0.92)"/>
-  <use href="#sqB" transform="translate(3060,60) scale(0.95)" color="#5B67C9"/>
+  <use href="#sqE" transform="translate(3060,60) scale(0.95)" color="#5B67C9"/>
   <use href="#slabPink" transform="translate(3160,180) rotate(26) scale(0.95)"/>
   <use href="#sqC" transform="translate(3560,90) scale(1.2)" color="#F0A23C"/>
   <use href="#cone" transform="translate(1620,300) rotate(14)"/>
@@ -332,7 +344,8 @@
   <use href="#flag" transform="translate(3700,300) rotate(-12) scale(0.9)" color="#F5D547"/>
   <use href="#triD" transform="translate(1520,540) scale(0.75)" color="#3EBFAF"/>
   <use href="#chev" transform="translate(2060,540) rotate(-30)" color="#E2574C"/>
-  <use href="#sqB" transform="translate(2620,560) scale(1.05)" color="#3EBFAF"/>
+  <use href="#sqD" transform="translate(2600,580) scale(1.05)" color="#3EBFAF"/>
+  <use href="#arc" transform="translate(2900,500) scale(0.85)" color="#F5D547"/>
   <use href="#conePale" transform="translate(3120,640) rotate(-8) scale(0.95)"/>
   <use href="#scribble" transform="translate(1900,700) scale(0.9)" color="#D9603F"/>
   <use href="#book" transform="translate(2160,690) rotate(-6) scale(0.9)"/>
@@ -346,7 +359,7 @@
   <!-- ================================================================
        Region 3 — below the original canvas (0..3840 x 960..1600)
        ================================================================ -->
-  <use href="#sqD" transform="translate(60,1040) rotate(8)" color="#F5D547"/>
+  <use href="#sqE" transform="translate(60,1020) rotate(8)" color="#F5D547"/>
   <use href="#barBeam" transform="translate(280,1120) rotate(-16) scale(0.9)"/>
   <use href="#chev" transform="translate(560,1060) rotate(-24)" color="#D9603F"/>
   <use href="#triU" transform="translate(700,1080) scale(0.7)" color="#66C7B8"/>
@@ -365,8 +378,9 @@
   <use href="#sqB" transform="translate(3660,1240) scale(1.0)" color="#EFA0C8"/>
   <use href="#sqD" transform="translate(3080,1300) scale(0.8)" color="#3EBFAF"/>
   <use href="#sqA" transform="translate(2140,1300) scale(0.9)" color="#5B67C9"/>
+  <use href="#arc" transform="translate(1200,1280) rotate(-6) scale(0.8)" color="#F0A23C"/>
   <use href="#slabPink" transform="translate(160,1360) rotate(14) scale(0.92)"/>
-  <use href="#sqB" transform="translate(760,1400) scale(0.95)" color="#3EBFAF"/>
+  <use href="#sqE" transform="translate(760,1380) scale(0.95)" color="#3EBFAF"/>
   <use href="#scribble" transform="translate(1140,1420) scale(0.85)" color="#E2574C"/>
   <use href="#ringO" transform="translate(1000,1440) scale(0.85)" color="#F0A23C"/>
   <use href="#barCap" transform="translate(2480,1420) rotate(-10) scale(0.95)"/>
