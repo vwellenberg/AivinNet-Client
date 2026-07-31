@@ -18,7 +18,9 @@
     @drop.prevent="onDrop"
   >
     <div class="album-art">
-      <img :src="paths.images.thumb.small + track.image" class="rounded-sm" />
+      <!-- draggable=false so the row, not the cover, is what gets dragged: an
+           <img> is natively draggable and would otherwise win the gesture. -->
+      <img :src="paths.images.thumb.small + track.image" class="rounded-sm" draggable="false" />
       <div v-if="isCurrent" class="now-playing-track-indicator image" :class="{ last_played: !isCurrentPlaying }"></div>
     </div>
     <div class="tags">
@@ -105,6 +107,11 @@ const dragOverClass = computed(() => {
 });
 
 function onDragStart(e: DragEvent) {
+  // Guarded even though `draggable` is only set when droppable: the row holds a
+  // natively draggable <img>, so a drag begun on the cover art fires dragstart
+  // here on rows that never opted in (the search results use TrackItem too).
+  // Unguarded, that drag would announce itself as a queue row with index 0.
+  if (!props.droppable) return;
   showDragStart(e, props.track, props.index ?? 0, dropSources.queue);
 }
 
