@@ -242,6 +242,17 @@ Client-Repo** → dort mit „For vwellenberg/AivinNet-Client#N" referenzieren, 
   auf jedem Endpoint, während die App-Shell weiter rendert — Chrome und Nav sind da, aber null
   Playlists und null Alben. Sieht nach kaputtem UI aus, ist ein kaputtes Token. Details und der
   Gegencheck stehen in [docs/verification.md](docs/verification.md).
+- **⚠️ „Die letzte Stelle" ist ein Messergebnis, kein Satz.** Derselbe Zeilen-Hover wurde in vier
+  Runden repariert (#217 Ordner-Liste + Songliste, #246 Playlist-Zeile, #256 Nav-Zeilen, #346
+  Sidebar-Ordner-Kopf). Zwei dieser Commit-Texte behaupteten wörtlich, sie erwischten „die eine"
+  bzw. „die letzte" hoverbare Liste ohne Rahmen — aufgezählt hatte die Menge niemand, und #246
+  ließ den nächsten Fall **80 Zeilen tiefer in derselben Datei** stehen. Was dabei durchrutscht,
+  ist immer die **halb** konforme Instanz: der Ordner-Kopf trug die Basis-Hälfte (reservierter
+  transparenter Rand) längst, war also weder über den Marker der Vorrunde (`border: none`) noch
+  beim Lesen zu finden, und sichtbar wird er nur mit angelegtem Ordner **unter dem Mauszeiger**.
+  Wer eine Anatomie angleicht, zählt die Instanzen deshalb vorher über das **gemeinsame Merkmal**
+  auf — nicht über die kaputte Schreibweise —, schreibt die Liste in den PR und übergibt die
+  Vollständigkeit einem Zensus-Test (`rowHover`, `cardAnatomy`, `headerActionOrder`).
 
 ## Nächste Schritte
 
