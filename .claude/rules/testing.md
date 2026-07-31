@@ -36,6 +36,33 @@ Pinia-Kopie. **Kein Registry-Reset.** Stattdessen exportiert der betroffene Stor
 Test-Reset-Helper, der im `beforeEach` aufgerufen wird — Vorbild:
 `__resetDeviceSyncTestState()` in `stores/devicesync.ts`.
 
+## ⚠️ Quelltext-scannende Tests: `import.meta.glob(..., { as: "raw" })` liefert bei `.scss` LEER
+
+Es gibt hier zwei Tests, die den Quelltext selbst prüfen, weil Prosa die Regel nicht gehalten
+hat (`headerActionOrder`, `cardAnatomy`). Für `.vue` ist der Glob richtig — der Test sieht genau
+die Dateien, die der Build sieht. Für `.scss` **nicht**: Vite schickt Stylesheets erst durch die
+CSS-Pipeline, und die ist unter Test ausgestubbt. Zurück kommt ein **leerer String** — kein
+Fehler, kein `undefined`, nichts, woran man es merkt. Die erste Fassung von `cardAnatomy` prüfte
+damit jede Karte gegen eine leere Selektorliste und war grün, obwohl der Bug noch drin war.
+
+Stylesheets also mit `readFileSync` lesen, **relativ** (die cwd des Runners ist das
+Projekt-Root):
+
+```ts
+const ANATOMY_FILE = "src/assets/scss/Global/cards.scss"   // nicht process.cwd(), nicht import.meta.url
+```
+
+Die beiden naheliegenderen Anker fallen aus: `process.cwd()` ist in Testdateien ein
+**Lint-Fehler** (`no-undef` — die ESLint-Config gibt ihnen keine node-Umgebung), und
+`import.meta.url` hinterlässt Vitests Transform in einer Form, die `fileURLToPath()` mit
+`ERR_INVALID_ARG_TYPE` ablehnt.
+
+**Und die eigentliche Lehre:** Ein Test, der Quelltext parst, schlägt beim Brechen seines
+Parsers nicht fehl, sondern wird **still grün**. Er braucht deshalb Wächter über seine eigenen
+Eingaben — „die Komponentenliste ist nicht leer", „die Selektorliste enthält einen bekannten
+Treffer". Genau der zweite hat den leeren Glob oben gefunden. Zusätzlich einmal von Hand rot
+stellen (die Zeile wieder entfernen, Test laufen lassen) und das Ergebnis in den PR schreiben.
+
 ## Realistische Fixtures
 
 Backend-Formate nachbilden, nicht schönen: `image`-Strings mit `?pathhash=`-Suffix,
