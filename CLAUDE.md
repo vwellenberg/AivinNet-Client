@@ -123,7 +123,11 @@ damit nur CLAUDE.md unter anderem Namen.
   ⚠️ Der Hook steigt **still aus, wenn kein `npx` im PATH ist** — auf dem Windows-Arbeitsrechner
   ist node nicht installiert, dort passiert also nichts. Er greift auf Maschinen mit node.
 - `git commit` und `git push` werden **abgelehnt**, solange der aktuelle Branch `master`/`main` ist.
-  Die Worktree-Regel unten ist damit erzwungen statt nur aufgeschrieben.
+  Die Worktree-Regel oben ist damit erzwungen statt nur aufgeschrieben. Erkannt wird auch
+  `git -C <repo> commit` — dann wird der Branch **dieses** Repos geprüft.
+  ⚠️ Der Guard liest den Kommando**text**. Er schlägt deshalb auch an, wenn „git commit" nur als
+  Zeichenkette im Befehl vorkommt (z. B. in einem Heredoc oder in Testdaten). Das ist bewusst
+  konservativ; im Zweifel den Text umformulieren.
 
 ⚠️ Hooks greifen nur, wenn Claude Code **in diesem Verzeichnis** gestartet wurde — Projekt-Settings
 kommen aus dem Arbeitsverzeichnis, nicht aus Unterordnern. Wer eine Ebene höher arbeitet, braucht
@@ -173,12 +177,6 @@ Kurzfassung: Vue 3 + Pinia + Vite, **Hash-Routing** (Deeplinks brauchen `#`), Wi
   `btn_role` (`quiet` = blanker Glyph, `action` = Header-Platte), und die Korrektur liegt dort, wo
   die Kollision entsteht. Neue Varianten also als **Rollen-Prop an der Komponente**, nicht als
   Regel in der aufrufenden View.
-- `SearchInput :on_nav="true"` in `NavBar.vue` beibehalten — nie durch Router-Link ersetzen.
-- Logo-Ring (`::after` auf `.logo-orbit-wrapper`): `inset: 0`, kein Padding zwischen Ring und Icon.
-- **Wiederkehrendes UI-Element? → geteilte Komponente oder Rolle, nicht pro View kopieren.**
-  **Verhalten + Markup** gehören in `src/components/shared/` (`PinButton.vue`, `HeartSvg.vue` =
-  der Favoriten-Toggle, `PlayBtnRect.vue`); **Aussehen** in eine der fünf Rollen in
-  [Global/_buttons.scss](src/assets/scss/Global/_buttons.scss). Konvention aus #90.
 - `SearchInput :on_nav="true"` in `NavBar.vue` beibehalten — nie durch Router-Link ersetzen.
 - Logo-Ring (`::after` auf `.logo-orbit-wrapper`): `inset: 0`, kein Padding zwischen Ring und Icon.
 - **Vitest 0.x, nicht 1.x** — Vite-3-Kompatibilität.
