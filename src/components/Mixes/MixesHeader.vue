@@ -110,21 +110,22 @@ async function saveMix() {
         font-weight: 500;
     }
 
+    // The fourth detail header, and the last one still building its own
+    // anatomy: `gap: 1rem` against the $small the other three use, and no
+    // `flex-wrap`, so this row squeezed on phones where they wrap.
     .buttons {
         margin-top: 1rem;
         display: flex;
-        gap: 1rem;
+        gap: $small;
         align-items: center;
+        flex-wrap: wrap;
 
+        // Was a bare `background: transparent; border: none; padding: 0` with a
+        // 1.5rem glyph — verbatim the pattern #244 existed to delete, and a
+        // ~24px touch target in a row where everything else is 44px. The role
+        // supplies the plate, border, shadow, hover, press and glyph size.
         .savebtn {
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-
-            svg {
-                height: 1.5rem;
-            }
+            @include btn-action;
         }
     }
 }
