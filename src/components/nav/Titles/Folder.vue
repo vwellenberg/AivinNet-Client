@@ -100,44 +100,42 @@ const currentFolderSort = computed(() => {
 </script>
 
 <style lang="scss">
-// .info > #folder-nav-title {
-//   display: grid;
-// }
-
-// .is_alt_layout #folder-nav-title {
-//   display: grid;
-// }
-
+// One row, laid out in the flow: breadcrumb on the left, the two sort
+// dropdowns on the right.
+//
+// They used to be `position: absolute; top: 1rem; right: 0` — a placement that
+// only ever worked while there was ONE of them. #296 added the folder sort next
+// to the track sort and both landed on the identical rect (measured 227,109
+// 144x32 twice), so the two labels printed on top of each other ("FOEDAUENAME")
+// and the folder sort was unreachable. Being out of the flow also meant the row
+// had no margin of its own: the box overlapped the content card's top border
+// and ran flush into its right edge.
+//
+// A grid instead, so the dropdowns have a track to sit in and the breadcrumb
+// gets what is left. `margin-right: 10rem // sortbar width` and the two
+// `!important` overrides (here and in NavBar.vue `.left`) existed purely to
+// compensate for the absolute positioning and are gone with it.
 #folder-nav-title {
-    width: fit-content;
-    // overflow: hidden;
+    width: 100%;
     display: grid;
-    grid-template-columns: 1fr;
-    // gap: 1rem;
-    justify-content: space-between;
-    // width: 100%;
-    margin-right: 10rem; // sortbar width
+    grid-template-columns: minmax(0, 1fr) 9rem 9rem;
+    align-items: center;
+    gap: $small;
+    padding: $medium 0;
 
     @include allPhones {
-        display: grid;
-        padding-top: $medium;
-        padding-bottom: 1rem;
+        // Two dropdowns of 9rem plus the path do not fit a 390px phone, so the
+        // path takes the first row and the dropdowns share the second.
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
-        // INFO: Folder page sort bar overrides
-        .sortbar {
-            top: $medium !important;
-            right: 1rem !important;
+        .fname {
+            grid-column: 1 / -1;
         }
     }
 
-    .sortbar {
-        position: absolute;
-        top: 1rem;
-        right: 0;
-        width: 9rem;
-    }
-
     .fname {
+        // Hug the path instead of stretching the pill across its whole track.
+        justify-self: start;
         background-color: $gray5;
         border-radius: $small;
         height: 2.188rem;

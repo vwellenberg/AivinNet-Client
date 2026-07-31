@@ -78,20 +78,28 @@ onClickOutside(dropOptionsRef, e => {
         aspect-ratio: 1;
     }
 
+    // A control that has to READ as a button, so it takes the role rather than
+    // inventing a look. It used to be `background: transparent` with a 1px
+    // outline: on the folder page that puts 12px uppercase text straight on the
+    // memphis ground, where a doodle passing behind it decides whether the
+    // current sort is legible. `btn-action` brings the panel fill, the ink
+    // frame, the offset shadow and a theme-aware label — plus the 44px touch
+    // target the 32px box never had.
     .selected {
-        width: 100%;
+        @include btn-action($width: 100%, $radius: $candy-radius-sm);
+        // The role lays out flex; this control is label + fixed arrow column.
         display: grid;
-        grid-template-columns: 1fr 2rem;
+        grid-template-columns: minmax(0, 1fr) 2rem;
+        justify-items: start;
         gap: $smaller;
-        padding-left: $medium;
         padding-right: 0;
         text-transform: uppercase;
-        font-size: 12px !important;
-
-        background-color: transparent;
-        outline: solid 1px $mem-line;
+        font-size: 12px;
 
         svg {
+            // Overrides the role's 1.5rem glyph: the arrow fills its column.
+            width: 100%;
+            height: auto;
             transform: rotate(90deg) scale(0.65);
         }
 
@@ -99,8 +107,11 @@ onClickOutside(dropOptionsRef, e => {
             transform: rotate(-90deg) scale(0.65);
         }
 
+        // Open state uses the role's own hover fill rather than a second,
+        // thicker outline — the frame is already the frame.
         &.showDropDown {
-            outline: solid 2px $mem-line;
+            background-color: $mem-blush;
+            color: $mem-ink;
         }
     }
 
