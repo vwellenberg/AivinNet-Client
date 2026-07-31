@@ -14,12 +14,12 @@
                 <!-- With an empty queue playingFrom() has no glyph to show
                      (icon: ''), and this rendered as an empty blush box next to
                      "No source". -->
-                <div v-else-if="data.icon" class="from-icon border rounded-sm">
+                <div v-else-if="data.icon" class="from-icon">
                     <component :is="data.icon"></component>
                 </div>
-                <div class="pad-sm">
+                <div class="from-text">
                     <div class="type">{{ tracklist.from.type }}</div>
-                    <div class="ellip2">{{ data.name }}</div>
+                    <div class="name">{{ data.name }}</div>
                 </div>
             </div>
         </router-link>
@@ -62,6 +62,9 @@ function showContextMenu(e: MouseEvent) {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    // The plate and the button must not touch when the name is long; the
+    // shrinking itself is the link's job (`min-width: 0` on it).
+    gap: $small;
     margin-bottom: 1rem;
 
     // Overflow menu for the playing track — the same action role and size as
@@ -81,46 +84,105 @@ function showContextMenu(e: MouseEvent) {
 
 .now-playling-from-link {
     display: block;
-    width: fit-content;
+    // `width: fit-content` used to sit here. It stops the link from ever being
+    // narrower than its content, which is the opposite of what a plate with an
+    // ellipsis needs.
+    min-width: 0;
 }
 
+// The play source is a PLATE, not free-standing text.
+//
+// It used to be a 40px thumbnail beside two lines of type sitting straight on
+// the memphis ground — and `$candy-text-muted` over the doodle tile is not a
+// readable pairing: the "Playlist" label vanished into the confetti wherever a
+// shape happened to sit behind it. Panel + frame + offset shadow is the answer
+// this design already gives everywhere else (the time chips in
+// `.below-progress` are the same move), and it makes the source read as one
+// tappable object rather than an icon that happens to be near some words.
 .now-playling-from-link > .from {
     display: flex;
-    align-items: center;
+    // `stretch`, not `center`: the media cell IS the plate's height, and its
+    // dividing rule has to run the full way down.
+    align-items: stretch;
+    min-width: 0;
+    background-color: $mem-panel;
+    border: $candy-border;
+    border-radius: $candy-radius-sm;
+    box-shadow: 3px 3px 0 var(--mem-shadow);
+    // The children are square-cornered; the plate does the rounding.
+    overflow: hidden;
+
+    // Media cell — the same 2.75rem the overflow button opposite it wears, so
+    // the two ends of the row are siblings. It was 2.5rem with a 1px border
+    // against that button's 3px, which is why they never looked related.
+    img,
+    .from-icon {
+        width: $bar-control;
+        height: $bar-control;
+        flex-shrink: 0;
+    }
 
     img {
-        width: 2.5rem;
-        aspect-ratio: 1;
         object-fit: cover;
     }
 
+    // The artist thumbnail is a disc (`.circular`), so it gets a ground of its
+    // own rather than floating against the bare panel.
+    img.circular {
+        padding: 2px;
+        background-color: $candy-pink-soft;
+    }
+
+    // The dividing rule belongs to the TEXT side, not to the media cell. On the
+    // artist source the thumbnail is fully rounded, and a `border-right` there
+    // is drawn as an ARC following that radius, not as a straight rule. Stated
+    // as an adjacent-sibling pair so an empty queue — which renders neither an
+    // image nor a glyph (`icon: ''`) — does not get a rule against nothing.
+    img + .from-text,
+    .from-icon + .from-text {
+        border-left: $candy-border;
+    }
+
     .from-icon {
-        padding: $smaller;
-        aspect-ratio: 1;
-        width: 2.5rem;
-        margin-right: 2px;
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: $candy-pink-soft;
-        border: 1px solid $mem-line;
 
         svg {
             width: 1.5rem;
+            height: 1.5rem;
             // Soft fill is theme-var (dark in dark) -> glyph must adapt too.
             color: $candy-text;
         }
     }
 
-    .type {
-        text-transform: capitalize;
-        font-size: 0.8rem;
-        color: $candy-text-muted;
-        font-weight: 500;
+    .from-text {
+        min-width: 0;
+        padding: 0 $medium 0 0.625rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
-    .type + div {
-        font-weight: 500;
+    .type {
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 0.06em;
+        color: $candy-text-muted;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    // One line, ellipsed. This was `.ellip2`, a two-line clamp — on a 2.75rem
+    // plate the second line has nowhere to go.
+    .name {
+        font-weight: 700;
+        font-size: 0.95rem;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 </style>
