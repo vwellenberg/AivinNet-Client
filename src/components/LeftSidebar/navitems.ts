@@ -13,47 +13,44 @@ import ChartSvg from "@/assets/icons/chart.svg";
 // A sidebar/bottom-bar navigation entry. Only `separator: true` entries omit
 // the route fields; `icon` is `any` because that's what the `*.svg` module
 // declaration exports.
+//
+// These entries used to carry an `iconClass` so NavButtons could scale each
+// glyph individually — the icons came from three different sets and filled
+// their viewBox by different amounts. They are one set now, so there is
+// nothing left to correct and the field is gone.
 interface NavItem {
   name?: string;
   route_name?: string;
   params?: RouteParamsRaw;
   query?: () => LocationQueryRaw;
   icon?: any;
-  iconClass?: string;
   separator?: boolean;
   action?: () => void;
 }
 
-// `iconClass` lets NavButtons normalise the optical size of these mixed-source
-// icons (their artwork fills its viewBox by different amounts). See the
-// `.nav-ico-*` rules in NavButtons.vue.
 const folder = {
   name: "folders",
   route_name: Routes.folder,
   params: { path: "$home" },
   icon: FolderSvg,
-  iconClass: "nav-ico-folder",
 };
 
 const favorites = {
   name: "favorites",
   route_name: Routes.favorites,
   icon: BookmarkSvg,
-  iconClass: "nav-ico-bookmark",
 };
 
 const playlists = {
   name: "playlists",
   route_name: Routes.playlists,
   icon: PlaylistSvg,
-  iconClass: "nav-ico-playlist",
 };
 
 const home = {
   name: "home",
   route_name: Routes.Home,
   icon: HomeSvg,
-  iconClass: "nav-ico-home",
 };
 
 export const menus: NavItem[] = [
@@ -65,7 +62,6 @@ export const menus: NavItem[] = [
     params: { page: "top" },
     query: () => ({ q: useSearch().query }),
     icon: SearchSvg,
-    iconClass: "nav-ico-search",
   },
   {
     separator: true,
@@ -76,7 +72,6 @@ export const menus: NavItem[] = [
     name: "stats",
     route_name: Routes.Stats,
     icon: ChartSvg,
-    iconClass: "nav-ico-chart",
   },
 ];
 
