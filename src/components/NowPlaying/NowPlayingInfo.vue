@@ -12,8 +12,17 @@
       </span>
     </div>
     <div class="actions">
-      <HeartSvg :state="queue.currenttrack?.is_favorite" @handle-fav="$emit('handleFav', queue.currenttrackhash)" />
-      <OptionSvg class="optionsvg" :class="{ context_menu_showing }" @click="showMenu" />
+      <HeartSvg
+        btn_role="action"
+        :state="queue.currenttrack?.is_favorite"
+        @handle-fav="$emit('handleFav', queue.currenttrackhash)"
+      />
+      <!-- A real <button>, not a bare glyph: this is a 44px touch target on a
+           phone, and the dots are rotated on the GLYPH because the button's own
+           `transform` belongs to the role (scale on hover, press on active). -->
+      <button class="options" :class="{ context_menu_showing }" @click="showMenu">
+        <OptionSvg />
+      </button>
     </div>
   </div>
 </template>
@@ -44,12 +53,46 @@ function showMenu(e: MouseEvent) {
 </script>
 
 <style lang="scss">
+// The track's own plate, and the counterpart to the source plate above the
+// cover. Title and artist used to sit straight on the memphis ground, where a
+// muted grey line lands on whatever doodle happens to be behind it.
+//
+// It was a `1fr max-content` grid, which sounds like it reserves room for the
+// actions — it does not. A grid item defaults to `min-width: auto`, so the
+// title grew past its own track and ran under the buttons; that is the overlap
+// in the phone screenshot, not a missing padding.
 .now-playing-info {
-  display: grid;
-  grid-template-columns: 1fr max-content;
-  gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: $small;
   margin-top: 1rem;
+  padding: $smaller;
+  padding-left: $medium;
+  background-color: $mem-panel;
+  border: $candy-border;
+  border-radius: $candy-radius;
+  box-shadow: 3px 3px 0 var(--mem-shadow);
   font-weight: 500;
+
+  .text {
+    flex: 1;
+    // The half of the fix the old grid was missing.
+    min-width: 0;
+  }
+
+  .title {
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // ArtistName writes `width: fit-content` as an INLINE style, which no rule
+  // can outrank — `max-width` is the one lever left that keeps it inside the
+  // plate instead of pushing the actions out.
+  .artistname {
+    max-width: 100%;
+  }
 
   .artist {
     font-size: 0.8rem;
@@ -59,30 +102,27 @@ function showMenu(e: MouseEvent) {
   .actions {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: $small;
+    flex-shrink: 0;
 
-    .optionsvg {
-      transform: scale(1.5) rotate(90deg);
-      border-radius: $small;
-      transition: background-color 0.2s ease-out;
+    // Same role, same 44px box as the overflow button in the header above —
+    // this used to be a raw SVG scaled to 1.5, so it was neither a button nor
+    // a touch target, and `transform: scale()` is not how this app sizes a
+    // glyph.
+    .options {
+      @include btn-action($size: 2.75rem);
 
-      &:hover {
-        background-color: $candy-pink-soft;
-        cursor: pointer;
+      svg {
+        transform: rotate(90deg);
       }
-    }
 
-    svg.context_menu_showing {
-      background-color: $candy-pink-soft;
-    }
-  }
-
-  .heart-button {
-    background-color: transparent;
-    transition: background-color 0.2s ease-out;
-
-    &:hover {
-      background-color: $candy-pink-soft;
+      // Yellow is this design's "active"; the open menu keeps it rather than
+      // borrowing the blush that means "hovered".
+      &.context_menu_showing {
+        background-color: $mem-yellow;
+        border-color: $mem-line;
+        color: $mem-ink;
+      }
     }
   }
 
