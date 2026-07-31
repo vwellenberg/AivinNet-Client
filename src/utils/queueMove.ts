@@ -1,3 +1,34 @@
+/**
+ * Do two track lists agree, track for track, over the closed index range
+ * [lo, hi]?
+ *
+ * This is what decides whether a reorder made on one list may be replayed on the
+ * other by index. The two lists are legitimately different LENGTHS — a playlist
+ * page holds only what it has paginated in, while the queue built from it holds
+ * everything — so comparing lengths answers the wrong question and rejects the
+ * normal case. What matters is only the stretch the move actually touches.
+ *
+ * False when either list is too short to cover the range: an index that does not
+ * exist cannot be shown to agree.
+ */
+export function rangeAligns(
+    a: { trackhash: string }[],
+    b: { trackhash: string }[],
+    lo: number,
+    hi: number
+): boolean {
+    if (!Number.isInteger(lo) || !Number.isInteger(hi)) return false
+    if (lo < 0 || hi < lo) return false
+    if (a.length <= hi || b.length <= hi) return false
+
+    for (let i = lo; i <= hi; i++) {
+        if (a[i]?.trackhash === undefined) return false
+        if (a[i].trackhash !== b[i]?.trackhash) return false
+    }
+
+    return true
+}
+
 export interface ResolvedQueueMove {
     /** Index the moved track ends up at, after the splice. */
     finalIndex: number
