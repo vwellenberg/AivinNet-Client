@@ -48,14 +48,10 @@ import { menus } from "./navitems";
     padding: calc(0.625rem - #{$candy-border-w}) 0;
     font-size: $sidebar-row-font;
     font-weight: 500;
-    // The pill came from the generic `.circular` utility in the markup, which
-    // made these rows the roundest thing in the app while the library rows
-    // right below them were nearly square. Both read the same token now.
-    border-radius: $sidebar-row-radius;
-    // Transparent border on every item so the active state can colour it in
-    // without shifting the row (border-box keeps the footprint constant).
-    border: $candy-border-w solid transparent;
-    transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+    // Transparent border (so the active state colours it in without shifting
+    // the row), the row radius — the pill these once had made them the
+    // roundest thing in the app — and the fade, all from the shared row base.
+    @include candy-row-base($sidebar-row-radius);
 
     & > div {
       display: flex;

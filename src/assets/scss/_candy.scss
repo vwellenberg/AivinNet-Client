@@ -236,11 +236,23 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // width, so the frame appearing on hover does not shift the row's content by 2px.
 // A row that only implements the hover half visibly jumps (and rows that skip
 // both, like the folder list did, get no frame at all — the bug this fixes).
+//
+// Both halves are mixins for the same reason: a row that spells the base out by
+// hand keeps the frame's *reservation* but loses the reminder that a frame is
+// coming, and the next hand-written `&:hover { background-color: … }` next to it
+// looks complete while drawing no frame. That is exactly how the sidebar folder
+// header ended up the one library row without one, twice — see the source test
+// in `src/components/__tests__/rowHover.test.ts`, which now fails on any row
+// that hand-rolls either half.
 // ---------------------------------------------------------------------------
 @mixin candy-row-base($radius: $candy-radius-sm) {
   border: $candy-border-w solid transparent;
   border-radius: $radius;
-  transition: background-color 0.2s ease-out;
+  // The frame fades in with the fill. Without `border-color` here the ink frame
+  // snaps on instantly while the blush fill eases in behind it — the nav rows
+  // were the only ones that had listed it, so they were the only ones that
+  // looked deliberate.
+  transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
 }
 
 // The fill defaults to the STATIC light panel token, not the theme-aware

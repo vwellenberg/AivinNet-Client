@@ -222,9 +222,22 @@ v-wave setzt `overflow: hidden` auf einen **inneren** Container und erbt den Rad
 Zeilenradius und absolut positionierte Drop-Marken bleiben also heil.
 
 **Hover für Listenzeilen ist zentralisiert:** `candy-row-base` + `candy-row-hover` in
-`_candy.scss`. Die Base-Hälfte ist Pflicht (reservierter transparenter 2px-Rand) — ohne sie
-springt der Inhalt beim Hover, und genau deshalb hatten die Folder-Zeilen (`border: none`) gar
-keinen Rahmen. Sidebar- und Queue-Zeilen bleiben bewusst flach.
+`_candy.scss`. Die Base-Hälfte ist Pflicht (reservierter transparenter Rand in `$candy-border-w`)
+— ohne sie springt der Inhalt beim Hover, und genau deshalb hatten die Folder-Zeilen
+(`border: none`) gar keinen Rahmen. „Flach" heißt bei Sidebar- und Queue-Zeilen **kein
+Offset-Schatten**, nicht „kein Rahmen": gehoverte Zeilen sind überall gerahmt.
+
+**Beide Hälften werden als Mixin genommen, nie von Hand ausgeschrieben.** Eine Zeile, die den
+transparenten Rand selbst deklariert, behält zwar die Reservierung, verliert aber den Hinweis,
+dass da ein Rahmen kommt — und das danebenstehende handgeschriebene
+`&:hover { background-color: … }` sieht dann vollständig aus, obwohl es keinen Rahmen malt. Genau
+so blieb der **Ordner-Kopf der Sidebar** die einzige Bibliotheks-Zeile ohne Rahmen, nachdem
+Nav-Zeilen und Playlist-Zeilen schon gefixt waren — auffällig nur im direkten Vergleich mit der
+Zeile eine Reihe darüber. Der Zensus dazu ist getestet
+(`src/components/__tests__/rowHover.test.ts`): Er kennt jede Zeile, die eines der beiden Mixins
+benutzt, verlangt für jede **beide** Hälften, und lässt in der Sidebar keine Hover-Regel durch,
+die eine Zeilen-Fläche (`$candy-pink-soft`, `$mem-panel-static`, `$mem-blush-soft-static`) ohne
+`candy-row-hover` setzt.
 
 ## ⚠️ `:hover` latcht auf Touch — nie zum Verstecken nutzen
 

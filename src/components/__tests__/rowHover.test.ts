@@ -1,0 +1,193 @@
+import { describe, expect, it } from "vitest";
+
+// ---------------------------------------------------------------------------
+// Hover on a list row is ONE decision: `candy-row-base` + `candy-row-hover` in
+// src/assets/scss/_candy.scss (light fill inside the ink frame, with the frame
+// reserved as a transparent border so nothing shifts).
+//
+// This is a test rather than a comment because the same row drifted three
+// times. The folder list hovered with no frame at all (`border: none`), the nav
+// and playlist rows reserved the border but only ever coloured the fill, and
+// the sidebar's folder header — the row the user reported — kept doing exactly
+// that after both of those were fixed, sitting one line below a playlist row
+// that drew the frame. Hand-writing `&:hover { background-color: … }` looks
+// finished at the call site; only the neighbouring row reveals it isn't.
+// ---------------------------------------------------------------------------
+
+// Read through Vite rather than `fs`, so the test sees exactly the files the
+// build sees. (`.scss` would come back EMPTY through this glob — see
+// .claude/rules/testing.md — hence every row host here is a .vue file.)
+const SOURCES = import.meta.glob("/src/**/*.vue", { as: "raw", eager: true }) as Record<string, string>;
+
+/** Every row list in the app, as file + the selector that owns the row. */
+const ROWS = [
+  { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-folder-header" },
+  { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-playlist-item" },
+  { file: "/src/components/LeftSidebar/NavButtons.vue", selector: ".nav-item" },
+  { file: "/src/components/FolderView/FolderList.vue", selector: ".f-item" },
+  { file: "/src/components/shared/SongItem.vue", selector: ".songlist-item" },
+];
+
+/** The static light fills a hovered/marked row is allowed to wear. */
+const ROW_FILLS = ["$candy-pink-soft", "$mem-panel-static", "$mem-blush-soft-static"];
+
+/**
+ * The `<style>` blocks of an SFC, with comments removed.
+ *
+ * Scanning the whole file first looked fine and broke on the longest one: a
+ * selector's preamble runs back to the previous `{`, `}` or `;`, and the last
+ * statement of `<script setup>` carries no semicolon — so the first style rule
+ * in SongItem.vue came out with the entire script tail glued to its selector
+ * list and matched nothing.
+ */
+function styleSource(source: string): string {
+  const styles = source.match(/<style[^>]*>([\s\S]*?)<\/style>/gi) ?? [];
+  return styles
+    .join("\n")
+    .replace(/<\/?style[^>]*>/gi, "\n")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    // `[^:]` guards `https://` — a line comment never follows a colon here.
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+}
+
+/** The rule starting at `start`, from its selector to its matching brace. */
+function blockFrom(clean: string, start: number, firstBrace: number): string | null {
+  let depth = 0;
+  for (let i = firstBrace; i < clean.length; i++) {
+    if (clean[i] === "{") depth++;
+    else if (clean[i] === "}" && --depth === 0) return clean.slice(start, i);
+  }
+  return null;
+}
+
+interface Rule {
+  selectors: string[];
+  body: string;
+}
+
+/**
+ * Every rule in the source, nested ones included: for each opening brace, the
+ * preamble back to the previous structural character is the selector list.
+ *
+ * Matching a selector with a line-anchored regex instead looked equivalent and
+ * was not — `.sidebar-folder-header` is the second line of a two-selector list
+ * higher up in the same file (`position: relative` for the drop markers), so a
+ * regex found THAT rule and the check silently ran against four declarations
+ * of unrelated CSS.
+ */
+function rules(clean: string): Rule[] {
+  const found: Rule[] = [];
+
+  for (let i = 0; i < clean.length; i++) {
+    if (clean[i] !== "{") continue;
+
+    let start = i - 1;
+    while (start >= 0 && !"{};".includes(clean[start])) start--;
+
+    const body = blockFrom(clean, i, i);
+    if (!body) continue;
+
+    found.push({
+      selectors: clean
+        .slice(start + 1, i)
+        .split(",")
+        .map(part => part.trim())
+        .filter(Boolean),
+      body,
+    });
+  }
+
+  return found;
+}
+
+/** The rules that style `selector` itself — its bare form and its pseudo states. */
+function rulesFor(source: string, selector: string): Rule[] {
+  return rules(styleSource(source)).filter(rule =>
+    rule.selectors.some(part => part === selector || part.startsWith(`${selector}:`))
+  );
+}
+
+/** Hover rules for a row: `.row:hover` at any level, or `&:hover` inside it. */
+function hoverRulesFor(source: string, selector: string): Rule[] {
+  return rulesFor(source, selector).flatMap(rule => [
+    ...(rule.selectors.some(part => part.startsWith(`${selector}:hover`)) ? [rule] : []),
+    ...rules(rule.body).filter(nested => nested.selectors.some(part => part.startsWith("&:hover"))),
+  ]);
+}
+
+/** Every `:hover` rule in a file, whatever it is nested under. */
+function hoverBodies(source: string): string[] {
+  const clean = styleSource(source);
+  const bodies: string[] = [];
+  const opener = /[^\n{}]*:hover[^{}]*\{/g;
+
+  for (let match = opener.exec(clean); match; match = opener.exec(clean)) {
+    const body = blockFrom(clean, match.index, match.index + match[0].length - 1);
+    if (body) bodies.push(body);
+  }
+  return bodies;
+}
+
+describe("list row hover", () => {
+  // A source-scanning test goes silently GREEN when its parser breaks, so it
+  // needs guards over its own inputs first (.claude/rules/testing.md).
+  it("reads the row sources it claims to check", () => {
+    for (const { file, selector } of ROWS) {
+      expect(SOURCES[file], `${file} not readable`).toBeTruthy();
+
+      // A row is a rule with real declarations in it, not the two-liner that
+      // only sets `position` for the drop markers — hence the length floor.
+      const bodies = rulesFor(SOURCES[file], selector).map(rule => rule.body);
+      expect(bodies.length, `${selector} not found in ${file}`).toBeGreaterThan(0);
+      expect(Math.max(...bodies.map(body => body.length))).toBeGreaterThan(200);
+
+      expect(hoverRulesFor(SOURCES[file], selector).length, `${selector} has no hover rule`).toBeGreaterThan(0);
+    }
+  });
+
+  it.each(ROWS)("$selector takes both halves from the shared mixins", ({ file, selector }) => {
+    // The base half reserves the frame. Without it the row's content jumps by
+    // the border width the moment the frame appears.
+    const takesBase = rulesFor(SOURCES[file], selector).some(rule => /@include\s+candy-row-base/.test(rule.body));
+    expect(takesBase, `${selector} does not @include candy-row-base`).toBe(true);
+
+    const drawsFrame = hoverRulesFor(SOURCES[file], selector).some(rule =>
+      /@include\s+candy-row-hover/.test(rule.body)
+    );
+    expect(drawsFrame, `${selector} hovers without @include candy-row-hover`).toBe(true);
+  });
+
+  // The regression the user reported: a sidebar row that fills on hover without
+  // drawing the frame. Scoped to the sidebar by the row fills themselves, so a
+  // non-row hover (the resize handle's deep pink, the play overlay's black
+  // scrim) is out of scope without needing to be named in an exception list.
+  it("never fills a sidebar row on hover without the frame", () => {
+    const offenders: string[] = [];
+
+    for (const [file, source] of Object.entries(SOURCES)) {
+      if (!file.startsWith("/src/components/LeftSidebar/")) continue;
+
+      for (const hover of hoverBodies(source)) {
+        const fills = ROW_FILLS.some(fill => hover.includes(fill));
+        if (fills && !/@include\s+candy-row-hover/.test(hover)) {
+          offenders.push(`${file}: ${hover.split("\n")[0].trim()}`);
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
+  // Same idea as the header-action row census: a new row that uses either half
+  // of the treatment has to be listed above, and is then checked for both.
+  // (A row that hand-rolls the whole thing still escapes — the sidebar guard
+  // above is what catches that where it has actually happened.)
+  it("knows about every row that uses the shared treatment", () => {
+    const found = Object.entries(SOURCES)
+      .filter(([, source]) => /@include\s+candy-row-(base|hover)/.test(styleSource(source)))
+      .map(([file]) => file)
+      .sort();
+
+    expect(found).toEqual([...new Set(ROWS.map(row => row.file))].sort());
+  });
+});
