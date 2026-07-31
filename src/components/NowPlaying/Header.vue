@@ -31,7 +31,12 @@
                      Small phones already get the full aux group above. -->
                 <DevicesButton v-if="!isSmallPhone" />
             </div>
-            <Volume v-if="isSmallPhone" class="np-volume" />
+            <!-- `isMobile`, not `isSmallPhone`: this is the only volume SLIDER
+                 a phone has (the one in the bar is hidden there), and gating it
+                 at 660px meant turning the device to landscape — ~900px — took
+                 it away. Someone hunting for the volume control lost it by
+                 looking for it. -->
+            <Volume v-if="isMobile" class="np-volume" />
         </div>
         <h3 class="nowplaying_title" v-if="queue.next">Up Next</h3>
         <SongItem
