@@ -252,10 +252,19 @@ function handleFav() {
     // rather than a circle. See #284.
     .progress-wrap {
         @include range-geometry(1.25rem, 1.6rem);
+        // The gap belongs to the WRAPPER, not to the input inside it.
+        //
+        // The input is an inline-block, so its margin box counts towards the
+        // wrapper's line box: a `margin-top` on the input made the wrapper 1rem
+        // taller at the top without moving the input's own centre, leaving the
+        // two centres 7px apart. The knob and track centre on the input, but
+        // the texture overlay centres on the WRAPPER — so the texture drifted
+        // up out of the bar. It went unnoticed while the strip was 3.6px; at
+        // the touch height it is 14px and straddles the top ink border.
+        margin-top: 1rem;
     }
 
     #progress {
-        margin-top: 1rem;
         margin-right: 0;
         touch-action: none;
     }
