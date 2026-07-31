@@ -163,4 +163,15 @@ describe("detail header action rows", () => {
 
     expect(found).toEqual([...HEADERS].sort());
   });
+
+  // A row only holds the line if every action is IN it. The playlist header's
+  // Edit and Delete sat in `.last-updated` instead — an absolutely positioned
+  // box in the header's bottom-right corner. On a phone the status text hides,
+  // so the two buttons came to rest right beside the action row without being
+  // part of it: measured 4px higher than their neighbours and 30px away where
+  // the row's own gap is 8px. That box is a status line; actions belong in the
+  // row above, which is where the canonical order is checked.
+  it("keeps the playlist header's actions in its row, not in the corner box", () => {
+    expect(SOURCES["/src/components/PlaylistView/Header/LastUpdated.vue"]).not.toMatch(/<button/);
+  });
 });

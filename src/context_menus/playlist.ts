@@ -1,13 +1,19 @@
 import { Option, Playlist } from "../interfaces";
 import { playFromPlaylist } from "@/helpers/usePlayFrom";
 import { togglePlaylistPin } from "@/helpers/pinPlaylist";
-import { AddToQueueIcon, DeleteIcon, PlayIcon, PlayNextIcon, PushPinIcon } from "@/icons";
+import { AddToQueueIcon, DeleteIcon, PencilIcon, PlayIcon, PlayNextIcon, PushPinIcon } from "@/icons";
 import { getPlaylist } from "@/requests/playlists";
 import useModalStore from "@/stores/modal";
 import usePlaylistFolders from "@/stores/playlistFolders";
 import useTracklist from "@/stores/queue/tracklist";
 
-export default async (playlist: Playlist) => {
+/**
+ * @param on_page  The menu belongs to the playlist page's own header, so it may
+ *   offer Edit. The edit modal reads the PLAYLIST PAGE STORE rather than taking
+ *   a playlist — offering it from the sidebar would edit whichever playlist
+ *   happens to be open, not the one that was right-clicked.
+ */
+export default async (playlist: Playlist, on_page = false) => {
   const modal = useModalStore();
 
   const play: Option = {
@@ -40,6 +46,14 @@ export default async (playlist: Playlist) => {
     label: playlist.pinned ? "Unpin" : "Pin",
     icon: PushPinIcon,
     action: () => togglePlaylistPin(playlist.id),
+  };
+
+  // One of the two actions the header's overflow button took over from the
+  // absolutely positioned corner box. Page-only — see `on_page` above.
+  const edit: Option = {
+    label: "Edit",
+    icon: PencilIcon,
+    action: () => modal.showEditPlaylistModal(),
   };
 
   const del: Option = {
@@ -80,5 +94,5 @@ export default async (playlist: Playlist) => {
     },
   };
 
-  return [play, playNext, addToQueue, pin, moveToFolder, del];
+  return [play, playNext, addToQueue, pin, moveToFolder, ...(on_page ? [edit] : []), del];
 };

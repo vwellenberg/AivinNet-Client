@@ -74,10 +74,16 @@ export const showQueueContextMenu = (e: MouseEvent, flag: Ref<boolean>) => {
     flagWatcher(menu, flag)
 }
 
-export const showPlaylistContextMenu = (e: MouseEvent, playlist: Playlist, flag: Ref<boolean>) => {
+export const showPlaylistContextMenu = (
+    e: MouseEvent,
+    playlist: Playlist,
+    flag: Ref<boolean>,
+    // Opened from the playlist page's own header — see `playlistContextItems`.
+    on_page = false
+) => {
     const menu = useContextStore()
 
-    const options = () => playlistContextItems(playlist)
+    const options = () => playlistContextItems(playlist, on_page)
     menu.showContextMenu(e, options, ContextSrc.PHeader)
 
     flagWatcher(menu, flag)

@@ -19,9 +19,9 @@
       {{ formatSeconds(playlist.info.duration, true) }}
     </div>
     <!-- Canonical order: Play · Favourite · Pin · Secondary action · Overflow.
-         A playlist has no favourite and no overflow button, so those slots are
-         absent and the rest keep their places. It used to be play → download →
-         pin, which put the secondary action ahead of the pin. -->
+         A playlist has no favourite, so that slot is absent and the rest keep
+         their places. It used to be play → download → pin, which put the
+         secondary action ahead of the pin. -->
     <div class="btns header-actions">
       <PlayBtnRect :source="playSources.playlist" />
       <PinButton
@@ -32,6 +32,21 @@
       <button class="download-btn" @click="downloadPlaylist" title="Download as ZIP">
         <span v-html="DownloadIcon" class="icon"></span>
       </button>
+      <!-- Edit and Delete used to sit in `.last-updated`, an absolutely
+           positioned box in the header's bottom-right corner. On a phone the
+           status text hides and that box lands NEXT TO this row without being
+           part of it: measured 4px higher than its neighbours and 30px away
+           instead of the row's 8px. They are overflow actions, so they go where
+           the album and artist headers put theirs. -->
+      <button
+        v-if="Number.isInteger(playlist.info.id)"
+        class="options"
+        :class="{ context_menu_showing }"
+        title="More options"
+        @click.prevent="showContextMenu"
+      >
+        <MoreSvg />
+      </button>
     </div>
   </div>
 </template>
@@ -41,9 +56,11 @@ import { formatSeconds } from "@/utils";
 import { getBaseUrl, paths } from "@/config";
 import { DownloadIcon } from "@/icons";
 
+import MoreSvg from "@/assets/icons/more.svg";
 import PlayBtnRect from "@/components/shared/PlayBtnRect.vue";
 import PinButton from "@/components/shared/PinButton.vue";
 import usePStore from "@/stores/pages/playlist";
+import { showPlaylistContextMenu } from "@/helpers/contextMenuHandler";
 import { togglePlaylistPin } from "@/helpers/pinPlaylist";
 import { balanceText } from "@/utils/balanceText";
 import { Ref, ref } from "vue";
@@ -51,6 +68,12 @@ import { Ref, ref } from "vue";
 const playlist = usePStore();
 
 const test_elem: Ref<HTMLElement | null> = ref(null);
+const context_menu_showing = ref(false);
+
+function showContextMenu(e: MouseEvent) {
+  // `on_page`: this menu is the page's own header, so it may offer Edit.
+  showPlaylistContextMenu(e, playlist.info, context_menu_showing, true);
+}
 
 function downloadPlaylist() {
     const a = document.createElement('a')
@@ -119,20 +142,29 @@ function pinPlaylist(pid: number) {
   .btns {
     margin-top: 0;
 
-    .download-btn {
+    .download-btn,
+    .options {
       // Shared header-action anatomy: 44px touch target, theme-aware glyph
       // (it was static ink and vanished on the dark ground), no squeezing.
       @include btn-action;
+    }
 
-      .icon {
-        display: flex;
-        color: inherit;
+    .download-btn .icon {
+      display: flex;
+      color: inherit;
 
-        svg {
-          width: 1.5rem;
-          height: 1.5rem;
-        }
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
       }
+    }
+
+    .options.context_menu_showing {
+      background-color: $darkblue;
+      // Yellow accent fill while the menu is open -> pin static ink. Same
+      // spelling as the album and artist headers; two dialects for one state is
+      // how they drift apart.
+      color: $mem-ink;
     }
   }
 }
