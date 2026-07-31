@@ -5,8 +5,13 @@
     :class="{ isSmall, isMedium }"
     style="position: relative"
     :style="{ background: pageGradient() }"
+    @dragover="onScrollerDragOver"
+    @dragleave="onScrollerDragLeave"
+    @drop="stopAutoScroll"
+    @dragend="stopAutoScroll"
   >
     <DynamicScroller
+      id="nowplaying-scroller"
       :items="scrollerItems"
       :min-item-size="64"
       class="scroller"
@@ -27,6 +32,7 @@
             :key="index"
             v-bind="item.props"
             @playThis="playFromQueue(item.props.index - 1)"
+            @trackDropped="onTrackDropped"
           ></component>
         </DynamicScrollerItem>
       </template>
@@ -35,17 +41,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
-import { ScrollerItem } from "@/interfaces";
+import { computed, onBeforeUnmount, onMounted } from "vue";
+import { ScrollerItem, Track } from "@/interfaces";
 
 import useQueueStore from "@/stores/queue";
 import useTracklist from "@/stores/queue/tracklist";
 import { isMedium, isSmall } from "@/stores/content-width";
+import { dropSources } from "@/enums";
 
 import Header from "@/components/NowPlaying/Header.vue";
 import SongItem from "@/components/shared/SongItem.vue";
 import updatePageTitle from "@/utils/updatePageTitle";
 import { pageGradient } from "@/utils/colortools/pageGradient";
+import { createDragAutoScroller } from "@/utils/dragAutoScroll";
 
 
 const queue = useQueueStore();
@@ -53,6 +61,35 @@ const store = useTracklist();
 
 function playFromQueue(index: number) {
   queue.play(index);
+}
+
+function onTrackDropped(source: dropSources, _track: Track, newIndex: number, oldIndex: number) {
+  stopAutoScroll();
+  // A row dragged in from a page carries an index into THAT list, not into the
+  // queue; acting on it would move the wrong track.
+  if (source !== dropSources.queue) return;
+  store.moveTrack(oldIndex, newIndex);
+}
+
+// Edge auto-scroll while reordering, same as the playlist page: the browser
+// does not scroll a container during a native drag.
+const autoScroller = createDragAutoScroller(() => document.getElementById("nowplaying-scroller"));
+
+function onScrollerDragOver(e: DragEvent) {
+  autoScroller.update(e.clientY);
+}
+
+function onScrollerDragLeave(e: DragEvent) {
+  // dragleave bubbles up from every row the pointer crosses; only stop once the
+  // pointer has truly left the scroller.
+  const container = e.currentTarget as HTMLElement;
+  const related = e.relatedTarget as Node | null;
+  if (related && container.contains(related)) return;
+  stopAutoScroll();
+}
+
+function stopAutoScroll() {
+  autoScroller.stop();
 }
 
 const scrollerItems = computed(() => {
@@ -71,7 +108,12 @@ const scrollerItems = computed(() => {
         isCurrent: index === queue.currentindex,
         isCurrentPlaying: index === queue.currentindex && queue.playing,
         isQueueTrack: true,
-        source: store.from.type,
+        // These rows ARE the queue, so that is the drop source — not the label
+        // of wherever the queue was originally filled from. `track.index` is
+        // overwritten with the queue position just above, so the index the drag
+        // carries is a queue index.
+        droppable: true,
+        source: dropSources.queue,
       },
     };
   });
@@ -80,6 +122,7 @@ const scrollerItems = computed(() => {
 });
 
 onMounted(() => updatePageTitle("Now Playing"));
+onBeforeUnmount(() => stopAutoScroll());
 </script>
 
 <style lang="scss">
