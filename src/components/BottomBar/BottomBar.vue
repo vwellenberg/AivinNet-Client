@@ -88,25 +88,17 @@ function handleFav() {
         // It is a real control now: a touch-sized track, a visible knob, and
         // `touch-action: none` so a horizontal drag scrubs instead of being
         // swallowed as a page scroll/swipe.
+        // A slider is the one control that stays thinner than 44px — the knob
+        // is what the finger goes for, so the track carries the bar and the
+        // knob is oversized against it. Set on the wrapper, so the texture
+        // overlay inside it follows the same geometry; the centring falls out
+        // of the two numbers (see `range-geometry` in _candy.scss).
+        .center .progress-wrap {
+            @include range-geometry(1.25rem, 1.6rem);
+        }
+
         .center #progress {
-            // A slider is the one control that stays thinner than 44px — the
-            // knob is what the finger goes for, so the track carries the bar
-            // and the knob is oversized against it.
-            --range-h: 1.25rem;
             touch-action: none;
-
-            // Finger-sized knob (the desktop one is tuned for a mouse). Kept
-            // slightly proud of the track so it stays visible while dragging.
-            &::-webkit-slider-thumb {
-                height: 1.6rem;
-                width: 1.6rem;
-                margin-top: -3px;
-            }
-
-            &::-moz-range-thumb {
-                height: 1.6rem;
-                width: 1.6rem;
-            }
         }
     }
 
@@ -124,23 +116,16 @@ function handleFav() {
     // shared $bar-control / $bar-glyph tokens from Global/_buttons.scss.
 
     &:hover {
-        // INFO: Show the progress bar when hovering over the bottom bar
-        #progress::-moz-range-thumb {
-            height: 1rem;
-            width: 1rem;
-        }
+        // The seek knob is deliberately NOT resized here any more.
+        //
+        // The rule that used to live here shrank it from 1.1rem to 1rem, and
+        // its trigger was `.b-bar` — the whole bar. Hovering the title, the
+        // transport buttons or the clock made the knob twitch, which is what
+        // the bug report described. It dates from a time when the knob was
+        // hidden at rest and this was meant to reveal it; it is always visible
+        // now, so all that was left of it was the twitch. See #284.
 
-        #progress::-webkit-slider-thumb {
-            height: 1rem;
-            width: 1rem;
-        }
-
-        #progress::-ms-thumb {
-            height: 1rem;
-            width: 1rem;
-        }
-
-        // INFO: Also show the expand button
+        // INFO: Show the expand button
         .np-image .expandicon {
             opacity: 1;
         }
