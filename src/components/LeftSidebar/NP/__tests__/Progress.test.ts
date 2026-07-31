@@ -107,10 +107,19 @@ describe('seek bar hover preview', () => {
         Element.prototype.getBoundingClientRect = realRect
     })
 
-    const hoverAt = async (w: ReturnType<typeof mount>, clientX: number) => {
-        await w.find('.progress-wrap').trigger('pointermove', { pointerType: 'mouse', clientX })
-        return w.find('.progress-preview').attributes('style') ?? ''
+    // The span is laid out in sub-pixel floats (0.15 * 200 is 30.000000000000004),
+    // so read the numbers back instead of matching the style string.
+    const px = (w: ReturnType<typeof mount>, sel: string, prop: string) => {
+        const style = w.find(sel).attributes('style') ?? ''
+        return Number(new RegExp(`${prop}: (-?[\\d.]+)px`).exec(style)?.[1] ?? NaN)
     }
+    const span = (w: ReturnType<typeof mount>) => ({
+        left: px(w, '.progress-preview', 'left'),
+        width: px(w, '.progress-preview', 'width'),
+    })
+
+    const hoverAt = (w: ReturnType<typeof mount>, clientX: number) =>
+        w.find('.progress-wrap').trigger('pointermove', { pointerType: 'mouse', clientX })
 
     it('paints only the stretch between the playhead and the cursor', async () => {
         const w = mount(Progress)
@@ -118,18 +127,18 @@ describe('seek bar hover preview', () => {
         // Cursor at 70% with the playhead at 20% -> the span starts at the
         // playhead (40px) and is 50% of the bar wide (100px). Painting from
         // zero would bury the played fill and the thumb under the preview.
-        const style = await hoverAt(w, 140)
-        expect(style).toContain('left: 40px')
-        expect(style).toContain('width: 100px')
+        await hoverAt(w, 140)
+        expect(span(w).left).toBeCloseTo(40)
+        expect(span(w).width).toBeCloseTo(100)
     })
 
     it('paints backwards when the cursor is behind the playhead', async () => {
         const w = mount(Progress)
 
         // Cursor at 5%, playhead at 20% -> the span is the 15% being given up.
-        const style = await hoverAt(w, 10)
-        expect(style).toContain('left: 10px')
-        expect(style).toContain('width: 30px')
+        await hoverAt(w, 10)
+        expect(span(w).left).toBeCloseTo(10)
+        expect(span(w).width).toBeCloseTo(30)
     })
 
     it('keeps up with the playhead while the pointer holds still', async () => {
@@ -141,16 +150,15 @@ describe('seek bar hover preview', () => {
 
         // The span shrinks from its left edge instead of drifting: a geometry
         // measured once on pointermove would still claim to start at 20%.
-        const style = w.find('.progress-preview').attributes('style') ?? ''
-        expect(style).toContain('left: 60px')
-        expect(style).toContain('width: 80px')
+        expect(span(w).left).toBeCloseTo(60)
+        expect(span(w).width).toBeCloseTo(80)
     })
 
     it('puts the tooltip on the cursor, not on the span', async () => {
         const w = mount(Progress)
         await hoverAt(w, 140)
 
-        expect(w.find('.progress-tooltip').attributes('style')).toContain('left: 140px')
+        expect(px(w, '.progress-tooltip', 'left')).toBeCloseTo(140)
         expect(w.find('.progress-tooltip').text()).toBe('02:20') // 70% of 200s
     })
 })
