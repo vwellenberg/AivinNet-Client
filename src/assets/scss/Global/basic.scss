@@ -45,24 +45,37 @@ a {
 }
 
 // BORDERS
+//
+// These utilities predate the memphis redesign and carried their own scale
+// (16/8/12/20/160px) next to the design's three radius tokens. Measured over
+// the rendered app, that made 8px — `.rounded-sm`, 71 uses across 50 files —
+// the SECOND most common radius in the whole client at 2100 occurrences, none
+// of them a token, and the two systems met inside single rows: a
+// `.sidebar-pl-img.rounded-sm` thumbnail at 8px sat in a sidebar row at 10px.
+//
+// The classes stay (they are spelled out in 100+ templates); only what they
+// resolve to is now the token. Sizes map by role, not by nearest number:
+// anything panel-sized reads $candy-radius, thumbnails and small surfaces read
+// $candy-radius-sm, and "circular" means the pill token rather than a 10rem
+// value that stops looking round past a 320px element.
 .rounded {
-  border-radius: 1rem;
+  border-radius: $candy-radius;
 }
 
 .rounded-sm {
-  border-radius: $small;
+  border-radius: $candy-radius-sm;
 }
 
 .rounded-md {
-  border-radius: $medium;
+  border-radius: $candy-radius;
 }
 
 .rounded-lg {
-  border-radius: 1.25rem;
+  border-radius: $candy-radius;
 }
 
 .circular {
-  border-radius: 10rem;
+  border-radius: $candy-radius-pill;
 }
 
 .bg-primary {
