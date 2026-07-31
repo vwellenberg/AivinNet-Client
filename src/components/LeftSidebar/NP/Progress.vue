@@ -203,6 +203,12 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
 // Unscoped to match the codebase convention; everything is nested under
 // .progress-wrap so the helper classes stay local to this component.
 .progress-wrap {
+    // The wrapper owns the slider's geometry, so the input AND the overlays
+    // stacked on top of it read the same numbers. A host that wants a
+    // touch-sized bar overrides this on the wrapper, not on the input — see
+    // `range-geometry` in _candy.scss.
+    @include range-geometry;
+
     position: relative;
     display: block;
     width: 100%;
@@ -211,16 +217,20 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
     line-height: 0;
 
     // Sprinkle overlay tracking the played fill (width via --played-frac set
-    // on the wrapper). Insets keep it inside the input's 2px ink border.
+    // on the wrapper). The insets keep it inside the input's ink border, so
+    // they are the border width — not a number that happens to match it today.
     .progress-fill-sprinkle {
         position: absolute;
-        left: 3px;
+        left: $candy-border-w;
         top: 50%;
         transform: translateY(-50%);
-        // Derived from the track height (--range-h, ProgressBar.scss) so a
-        // taller touch-friendly bar keeps the texture centred inside it.
-        height: calc(var(--range-h, 0.6rem) - 6px);
-        width: calc((100% - 8px) * var(--played-frac, 0));
+        // The bar's INNER height, so a taller touch-friendly bar keeps the
+        // texture inside it. It used to subtract the border by hand from
+        // --range-h, and — being a sibling of the input rather than a child —
+        // it could not see the value a host set there anyway, so on phones it
+        // stayed a 3.6px strip in a 20px bar.
+        height: var(--range-track, #{$range-track-default});
+        width: calc((100% - #{$candy-border-w * 2}) * var(--played-frac, 0));
         border-radius: $candy-radius-pill;
         @include mem-sprinkle(20px);
         opacity: 0.4;

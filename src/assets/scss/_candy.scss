@@ -107,6 +107,36 @@ $candy-radius: 14px; // cards, panels, modals
 $candy-radius-sm: 10px; // buttons, inputs, thumbnails
 $candy-radius-pill: 999px; // pills, sliders
 
+// Slider geometry — the seek bar and the volume bar.
+//
+// Two numbers a host may choose, one derived from them:
+//   --range-h      how tall the bar is (outer, border included)
+//   --range-thumb  the knob's diameter
+//   --range-track  the bar's INNER height — the border sits inside --range-h,
+//                  and the knob is laid out against the content box, so THIS
+//                  is what the knob has to centre on, not --range-h.
+//
+// Emitted on the element that OWNS the slider rather than on the input itself,
+// for two reasons. The texture overlay in NP/Progress.vue is a *sibling* of
+// the input and could never read values set on it. And an input carrying its
+// own declaration would shadow anything a host set further up, so the defaults
+// live here and in the `var()` fallbacks in ProgressBar.scss — never on the
+// input.
+//
+// Before this, hosts set the knob's height and width on each of three vendor
+// pseudo-elements and added a hand-tuned `margin-top` to re-centre it. A fixed
+// offset fits exactly one pairing of bar and knob, and there were four (#284),
+// so it was wrong in three of them (#285).
+$range-h-default: 0.6rem;
+$range-thumb-default: 1.1rem;
+$range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
+
+@mixin range-geometry($h: $range-h-default, $thumb: $range-thumb-default) {
+  --range-h: #{$h};
+  --range-thumb: #{$thumb};
+  --range-track: calc(#{$h} - #{$candy-border-w * 2});
+}
+
 // Hard offset shadow — the only allowed "shadow" in this design: no blur, no
 // spread, always down-right, so every raised surface is lit from the same
 // corner. Carried by cards, buttons and floating chrome (modals, menus,

@@ -243,21 +243,30 @@ function handleFav() {
         }
     }
 
-    #progress {
+    // Finger geometry, same as the phone bottom bar.
+    //
+    // This bar is rendered `v-if="isMobile"`, so it only ever exists on a touch
+    // screen — and it used to carry the SMALLEST knob in the whole app (0.8rem,
+    // against 1.1rem for the mouse-driven one). It also set the height alone
+    // and left the width at 1.1rem, so `border-radius: 50%` drew an ellipse
+    // rather than a circle. See #284.
+    .progress-wrap {
+        @include range-geometry(1.25rem, 1.6rem);
+        // The gap belongs to the WRAPPER, not to the input inside it.
+        //
+        // The input is an inline-block, so its margin box counts towards the
+        // wrapper's line box: a `margin-top` on the input made the wrapper 1rem
+        // taller at the top without moving the input's own centre, leaving the
+        // two centres 7px apart. The knob and track centre on the input, but
+        // the texture overlay centres on the WRAPPER — so the texture drifted
+        // up out of the bar. It went unnoticed while the strip was 3.6px; at
+        // the touch height it is 14px and straddles the top ink border.
         margin-top: 1rem;
+    }
+
+    #progress {
         margin-right: 0;
-
-        &::-moz-range-thumb {
-            height: 0.8rem;
-        }
-
-        &::-webkit-slider-thumb {
-            height: 0.8rem;
-        }
-
-        &::-ms-thumb {
-            height: 0.8rem;
-        }
+        touch-action: none;
     }
 }
 </style>
