@@ -62,8 +62,18 @@
         <HotKeys v-if="isMobile" />
         <!-- Small phones only get HotKeys here (Actions covers the larger ones),
              so without this the Devices button was buried in the Now Playing
-             view and unreachable from the bar itself. -->
-        <DevicesButton v-if="isMobile && !isLargerMobile" class="bar-devices" />
+             view and unreachable from the bar itself.
+
+             It steps aside while the player is silent, and that is a decision
+             about which of the two matters more in that moment. Five controls
+             do not fit a 360px phone: cover 48 + unmute 44 + transport 164 +
+             devices 44 is 300 of the 328 available, which left the title 12px
+             and its text ran straight under the unmute box. Silence means
+             nothing is audible anywhere, so "get the sound back" outranks "play
+             this in sync with another device" — and Devices stays reachable on
+             the Now Playing page, which is where it lived before it was added
+             here. -->
+        <DevicesButton v-if="isMobile && !isLargerMobile && !settings.is_silent" class="bar-devices" />
     </div>
 </template>
 
@@ -251,12 +261,21 @@ defineEmits<{
         // right edge near the transport controls.
         min-width: 0;
         max-width: 15rem;
+        // `min-width: 0` above lets this box shrink, but shrinking is not
+        // clipping: without this the title kept painting at its natural width
+        // and ran UNDER the next control. That is what the unmute button
+        // exposed — the box was 12px wide and the words were still there.
+        overflow: hidden;
 
         .title {
             color: $candy-text;
             display: flex;
             align-items: center;
             margin-bottom: 2px;
+            // A flex container's items refuse to shrink past min-content by
+            // default, so the `.ellip` span inside never reached its own
+            // ellipsis and pushed this row wider than its parent instead.
+            min-width: 0;
         }
 
         .artistname {
