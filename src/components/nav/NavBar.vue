@@ -141,8 +141,9 @@ const mobileTitle = computed(() => {
         .nav-logo {
             // Icon-only logo; width hugs the glyph.
             width: max-content;
-            // Matches the logo tile itself (3rem, same as the home button). A
-            // shorter slot clipped the tile's offset shadow at the bottom.
+            // Matches the planet itself (3rem, same footprint as the home
+            // button). Keep the slot at full height: a shorter one clips the
+            // artwork's outline and the hover orbit around it.
             height: 3rem;
             align-self: center;
             // Logo component centres its icon at flex-start by default; center
