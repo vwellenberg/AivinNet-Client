@@ -238,14 +238,20 @@ const hoverLabel = computed(() => formatSeconds(hover.ratio * (time.full || 0)))
         z-index: 1;
     }
 
-    // Light preview fill from 0 to the cursor, layered over the played
-    // green/grey gradient (which stays visible). Never intercepts pointer
-    // events, so clicks still reach the range input and seek as before.
+    // Preview fill from 0 to the cursor. Flat YELLOW, not a translucent teal:
+    // the seek target has to read against the played fill, which is teal, and
+    // a teal-on-teal wash left the two indistinguishable (the played portion
+    // and the hovered portion looked like the same bar). Yellow is the memphis
+    // role for hover/active states, so the preview now says "this is where you
+    // would land" in the palette's own vocabulary. Opaque like every other
+    // memphis fill — the playhead itself stays readable as the white thumb.
+    // Never intercepts pointer events, so clicks still reach the range input
+    // and seek as before.
     .progress-preview {
         position: absolute;
         pointer-events: none;
         border-radius: $candy-radius-pill; // match the range track radius (ProgressBar.scss)
-        background: rgba($mem-teal, 0.55);
+        background: $mem-yellow;
         z-index: 2;
     }
 
