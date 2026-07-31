@@ -167,12 +167,6 @@ const mobileTitle = computed(() => {
         @include allPhones {
             display: none;
         }
-
-        // INFO: Folder page sort bar overrides
-        .sortbar {
-            top: 0 !important;
-            right: 0 !important;
-        }
     }
 
     .right {
