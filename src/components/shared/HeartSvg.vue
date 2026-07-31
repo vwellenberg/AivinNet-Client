@@ -1,6 +1,5 @@
 <template>
     <button
-        v-wave
         class="heart-button circular"
         :class="{ 'is-fav': state }"
         @click="!no_emit && $emit('handleFav')"
@@ -59,6 +58,9 @@ defineEmits<{
     color: $candy-text;
     aspect-ratio: 1.5;
     background: transparent;
+    // Same timings the button roles use, so this hand-built button reacts at
+    // the same speed as the rolled ones next to it.
+    transition: background-color 0.15s ease-out, transform 0.1s ease;
 
     div {
         height: max-content;
@@ -90,6 +92,14 @@ defineEmits<{
     &:hover {
         background: $candy-pink-soft;
         border: none;
+    }
+
+    // The press feedback every button role carries. This button is hand-built
+    // rather than rolled, so it had none of its own and leaned on a v-wave
+    // ripple instead — the only favourite button in the app that did. The
+    // ripple belongs to rows now (see main.ts), so the press comes from here.
+    &:active {
+        transform: scale(0.98);
     }
 
     // Favorited state: teal check circle (drives the SVG's currentColor

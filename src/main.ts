@@ -28,7 +28,22 @@ pinia.use(piniaPluginPersistedstate);
 app.use(pinia);
 app.use(router);
 app.use(autoAnimatePlugin);
-app.use(VWave as Plugin);
+// One click ripple for the whole app instead of per-call-site settings.
+//
+// The ripple belongs to ROWS — nav items, playlist and pinned-album rows,
+// folder headers, track rows. Buttons get the press feedback of their role
+// (Global/_buttons.scss) and no ripple, so two effects never compete for the
+// same element.
+//
+// `color` is the theme's ink line rather than v-wave's default `currentColor`:
+// currentColor makes the ripple whatever the row's text happens to be, so a
+// muted row rippled grey and the active yellow row rippled differently again.
+// `duration` is the 0.35s TrackItem had already arrived at by hand, now the
+// one value for everyone.
+app.use(VWave as Plugin, {
+  color: "var(--mem-line)",
+  duration: 0.35,
+});
 app.use(MotionPlugin);
 
 app.directive("tooltip", vTooltip);
