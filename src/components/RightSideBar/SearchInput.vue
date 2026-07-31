@@ -131,14 +131,15 @@ function handleButton() {
 
     #ginner {
         width: 100%;
-        // Match the square home button's height so the bar fills the top nav
-        // (Spotify-style) instead of sitting small with empty padding above/below.
-        height: 3rem;
+        // The chrome footprint, same as the home button beside it, so the pill
+        // fills the top nav (Spotify-style) instead of sitting small with empty
+        // padding above and below.
+        height: $bar-control;
         display: flex;
         align-items: center;
         @include candy-box($candy-pink-soft, $candy-radius-pill);
         color: $candy-text;
-        transition: background-color 0.2s ease-out;
+        transition: background-color $motion-tint $motion-curve;
 
         &:hover {
             background-color: $candy-pink;
@@ -163,9 +164,12 @@ function handleButton() {
             // Adaptive glyph on the panel input; hover flips to the yellow
             // accent fill -> pin static ink there.
             color: $candy-text;
+            // On the transition, not inside `:hover` — declared there it only
+            // exists WHILE hovered, so the way back was instant. `all` also
+            // animated the geometry, which is never what was wanted here.
+            transition: background-color $motion-tint $motion-curve, color $motion-tint $motion-curve;
 
             &:hover {
-                transition: all 0.2s ease;
                 background-color: $candy-pink-deep;
                 color: $mem-ink;
             }
@@ -236,12 +240,12 @@ function handleButton() {
         }
 
         @include allPhones {
-            // The 3rem desktop height (sized to the square home button) made the
-            // top bar taller on the Search view than on every other page, where
-            // the bar hugs the 36px avatar. On phones there is no pill here
-            // (transparent bg, no border), so match the avatar height to keep
-            // the top bar a constant height across all views.
-            height: 2.25rem;
+            // No pill on phones (transparent, no border) — but the height stays
+            // the chrome footprint. It used to drop to 2.25rem here to match a
+            // 36px avatar, which is the kind of compensation that disappears
+            // the moment the thing it compensates for is itself corrected: the
+            // avatar and the toggle are one footprint now, so the top bar keeps
+            // a constant height across all views without a second number.
             border: none;
             border-radius: unset;
             background-color: transparent;

@@ -38,8 +38,11 @@
 // the pixel art is finally legible.
 .logo-orbit-wrapper {
   position: relative;
-  width: 3rem;
-  height: 3rem;
+  // One chrome footprint, like every other control in the top bar it heads.
+  // Its LOOK stays deliberately outside the roles (no plate, no shadow, the
+  // orbit below) — only the box follows.
+  width: $bar-control;
+  height: $bar-control;
   flex-shrink: 0;
   display: flex;
   align-items: center;

@@ -26,32 +26,22 @@ const title = computed(() => {
 
 <style lang="scss">
 .theme-toggle {
-    flex-shrink: 0;
-    // Sized to the avatar it sits next to so the two read as a pair. On phones
-    // it grows to the 44px touch target — it is a top-bar control that gets
-    // tapped, not decoration.
-    // The action role owns fill, border, shadow and pointer feedback; the size
-    // stays here because this control is sized to the avatar beside it.
-    @include btn-action($size: 2.25rem);
+    // One chrome footprint, desktop and phone. It used to be 2.25rem on the
+    // desktop (sized to the avatar beside it) and 2.75rem on phones, which put
+    // a 36px control next to a 48px home button in the same row and made the
+    // touch target a breakpoint's job rather than the control's.
+    //
+    // Nothing but the fill is stated here: the role owns border, shadow, glyph
+    // size and BOTH pointer answers. The local `svg { 1.3rem }` made this the
+    // one 20.8px glyph in a bar of 24px ones, and the local
+    // `:active { scale(0.94) }` was a third press behaviour next to the role's
+    // 0.98 and the home button's push-into-the-shadow.
+    @include btn-action($size: $bar-control);
     background-color: $candy-pink;
     color: $candy-black;
 
-    @include allPhones {
-        width: 2.75rem;
-        height: 2.75rem;
-    }
-
-    svg {
-        width: 1.3rem;
-        height: 1.3rem;
-    }
-
     &:hover {
         background-color: $candy-pink-deep;
-    }
-
-    &:active {
-        transform: scale(0.94);
     }
 }
 </style>

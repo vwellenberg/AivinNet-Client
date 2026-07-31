@@ -141,10 +141,10 @@ const mobileTitle = computed(() => {
         .nav-logo {
             // Icon-only logo; width hugs the glyph.
             width: max-content;
-            // Matches the planet itself (3rem, same footprint as the home
-            // button). Keep the slot at full height: a shorter one clips the
-            // artwork's outline and the hover orbit around it.
-            height: 3rem;
+            // Matches the planet itself, which is one chrome control tall like
+            // everything else in this bar. Keep the slot at FULL height: a
+            // shorter one clips the artwork's outline and the hover orbit.
+            height: $bar-control;
             align-self: center;
             // Logo component centres its icon at flex-start by default; center
             // it vertically so it sits in the middle of the top bar.
@@ -192,55 +192,38 @@ const mobileTitle = computed(() => {
             }
         }
 
-        // Per-route contextual action in the mobile top bar (e.g. New Playlist).
-        // Candy square sized to the 36px avatar so the two read as a pair.
         // Context action in the mobile top bar (e.g. "New playlist"). Same
-        // action role, same blush fill and same 44px touch target as the theme
-        // toggle it sits beside — they are two controls in one row and used to
-        // be two different buttons.
+        // action role, same blush fill and same footprint as the theme toggle
+        // it sits beside — they are two controls in one row and used to be two
+        // different buttons.
         .mobile-header-action {
-            @include btn-action($size: 2.75rem);
+            @include btn-action($size: $bar-control);
             margin-right: $smaller;
             background-color: $candy-pink;
             color: $candy-black;
-
-            svg {
-                width: 1.35rem;
-                height: 1.35rem;
-            }
 
             &:hover {
                 background-color: $candy-pink-deep;
             }
         }
 
-        // Spotify-style layout: the two auto margins (one before the round home
+        // Spotify-style layout: the two auto margins (one before the home
         // button, one before the avatar) split the free space evenly, centring
         // the home + search group and pinning the avatar to the far-right corner
         // so it no longer sits glued to the search bar.
+        //
+        // The role, not a hand-built box: this used to be `candy-box` +
+        // `candy-raised(4px, 4px)` written out here, which is why the top bar
+        // held two shadow depths (4px here, 3px on the toggle) and two press
+        // answers (push-into-shadow here, scale(0.94) there). It is a
+        // RouterLink rather than a <button>, and that is exactly why the role
+        // has to be stated — no element selector reaches it.
         .nav-home {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            @include btn-action($size: $bar-control);
+            @include focus-ring;
             margin-left: auto;
-            width: 3rem;
-            height: 3rem;
-            @include candy-box($candy-pink, $candy-radius-sm);
+            background-color: $candy-pink;
             color: $candy-black;
-            flex-shrink: 0;
-            // The home button is an <a>, not a <button>, so it never picked up
-            // any of the button roles — it was the one raised surface in the top
-            // bar with no offset shadow under it. candy-raised also brings the
-            // press-into-the-shadow feedback the rest of the chrome has.
-            @include candy-raised(4px, 4px);
-            transition: background-color $motion-tint $motion-curve,
-                box-shadow $motion-shadow $motion-curve,
-                transform $motion-press $motion-curve;
-
-            svg {
-                width: 1.5rem;
-                height: 1.5rem;
-            }
 
             &:hover {
                 background-color: $candy-pink-deep;
