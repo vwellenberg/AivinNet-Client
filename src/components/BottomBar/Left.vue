@@ -51,14 +51,21 @@
              here on every page; when there is, nothing is shown and the bar
              keeps its room for the track title. -->
         <button
-            v-if="isMobile && !isLargerMobile && settings.is_silent"
+            v-if="phoneBar && settings.is_silent"
             class="bar-unmute"
             title="Unmute"
             @click="settings.toggleMute"
         >
             <VolumeMuteSvg />
         </button>
-        <Actions v-if="isLargerMobile" @handleFav="$emit('handleFav')" />
+        <!-- Not in a short viewport. A landscape phone is the SAME device as a
+             portrait one, and portrait has never had this group: it falls in
+             the 660-900px band only because it is turned over, and then gets
+             repeat, shuffle, favourite, lyrics, devices and volume that the
+             upright phone does without. Dropping it here is not taking
+             something away from landscape, it is ending an inconsistency —
+             measured, the bar held 9 controls sideways against 4 upright. -->
+        <Actions v-if="!phoneBar && isLargerMobile" @handleFav="$emit('handleFav')" />
         <HotKeys v-if="isMobile" />
         <!-- Small phones only get HotKeys here (Actions covers the larger ones),
              so without this the Devices button was buried in the Now Playing
@@ -73,15 +80,17 @@
              this in sync with another device" — and Devices stays reachable on
              the Now Playing page, which is where it lived before it was added
              here. -->
-        <DevicesButton v-if="isMobile && !isLargerMobile && !settings.is_silent" class="bar-devices" />
+        <DevicesButton v-if="phoneBar && !settings.is_silent" class="bar-devices" />
     </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { paths } from '@/config'
 import { Routes } from '@/router'
 
-import { isLargerMobile, isMobile } from '@/stores/content-width'
+import { isLargerMobile, isMobile, isShort } from '@/stores/content-width'
 import useQStore from '@/stores/queue'
 import useSettingsStore from '@/stores/settings'
 
@@ -97,6 +106,23 @@ import ExplicitIcon from '@/assets/icons/explicit.svg'
 
 const queue = useQStore()
 const settings = useSettingsStore()
+
+/**
+ * This bar is the PHONE bar: cover, title, transport, and one of unmute /
+ * devices — the four controls an upright phone has always had.
+ *
+ * The 660-900px band (`isLargerMobile`) otherwise gets the richer group with
+ * repeat, shuffle, favourite, lyrics, devices and volume. A landscape phone
+ * lands in that band purely because it is turned over, and then carries nine
+ * controls where the same device upright carries four. `isShort` pulls it back:
+ * one device, one bar.
+ *
+ * Stated once and read three times, because the unmute button and the devices
+ * button have to agree with it — a landscape phone that lost the volume control
+ * with `Actions` and did NOT gain the unmute button would be exactly the silent
+ * dead end #326 closed.
+ */
+const phoneBar = computed(() => isMobile.value && (!isLargerMobile.value || isShort.value))
 
 defineEmits<{
     (e: 'handleFav'): void

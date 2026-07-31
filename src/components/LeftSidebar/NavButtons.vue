@@ -114,6 +114,18 @@ import { menus } from "./navitems";
     }
   }
 
+  // In the landscape bar the navigation is one block among three, not the whole
+  // width: `space-between` would push the five targets to the far edges of
+  // whatever room is left. They hug instead, at the shared touch size.
+  @include shortViewport {
+    justify-content: flex-end;
+    gap: 0;
+
+    .nav-item {
+      width: $bar-control;
+    }
+  }
+
   // These six glyphs used to come from three different icon sets and filled
   // their viewBox by wildly different amounts (measured ink height: bookmark
   // ~92% of the box, home/folder/search ~60-67%, chart ~79%), which is why each

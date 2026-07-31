@@ -102,6 +102,39 @@ function handleFav() {
         }
     }
 
+    // A landscape phone: the same three blocks the phone stacks — track,
+    // seek bar, navigation — laid out side by side instead. There is width to
+    // spare sideways and none of the height, and the DOM order already is
+    // left-group · center · navigation, so this is a direction change rather
+    // than a rebuild. 9.5rem of bar becomes 3.75rem.
+    //
+    // Transport stays inside `.left-group` (it is a phone bar, and there the
+    // HotKeys sit with the track block) — see BottomBar/Left.vue.
+    @include shortViewport {
+        flex-direction: row;
+        align-items: center;
+        gap: $medium;
+        padding: 0 1rem;
+
+        .left-group {
+            // Grows, but not without limit: past ~20rem the seek bar would be
+            // the first thing squeezed, and it is the control here.
+            flex: 1 1 20rem;
+            max-width: 26rem;
+            min-width: 0;
+        }
+
+        .center {
+            flex: 1 1 11rem;
+            min-width: 7rem;
+        }
+
+        .side-nav-container {
+            flex: 0 0 auto;
+            width: auto;
+        }
+    }
+
     // There is deliberately no `.b-bar button { … }` rule here any more.
     //
     // It used to hand every descendant button a 3rem width, a transparent fill

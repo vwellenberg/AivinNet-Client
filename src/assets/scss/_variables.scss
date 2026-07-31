@@ -128,6 +128,14 @@ $navheight: 4.5rem;
 $bottombarheight: 5.125rem;
 // The phone bar is taller: it carries the navigation as well as the transport.
 $bottombarheight-phone: 9.5rem;
+// A landscape phone puts all three of them — track, transport, navigation — in
+// ONE row (see the `shortViewport` mixin). The 9.5rem stack was 42% of a 390px
+// screen turned over, and `#acontent` still spans rows 2–4 behind it, so this
+// value has to reach every scroller's reserve as well or the last row hides.
+$bottombarheight-short: 3.75rem;
+// Same idea for the title bar: the pill does not need 4.5rem of row when the
+// whole viewport is 390.
+$navheight-short: 3.75rem;
 $cardwidth: 12rem;
 $maxpadleft: 5rem;
 

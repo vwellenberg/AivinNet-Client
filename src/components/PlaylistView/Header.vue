@@ -126,6 +126,35 @@ const useSqrImg = computed(() => !playlist.info.has_image || !bg.value.startsWit
     }
   }
 
+  // A landscape phone. The floor above is 18rem (24rem on a small phone) and
+  // the cover 16rem — taller than the whole 390px viewport, so the header alone
+  // filled the screen and its own action row fell off the bottom. Measured 288
+  // -> 136px. It is a floor, so it has to be released, not lowered.
+  @include shortViewport {
+    height: auto !important;
+    min-height: 0 !important;
+    padding-bottom: $small;
+
+    .sqr_img {
+      height: 7rem;
+      width: 7rem;
+    }
+
+    .title {
+      font-size: $detail-title-size-phone !important;
+    }
+
+    .duration {
+      margin: $smaller 0;
+    }
+
+    // The status line has no room to be anywhere but on top of the header art
+    // here; it already hides itself on narrow widths for the same reason.
+    .last-updated {
+      display: none;
+    }
+  }
+
   .sqr_img {
     height: 16rem;
     width: 16rem;

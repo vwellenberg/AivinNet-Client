@@ -110,12 +110,39 @@ const containerHeight = computed(() => {
     width: 100%;
     position: absolute;
     opacity: 0.25;
+
+    // Follows the header it tints — it is a separate absolutely positioned
+    // element, so a shorter header would otherwise leave its wash hanging
+    // below the header's own bottom edge.
+    @include shortViewport {
+        height: 9rem;
+    }
 }
 
 .artist-page-header {
     display: grid;
     grid-template-columns: 1fr 450px;
     position: relative;
+
+    // A landscape phone. The height comes from an INLINE style (13rem circular
+    // / 18rem banner, 25rem on a small phone), so this has to shout to be heard
+    // — and the photo reads the same value, which is why both are here. The
+    // artist name is 3.5rem, roughly three times the line height that is left
+    // over: without shrinking it the action row landed on the "Tracks" heading.
+    @include shortViewport {
+        height: 9rem !important;
+
+        .artist-img,
+        .artist-img img,
+        .artist-img .artist-img-placeholder {
+            height: 9rem !important;
+            width: 9rem !important;
+        }
+
+        .artist-info .artist-name {
+            font-size: $detail-title-size-phone;
+        }
+    }
 
     // Candy banner: the artist photo is a bordered, rounded image (the circular
     // mode overrides the radius to 50% below but keeps the same 2px border).
