@@ -36,7 +36,11 @@ withDefaults(
         // reading the template.
         btn_role?: 'quiet' | 'action'
     }>(),
-    { btn_role: 'quiet' }
+    // `no_emit` was implicitly undefined before this component had a
+    // `withDefaults` wrapper at all; stated now because the wrapper is what
+    // makes a missing default a lint finding, and `undefined` and `false` mean
+    // the same thing to the click handler either way.
+    { btn_role: 'quiet', no_emit: false }
 )
 
 defineEmits<{
