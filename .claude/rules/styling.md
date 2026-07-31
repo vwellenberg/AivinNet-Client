@@ -199,6 +199,16 @@ Real passiert bei #240 — der ganze Staffel-Effekt aus #279 wäre still gestorb
 - **`animation-fill-mode: backwards` ist erlaubt, `both` nicht.** `both` hält zusätzlich den
   **letzten** Frame, und ein Animations-`scale(1)` schlägt jedes deklarierte `transform` — Hover
   und Press wären in allen fünf Rollen still tot. `backwards` gilt nur *während* einer Verzögerung.
+- **Eine Reihe von Buttons trifft von links nach rechts ein** — `@include btn-pop-stagger` auf das
+  Element, dessen **direkte Kinder** die Buttons sind. `.header-actions` bindet es ein, der
+  Sortier-Banner der Alben-/Künstlerliste ebenso. Die fünf `nth-child`-Regeln nicht abschreiben:
+  genau das ließ den Banner als einzige Stelle elf Chips gleichzeitig aufploppen, während die
+  Header-Reihe zwei Klicks weiter staffelte.
+- **Was man nicht drücken kann, darf nicht wie ein Bedienelement erscheinen.** Der Pop ist die
+  Aussage „hier ist ein Button aufgetaucht". Die beiden Etiketten des Sortier-Banners (`.tt`,
+  `pointer-events: none`) leihen sich `btn-action` nur für die Platte und bekommen deshalb
+  `animation: none`. Wer eine Rolle für reine Geometrie borgt, prüft, was er sich an Verhalten
+  mitgeholt hat.
 - Das Vokabular (Dauern, Kurven, Staffelung) steht in `_motion.scss`.
 
 ## Klick-Feedback
