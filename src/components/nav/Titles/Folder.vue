@@ -14,6 +14,17 @@
             </div>
             <BreadCrumbNav @navigate="navigate" />
         </div>
+        <!-- Two controls, not one grouped control: folders and tracks have
+             INDEPENDENT sort keys, and a single dropdown can only display one
+             current value. Folders first, because they render above the
+             tracks on the page. -->
+        <DropDown
+            :items="folderItems"
+            :current="currentFolderSort"
+            component_key="sortbar"
+            :reverse="folder.folderSortReverse"
+            @item-clicked="handleFolderSortKeySet"
+        />
         <DropDown
             :items="items"
             :current="current"
@@ -63,12 +74,28 @@ const items: SortItem[] = [
     { key: 'playduration', title: 'Play Duration' },
 ]
 
+// Exactly the keys the backend accepts for `sortfoldersby` — anything else is
+// silently ignored there, which would look like a broken control.
+const folderItems: SortItem[] = [
+    { key: 'name', title: 'Folder name' },
+    { key: 'lastmod', title: 'Folder date' },
+    { key: 'trackcount', title: 'Folder tracks' },
+]
+
 const handleSortKeySet = (item: SortItem) => {
     folder.setFolderTrackSortKey(item.key)
 }
 
+const handleFolderSortKeySet = (item: SortItem) => {
+    folder.setFolderSortKey(item.key)
+}
+
 const current = computed(() => {
     return items.find(item => item.key === folder.trackSortBy) || items[0]
+})
+
+const currentFolderSort = computed(() => {
+    return folderItems.find(item => item.key === folder.folderSortBy) || folderItems[0]
 })
 </script>
 

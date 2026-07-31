@@ -53,6 +53,23 @@ export default defineStore('FolderDirs&Tracks', {
             ;[this.path, this.allDirs] = [fpath, folders]
             this.allTracks = this.allTracks.concat(tracks)
         },
+        // The folders half of the sort. `folderSortBy` and `folderSortReverse`
+        // were already in the state and already sent to the server on every
+        // fetch — there was simply no way to change them, so every library
+        // sorted its folders by name for ever. The backend has accepted
+        // "default" | "name" | "lastmod" | "trackcount" the whole time.
+        setFolderSortKey(key: string) {
+            // Same gesture as the tracks sort below: picking the current key
+            // again flips the direction rather than doing nothing.
+            if (key === this.folderSortBy) {
+                this.folderSortReverse = !this.folderSortReverse
+            } else {
+                this.folderSortBy = key
+                this.folderSortReverse = true
+            }
+
+            this.fetchAll(this.path, true)
+        },
         setFolderTrackSortKey(key: string) {
             // INFO: If the key is the same as the current key, reverse the sort order
             if (key === this.trackSortBy) {
