@@ -25,7 +25,11 @@ import PlusSvg from '@/assets/icons/plus.svg'
 withDefaults(
     defineProps<{
         state: Boolean | undefined
-        no_emit?: Boolean
+        // Primitive `boolean`, not the `Boolean` wrapper the other prop still
+        // uses: `withDefaults` treats an object type as one that needs a
+        // FACTORY default, so `no_emit: false` against `Boolean` fails the
+        // typecheck with "boolean is not assignable to (props) => Boolean".
+        no_emit?: boolean
         // Which button role this toggle wears (see Global/_buttons.scss).
         // `quiet` is the bare in-context glyph — the player bar, track rows,
         // the Now Playing panel. `action` is the plate-and-frame control the
