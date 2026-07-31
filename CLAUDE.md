@@ -88,6 +88,48 @@ $brand-purple: #7F77DD;   // Frequenz
 
 Definiert in `src/assets/scss/_variables.scss`. `$red` zeigt auf `$brand-red`.
 
+## Dokumentation & Learnings (verbindlich)
+
+**Jede Session, die etwas Nicht-Offensichtliches herausfindet, schreibt es auf.** Ein Learning,
+das nur im Chat steht, ist beim nächsten Kontextfenster weg.
+
+Wohin — nach Umfang und Lesehäufigkeit:
+
+| Was | Wohin | Warum |
+|---|---|---|
+| Falle, die schon mal Zeit gekostet hat; Konvention, die von der Tool-Voreinstellung abweicht; Befehl, den man ständig braucht | **direkt in diese `CLAUDE.md`** | wird in *jede* Session geladen |
+| Bauplan, Store-Landkarte, Datenfluss, Ablaufdiagramme | **[docs/architecture.md](docs/architecture.md)**, hier nur ein Zeiger | wird nur gelesen, wenn nötig |
+| Persönliche Präferenz des Users, repo-übergreifende Policy | Memory (`~/.claude/projects/…/memory/`) | gehört nicht ins geteilte Repo |
+| Offene Arbeit, Bug, Idee | GitHub-Issue (`gh issue list --repo vwellenberg/AivinNet-Client`) | einzige Backlog-Quelle, auch für Backend-Themen |
+
+Regeln dazu:
+
+- **Verweisen, nicht importieren.** Verlinke Zusatzdokumente als normalen Markdown-Link
+  (`[docs/architecture.md](docs/architecture.md)`). Ein `@pfad`-Import würde die Datei bei
+  **jedem** Sessionstart vollständig in den Kontext laden und damit den Zweck der Auslagerung
+  aufheben.
+- **Diese Datei soll kurz bleiben** (Richtwert ~200 Zeilen). Wächst ein Abschnitt zur Abhandlung,
+  wandert der Inhalt nach `docs/` und hier bleibt ein Zweizeiler mit Link. Was bleibt: Fallen,
+  Begründungen, Konventionen. Was geht: Verzeichnisbäume, Komponentenlisten, Abläufe.
+- **Am Ende der Aufgabe, nicht „irgendwann":** Doku-Änderung gehört in denselben PR wie die
+  Änderung, die sie beschreibt.
+- **Ein Learning wird als Ursache formuliert, nicht als Symptom** — dazu, woran man es erkennt
+  und was stattdessen zu tun ist. Vorbilder stehen unten unter „Learnings / Gotchas".
+- **Visuelle Befunde brauchen eine Messung, keinen Eindruck** (Computed Styles, Pixel, Content-Hash).
+  Was gemessen wurde, gehört mit in die Notiz — sonst ist sie beim nächsten Zweifel wertlos.
+
+## Architektur
+
+**Bauplan, Schichten und Zustandsfluss: [docs/architecture.md](docs/architecture.md).**
+Kurzfassung: Vue 3 + Pinia + Vite, **Hash-Routing** (Deeplinks brauchen `#`), Wiedergabe in
+`stores/player.ts` mit **zwei** `<audio>`-Elementen, Seitendaten pro Route in `stores/pages/*`
+(geladen im Router-`beforeEnter`, nicht im `onMounted`), API-Pfade zentral in `config.ts::paths`.
+
+**Zwei Konsequenzen, die man dauernd braucht:**
+- **Im Gruppenmodus wird jede Transport-/Queue-Aktion abgefangen** (`ds.joined` → `ds.intercept()`).
+  Wer eine neue Queue-Mutation baut, muss durch denselben Seam — sonst stille Desync.
+- **Aussehen gehört in eine Rolle** (`Global/_buttons.scss`), nicht in die Komponente.
+
 ## Architektur-Hinweise
 
 - **Wiederkehrendes UI-Element? → geteilte Komponente oder Rolle, nicht pro View kopieren.** Das ist die Konvention aus #90, und sie hat zwei Ebenen: **Verhalten + Markup** gehören in `src/components/shared/` (`PinButton.vue`, `HeartSvg.vue` = der Favoriten-Toggle, `PlayBtnRect.vue`); **Aussehen** gehört in eine der fünf Rollen in [Global/_buttons.scss](src/assets/scss/Global/_buttons.scss) (`btn-primary` · `btn-action` · `btn-quiet` · `btn-pill` · `btn-toggle-on`). Ein Button, der `background: transparent; border: none; padding: 0` von Hand schreibt, ist fast immer ein übersehener Fall — genau die hat #244 eingesammelt.
