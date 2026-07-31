@@ -64,6 +64,25 @@ splicen ändert die Server-`queue_id` **nicht**, also re-mirrort niemand, und de
   in `onTrackEnded`: ein `track_change` in eine leere Session beantwortet der Server mit 400.
 - E2E: `~/uitest/queueseams.js`.
 
+## Zufallswiedergabe in der Gruppe
+
+Der Leader würfelt für alle: `onTrackEnded()` schickt `queue.nextindex` statt `i + 1`, und weil
+der Index **im Command mitreist**, landen alle Geräte auf demselben Track. Vorher rechnete die
+Stelle hart sequentiell — der Shuffle-Knopf sah aktiv aus und wirkte nur beim manuellen „Next"
+(#324).
+
+⚠️ **Ein gespiegelter Index-Sprung ist ein Track-Wechsel.** `applyState` und der
+`track_change`-Command schreiben `currentindex` bewusst direkt; ohne `rollShuffleNext()` bleibt
+das Ziel auf dem gerade gestarteten Track stehen, und der Getter fällt (seit #317) auf die
+sequentielle Zeile zurück — die Gruppe würde nach dem ersten Sprung wieder der Reihe nach laufen.
+Neu gewürfelt wird **nur bei echter Änderung**: der Poll läuft jede Sekunde, und ein Wurf pro Tick
+machte `nextindex` zum wandernden Ziel.
+
+⚠️ **`shuffle` ist — anders als `repeat` — KEIN geteilter Zustand.** Es gibt kein Feld dafür im
+Server-State; es gilt die Einstellung des Geräts, das gerade handelt (Leader beim Ausspielen, der
+Drückende beim manuellen „Next"). Wer das ändern will, braucht ein Feld im Backend-State, nicht
+nur Client-Code.
+
 ## ⚠️ Weitere Gotchas
 
 - **Der `applying`-Guard darf nie ein `await` überspannen.** Resolve **vor** dem Guard;
