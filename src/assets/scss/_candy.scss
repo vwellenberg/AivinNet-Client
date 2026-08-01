@@ -295,8 +295,9 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // dark theme, and a surface hatch on blush would be nearly invisible in both.
 // ---------------------------------------------------------------------------
 @mixin mem-row-plate($radius: $candy-radius-sm) {
-  background-color: $mem-panel;
-  @include mem-hatch(38px, $on: surface);
+  // Fill and cover read the same custom property — see mem-hatch-ring.
+  --row-fill: #{$mem-panel};
+  @include mem-hatch-ring(38px, $on: surface);
   border: $candy-border-w solid $mem-line;
   border-radius: $radius;
   color: $mem-content-text;
@@ -311,17 +312,48 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // gives (3px -> 4px). Deliberately NO `transform: scale()`: a row that grows
 // under the pointer shoves the drop marker it is being dragged onto.
 @mixin mem-row-plate-hover {
-  background-color: $mem-soft;
+  // Only the fill changes — the cover layer follows it through --row-fill, so
+  // the ring never falls out of sync with the surface underneath it.
+  --row-fill: #{$mem-soft};
   border-color: $mem-line;
   box-shadow: 4px 4px 0 var(--mem-shadow);
 }
 
+// A coloured row: static memphis accent + ink text + the accent hatch, all
+// three together. Splitting them is the mistake the census guards against — a
+// static fill under the theme-aware hatch is blank in the dark theme.
+@mixin mem-row-plate-tint($fill) {
+  --row-fill: #{$fill};
+  @include mem-hatch-ring(38px, $on: accent);
+  color: $mem-ink;
+}
+
 @mixin mem-row-plate-active {
   // Static blush -> pin static ink, exactly as the flat active row did.
-  background-color: $candy-pink;
-  @include mem-hatch(38px, $on: accent);
+  @include mem-row-plate-tint($candy-pink);
   border-color: $mem-line;
-  color: $mem-ink;
+}
+
+// ---------------------------------------------------------------------------
+// The active marker for a list whose rows are already coloured.
+//
+// Once every navigation row carries its own fill, "selected" can no longer BE a
+// fill — so it is the ink zigzag band the now-playing track row wears on its
+// leading edge (mem-now-playing-row). One vocabulary for "this is the one",
+// in a form that survives on any of the six accent colours: the contrast table
+// further up rules out every coloured marker on yellow.
+//
+// Drawn with `border-left` + a background layer rather than a pseudo-element:
+// both of those are spoken for by the drag/drop markers on these rows.
+// ---------------------------------------------------------------------------
+@mixin mem-row-marker($w: 9px) {
+  padding-left: $w;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="9" height="14"><path d="M0 0 L9 3.5 L0 7 L9 10.5 L0 14 Z" fill="%2317171A"/></svg>'),
+    linear-gradient(var(--row-fill), var(--row-fill)), var(--mem-hatch-accent);
+  background-clip: border-box, content-box, border-box;
+  background-repeat: repeat-y, no-repeat, repeat;
+  background-position: left top, center, left top;
+  background-size: 9px 14px, auto, 38px 38px;
 }
 
 // ---------------------------------------------------------------------------
@@ -393,6 +425,37 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 @mixin mem-hatch($size: 38px, $on: surface) {
   background-image: if($on == accent, var(--mem-hatch-accent), var(--mem-hatch));
   background-size: $size $size;
+}
+
+// ---------------------------------------------------------------------------
+// HATCH AS A RING — texture in the padding, smooth ground under the label.
+//
+// Running the texture across the whole plate puts strokes right through the
+// text band; at 2x they visibly touch the letters. The now-playing row solved
+// the same problem with a mask, but a mask applies to the WHOLE element, and
+// these rows have no pseudo-element left (drag markers). So: a cover layer in
+// the row's own fill, clipped to the CONTENT box, sits on top of the texture —
+// what stays visible is exactly the padding, on all four sides.
+//
+// The fill is read from `--row-fill`, never passed in, and that is the point:
+// cover and background have to be the same colour, so they must have ONE
+// source. A row that sets `background-color` by hand next to this mixin paints
+// a cover in the wrong colour and gets a visible rectangle around its label.
+//
+// `background-clip` takes one value per layer, and the background COLOUR uses
+// the last one — which is why `border-box` has to come second, or the fill
+// would stop at the padding edge and the border would show the page ground.
+//
+// The ring is only as wide as the padding: a row whose padding subtracts the
+// border width down to ~3px has no visible ring. Callers give it real padding.
+// ---------------------------------------------------------------------------
+@mixin mem-hatch-ring($size: 38px, $on: surface) {
+  background-color: var(--row-fill);
+  background-image: linear-gradient(var(--row-fill), var(--row-fill)),
+    if($on == accent, var(--mem-hatch-accent), var(--mem-hatch));
+  background-clip: content-box, border-box;
+  background-repeat: no-repeat, repeat;
+  background-size: auto, $size $size;
 }
 
 // Sprinkle / terrazzo dash texture. Sets ONLY the pattern image + tile size —

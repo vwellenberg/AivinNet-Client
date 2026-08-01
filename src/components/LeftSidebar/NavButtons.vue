@@ -10,10 +10,13 @@
         query: menu.query && menu.query(),
       }"
       class="nav-item"
-      :class="{
-        separator: menu.separator,
-        active: $route.name === menu.route_name,
-      }"
+      :class="[
+        menu.tint,
+        {
+          separator: menu.separator,
+          active: $route.name === menu.route_name,
+        },
+      ]"
       @click="menu.action && menu.action()"
     >
       <div v-if="!menu.separator">
@@ -52,12 +55,16 @@ import { menus } from "./navitems";
     // be. Measured before this compensation existed: the nav rows grew
     // 44 -> 46px when the border went to 3px, while the library rows below —
     // which already compensated — stayed exactly where they were.
-    padding: calc(0.625rem - #{$candy-border-w}) 0;
+    // The ring IS the padding — the texture is only visible where there is
+    // room for it, so the horizontal padding cannot be 0 any more. The 44px row
+    // height is kept: 24px glyph + 2x7px padding + 2x3px border.
+    padding: calc(0.625rem - #{$candy-border-w}) $small;
     font-size: $sidebar-row-font;
-    font-weight: 500;
-    // The row IS a button and says so: panel fill, ink frame, offset shadow,
-    // hatch. Same plate as the library rows below, from the same mixin — the
-    // one thing this sidebar could not keep consistent by hand.
+    // 700, one step above the library below. The navigation is a layer, not a
+    // list of data — and next to 3px frames and this design's headings, 500
+    // read lighter than everything around it.
+    font-weight: 700;
+    // The row IS a button and says so: fill, ink frame, offset shadow, hatch.
     @include mem-row-plate($sidebar-row-radius);
 
     & > div {
@@ -65,18 +72,27 @@ import { menus } from "./navitems";
       align-items: center;
     }
 
-    // Active item = the static blush fill with the accent hatch. The plate's
-    // frame and shadow stay exactly as they are, so switching pages moves
-    // nothing.
+    // Every entry carries its own memphis fill (the class comes from
+    // navitems.ts, not from an nth-child rule — the list has a separator in it).
+    &.tint-blush { @include mem-row-plate-tint($mem-blush); }
+    &.tint-teal { @include mem-row-plate-tint($mem-teal); }
+    &.tint-yellow { @include mem-row-plate-tint($mem-yellow); }
+    &.tint-lavender { @include mem-row-plate-tint($mem-lavender); }
+    &.tint-pink { @include mem-row-plate-tint($mem-pink); }
+    &.tint-coral { @include mem-row-plate-tint($mem-coral); }
+
+    // Selected keeps its colour and gains the ink zigzag on the leading edge.
+    // With every row coloured, "active" cannot be a fill any more — see
+    // mem-row-marker.
     &.active {
-      @include mem-row-plate-active;
+      @include mem-row-marker;
     }
 
-    // :not(.active): the hover fill is dark in dark mode and would override the
-    // blush plate (same specificity, later rule) while the pinned ink label
-    // stays — dark-on-dark. Active items keep their fill.
-    &:hover:not(.active) {
-      @include mem-row-plate-hover;
+    // Hover deepens the offset only. A fill change would either fight the row's
+    // own colour or repeat the selected state; the shadow is the one answer
+    // that works on all six.
+    &:hover {
+      box-shadow: 4px 4px 0 var(--mem-shadow);
     }
   }
 

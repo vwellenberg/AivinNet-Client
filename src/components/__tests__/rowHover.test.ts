@@ -250,8 +250,11 @@ describe("sidebar plate anatomy", () => {
       // mixin, so a call site that adds its own surface hatch next to it is
       // painting ink-on-panel over a static accent.
       for (const rule of rules(clean)) {
-        if (!/@include\s+mem-row-plate-active/.test(rule.body)) continue;
-        if (/@include\s+mem-hatch\([^)]*surface/.test(rule.body)) {
+        // `-active` and `-tint` both set a STATIC accent fill together with the
+        // accent hatch. A surface hatch stated next to either one paints
+        // ink-on-panel over that accent — invisible in light, blank in dark.
+        if (!/@include\s+mem-row-plate-(active|tint)/.test(rule.body)) continue;
+        if (/@include\s+mem-hatch(-ring)?\([^)]*surface/.test(rule.body)) {
           offenders.push(`${file}: ${rule.selectors.join(", ")}`);
         }
       }
