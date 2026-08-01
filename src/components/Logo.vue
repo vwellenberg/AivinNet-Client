@@ -2,7 +2,9 @@
   <router-link class="swing-logo" :to="{ name: 'Home' }" title="Home">
     <div class="logo-orbit-wrapper">
       <img src="@/assets/icons/logos/logo-subspaceradio.png" alt="AivinNet" class="logo-img" />
-      <span class="logo-orbit" aria-hidden="true"><i class="logo-moon"></i></span>
+      <span class="logo-orbit" aria-hidden="true">
+        <i class="logo-orbit-spin"><i class="logo-moon"></i></i>
+      </span>
     </div>
   </router-link>
 </template>
@@ -18,7 +20,7 @@
   gap: 0.6rem;
   width: 100%;
   height: 100%;
-  // The hover orbit reaches 7px past the planet — never clip it.
+  // The hover orbit reaches 5px past the planet — never clip it.
   overflow: visible;
 }
 
@@ -68,50 +70,50 @@
 // The orbit: the frame's job (marking the target) moves into the hover, where
 // it can be a character moment instead of permanent furniture.
 //
-// It is a FLAT, TILTED ellipse, not a ring around the planet, for a reason that
-// is geometry rather than taste: a concentric circle around an object that
-// nearly fills the bar must reach past its edge. At $bar-control (44px) in the
-// short bar ($navheight-short, 60px) a circle at inset -7px left ~1px of air.
-// Tilted and flattened, the path measures ~36px vertically — less than the
-// planet itself — so it can never be the thing that runs out of room. It also
-// simply reads better: a circle around a sphere is a halo, a slanted ellipse is
-// an orbit.
+// Two nested elements on purpose. The ring carries the entrance (opacity +
+// scale on a transition); the inner layer carries the rotation. Put both on one
+// element and the keyframes' `transform` wins over the declared `scale(1)`, so
+// the ring would pop in at full size instead of growing.
+// It stays a CIRCLE, and that is a finding rather than a default. A flat,
+// tilted ellipse was built and measured first, on the theory that a slanted
+// path reads more like an orbit than a halo. It does — but it is smaller than
+// the body it orbits, so it disappeared behind the planet and left two dashes
+// sticking out at the sides. A path has to be bigger than what it goes around,
+// and vertically there is no room for that: the planet is $bar-control (44px)
+// in a 72px bar, 60px when the bar is short (a flat desktop window; landscape
+// phones hide the logo altogether). On top of that, a moon on an ellipse needs
+// `offset-path` to follow the ring, and Chromium and Firefox placed it in
+// visibly different spots. A circle is rotationally symmetric, so the moon on
+// the rotating layer below sits exactly on the ring in every engine, for free.
 //
-// The flattening comes from the BOX (width/height + border-radius: 50%), never
-// from `scaleY`: scaling would squash the dash stroke thin at top and bottom
-// and drag the moon out of square with it.
+// What is left of that round: the radius. At -7px the ring reached to ~1px of
+// the short bar's edge; -5px keeps the same shape with air around it.
 .logo-orbit {
   position: absolute;
-  // Vertical inset as a share of the tile, so the path keeps its proportions if
-  // the chrome footprint changes again (#356). 0.3 → a path ~30% as tall as it
-  // is wide; the 7px of horizontal overhang is what makes it read as "around".
-  inset: calc(#{$bar-control} * 0.3) -7px;
+  inset: -5px;
   border: 2px dashed $mem-line;
   border-radius: 50%;
   opacity: 0;
-  transform: rotate(-20deg) scale(0.72);
+  transform: scale(0.72);
   transition: opacity $motion-move $motion-curve, transform $motion-move $motion-curve-back;
   pointer-events: none;
+
+  .logo-orbit-spin {
+    position: absolute;
+    inset: 0;
+  }
 
   // A pixel moon riding the orbit — coral, the design's secondary accent and
   // the one accent the planet's own palette does not already carry.
   .logo-moon {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: -4px;
+    left: 50%;
+    margin-left: -3px;
     width: 6px;
     height: 6px;
     background-color: $mem-coral;
     border: 1px solid $mem-line;
-    // The moon travels the path ITSELF, via motion path. Rotating a wrapper (as
-    // the circular version did) sends it around a circle instead — on an
-    // ellipse the two come apart everywhere except the four extremes. The shape
-    // is given in percentages of this box, so it stays welded to the ring that
-    // is drawn from the same box; no pixel constants to keep in sync.
-    offset-path: ellipse(50% 50% at 50% 50%);
-    offset-rotate: 0deg;
-    // Undoes the path's tilt so the pixel moon stays square to the screen.
-    transform: rotate(20deg);
   }
 }
 
@@ -128,13 +130,11 @@
 
     .logo-orbit {
       opacity: 1;
-      // Same tilt as at rest — only the scale grows, or the path would swing
-      // into place instead of arriving.
-      transform: rotate(-20deg) scale(1);
+      transform: scale(1);
     }
 
-    .logo-moon {
-      animation: logo-moon-orbit 3s linear infinite;
+    .logo-orbit-spin {
+      animation: logo-orbit-turn 3s linear infinite;
     }
   }
 }
@@ -163,16 +163,9 @@
   }
 }
 
-// One lap of the path. `offset-distance` animates the position ALONG the
-// ellipse — a `transform: rotate` here would carry the moon around a circle
-// again and lift it off the ring everywhere but the four extremes.
-@keyframes logo-moon-orbit {
-  from {
-    offset-distance: 0%;
-  }
-
+@keyframes logo-orbit-turn {
   to {
-    offset-distance: 100%;
+    transform: rotate(360deg);
   }
 }
 
@@ -184,9 +177,9 @@
       animation: none;
     }
 
-    // The path still appears — it is the affordance, not the decoration. Only
-    // the travelling parts stop; the moon stays parked at its 0% position.
-    .logo-moon {
+    // The ring still appears — it is the affordance, not the decoration. Only
+    // the travelling parts stop.
+    .logo-orbit-spin {
       animation: none;
     }
   }
