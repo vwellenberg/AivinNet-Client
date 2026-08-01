@@ -50,12 +50,18 @@ $sidebar-row-font: 0.9375rem; // 15px — a step up from the old 14px
 // meta next to 12.8px/900, and a text column that started 4px further right on
 // one page than the other. Measured, not estimated.
 //
-// The album's scale wins. 1000 is a variable-font extreme used nowhere else in
+// The album's scale won. 1000 is a variable-font extreme used nowhere else in
 // the app, and a 60px title wraps to two lines on titles the 44px one still
 // fits — which is why the playlist header needed a `balanceText` hint in the
 // first place.
+//
+// 44px -> 34px with the plate anatomy (Global/detail-head.scss). The head is a
+// panel now, not 18rem of open ground, and the title's line count decides the
+// whole head's height: at 2.75rem the plate measured 289px and stretched its
+// square media cell into a 176x283 portrait crop. At 2.1rem the title fits one
+// ellipsed line and the cell stays close to square (measured 226px / 176x220).
 // ---------------------------------------------------------------------------
-$detail-title-size: 2.75rem;
+$detail-title-size: 2.1rem;
 $detail-title-size-phone: 1.5rem;
 $detail-title-weight: 700;
 $detail-meta-size: 14px;

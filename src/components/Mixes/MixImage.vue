@@ -115,11 +115,11 @@ function getImageUrl(image: any, is_extra: boolean = false) {
     }
 }
 
-// As a tile's artwork the shared anatomy (Global/cards.scss) owns the frame,
-// the radius and the clipping — the frames above would draw a second ring
-// inside it. The mix HEADER keeps them, which is why this is scoped rather
-// than deleted.
-.miximage.card-art {
+// As a tile's artwork (`.card-art`) or a head's media cell (`.dh-art`) the
+// shared anatomies own frame, radius and clipping — the frames above would
+// draw a second ring inside them.
+.miximage.card-art,
+.miximage.dh-art {
     .main,
     .images {
         border: none;
@@ -130,9 +130,11 @@ function getImageUrl(image: any, is_extra: boolean = false) {
 .miximage.on_header {
     height: 100%;
 
+    // No frame on the image here either: on the mix page this element IS the
+    // head's media cell (`.dh-art`), which already carries the plate's edge.
     img {
-        border: $candy-border;
-        border-radius: 1.1rem;
+        border: none;
+        border-radius: 0;
     }
 
     .infooverlay {

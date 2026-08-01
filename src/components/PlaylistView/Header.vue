@@ -33,7 +33,17 @@ const { info } = storeToRefs(playlist);
 // `banner_pos`, and three breakpoint blocks that restated the cover size and
 // the title size a second and third time.
 .p-header {
-  // The collage fills the media cell; its own tiles size themselves.
+  // The collage brings its own frame, radius and blush ground from the days
+  // when it was a free-standing banner — inside the media cell that draws a
+  // second ring, and its content height (a square) left a strip of bare panel
+  // under it whenever the text side was taller. The cell owns frame and
+  // clipping; the collage just fills it.
+  .playlist-banner-images {
+    height: 100%;
+    border: none;
+    border-radius: 0;
+  }
+
   .playlist-collage {
     height: 100%;
   }
