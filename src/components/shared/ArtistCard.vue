@@ -10,13 +10,15 @@
         @contextmenu.prevent="showContextMenu"
         :class="{ 'context-menu-open': contextMenuFlag }"
     >
-        <div class="image circular">
-            <img class="artist-image circular" :src="imguri + artist.image" />
+        <CardTypeLabel type="artist" />
+        <!-- `is-round`: the portrait is a disc, so the frame belongs to the
+             image and the box stays open — the play disc sits in the square
+             corner outside the circle and would otherwise be clipped. -->
+        <div class="image card-art is-round">
+            <img class="artist-image" :src="imguri + artist.image" />
             <PlayBtn :artisthash="artist.artisthash" :artistname="artist.name" :source="playSources.artist" />
         </div>
-        <!-- Single text wrapper so the shared card anatomy (Global/cards.scss)
-             can treat every card as image + one text zone. -->
-        <div class="card-text">
+        <div class="card-plate">
             <div v-if="artist.help_text" class="rhelp t-center">
                 <span class="help" :class="{ keep: !artist.time }">{{ artist.help_text }}</span>
                 <span class="time">{{ artist.time }}</span>
@@ -37,6 +39,7 @@ import { Artist } from '@/interfaces'
 import { Routes } from '@/router'
 
 import { playSources } from '@/enums'
+import CardTypeLabel from './CardTypeLabel.vue'
 import PlayBtn from './PlayBtn.vue'
 import { ref } from 'vue'
 import { showArtistContextMenu } from '@/helpers/contextMenuHandler'
@@ -54,44 +57,19 @@ const showContextMenu = (e: MouseEvent) => {
 </script>
 
 <style lang="scss">
+// Shape, frame, shadow and hover live in the shared anatomy
+// (Global/cards.scss). Only what is specific to an artist tile stays here.
 .artist-card {
-    overflow: hidden;
-    position: relative;
-
-    @include candy-box($mem-panel, $candy-radius);
-    // Hard offset shadow: the tile sits above the grid ground (memphis).
-    @include candy-raised(3px, 3px, $press: false);
-    padding: $medium;
     font-size: 0.95rem;
     font-weight: 700;
-    height: max-content;
-    transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
-
-    &.context-menu-open {
-        background-color: $mem-hover;
-    }
-
-    .image {
-        position: relative;
-    }
-
-    // Same bottom-right corner button as every other cover card; on the round
-    // image it lands in the square corner outside the circle but inside the box.
-    @include card-play-btn;
-
-    &:hover {
-        background-color: $mem-hover;
-    }
 
     .artist-image {
+        // Match the square cover tiles' height behaviour: a fixed 1:1 box the
+        // portrait is cropped into. `.card-art.is-round` supplies frame and
+        // radius — this is the only tile whose motif is a disc.
         width: 100%;
-        // Match the square cover cards' height behaviour: a fixed 1:1 box the
-        // image is cropped into (object-fit), rendered round by .circular.
-        // No bottom margin: the shared card anatomy's gap owns that spacing.
         aspect-ratio: 1;
-        transition: background-color 0.2s ease-out;
         object-fit: cover;
-        border: $candy-border;
     }
 
     .artist-name {

@@ -8,11 +8,12 @@
     }"
     class="trackcard"
   >
-    <div class="image">
-      <img class="rounded-sm" :src="paths.images.thumb.large + track.image" />
+    <CardTypeLabel type="track" />
+    <div class="image card-art">
+      <img :src="paths.images.thumb.large + track.image" />
       <PlayBtn :source="playSource" :track="track" />
     </div>
-    <div class="tinfo">
+    <div class="tinfo card-plate">
       <div v-if="track.help_text" class="rhelp track">
         <span class="help">{{ track.help_text }}</span>
         <span class="time">{{ track.time }}</span>
@@ -30,6 +31,7 @@ import { Track } from "@/interfaces";
 
 import { Routes } from "@/router";
 import ArtistName from "../shared/ArtistName.vue";
+import CardTypeLabel from "../shared/CardTypeLabel.vue";
 import PlayBtn from "../shared/PlayBtn.vue";
 
 defineProps<{
@@ -43,38 +45,15 @@ defineEmits<{
 </script>
 
 <style lang="scss">
+// Shape, frame, shadow and hover live in the shared anatomy
+// (Global/cards.scss). Only what is specific to a track tile stays here.
 .trackcard {
-  padding: $medium;
   cursor: pointer;
-  height: max-content;
-  transition: background-color 0.2s ease-out;
-  @include candy-box($mem-panel, $candy-radius);
-  // Hard offset shadow: the tile sits above the grid ground (memphis).
-  @include candy-raised(3px, 3px, $press: false);
-
-  .image {
-    position: relative;
-    margin-bottom: $small;
-  }
-
-  @include card-play-btn;
-
-  &:hover {
-    background-color: $mem-hover;
-  }
 
   .ttitle {
     font-weight: 700;
     font-size: 0.95rem;
     color: $candy-text;
-  }
-
-  img {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border: $candy-border;
-    border-radius: $candy-radius-sm;
   }
 
   .artist {

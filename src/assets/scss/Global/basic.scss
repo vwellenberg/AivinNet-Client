@@ -226,11 +226,11 @@ button {
     @include hideScrollbars;
   }
 
-  .album-card {
-    &:hover {
-      background-color: $candy-pink-deep;
-    }
-  }
+  // No hover rule for `.album-card` here. It used to paint the tile YELLOW in
+  // this one scroller — a colour that means "active" everywhere else in this
+  // design (playing row, shuffle on) — while every other row tinted blush. The
+  // tile has no surface of its own since the plate anatomy (Global/cards.scss);
+  // the hover belongs to its plates and is stated once, there.
 }
 
 .rhelp {

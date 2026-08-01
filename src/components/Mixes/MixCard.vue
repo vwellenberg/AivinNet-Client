@@ -9,8 +9,9 @@
         }"
         class="mixcard"
     >
-        <MixImage :mix="mix" :on_header="on_header" />
-        <div class="info">
+        <CardTypeLabel type="mix" />
+        <MixImage :mix="mix" :on_header="on_header" class="card-art" />
+        <div class="info card-plate">
             <div class="mix rhelp" v-if="mix.time || mix.help_text">
                 <span class="help" v-if="mix.help_text">{{ mix.extra.type }} {{ mix.help_text }} </span>
                 <span class="time"> {{ mix.time }} </span>
@@ -27,6 +28,7 @@ import { Mix } from '@/interfaces'
 
 import { RouterLink } from 'vue-router'
 import { Routes } from '@/router'
+import CardTypeLabel from '../shared/CardTypeLabel.vue'
 import MixImage from './MixImage.vue'
 
 defineProps<{
@@ -36,22 +38,12 @@ defineProps<{
 </script>
 
 <style lang="scss">
+// Shape, frame, shadow and hover live in the shared anatomy
+// (Global/cards.scss). Only what is specific to a mix tile stays here.
 .mixcard {
-    padding: $medium;
-    height: max-content;
-    transition: background-color 0.2s ease-out;
-    @include candy-box($mem-panel, $candy-radius);
-    // Hard offset shadow: the tile sits above the grid ground (memphis).
-    @include candy-raised(3px, 3px, $press: false);
-
-    &:hover {
-        background-color: $mem-hover;
-        cursor: pointer;
-    }
+    cursor: pointer;
 
     .info {
-        margin-top: $small;
-
         .title {
             font-size: 1rem;
             font-weight: 700;

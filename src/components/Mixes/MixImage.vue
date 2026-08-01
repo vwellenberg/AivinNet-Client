@@ -115,6 +115,18 @@ function getImageUrl(image: any, is_extra: boolean = false) {
     }
 }
 
+// As a tile's artwork the shared anatomy (Global/cards.scss) owns the frame,
+// the radius and the clipping — the frames above would draw a second ring
+// inside it. The mix HEADER keeps them, which is why this is scoped rather
+// than deleted.
+.miximage.card-art {
+    .main,
+    .images {
+        border: none;
+        border-radius: 0;
+    }
+}
+
 .miximage.on_header {
     height: 100%;
 

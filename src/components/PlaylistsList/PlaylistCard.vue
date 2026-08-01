@@ -2,15 +2,16 @@
   <!-- No .rounded utility here: it overrode the candy-box radius (16px vs the
        14px every other card uses) and made playlist tiles a different shape. -->
   <router-link :to="{ name: 'PlaylistView', params: { pid: playlist.id } }" class="p-card no-scroll">
-    <div v-if="!playlist.has_image && playlist.images.length" class="image rounded-sm no-scroll">
-      <PlaylistImages :images="playlist.images" size="large" class="rounded-sm" />
+    <CardTypeLabel type="playlist" />
+    <div v-if="!playlist.has_image && playlist.images.length" class="image card-art no-scroll">
+      <PlaylistImages :images="playlist.images" size="large" />
       <PlayBtn :source="playSources.playlist" :playlist="playlist.id.toString()"/>
     </div>
-    <div v-else class="image">
-      <img :src="imguri + playlist.thumb" class="rounded-sm" :class="{ border: !playlist.thumb }" />
+    <div v-else class="image card-art">
+      <img :src="imguri + playlist.thumb" />
       <PlayBtn :source="playSources.playlist" :playlist="playlist.id.toString()"/>
     </div>
-    <div class="overlay">
+    <div class="overlay card-plate">
       <div v-if="playlist.help_text" class="rhelp playlist">
         <span class="help">{{ playlist.help_text }}</span>
         <span class="time">{{ playlist.time }}</span>
@@ -27,6 +28,7 @@
 import { paths } from "../../config";
 import { Playlist } from "../../interfaces";
 import { playSources } from '@/enums'
+import CardTypeLabel from '../shared/CardTypeLabel.vue'
 import PlayBtn from '../shared/PlayBtn.vue'
 import PlaylistImages from '../shared/PlaylistImages.vue'
 
@@ -37,40 +39,11 @@ defineProps<{
 </script>
 
 <style lang="scss">
+// Shape, frame, shadow and hover live in the shared anatomy
+// (Global/cards.scss): `.card-art` for the artwork, `.card-plate` for the text.
+// Only what is specific to a playlist tile stays here.
 .p-card {
-  display: grid;
-  grid-template-rows: 1fr max-content;
-  padding: $medium;
-  gap: $small;
   user-select: none;
-  height: max-content;
-  transition: background-color 0.2s ease-out;
-  @include candy-box($mem-panel, $candy-radius);
-  // Hard offset shadow: the tile sits above the grid ground (memphis).
-  @include candy-raised(3px, 3px, $press: false);
-
-  .image {
-    position: relative;
-    overflow: hidden;
-    border: $candy-border;
-    border-radius: $candy-radius-sm;
-  }
-
-  @include card-play-btn;
-
-  &:hover {
-    background-color: $mem-hover !important;
-  }
-
-  // The hover only tints the card itself (above); neither the artwork nor the
-  // text zone below changes, so the two `transition: all` rules that used to
-  // sit here animated nothing. Measured on the running app: hovering a card
-  // changes no property on either element.
-  img {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-  }
 
   .overlay {
     display: flex;
