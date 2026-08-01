@@ -818,10 +818,9 @@ onBeforeUnmount(teardown);
         }
       }
 
-      // Same as the playlist rows: the name carries the smooth fill, the space
-      // before the count and chevron stays texture.
+      // Same as the playlist rows, small buffer for the same reason.
       span.ellip {
-        @include mem-hatch-clear;
+        @include mem-hatch-clear($small);
       }
 
       .folder-count {
@@ -905,9 +904,13 @@ onBeforeUnmount(teardown);
     // The label carries the smooth fill and is only as wide as its own text —
     // the space between it and the pin stays texture. The thumbnail needs no
     // cover of its own: it is opaque and hides what is under it.
+    // Small buffer here, unlike the navigation: every pixel of it is taken off
+    // the visible name. At the navigation's 26px the playlist titles truncated
+    // a whole word early ("Chill Gami…" instead of "Chill Gaming"), and a name
+    // you cannot read is a worse trade than a little less texture.
     span.ellip {
       opacity: 0.85;
-      @include mem-hatch-clear;
+      @include mem-hatch-clear($small);
     }
 
     .pl-pin {
