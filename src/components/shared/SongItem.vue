@@ -347,7 +347,12 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 
     // Unfavorited add/fav glyph declares its own adaptive colour (paper in
     // dark) — pin ink on the light row fills.
-    .heart-button {
+    //
+    // `:not(.is-fav)` states what the comment already said. The favourited
+    // glyph owns its fill (teal), and this selector outranks `.heart-button.is-fav`
+    // by the row's own class — so without the exclusion the marker's disc would
+    // go ink here and, since its tick is ink too, read as a solid blob.
+    .heart-button:not(.is-fav) {
         color: $mem-ink;
     }
 }

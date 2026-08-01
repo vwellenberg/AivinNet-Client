@@ -239,7 +239,12 @@ onBeforeUnmount(() => {
       border: none;
       background-color: transparent;
 
-      svg {
+      // The UNFAVOURITED plus only. This selector (0,2,1) outranks
+      // `.heart-button.is-fav` (0,2,0), so written bare it also repainted the
+      // favourite marker — a favourited queue track has been drawing ink
+      // instead of teal, telling the two states apart by shape alone. With the
+      // marker's tick now ink as well, that would have flattened it to a blob.
+      &:not(.is-fav) svg {
         color: $candy-black;
       }
     }

@@ -34,7 +34,8 @@ optische Größe am Füllgrad der jeweiligen viewBox (daher kam „Lyrics-Icon z
 
 Seit #311 sind die Navigations- und Chrome-Glyphen (home, search, folder\*, bookmark\*, playlist\*,
 chart, settings, album, artist, delete, plus, queue, more, expand, arrow\*, volume-\*, pin\*,
-download, pencil, reload, devices, headphones, a, square, check.filled) **ein** Satz:
+download, pencil, reload, devices, headphones, a, square, check.filled, check.circle.fill) **ein**
+Satz:
 
 - **24×24-Box, ~18 px optisches Glyph** (Ink von 3 bis 21), **2,4 px** Strich, runde Kappen und
   Ecken. 2 px war der erste Wurf und las sich neben den 3-px-Rahmen und der fetten Schrift dieses
@@ -84,6 +85,28 @@ Ink ohnehin, siehe „Filled row states" in `SongItem.vue`), und ein Akzent beko
 
 So bleibt der Akzent dort, wo er misst (Player-Bar: 3,68:1 auf Weiß, 5,14:1 auf dem dunklen
 Grund), ohne dass die Komponente ihre Wirte kennen muss. `PlayingMeter.vue` ist das Vorbild.
+
+**Der zweite Weg: eine Ink-Kontur trägt den Kontrast, die Fläche trägt die Identität.** Ein
+Glyph, das eine *geschlossene* Form hat, muss seinen Akzent nicht aufgeben — 1.4.11 verlangt, dass
+die **Grenzen** des Elements unterscheidbar sind, nicht dass jede Innenfläche gegen den Wirt misst.
+`check.circle.fill.svg` (der Favoriten-Marker) macht genau das: die Scheibe bleibt `currentColor`
+und damit teal, aber Kontur und Haken sind **fest** Ink. Auf der gelben Zeile misst die Kante
+9,64:1, während die Scheibe darin bei 1,24:1 liegen darf.
+
+Zwei Bedingungen, sonst kippt es:
+
+- **Die Marke darf nicht im selben Farbkanal liegen wie die Fläche.** Wäre der Haken auch
+  `currentColor`, würde das Glyph überall dort zu einem massiven Fleck, wo ein Wirt `color: ink`
+  pinnt — und das tun mehrere (`SongItem.vue` auf gefüllten Zeilen, `TrackItem.vue` in der Queue,
+  `FavoritesCard.vue` auf der Kachel). Deshalb: Fläche = `currentColor`, Marke = feste Farbe.
+- **Die Wirte, die Ink pinnen, meinen den AUS-Zustand.** Ihre Regeln gehören auf
+  `:not(.is-fav)` gescopet, sonst entscheidet Spezifität statt Absicht. Real passiert:
+  `.float-buttons .heart-button svg` (0,2,1) schlug `.heart-button.is-fav` (0,2,0), also war ein
+  favorisierter Queue-Track die ganze Zeit ink statt teal — die beiden Zustände unterschieden sich
+  dort nur noch in der Form.
+
+Die feste Farbe wird im **Asset** gesetzt, nicht per CSS-Regel: sie ist eine Eigenschaft der
+Zeichnung („diese Kante ist die Kontrastkante"), keine Aussage des Wirts.
 
 **Vorsicht bei der Gegenprobe:** Ein Element-Screenshot der Zeile allein beweist nichts — er
 rendert auf weißem Grund und lässt jede Farbe gut aussehen. Gemessen wird der **computed
