@@ -3,11 +3,17 @@
   align-items: center;
   gap: $medium;
 
-  // Filter chips — the `pill` role at chip height. The soft fill is
-  // theme-aware (dark in the dark theme), so the label has to be too: the
-  // role's static ink is only legal on a static accent fill.
+  // Filter chips — the `pill` role at ITS height, not a shrunk copy of it.
+  //
+  // They used to state `$h: 2rem`, which put the search page's only category
+  // navigation at 32px — below the app's own 44px touch target, and the one
+  // control on the phone you cannot avoid. The role's default already is
+  // 2.75rem; the literal only ever took it away.
+  //
+  // The soft fill is theme-aware (dark in the dark theme), so the label has
+  // to be too: the role's static ink is only legal on a static accent fill.
   .tab {
-    @include btn-pill($h: 2rem, $radius: $candy-radius-pill, $fill: $candy-pink-soft);
+    @include btn-pill($radius: $candy-radius-pill, $fill: $candy-pink-soft);
     color: $candy-text;
     text-transform: capitalize;
 

@@ -421,7 +421,11 @@ $control-compact-glyph: 1rem;
   font-weight: 700;
   line-height: 1.2;
   cursor: pointer;
-  @include candy-raised(2px, 2px, $press: false);
+  // 3px, like every other raised surface in the app. The token census (#355)
+  // found 2px on exactly three elements against 1186 at 3px or 4px, and two
+  // of the three were this role — so it was never a pill decision, it was a
+  // default nobody had a reason for.
+  @include candy-raised(3px, 3px, $press: false);
   transition: background-color $motion-tint $motion-curve, box-shadow $motion-shadow $motion-curve,
     transform $motion-press ease;
 

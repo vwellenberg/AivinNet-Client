@@ -114,13 +114,23 @@ onMounted(() => {
       max-width: calc(100% - 16px);
     }
 
+    // No `border-radius` here: the scroller has no fill of its own, so the
+    // pill radius was only ever a clip mask — invisible while the box was
+    // exactly one chip tall, and a corner shave on the first and last chip
+    // now that it reserves the shadow below them.
     .tabheaders {
       margin: 0;
-      border-radius: $candy-radius-pill;
       max-width: calc(100% - 16px);
       overflow: auto;
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
+
+      // The scroller reserves the offset shadow on the two sides it falls to.
+      // `overflow: auto` clips ink overflow as well, so without this the hard
+      // shadow is cut off flush along the bottom edge and along the last chip
+      // once the row is scrolled to its end — same trap as the sidebar rows.
+      // $small covers the 4px hover offset plus the 1.04 hover scale.
+      padding: 0 $small $small 0;
 
       // The chips scroll horizontally by touch/drag; never show the
       // scrollbar (it otherwise overlaps the chips on mobile, where the
@@ -134,8 +144,13 @@ onMounted(() => {
   }
 
   &.is_alt_layout {
-    grid-template-rows: 2rem 1fr;
-    gap: 1rem;
+    // `max-content`, not a literal: the row used to be pinned to 2rem, which
+    // was exactly the chip height of the day. A control that grows — to reach
+    // the 44px touch target, say — then grows into a box that cannot follow,
+    // and the row silently becomes a crop. The gap is $small because the
+    // scroller already reserves $small below the chips for their shadow.
+    grid-template-rows: max-content 1fr;
+    gap: $small;
     padding-top: 1rem;
 
     .vue-recycle-scroller {
