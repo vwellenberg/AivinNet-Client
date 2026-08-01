@@ -161,6 +161,20 @@ defineEmits<{
 // row's own sizing rule by name. Both of those are this rule now.
 .heart-button.role-bar {
     @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
+
+    // Same correction role-action carries, and for the same reason: the mixin
+    // sets `color`, this block sits LATER in the file than `.heart-button.is-fav`
+    // and matches at the same specificity (0,2,0) — so the role's ink won the
+    // cascade and the favourited marker in the player bar lost its teal.
+    //
+    // Measured on the deployed app: `fill` came back rgb(23,23,26) where the
+    // same marker measures rgb(47,191,163) in a track row. It went unnoticed
+    // because the glyph it replaced was a disc with a fixed ink edge and an ink
+    // tick — ink on ink simply looked like a dark blob, not like a wrong colour.
+    &.is-fav,
+    &.is-fav:hover {
+        color: $mem-teal;
+    }
 }
 
 // The header variant. Four detail headers stand this toggle in a row of
