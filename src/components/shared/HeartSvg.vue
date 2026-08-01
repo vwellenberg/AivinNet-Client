@@ -105,6 +105,27 @@ defineEmits<{
     // that is the app's favourite iconography.
     &.is-fav {
         color: $mem-teal;
+
+        // The marker is a plate stuck onto the row, not a print in it — it gets
+        // the design's one shadow: no blur, down-right, hard edge.
+        //
+        // `drop-shadow` and not `candy-shadow`: this button is `btn-quiet`, so
+        // its own box is transparent, and a `box-shadow` there would be the
+        // offset-under-nothing the shadow rules warn about. The filter follows
+        // the GLYPH's silhouette instead, which is a closed, filled disc — the
+        // same technique `Logo.vue` uses for its ink contour.
+        //
+        // Ink, not the theme-aware `--mem-shadow`, for the reason the asset's
+        // outline is fixed too: two of the three row surfaces this sits on are
+        // statically light (hover = white, playing = yellow), so a paper-toned
+        // shadow would smear milk across the yellow row in the dark theme. On
+        // the dark resting ground it drops out, exactly as the outline does.
+        //
+        // 2px against the ~21px glyph — the 3px the plates use reads as a
+        // second disc at this size.
+        svg {
+            filter: drop-shadow(2px 2px 0 $mem-ink);
+        }
     }
 }
 
