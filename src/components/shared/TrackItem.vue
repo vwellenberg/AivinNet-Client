@@ -187,6 +187,14 @@ onBeforeUnmount(() => {
   padding-top: calc(#{$small} - #{$candy-border-w});
   padding-bottom: calc(#{$small} - #{$candy-border-w});
 
+  // Ink, like every other filled row in the app. The row's text otherwise
+  // inherits the theme's `color` — paper in dark — and paper on $mem-yellow
+  // measures 1.66:1 (ink: 9.6:1). SongItem.vue has pinned this for its filled
+  // states all along ("Filled row states"); the queue row never did, so the
+  // playing track was the one row in the app whose title and artist went
+  // unreadable when the theme flipped.
+  color: $mem-ink;
+
   // Full strength on the playing row, same call as in SongItem.vue: the
   // sprinkle costs the dimmed artist line its legibility first, and this is
   // the row being read.
@@ -196,6 +204,14 @@ onBeforeUnmount(() => {
 
   .artist {
     opacity: 1;
+  }
+
+  // The favourite marker keeps its teal disc — the row pins ink for everything
+  // that inherits, and the marker's own contrast edge is baked into the asset.
+  // Without the exception the disc would go ink and, its tick being ink too,
+  // read as a solid blob (same reasoning as .claude/rules/styling.md).
+  .heart-button.is-fav svg {
+    color: $mem-teal;
   }
 }
 
