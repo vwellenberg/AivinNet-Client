@@ -37,11 +37,14 @@ a {
   color: inherit;
 }
 
+// No `transition: transform` here: nothing transforms an `.image`. The rule is
+// left over from the pre-memphis cards, whose artwork zoomed on hover. Measured
+// on the running app across three of its users (playlist card, artist card,
+// playlist header): hovering changes no property on the element at all.
 .image {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  transition: transform 0.3s ease-in-out;
 }
 
 // BORDERS

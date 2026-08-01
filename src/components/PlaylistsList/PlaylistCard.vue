@@ -62,11 +62,14 @@ defineProps<{
     background-color: $mem-hover !important;
   }
 
+  // The hover only tints the card itself (above); neither the artwork nor the
+  // text zone below changes, so the two `transition: all` rules that used to
+  // sit here animated nothing. Measured on the running app: hovering a card
+  // changes no property on either element.
   img {
     width: 100%;
     aspect-ratio: 1;
     object-fit: cover;
-    transition: all 0.5s ease;
   }
 
   .overlay {
@@ -76,7 +79,6 @@ defineProps<{
     // across mixed rows (the old flex-end only mattered when the image row was
     // 1fr; in the shared anatomy the text zone has a fixed height).
     justify-content: flex-start;
-    transition: all 0.25s ease;
 
     .p-name {
       font-weight: 700;

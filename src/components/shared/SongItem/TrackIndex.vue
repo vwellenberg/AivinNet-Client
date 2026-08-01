@@ -37,12 +37,13 @@ defineEmits<{
   display: flex;
   justify-content: center;
 
+  // No transition: the number is not animated into anything. It is swapped for
+  // the meter by `v-if`, and a node that enters the DOM has no previous value
+  // to travel from. Measured on a hovered row: nothing on `.text` changes.
   .text {
     opacity: 0.5;
     margin: auto 0;
     transform: translateX($smaller);
-
-    transition: all 0.25s;
     width: 100%;
   }
 
@@ -62,22 +63,10 @@ defineEmits<{
     --meter-peak: currentColor;
   }
 
-  .heart-icon {
-    position: absolute;
-    left: -2px;
-    display: grid;
-    height: 100%;
-    align-content: center;
-    transition: all 0.2s;
-    transform: translateX(-1.5rem);
-
-    button {
-      border: none;
-      width: 2rem;
-      height: 2rem;
-      padding: 0;
-      background-color: transparent;
-    }
-  }
+  // NOTE: A `.heart-icon` block used to sit here, from when the favourite
+  // marker lived next to the track number. It moved to the duration column
+  // long ago — the element this styled never appears inside `.index`, so the
+  // rules (including a `transition: all`) applied to nothing. The live one is
+  // in TrackDuration.vue; do not restore a second copy here.
 }
 </style>
