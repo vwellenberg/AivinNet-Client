@@ -74,9 +74,28 @@ Pro Aufgabe/Issue:
 - **`master` ändert sich laufend = normal und gewollt:** jeder gemergte PR bewegt `master`. Das ist KEIN Zeichen für Direkt-Commits, sondern der vorgesehene Fluss (Worktree → Branch → PR → Merge).
 
 ### Mehrere Agents parallel
-- **Vor jedem Merge `git fetch` + `origin/master`-Stand prüfen.** Bei `BEHIND`: `git rebase origin/master`, Konflikte lösen (häufig die `package.json`-Version → auf nächste freie Patch-Version ziehen).
+
+**Das ist der Normalzustand, kein Zwischenfall.** An diesem Repo arbeiten regelmäßig mehrere
+Sitzungen gleichzeitig. `master` wandert deshalb während der eigenen Arbeit, fremde PR-Nummern
+tauchen auf, und Dateien, die man gerade gelesen hat, sehen zehn Minuten später anders aus.
+Nichts davon ist ein Zeichen für Direkt-Commits oder einen kaputten Stand — der Fluss
+(Worktree → Branch → PR → Merge) ist genau dafür gebaut. Also nicht stutzen, sondern
+nachziehen.
+
+- **Vor jedem Worktree UND vor jedem Merge `git fetch` + `origin/master`-Stand prüfen.** Bei `BEHIND`: `git rebase origin/master`, Konflikte lösen (häufig die `package.json`-Version → auf nächste freie Patch-Version ziehen).
 - **Footprint klein halten**, Branch klar benennen, zügig mergen (kurzes offenes Fenster = weniger Konflikte).
 - **Gleiche Dateien nicht gleichzeitig** anfassen (v.a. Theming wie `lauflicht.scss`, geteilte Komponenten/Mixins) — sonst Merge-Konflikte und sich überschreibende Design-Entscheidungen. Bei absehbarer Überlappung Bereiche/Lanes informell abgrenzen.
+- **⚠️ Die laufende App bewegt sich mit.** Eine Messreihe gilt für genau einen Commit: deployt
+  eine andere Sitzung mittendrin, trifft der nächste Screenshot einen anderen Stand — ohne
+  Fehlermeldung, ohne dass irgendetwas kaputt aussieht. Den Stand von **Checkout und deploytem
+  Build** deshalb vor *und* nach der Reihe festhalten und bei Abweichung neu messen. Real
+  passiert: #370 zeichnete das Favoriten-Icon zwischen zwei Läufen neu — die erste Aufnahme
+  zeigte den weißen Haken des alten Assets, die zweite den ink-Haken des neuen, und aufgefallen
+  ist es nur, weil das ausgelieferte SVG nicht mehr zum Quellbaum passte.
+- **Ein Befund altert zwischen Messen und Melden.** Vor dem Absenden die genannten Dateien noch
+  einmal gegen `origin/master` lesen: Was man gefunden hat, kann längst behoben sein (real: die
+  `scale(0.75)`-Kompensation in `HeartSvg.vue` war mit #370 weg, während sie im Entwurf noch als
+  offener Punkt stand).
 
 ## CI
 
@@ -233,7 +252,7 @@ Client-Repo** → dort mit „For vwellenberg/AivinNet-Client#N" referenzieren, 
 
 ## Learnings / Gotchas (für alle Agents)
 
-- **⚠️ CODE-CURRENCY ZUERST PRÜFEN (vor jeder Analyse/Diagnose/Screenshot):** Immer verifizieren, dass auf dem **aktuellen** Code gearbeitet wird — an BEIDEN Stellen: (1) **Lokal**: `git fetch` + `git rev-list --left-right --count HEAD...origin/master`; bei Rückstand ff-syncen. (2) **Deployt/Live**: Server-Checkout-HEAD (`~/AivinNet-Client`) **und** deployter Build (`~/.config/swingmusic/client`) gegen `origin/master`. **Die Headless-Screenshot-Pipeline trifft die DEPLOYTE App** — die kann viele Commits hinterherhinken, auch wenn `master` aktuell ist (real passiert: Header an 6-Commits-alter App diagnostiziert, Pin noch rechts oben statt inline). Stale → erst syncen (lokal) bzw. aktuellen `master` deployen (mit User-OK), DANN diagnostizieren/screenshotten. Nie Mockups/Befunde von veraltetem Stand als „so ist es" präsentieren.
+- **⚠️ CODE-CURRENCY ZUERST PRÜFEN (vor jeder Analyse/Diagnose/Screenshot):** Immer verifizieren, dass auf dem **aktuellen** Code gearbeitet wird — an BEIDEN Stellen: (1) **Lokal**: `git fetch` + `git rev-list --left-right --count HEAD...origin/master`; bei Rückstand ff-syncen. (2) **Deployt/Live**: Server-Checkout-HEAD (`~/AivinNet-Client`) **und** deployter Build (`~/.config/swingmusic/client`) gegen `origin/master`. **Die Headless-Screenshot-Pipeline trifft die DEPLOYTE App** — die kann viele Commits hinterherhinken, auch wenn `master` aktuell ist (real passiert: Header an 6-Commits-alter App diagnostiziert, Pin noch rechts oben statt inline). Stale → erst syncen (lokal) bzw. aktuellen `master` deployen (mit User-OK), DANN diagnostizieren/screenshotten. Nie Mockups/Befunde von veraltetem Stand als „so ist es" präsentieren. **Und danach noch einmal prüfen** — hier deployen mehrere Sitzungen, der Stand kann sich mitten in einer Messreihe ändern (siehe *Mehrere Agents parallel*).
 - **⚠️ SERVICE WORKER / STALE CACHE (ZUERST LESEN):** Wenn der User sagt „Fix sieht man nicht / UI noch alt", obwohl der Deploy nachweislich korrekt auf dem Server liegt → **fast immer ein Service Worker**, der alte vorgecachte Assets ausliefert. **Strg+Shift+R und „Cache löschen" umgehen einen Service Worker NICHT.** Symptom: Headless-Screenshot (kein SW) zeigt den Fix korrekt, aber der User-Browser nicht. Diagnose: `ls ~/.config/swingmusic/client | grep -iE 'sw|workbox'` + im sw.js auf alte `index.*.js`-Hashes prüfen. **Status quo: PWA/SW ist via `selfDestroying: true` in [vite.config.ts](vite.config.ts) abgeschaltet** — nicht ohne triftigen Grund reaktivieren. Falls ein User noch einen alten SW stecken hat: Chrome DevTools (F12) → Application → Storage → „Clear site data" → Tab neu laden (das entfernt den SW; ein normaler Reload reicht nicht). Dieses Problem trat mehrfach auf — bitte SOFORT daran denken, bevor man stundenlang am CSS sucht.
 - **UI-Änderungen selbst ansehen, nicht behaupten.** Auf dem Server liegt unter `~/uitest` eine
   fertige Playwright-Kiste (Chromium **und** Firefox): Screenshots pro Route × Theme × Gerät,
