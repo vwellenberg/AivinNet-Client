@@ -48,7 +48,6 @@ import CardContent from './CardContent.vue'
 import FavoritesCard from './FavoritesCard.vue'
 import FolderCard from './FolderCard.vue'
 import TrackCard from './TrackCard.vue'
-import MixCard from '@/components/Mixes/MixCard.vue'
 
 const props = defineProps<{
     title: string
@@ -99,8 +98,6 @@ function getComponent(type: string) {
             return PlaylistCard
         case 'favorite':
             return FavoritesCard
-        case 'mix':
-            return MixCard
     }
 }
 
@@ -137,10 +134,6 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
         case 'favorite':
             return {
                 item: item.item,
-            }
-        case 'mix':
-            return {
-                mix: item.item,
             }
     }
 }
