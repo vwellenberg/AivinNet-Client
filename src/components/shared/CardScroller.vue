@@ -161,26 +161,48 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
         padding: 0 $medium;
         margin-bottom: $medium;
 
+        // The row's caption ("Recently played", "Artist mixes for you") and its
+        // "SEE ALL" link are stickers: they sat free on the doodle ground,
+        // which is exactly the pairing every plate in this design exists to
+        // avoid. The sticker goes on the TEXT, not on the flex row — a bar
+        // across the full width would read as a section divider.
         .rtitle {
             font-size: 1.15rem;
             font-weight: 700;
-            // Section heading rows sit on the page ground -> theme-aware.
-            color: $mem-content-text;
             display: flex;
-            align-items: baseline;
+            align-items: center;
             justify-content: space-between;
+            gap: $small;
+
+            > b {
+                @include mem-sticker;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
 
             a {
-                color: $mem-content-text;
+                color: $candy-text;
             }
         }
 
         .rdesc {
             font-size: 0.9rem;
-            color: $mem-content-muted;
             display: flex;
-            align-items: baseline;
+            align-items: center;
             justify-content: space-between;
+            gap: $small;
+            margin-top: $smaller;
+
+            > a {
+                @include mem-sticker;
+                color: $candy-text-muted;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
         }
     }
 

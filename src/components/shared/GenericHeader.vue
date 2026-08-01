@@ -24,7 +24,10 @@
     padding: 1.25rem 0 1rem $medium;
     height: max-content;
     align-items: center;
-    overflow: hidden;
+    // NOT `overflow: hidden` any more: the title is a sticker now, and its
+    // 3px offset shadow lives outside the text box — clipping the header
+    // sliced the shadow off at the right edge. Ellipsing is the `.title`'s own
+    // job (it has `overflow: hidden` for that), not the container's.
     max-width: 100%;
 
     .before {
@@ -55,21 +58,28 @@
     }
 
     .title {
+        // The page title (Playlists / Favorites / Charts …) is a sticker: it
+        // used to stand free on the doodle ground, where its readability
+        // depended on which memphis shape happened to sit behind it.
+        @include mem-sticker($candy-radius, 0.35rem 0.9rem);
         font-weight: 700;
-        margin-left: -1px;
-        max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
-        // Page title (Playlists / Favorites / Charts / ...) on the page ground
-        // -> theme-aware so it turns white on the dark indigo ground.
-        color: $mem-content-text;
+        white-space: nowrap;
     }
 
     .desc {
+        @include mem-sticker;
         font-size: 1rem;
         line-height: 1.5;
         font-weight: 500;
-        color: $mem-content-text;
+        margin-top: $small;
+    }
+
+    // An empty description slot would otherwise render an empty sticker — a
+    // small white box under the title with nothing in it.
+    .desc:empty {
+        display: none;
     }
 
     @include mediumPhones {

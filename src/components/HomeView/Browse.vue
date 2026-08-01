@@ -86,12 +86,12 @@ const browselist: BrowseItem[] = [
   padding-left: $small;
 
   .btitle {
+    // A sticker, like every other section caption: it stood free on the doodle
+    // ground, where the shape behind it decided how well it read.
+    @include mem-sticker;
     font-size: 1.15rem;
+    font-weight: 700;
     margin-bottom: 1rem;
-    padding-left: 0.25rem;
-    // "Browse Library" heading sits on the page ground -> theme-aware.
-    // (The .browseitem tiles below are white candy-boxes -> stay ink.)
-    color: $mem-content-text;
   }
 
   .browselist {

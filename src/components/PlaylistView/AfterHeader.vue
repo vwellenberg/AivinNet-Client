@@ -32,10 +32,16 @@ const showDateHeading = computed(() => Boolean(props.show_date_added) && !isSmal
     margin-top: $small;
 
     font-size: 14px;
-    font-weight: 500;
-    // Column-caption row ("All Tracks" / "Date added") sits on the page ground
-    // -> theme-aware muted.
-    color: $mem-content-muted;
+    font-weight: 700;
+
+    // Both captions are stickers: this row sits on the memphis ground between
+    // the header plate and the track list, and muted grey on the doodle tile is
+    // the pairing the plates exist to avoid.
+    .ah-label,
+    .date-added-heading {
+        @include mem-sticker(999px, 0.25rem 0.8rem);
+        color: $candy-text-muted;
+    }
 
     // Column-caption mode: same grid as .songlist-item.with-date (shared
     // variable) so the "Date added" caption sits exactly above its column.
