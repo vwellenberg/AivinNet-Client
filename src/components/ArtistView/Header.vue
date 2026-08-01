@@ -1,7 +1,7 @@
 <template>
     <div class="headparent">
         <!-- One plate: media cell, dividing rule, text side — the same anatomy
-             the album, playlist and mix heads wear (Global/detail-head.scss).
+             the album and playlist heads wear (Global/detail-head.scss).
              Gone with it: the ambient wash behind the head (a second absolutely
              positioned element that had to be kept in sync with the head's own
              height), the dark scrim for the small-phone layout, and the photo

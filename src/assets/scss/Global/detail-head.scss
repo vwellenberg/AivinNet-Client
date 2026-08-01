@@ -1,5 +1,5 @@
 // ============================================================================
-// DETAIL HEADER ANATOMY — one plate for album, artist, playlist and mix.
+// DETAIL HEADER ANATOMY — one plate for album, artist and playlist.
 //
 // The head is ONE object: a panel with an ink frame and a hard offset shadow,
 // split into a square media cell and a text side by a single dividing rule.
@@ -11,10 +11,12 @@
 //               | meta line
 //               | Play · Favourite · Pin · Second action · Overflow
 //
-// What this replaces: four headers that each solved the same problem
-// differently — cover left in a grid (album), photo RIGHT plus an ambient halo
-// (artist), two modes with a dark scrim over a banner photo (playlist), and a
-// flex row with its own paddings (mix). Type, title and meta sat free on the
+// What this replaces: headers that each solved the same problem differently —
+// cover left in a grid (album), photo RIGHT plus an ambient halo (artist), and
+// two modes with a dark scrim over a banner photo (playlist). A fourth, the mix
+// head, was folded in here and then removed with the mixes feature; the list
+// below is the census the anatomy reads, so it stays in step by construction.
+// Type, title and meta sat free on the
 // memphis ground, where a muted line lands on whatever doodle happens to be
 // behind it; that is exactly the problem the plates solve everywhere else.
 //
@@ -27,7 +29,7 @@
 // ============================================================================
 
 // The one list, read by the anatomy below and by the census test.
-$detail-heads: ".a-header, .artist-page-header, .p-header, .mixheader";
+$detail-heads: ".a-header, .artist-page-header, .p-header";
 
 #{$detail-heads} {
     display: flex;
