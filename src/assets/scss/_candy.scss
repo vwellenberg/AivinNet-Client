@@ -330,11 +330,55 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 //
 // The teeth are a shape, and that matters — a straight ink bar in this spot
 // simply reads as a thicker left border, because it abuts the frame.
+//
+// The fill also wears the sprinkle — the same texture `mem-transport-aux-on`
+// puts on shuffle/repeat when they are ON, so "this one is active" is one
+// vocabulary instead of a per-widget invention. It is MASKED to the top and
+// bottom edges: run across the whole row and it lands right in the text band,
+// where it costs the muted columns (album, date, duration) their legibility
+// first. Texture at the edges, text in a clean band.
+//
+// Both pseudo-elements belong to this state (texture + marker) — a host that
+// needs its own decoration has to find another mechanism (TrackItem's drop
+// marker is an inset box-shadow for exactly this reason).
 // ---------------------------------------------------------------------------
 @mixin mem-now-playing-row($radius: $candy-radius-sm) {
   position: relative;
   overflow: hidden; // clip the teeth to the rounded corners
   @include candy-box($mem-yellow, $radius);
+
+  // The row's own content sits ABOVE the texture: a positioned pseudo-element
+  // paints over static in-flow children, so without this the sprinkle would
+  // lie on top of the title.
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.34;
+    @include mem-sprinkle(42px);
+    // 13px of texture, faded out by 21px — measured against the 4.5rem song row
+    // and the 4rem queue row, so both keep a clean band around their two lines.
+    $band: 13px;
+    $fade: 21px;
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      #000 0 #{$band},
+      transparent #{$fade} calc(100% - #{$fade}),
+      #000 calc(100% - #{$band})
+    );
+    mask-image: linear-gradient(
+      180deg,
+      #000 0 #{$band},
+      transparent #{$fade} calc(100% - #{$fade}),
+      #000 calc(100% - #{$band})
+    );
+  }
 
   &::after {
     content: "";

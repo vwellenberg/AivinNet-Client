@@ -343,6 +343,47 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     }
 }
 
+// The PLAYING row reads at full strength. It is the row the user is actually
+// reading, and since it carries the sprinkle (mem-now-playing-row) the softer
+// greys are what break down first. Album, date and duration stay muted
+// everywhere else; here they are ink, and the two title lines gain one weight
+// step each.
+//
+// The selectors are deliberately deeper than the defaults they beat: those live
+// in the child components (TrackTitle / TrackAlbum / TrackDateAdded /
+// TrackDuration), whose style blocks are emitted in import order — at equal
+// specificity the outcome would be the bundler's to decide, not ours.
+.songlist-item.current {
+    > .tracktitle .song-title .title {
+        font-weight: 700;
+    }
+
+    > .tracktitle .song-title > .isSmallArtists {
+        opacity: 1;
+        font-weight: 600;
+    }
+
+    > .song-album {
+        color: $mem-ink;
+        font-weight: 600;
+    }
+
+    > .song-date-added {
+        opacity: 1;
+        color: $mem-ink;
+        font-weight: 600;
+    }
+
+    > .options-and-duration .song-duration {
+        color: $mem-ink;
+        font-weight: 600;
+    }
+
+    > .options-and-duration .options-icon svg {
+        stroke: $mem-ink;
+    }
+}
+
 .songlist-item.drag-over-top {
     border-top: 2px solid $mem-line;
 }
