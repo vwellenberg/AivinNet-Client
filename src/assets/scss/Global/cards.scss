@@ -106,9 +106,15 @@ $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard, .mixc
     border: none;
     box-shadow: none;
 
+    // Frame AND shadow move to the image together. Only the frame moved at
+    // first, so the artist portrait was the one tile in a mixed row that sat
+    // flat on the ground while its neighbours were raised — and on a disc the
+    // offset shadow reads as a crescent, which is the shape this design gives
+    // every round raised element (the play discs do the same).
     img {
         border: $candy-border;
         border-radius: 50%;
+        @include candy-shadow(3px, 3px);
     }
 }
 
@@ -121,6 +127,11 @@ $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard, .mixc
     min-width: 0;
     padding: 0.45rem 0.7rem;
     background-color: $mem-panel;
+    // The hatch says "you can press this" (#378) — a tile IS one big link, so
+    // its plates wear it exactly like the sidebar's row plates do. `surface`,
+    // not `accent`: the hover fill is blush in light but a dark tint in dark,
+    // so the strokes have to follow the theme rather than stay ink.
+    @include mem-hatch(38px, $on: surface);
     border: $candy-border;
     border-radius: $candy-radius;
     box-shadow: 3px 3px 0 var(--mem-shadow);
