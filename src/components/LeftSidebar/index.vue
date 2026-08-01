@@ -771,19 +771,20 @@ onBeforeUnmount(teardown);
       // padding) so folders sit in the same rhythm as the other items.
       min-height: 2.7rem;
       // NO plate of its own: the head is the top section of the folder's box.
-      // It keeps the full padding (nothing to subtract — there is no border
-      // here) and is separated from the contents by one ink line.
-      padding: 0.35rem $small;
-      background-color: transparent;
+      // But it IS the pressable part of that box, so it carries the hatch —
+      // as a ring in its own padding, like every other row.
+      padding: $smaller $small;
+      --row-fill: #{$mem-panel};
+      @include mem-hatch-ring(38px, $on: surface);
       cursor: pointer;
       font-size: $sidebar-row-font;
       font-weight: 600;
       transition: background-color 0.2s ease-out;
 
-      // Hover fills the head's section of the box rather than drawing a second
-      // frame inside the first one.
+      // Hover tints the head's section of the box rather than drawing a second
+      // frame inside the first one. The ring follows via --row-fill.
       &:hover {
-        background-color: $mem-soft;
+        --row-fill: #{$mem-soft};
       }
 
       .folder-icon-slot {
@@ -881,8 +882,14 @@ onBeforeUnmount(teardown);
     // hatch. The padding still subtracts the border width so the row height does
     // not follow $candy-border-w.
     @include mem-row-plate($sidebar-row-radius);
-    padding: calc(0.35rem - #{$candy-border-w}) calc(#{$small} - #{$candy-border-w});
+    // Real padding, because the ring IS the padding (mem-hatch-ring): the old
+    // value subtracted the border width down to ~2.6px, which leaves no room
+    // for the texture to show. The thumbnail gives back what the padding takes
+    // so the row stays in the same rhythm as before.
+    padding: $smaller $small;
     font-size: $sidebar-row-font;
+    // 500, deliberately one step below the navigation: these are data, not the
+    // app's structure.
     font-weight: 500;
 
     &:hover { @include mem-row-plate-hover; }
@@ -909,8 +916,11 @@ onBeforeUnmount(teardown);
   }
 
   .sidebar-pl-img {
-    width: 2rem;
-    height: 2rem;
+    // 1.75rem, not 2rem: the row's padding grew to make room for the hatch ring
+    // and the thumbnail gives that back, so the row height stays where it was
+    // (28 + 2x4 + 2x3 = 42px against the previous 43).
+    width: 1.75rem;
+    height: 1.75rem;
     flex-shrink: 0;
     overflow: hidden;
     position: relative;

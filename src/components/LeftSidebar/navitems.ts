@@ -26,6 +26,11 @@ interface NavItem {
   icon?: any;
   separator?: boolean;
   action?: () => void;
+  // The entry's memphis fill. Declared HERE rather than as an `nth-child` rule
+  // in the stylesheet: the list contains a separator, so a positional selector
+  // would silently re-colour every entry below it the moment one is added or
+  // moved. The value is a class suffix (`tint-teal` -> `.nav-item.tint-teal`).
+  tint?: string;
 }
 
 const folder = {
@@ -33,24 +38,28 @@ const folder = {
   route_name: Routes.folder,
   params: { path: "$home" },
   icon: FolderSvg,
+  tint: "tint-teal",
 };
 
 const favorites = {
   name: "favorites",
   route_name: Routes.favorites,
   icon: BookmarkSvg,
+  tint: "tint-lavender",
 };
 
 const playlists = {
   name: "playlists",
   route_name: Routes.playlists,
   icon: PlaylistSvg,
+  tint: "tint-pink",
 };
 
 const home = {
   name: "home",
   route_name: Routes.Home,
   icon: HomeSvg,
+  tint: "tint-blush",
 };
 
 export const menus: NavItem[] = [
@@ -62,6 +71,7 @@ export const menus: NavItem[] = [
     params: { page: "top" },
     query: () => ({ q: useSearch().query }),
     icon: SearchSvg,
+    tint: "tint-yellow",
   },
   {
     separator: true,
@@ -72,6 +82,7 @@ export const menus: NavItem[] = [
     name: "stats",
     route_name: Routes.Stats,
     icon: ChartSvg,
+    tint: "tint-coral",
   },
 ];
 
