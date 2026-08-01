@@ -292,23 +292,9 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 }
 
 .songlist-item.current {
-    background-color: $mem-yellow;
-    border: $candy-border;
-    border-radius: $candy-radius-sm;
-    overflow: hidden;
-
-    // Signature memphis accent: a bunting-style zigzag strip along the bottom
-    // edge of the currently-playing row.
-    &::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 9px;
-        pointer-events: none;
-        @include mem-zigzag($mem-ink);
-    }
+    // Fill, frame and the zigzag marker on the leading edge all come from the
+    // one mixin the queue row uses too — see mem-now-playing-row in _candy.scss.
+    @include mem-now-playing-row;
 }
 
 .songlist-item.contexton {
