@@ -38,6 +38,10 @@ const title = computed(() => {
     // 0.98 and the home button's push-into-the-shadow.
     @include btn-action($size: $bar-control);
     background-color: $candy-pink;
+    // Hatch = "you can press this" (#378). `accent` because blush is a static
+    // fill: the strokes stay ink in both themes, like the glyph on top of them.
+    // 28px is the button tile — the same one the play CTA wears.
+    @include mem-hatch(28px, $on: accent);
     color: $candy-black;
 
     &:hover {

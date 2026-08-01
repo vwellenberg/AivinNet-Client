@@ -266,6 +266,56 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 }
 
 // ---------------------------------------------------------------------------
+// SIDEBAR PLATE — the library list's row anatomy since #378.
+//
+// The sidebar's rows ARE buttons and now say so: panel fill, ink frame, the
+// 3px offset and the hatch. Before this they were flat rows, which was
+// consistent among themselves but split the sidebar in two the moment the
+// navigation above them became plates — six framed plates, a divider, then
+// thirteen bare rows (measured in the mockup round: the plate version costs
+// 60px of height on 19 entries, +6%, because only the gaps grow).
+//
+// Both mixins, never hand-written: nav rows, playlist rows, pinned albums and
+// the folder header all wear the SAME plate, and the last time this treatment
+// was spelled out per call site it took four rounds to make the sidebar's rows
+// agree (see the "letzte Stelle" learning in CLAUDE.md).
+//
+// The active half is separate because it is a STATE, not a variant: it swaps
+// the fill for the static blush and therefore has to swap the hatch to the
+// accent token in the same breath — an ink-on-panel hatch would go blank in the
+// dark theme, and a surface hatch on blush would be nearly invisible in both.
+// ---------------------------------------------------------------------------
+@mixin mem-row-plate($radius: $candy-radius-sm) {
+  background-color: $mem-panel;
+  @include mem-hatch(38px, $on: surface);
+  border: $candy-border-w solid $mem-line;
+  border-radius: $radius;
+  color: $mem-content-text;
+  box-shadow: 3px 3px 0 var(--mem-shadow);
+  // Literal durations, like every other transition in this file: `_motion.scss`
+  // is imported AFTER `_candy.scss` (see vite.config.ts), so its tokens are not
+  // resolvable from here.
+  transition: background-color 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.12s ease-out;
+}
+
+// Hover deepens the offset and tints the fill, the same answer `btn-action`
+// gives (3px -> 4px). Deliberately NO `transform: scale()`: a row that grows
+// under the pointer shoves the drop marker it is being dragged onto.
+@mixin mem-row-plate-hover {
+  background-color: $mem-soft;
+  border-color: $mem-line;
+  box-shadow: 4px 4px 0 var(--mem-shadow);
+}
+
+@mixin mem-row-plate-active {
+  // Static blush -> pin static ink, exactly as the flat active row did.
+  background-color: $candy-pink;
+  @include mem-hatch(38px, $on: accent);
+  border-color: $mem-line;
+  color: $mem-ink;
+}
+
+// ---------------------------------------------------------------------------
 // Memphis patterns
 // ---------------------------------------------------------------------------
 
@@ -297,6 +347,43 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
       linear-gradient(90deg, var(--mem-grid-line) $w, transparent $w);
     background-size: $size $size;
   }
+}
+
+// ---------------------------------------------------------------------------
+// HATCH — the texture that means "this can be pressed".
+//
+// THE RULE: every pressable SURFACE wears it — buttons, the sidebar's row
+// plates, cards. Anything that only looks like a plate (a heading sticker, the
+// sort banner's labels) stays smooth, and that difference is what tells them
+// apart. It replaces the older reading of the texture ("primary/active"), which
+// could not be learned from the screen: the hierarchy is already carried by the
+// FILL (teal = play, yellow = on, blush = selected).
+//
+// Two conditions, both load-bearing:
+//
+//   1. It needs a surface. `btn-quiet` is transparent at rest and therefore
+//      stays bare; it may take the texture together with its hover plate.
+//   2. The stroke colour answers to the fill underneath — `$on: surface` for a
+//      theme-aware panel, `$on: accent` for a static blush/teal/yellow fill.
+//      Getting this wrong is invisible in light and blank in dark.
+//
+// Painted as a BACKGROUND LAYER, not a ::before overlay. The rows this lands on
+// spend both pseudo-elements on their drag/drop markers already, and the
+// now-playing row spends both on texture and marker (styling.md) — an overlay
+// would have collided with the one state nobody looks at while editing CSS.
+// Because of that the opacity is baked into the sprite as `stroke-opacity`; see
+// the two tokens in Global/index.scss.
+//
+// Set `background-color` alongside it, never the `background` shorthand — the
+// shorthand wipes the image layer.
+//
+// Tile size follows the size of the thing: 28px on a 44px button, 38px on a row
+// that is six times as wide. The button tile on a row reads as a textile print
+// (measured against the 260x44 row in the mockup round for #378).
+// ---------------------------------------------------------------------------
+@mixin mem-hatch($size: 38px, $on: surface) {
+  background-image: if($on == accent, var(--mem-hatch-accent), var(--mem-hatch));
+  background-size: $size $size;
 }
 
 // Sprinkle / terrazzo dash texture. Sets ONLY the pattern image + tile size —

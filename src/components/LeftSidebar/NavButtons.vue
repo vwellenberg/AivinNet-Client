@@ -33,58 +33,63 @@ import { menus } from "./navitems";
   text-transform: capitalize;
   display: flex;
   flex-direction: column;
-  gap: $smaller;
+  // A plate throws its offset 3px down-right, so the rows need more air than
+  // the 0.25rem they had as flat rows — otherwise each shadow lands on the
+  // next row's frame. This is where the +6% sidebar height comes from.
+  gap: $small;
   overflow: hidden;
+  // `overflow: hidden` clips at the padding edge, so the plates' offset shadow
+  // (3px at rest, 4px hovered) needs that much room reserved on the right or it
+  // is cut off flush with the row.
+  padding-right: $small;
 
   .nav-item {
     width: 100%;
     display: flex;
     align-items: center;
-    // The frame is reserved as a transparent border on every row, so the
-    // padding subtracts it and the row height stops depending on how thick
-    // the ink frame is. Measured: without this the nav rows grew 44 -> 46px
-    // when $candy-border-w went to 3px, while the library rows right below —
-    // which already compensate — stayed exactly where they were.
+    // The frame is part of the plate now, but the padding still subtracts it:
+    // the row height must not depend on how thick $candy-border-w happens to
+    // be. Measured before this compensation existed: the nav rows grew
+    // 44 -> 46px when the border went to 3px, while the library rows below —
+    // which already compensated — stayed exactly where they were.
     padding: calc(0.625rem - #{$candy-border-w}) 0;
     font-size: $sidebar-row-font;
     font-weight: 500;
-    // Transparent border (so the active state colours it in without shifting
-    // the row), the row radius — the pill these once had made them the
-    // roundest thing in the app — and the fade, all from the shared row base.
-    @include candy-row-base($sidebar-row-radius);
+    // The row IS a button and says so: panel fill, ink frame, offset shadow,
+    // hatch. Same plate as the library rows below, from the same mixin — the
+    // one thing this sidebar could not keep consistent by hand.
+    @include mem-row-plate($sidebar-row-radius);
 
     & > div {
       display: flex;
       align-items: center;
     }
 
-    // Active item = candy pink pill with the 2px black border (replaces the
-    // old grey fill + green accent bar).
+    // Active item = the static blush fill with the accent hatch. The plate's
+    // frame and shadow stay exactly as they are, so switching pages moves
+    // nothing.
     &.active {
-      background-color: $candy-pink;
-      border-color: $mem-line;
-      // Blush accent pill -> label/icon pin static ink (readable in dark).
-      color: $mem-ink;
+      @include mem-row-plate-active;
     }
 
-    // :not(.active): the soft hover fill is dark in dark mode and would
-    // override the blush pill (same specificity, later rule) while the
-    // pinned ink label stays — dark-on-dark. Active items keep their pill.
-    //
-    // Uses the shared row-hover mixin rather than setting the fill by hand.
-    // Hand-setting only `background-color` is exactly why these rows hovered
-    // without the ink frame while every other hoverable list in the app drew
-    // one — the transparent border is reserved above, hovering just never
-    // coloured it. Same bug, same fix as the playlist rows in index.vue.
+    // :not(.active): the hover fill is dark in dark mode and would override the
+    // blush plate (same specificity, later rule) while the pinned ink label
+    // stays — dark-on-dark. Active items keep their fill.
     &:hover:not(.active) {
-      @include candy-row-hover($candy-pink-soft, $sidebar-row-radius);
+      @include mem-row-plate-hover;
     }
   }
 
+  // The separator is a `.nav-item` too, so it inherits the plate — and a plate
+  // is exactly what a 1px spacer must not be. Everything the mixin paints is
+  // taken back here; `background: none` also drops the hatch layer, which
+  // `background-color` alone would leave behind.
   .nav-item.separator {
     height: 1px;
     padding: 0;
     border: none;
+    background: none;
+    box-shadow: none;
   }
 
   @include allPhones {
