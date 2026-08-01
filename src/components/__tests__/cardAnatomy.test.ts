@@ -118,7 +118,7 @@ function rootClasses(source: string): string[] {
   return [];
 }
 
-/** The selectors of the shared anatomy block, e.g. ["p-card", "trackcard", …]. */
+/** The selectors of the shared anatomy list, e.g. ["p-card", "trackcard", …]. */
 function anatomyClasses(): Set<string> {
   // Comments go FIRST. The file explains itself in prose that names the very
   // class names being looked for (".cardscroller", ".foldercard"), so parsing
@@ -128,9 +128,12 @@ function anatomyClasses(): Set<string> {
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/[^\n]*/g, "");
 
-  const outer = scss.indexOf("{", scss.indexOf(".cardscroller"));
-  const selectors = scss.slice(outer + 1, scss.indexOf("{", outer + 1));
-  return new Set([...selectors.matchAll(/\.([\w-]+)/g)].map(match => match[1]));
+  // The list lives in ONE Sass variable, because it is read three times (the
+  // anatomy, the row geometry, this test) and a second copy is how the folder
+  // tile drifted in the first place.
+  const list = scss.match(/\$card-types:\s*"([^"]+)"/);
+  expect(list, `${ANATOMY_FILE} has no $card-types list to read`).toBeTruthy();
+  return new Set([...(list as RegExpMatchArray)[1].matchAll(/\.([\w-]+)/g)].map(match => match[1]));
 }
 
 describe("card row anatomy", () => {
@@ -165,5 +168,35 @@ describe("card row anatomy", () => {
   // different shape in the same row.
   it.each([...cards])("%s does not override the shared radius with .rounded", (_name, file) => {
     expect(rootClasses(SOURCES[file])).not.toContain("rounded");
+  });
+
+  // ---------------------------------------------------------------------
+  // The three parts of a tile. A card that keeps its picture or its text
+  // outside `.card-art` / `.card-plate` still renders — it just renders
+  // unframed and unraised against the memphis ground, which is exactly the
+  // "looks different from its neighbours" bug the shared list exists for.
+  // Type label, artwork and plate are checked separately so the failure says
+  // which one is missing.
+  // ---------------------------------------------------------------------
+  it.each([...cards])("%s labels its type with the shared component", (_name, file) => {
+    expect(SOURCES[file]).toMatch(/<CardTypeLabel\b/);
+  });
+
+  it.each([...cards])("%s frames its artwork with .card-art", (_name, file) => {
+    expect(SOURCES[file].slice(0, SOURCES[file].indexOf("</template>"))).toMatch(/\bcard-art\b/);
+  });
+
+  it.each([...cards])("%s puts its text on a .card-plate", (_name, file) => {
+    expect(SOURCES[file].slice(0, SOURCES[file].indexOf("</template>"))).toMatch(/\bcard-plate\b/);
+  });
+
+  // A tile that draws its own panel is back to the old anatomy — a white box
+  // with the picture inside it, which is exactly the contrast the plates were
+  // built to create. Surface, frame and offset shadow belong to `.card-art`
+  // and `.card-plate` in the shared stylesheet, so a card component has no
+  // business calling these mixins at all.
+  it.each([...cards])("%s leaves surface and elevation to the shared parts", (_name, file) => {
+    const style = SOURCES[file].slice(SOURCES[file].indexOf("<style"));
+    expect(style).not.toMatch(/@include\s+candy-(box|raised)/);
   });
 });

@@ -8,7 +8,8 @@
     }"
     class="foldercard"
   >
-    <div class="rimg rounded-sm">
+    <CardTypeLabel type="folder" />
+    <div class="rimg card-art is-glyph">
       <!-- The folder glyph used to be pasted in here as a raw path — a private
            copy of folder-1.svg that no icon change would ever reach. It reads
            from the shared asset now. -->
@@ -16,10 +17,8 @@
       <PlayBtn :source="playSources.folder" :folderpath="folder.path" />
     </div>
 
-    <!-- Single text wrapper so the shared card anatomy (Global/cards.scss) can
-         treat every card as image + one text zone. -->
-    <div class="card-text">
-      <div v-if="folder.help_text" class="rhelp folder">
+    <div class="card-plate">
+      <div v-if="folder.help_text && !isTypeEcho(folder.help_text, 'folder')" class="rhelp folder">
         <span class="help">{{ folder.help_text }}</span>
         <span class="time">{{ folder.time }}</span>
       </div>
@@ -36,8 +35,10 @@
 <script setup lang="ts">
 import { playSources } from "@/enums";
 import { Routes } from "@/router";
+import CardTypeLabel from "../shared/CardTypeLabel.vue";
 import PlayBtn from "../shared/PlayBtn.vue";
 import FolderSvg from "@/assets/icons/folder.svg";
+import { isTypeEcho } from "@/utils/cardTypes";
 
 defineProps<{
   folder: {
@@ -61,27 +62,13 @@ const name = (path: string) => {
 </script>
 
 <style lang="scss">
+// Shape, frame, shadow and hover live in the shared anatomy
+// (Global/cards.scss). Only what is specific to a folder tile stays here.
 .foldercard {
-  padding: $medium;
-  display: flex;
-  flex-direction: column;
-  height: max-content;
-  @include candy-box($mem-panel, $candy-radius);
-  // Hard offset shadow: the tile sits above the grid ground (memphis). Every
-  // other card row tile had this; the folder tile read as flat next to them.
-  @include candy-raised(3px, 3px, $press: false);
-  transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
-
   .title {
     font-weight: 700;
     font-size: 0.95rem;
     color: $candy-text;
-  }
-
-  @include card-play-btn;
-
-  &:hover {
-    background-color: $mem-hover;
   }
 
   svg.bg {
@@ -91,19 +78,6 @@ const name = (path: string) => {
     width: 3.6rem;
     height: 3.6rem;
     color: $candy-text-muted;
-  }
-
-  .rimg {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1;
-    margin-bottom: $small;
-    overflow: hidden;
-    @include candy-box($candy-pink-soft, $candy-radius-sm);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
   .rtcount {

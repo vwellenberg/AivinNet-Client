@@ -1,14 +1,19 @@
 <template>
     <RouterLink :to="{ name: Routes.favoriteTracks }" class="favoritescard">
-        <div class="img"></div>
-        <div class="overlay">
-            <PlayBtn :source="playSources.favorite" />
+        <CardTypeLabel type="favorite" />
+        <!-- The marker and the play disc live INSIDE the artwork box now; they
+             used to be an absolutely positioned sibling offset by the card's
+             own padding, which no longer exists. -->
+        <div class="img card-art is-glyph">
             <!-- Favorites iconography is the check-circle (never a heart). -->
             <CheckCircleSvg class="heart" />
+            <PlayBtn :source="playSources.favorite" />
         </div>
-        <div class="info">
+        <div class="info card-plate">
+            <!-- No "PLAYLIST" caption here any more: the type label above the
+                 artwork says what this tile is, and it said something else than
+                 this line did. -->
             <div class="rhelp playlist">
-                <span class="help">PLAYLIST</span>
                 <span class="time">{{ item.time }}</span>
             </div>
             <div class="title">Favorite Tracks</div>
@@ -22,6 +27,7 @@
 <script setup lang="ts">
 import { Routes } from '@/router'
 import { playSources } from '@/enums'
+import CardTypeLabel from '../shared/CardTypeLabel.vue'
 import PlayBtn from '../shared/PlayBtn.vue'
 import CheckCircleSvg from '@/assets/icons/check.circle.fill.svg'
 
@@ -35,39 +41,9 @@ defineProps<{
 </script>
 
 <style lang="scss">
+// Shape, frame, shadow and hover live in the shared anatomy
+// (Global/cards.scss). Only what is specific to the favourites tile stays here.
 .favoritescard {
-    padding: $medium;
-    position: relative;
-    @include candy-box($mem-panel, $candy-radius);
-    // Hard offset shadow: the tile sits above the grid ground (memphis).
-    @include candy-raised(3px, 3px, $press: false);
-    transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
-
-    .img,
-    .overlay {
-        width: 100%;
-        aspect-ratio: 1/1;
-        border-radius: $candy-radius-sm;
-        margin-bottom: $medium;
-    }
-
-    .img {
-        overflow: hidden;
-        @include candy-box($candy-pink-soft, $candy-radius-sm);
-    }
-
-    .overlay {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        $size: calc(100% - $medium * 2);
-        position: absolute;
-        top: $medium;
-        left: $medium;
-        width: $size;
-        z-index: 1;
-    }
-
     .heart {
         // Feeds the asset's `currentColor` disc, so this is the same teal the
         // toggle wears — the tile shows the marker, not a recoloured variant of
@@ -78,16 +54,10 @@ defineProps<{
         height: auto;
     }
 
-    @include card-play-btn;
-
     .fcount {
         font-size: 0.8rem;
         color: $candy-text-muted;
         padding-top: 2px;
-    }
-
-    &:hover {
-        background-color: $mem-hover;
     }
 
     .info {

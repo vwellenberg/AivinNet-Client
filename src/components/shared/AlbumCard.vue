@@ -8,7 +8,8 @@
         @contextmenu.prevent="showMenu"
         :class="{ 'context-menu-open': contextMenuFlag }"
     >
-        <div class="with-img rounded-sm no-scroll">
+        <CardTypeLabel type="album" />
+        <div class="with-img card-art no-scroll">
             <img class="shadow-lg" :src="imguri + album.image" alt="" />
             <PlayBtn
                 :store="useAlbumStore"
@@ -17,8 +18,8 @@
                 :album-name="album.title"
             />
         </div>
-        <div>
-            <div v-if="album.help_text" class="rhelp album">
+        <div class="card-plate">
+            <div v-if="album.help_text && !isTypeEcho(album.help_text, 'album')" class="rhelp album">
                 <span class="help" :class="{ keep: !album.time }">{{ album.help_text }}</span>
                 <span class="time">{{ album.time }}</span>
             </div>
@@ -56,6 +57,7 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { Album } from '../../interfaces'
+import CardTypeLabel from './CardTypeLabel.vue'
 import PlayBtn from './PlayBtn.vue'
 
 import { playSources } from '@/enums'
@@ -63,6 +65,7 @@ import useAlbumStore from '@/stores/pages/album'
 import { paths } from '../../config'
 import MasterFlag from './MasterFlag.vue'
 import { showAlbumContextMenu } from '@/helpers/contextMenuHandler'
+import { isTypeEcho } from '@/utils/cardTypes'
 
 const route = useRoute()
 const contextMenuFlag = ref(false)
@@ -99,45 +102,10 @@ function showMenu(e: MouseEvent) {
 </script>
 
 <style lang="scss">
+// Shape, frame, shadow and hover live in the shared anatomy
+// (Global/cards.scss): `.card-art` for the picture, `.card-plate` for the text.
+// Only what is specific to an album tile stays here.
 .album-card {
-    display: grid;
-    gap: $small;
-    padding: $medium;
-    @include candy-box($mem-panel, $candy-radius);
-    // Hard offset shadow: the tile sits above the grid ground (memphis).
-    @include candy-raised(3px, 3px, $press: false);
-    height: max-content;
-    transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
-
-    @include card-play-btn;
-
-    &.context-menu-open {
-        background-color: $mem-hover;
-    }
-
-    .with-img {
-        position: relative;
-
-        img {
-            display: block;
-            aspect-ratio: 1;
-            height: 100%;
-            aspect-ratio: 1;
-            object-fit: cover;
-            border: $candy-border;
-            border-radius: $candy-radius-sm;
-        }
-    }
-
-    &:hover {
-        background-color: $mem-hover;
-    }
-
-    img {
-        width: 100%;
-        aspect-ratio: 1;
-    }
-
     h4 {
         margin: 0;
     }

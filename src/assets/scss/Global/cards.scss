@@ -1,66 +1,148 @@
-// One anatomy for every cover card inside a horizontal card row (.cardscroller):
-// the home/search/artist rows mix playlist, track, album and artist cards side
-// by side, and each component historically computed its height differently
-// (inline-image baseline gaps, per-card margins, free-growing text blocks:
-// 285/280/278–305/258px in one row). A shared skeleton makes every tile the
-// same shape: padding + square image box + gap + fixed-height text zone.
+// ============================================================================
+// COVER TILE ANATOMY — one shape for every card type, everywhere.
 //
-// Scoped to .cardscroller on purpose — grid pages (playlists, discography)
-// show a single card type and keep their own flow.
+// A tile is three stacked objects on the memphis ground, not one filled panel:
 //
-// EVERY card type CardScroller can render belongs in this list. The folder,
-// mix and favourites tiles were missing from it and each one drifted on its
-// own: the folder card measured 176x245 next to a 176x248 playlist in the same
-// "Recently played" row, at a 16px radius instead of 14px and with no offset
-// shadow at all — three ways of being the odd one out in one tile.
-// `src/components/__tests__/cardAnatomy.test.ts` fails if a new card type is
-// added to CardScroller without being listed here.
-.cardscroller {
-    .p-card,
-    .trackcard,
-    .artist-card,
-    .album-card,
-    .foldercard,
-    .mixcard,
-    .favoritescard {
-        display: grid;
-        // Square image row + fixed text zone => identical totals across types.
-        // The text zone fits label + name + count/artist (3 lines); cards with
-        // fewer lines keep the empty space instead of shrinking the tile.
-        grid-template-rows: max-content 4rem;
-        align-content: start;
-        gap: $small;
-        // Grid items refuse to shrink below their min-content size by default,
-        // so one long nowrap name (artist ellipsis) silently pushed that card
-        // wider than its column. Opt out here and on the text zone below so
-        // every tile stays exactly as wide as its track and names ellipsize.
+//   1. the TYPE LABEL  (CardTypeLabel.vue)  — glyph cell + rule + "ALBUM"
+//   2. the ARTWORK     (.card-art)          — framed, raised, square
+//   3. the NAME PLATE  (.card-plate)        — name + one line of meta
+//
+// It is the Now-Playing anatomy (`NowPlaying/PlayingFrom.vue` above the cover,
+// `NowPlayingInfo.vue` below it) at tile scale: white plates against the grid
+// and the doodles, each with its own ink frame and hard offset shadow. The
+// tiles used to be a single white panel with the picture and the text inside
+// it — the one place in this design where that contrast was missing.
+//
+// Deliberately NOT part of a tile: 44px action buttons. A tile column is 12rem
+// ($cardwidth), and a plate carrying two of them would either overflow or push
+// the touch target below the app's 44px floor. The whole tile is the link, and
+// the play disc on the artwork is its only control.
+//
+// EVERY card type CardScroller can render belongs in $card-types. The folder,
+// mix and favourites tiles were once missing from that list and each one
+// drifted on its own (the folder card measured 176x245 next to a 176x248
+// playlist in the same "Recently played" row, at a 16px radius instead of 14px
+// and with no offset shadow at all). `src/components/__tests__/cardAnatomy.test.ts`
+// fails if a card type appears in CardScroller without being listed here.
+// ============================================================================
+
+// The one list. Read by the anatomy below, by the row geometry further down and
+// by the census test — a second copy is how the drift above started.
+$card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard, .mixcard, .favoritescard";
+
+#{$card-types} {
+    display: grid;
+    // label · artwork · plate. The rows size to their content everywhere except
+    // inside a mixed row, where the plate is pinned (see .cardscroller below).
+    grid-template-rows: max-content max-content max-content;
+    align-content: start;
+    gap: $small;
+    height: max-content;
+    // Grid items refuse to shrink below their min-content size by default, so
+    // one long nowrap name silently pushed its card wider than the column.
+    min-width: 0;
+    // The tile itself carries no surface any more: no panel fill, no frame, no
+    // padding. Its three parts do.
+    padding: 0;
+    text-decoration: none;
+
+    > * {
         min-width: 0;
-
-        > :first-child {
-            // The image container: force the square box here so an inline-image
-            // baseline gap or a stray margin can never change the row height.
-            aspect-ratio: 1;
-            margin: 0;
-        }
-
-        > :last-child {
-            overflow: hidden;
-            min-width: 0;
-            // Same reason as the image box above: the distance between picture
-            // and text is the grid gap's business. The mix tile also stated it
-            // as `margin-top: $small` on its own text block, which added a
-            // second 8px on top of the gap.
-            margin: 0;
-        }
-
-        img {
-            // Kill the inline baseline gap (+5px on playlist/track tiles).
-            display: block;
-        }
     }
 
-    // Version badges vary per album and would rock the fixed text zone; they
-    // stay on the album page, rows do without them.
+    @include card-play-btn;
+
+    // Hover belongs to the PLATES — there is no card surface left to tint. Both
+    // answer together, so the tile still reads as one object. An open context
+    // menu says the same thing.
+    &:hover,
+    &.context-menu-open {
+        .card-type-label,
+        .card-plate {
+            background-color: $mem-hover;
+            @include candy-shadow(4px, 4px);
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// The artwork. Square, framed, raised — the picture IS the tile's body now, so
+// it wears the frame the panel used to wear.
+// ---------------------------------------------------------------------------
+.card-art {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    @include candy-box($mem-panel, $candy-radius);
+    @include candy-shadow(3px, 3px);
+    transition: box-shadow $motion-shadow $motion-curve;
+
+    // Direct child only. A collage (PlaylistImages, MixImage) brings its own
+    // grid of nested images with their own sizing; reaching those with a
+    // descendant selector would fight it.
+    > img {
+        // Kill the inline baseline gap and fill the square box.
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+// A glyph placeholder instead of a picture (folder tile, favourites tile).
+.card-art.is-glyph {
+    background-color: $candy-pink-soft;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// A round motif (artist portrait). The frame moves to the IMAGE and the box
+// opens up, because the play disc sits in the square corner OUTSIDE the circle
+// — under `overflow: hidden` it would be clipped away.
+.card-art.is-round {
+    overflow: visible;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+
+    img {
+        border: $candy-border;
+        border-radius: 50%;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// The name plate. Same panel + frame + offset shadow as the label above the
+// artwork, at the tile's full width.
+// ---------------------------------------------------------------------------
+.card-plate {
+    overflow: hidden;
+    min-width: 0;
+    padding: 0.45rem 0.7rem;
+    background-color: $mem-panel;
+    border: $candy-border;
+    border-radius: $candy-radius;
+    box-shadow: 3px 3px 0 var(--mem-shadow);
+    transition: background-color 0.2s ease-out, box-shadow $motion-shadow $motion-curve;
+}
+
+// ---------------------------------------------------------------------------
+// Row geometry. A `.cardscroller` row mixes playlist, track, album and artist
+// tiles side by side, so their totals have to match exactly: the plate is
+// pinned to one height instead of sizing to whichever card happens to carry a
+// help text. Grid pages show a single card type and keep the flow above.
+// ---------------------------------------------------------------------------
+.cardscroller {
+    #{$card-types} {
+        // Fits the plate's three possible lines (help text, name, meta) plus
+        // its own padding; cards with fewer lines keep the empty space rather
+        // than shrinking the tile.
+        grid-template-rows: max-content max-content 4.5rem;
+    }
+
+    // Version badges vary per album and would rock the fixed plate; they stay
+    // on the album page, rows do without them.
     .album-card .versions {
         display: none;
     }
