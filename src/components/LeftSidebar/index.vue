@@ -22,7 +22,6 @@
               @drop="onDropToFolder(entry.id, $event)"
             >
               <div
-                v-wave
                 class="sidebar-folder-header"
                 :class="markerClass('folder', entry.id)"
                 draggable="true"
@@ -58,7 +57,6 @@
             <!-- Pinned album -->
             <RouterLink
               v-else-if="entry.kind === 'album'"
-              v-wave
               :to="{ name: Routes.album, params: { albumhash: entry.al.albumhash } }"
               class="sidebar-playlist-item"
               :class="[{ active: $route.params.albumhash == entry.al.albumhash }, markerClass('album', entry.id)]"
@@ -715,7 +713,11 @@ onBeforeUnmount(teardown);
     display: flex;
     flex-direction: column;
     gap: $small;
+    // Both directions the offset falls towards — see the same fix in
+    // NavButtons.vue. Without the bottom reserve the last row of the library
+    // loses its shadow the way Stats did.
     padding-right: $small;
+    padding-bottom: $smaller;
   }
 
   .sidebar-library-title {
@@ -767,25 +769,26 @@ onBeforeUnmount(teardown);
       display: flex;
       align-items: center;
       gap: $small;
-      // Match a playlist row's height exactly (2rem thumbnail + 2x0.35rem
-      // padding) so folders sit in the same rhythm as the other items.
-      min-height: 2.7rem;
+      // Match a playlist row's height exactly so folders sit in the same
+      // rhythm as everything else in this sidebar.
+      min-height: 2.75rem;
       // NO plate of its own: the head is the top section of the folder's box.
       // But it IS the pressable part of that box, so it carries the hatch —
       // as a ring in its own padding, like every other row.
-      padding: $smaller $small;
+      padding: 5px $small;
       --row-fill: #{$mem-panel};
       background-color: var(--row-fill);
       @include mem-hatch(38px, $on: surface);
       cursor: pointer;
       font-size: $sidebar-row-font;
-      font-weight: 600;
+      // Same weight as every other row in this sidebar.
+      font-weight: 700;
       transition: background-color 0.2s ease-out;
 
       // Hover tints the head's section of the box rather than drawing a second
       // frame inside the first one. The ring follows via --row-fill.
       &:hover {
-        --row-fill: #{$mem-soft};
+        --row-fill: #{$mem-blush};
       }
 
       .folder-icon-slot {
@@ -884,15 +887,15 @@ onBeforeUnmount(teardown);
     // hatch. The padding still subtracts the border width so the row height does
     // not follow $candy-border-w.
     @include mem-row-plate($sidebar-row-radius);
-    // Real padding, because the ring IS the padding (mem-hatch-ring): the old
-    // value subtracted the border width down to ~2.6px, which leaves no room
-    // for the texture to show. The thumbnail gives back what the padding takes
-    // so the row stays in the same rhythm as before.
-    padding: $smaller $small;
+    // ONE row anatomy in this sidebar: same 44px height and same weight as the
+    // navigation above. The earlier split (500, shorter rows) was a deliberate
+    // "structure vs. data" distinction and it read as two half-finished lists
+    // instead — the plates are the same object, so they look the same.
+    // 28px thumbnail + 2x5px padding + 2x3px border = 44px, the navigation's
+    // 24px glyph + 2x7px + 2x3px.
+    padding: 5px $small;
     font-size: $sidebar-row-font;
-    // 500, deliberately one step below the navigation: these are data, not the
-    // app's structure.
-    font-weight: 500;
+    font-weight: 700;
 
     &:hover { @include mem-row-plate-hover; }
     &.active {

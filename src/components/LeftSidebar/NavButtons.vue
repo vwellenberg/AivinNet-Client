@@ -3,7 +3,6 @@
     <router-link
       v-for="(menu, index) in menus"
       :key="index"
-      v-wave
       :to="{
         name: menu.route_name || '',
         params: menu?.params,
@@ -42,9 +41,11 @@ import { menus } from "./navitems";
   gap: $small;
   overflow: hidden;
   // `overflow: hidden` clips at the padding edge, so the plates' offset shadow
-  // (3px at rest, 4px hovered) needs that much room reserved on the right or it
-  // is cut off flush with the row.
+  // (3px at rest, 4px hovered) needs room reserved on BOTH sides it falls
+  // towards. Only the right one was reserved, so the last row in the list —
+  // Stats — was the one plate in the sidebar with no shadow under it.
   padding-right: $small;
+  padding-bottom: $smaller;
 
   .nav-item {
     width: 100%;
@@ -78,7 +79,9 @@ import { menus } from "./navitems";
 
     // Every entry carries its own memphis fill (the class comes from
     // navitems.ts, not from an nth-child rule — the list has a separator in it).
-    &.tint-blush { @include mem-row-plate-tint($mem-blush); }
+    // Blush is deliberately NOT in this list: it is the hover fill, and a row
+    // that wears the pointer state at rest looks permanently hovered.
+    &.tint-green { @include mem-row-plate-tint($brand-green); }
     &.tint-teal { @include mem-row-plate-tint($mem-teal); }
     &.tint-yellow { @include mem-row-plate-tint($mem-yellow); }
     &.tint-lavender { @include mem-row-plate-tint($mem-lavender); }
@@ -92,11 +95,12 @@ import { menus } from "./navitems";
       @include mem-row-marker;
     }
 
-    // Hover deepens the offset only. A fill change would either fight the row's
-    // own colour or repeat the selected state; the shadow is the one answer
-    // that works on all six.
+    // Hover swaps the row's colour for blush and deepens the offset. Deepening
+    // the shadow alone was the first attempt and came back as "you can hardly
+    // see the hover" — a 1px offset change is not a pointer signal. Blush can
+    // do this now that "selected" is the zigzag band rather than a fill.
     &:hover {
-      box-shadow: 4px 4px 0 var(--mem-shadow);
+      @include mem-row-plate-hover;
     }
   }
 

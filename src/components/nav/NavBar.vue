@@ -199,11 +199,13 @@ const mobileTitle = computed(() => {
             @include btn-action($size: $bar-control);
             @include mem-hatch(28px, $on: accent);
             margin-right: $smaller;
-            background-color: $candy-pink;
+            // Pink, the same fill the Playlists row wears — this button only
+            // appears on the playlists page and creates one.
+            background-color: $mem-pink;
             color: $candy-black;
 
             &:hover {
-                background-color: $candy-pink-deep;
+                background-color: $mem-blush;
             }
         }
 
@@ -221,14 +223,17 @@ const mobileTitle = computed(() => {
         .nav-home {
             @include btn-action($size: $bar-control);
             @include focus-ring;
-            // Hatch = pressable (#378), accent token because blush is static.
+            // Hatch = pressable (#378), accent token because the fill is static.
             @include mem-hatch(28px, $on: accent);
             margin-left: auto;
-            background-color: $candy-pink;
+            // Brand green, the same fill the sidebar's Home row wears — one
+            // colour for one destination. Blush is the hover state now, so a
+            // control cannot sit in it permanently.
+            background-color: $brand-green;
             color: $candy-black;
 
             &:hover {
-                background-color: $candy-pink-deep;
+                background-color: $mem-blush;
             }
         }
 

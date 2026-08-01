@@ -308,16 +308,25 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
   // Literal durations, like every other transition in this file: `_motion.scss`
   // is imported AFTER `_candy.scss` (see vite.config.ts), so its tokens are not
   // resolvable from here.
-  transition: background-color 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.12s ease-out;
+  transition: background-color 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.12s ease-out,
+    transform 0.12s ease-out;
+  @include mem-row-plate-press;
 }
 
 // Hover deepens the offset and tints the fill, the same answer `btn-action`
 // gives (3px -> 4px). Deliberately NO `transform: scale()`: a row that grows
 // under the pointer shoves the drop marker it is being dragged onto.
+// Hover is BLUSH, not the soft tint, and that is the point: `$mem-soft` is
+// `$mem-blush-soft` in light and a dark grey in dark, so on a white plate it
+// was a barely-there wash and on a coloured one it was invisible. Reported as
+// "you can hardly see the hover". Blush is the design's own pointer colour and
+// reads on all six navigation fills as well as on panel.
+//
+// The fill is the only thing that changes; the cover layer follows through
+// `--row-fill`, so the ring can never fall out of sync with the surface.
 @mixin mem-row-plate-hover {
-  // Only the fill changes — the cover layer follows it through --row-fill, so
-  // the ring never falls out of sync with the surface underneath it.
-  --row-fill: #{$mem-soft};
+  --row-fill: #{$mem-blush};
+  color: $mem-ink;
   border-color: $mem-line;
   box-shadow: 4px 4px 0 var(--mem-shadow);
 }
@@ -325,6 +334,22 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // A coloured row: static memphis accent + ink text + the accent hatch, all
 // three together. Splitting them is the mistake the census guards against — a
 // static fill under the theme-aware hatch is blank in the dark theme.
+// Pressing pushes the plate INTO its own shadow, the same physical answer
+// `candy-raised` gives every other filled button.
+//
+// This replaces the v-wave ripple these rows used to carry. The rule in
+// styling.md was already there — rows get the wave, BUTTONS get their role's
+// press and no wave, or two effects fight over one element — and the rows
+// became buttons in #378 without anyone moving them across. The wave is drawn
+// in `--mem-line` (ink in light), so a click flooded the whole plate dark:
+// reported as "the label and the hatch disappear when you click".
+@mixin mem-row-plate-press {
+  &:active {
+    transform: translate(3px, 3px);
+    box-shadow: none;
+  }
+}
+
 @mixin mem-row-plate-tint($fill) {
   --row-fill: #{$fill};
   background-color: var(--row-fill);

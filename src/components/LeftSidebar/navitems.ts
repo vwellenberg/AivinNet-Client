@@ -59,7 +59,10 @@ const home = {
   name: "home",
   route_name: Routes.Home,
   icon: HomeSvg,
-  tint: "tint-blush",
+  // Brand green, and it is the only entry that gets it: home is where the app
+  // starts. Blush moved out of this list entirely — it is the hover colour now,
+  // and a row that wears its own hover state permanently reads as broken.
+  tint: "tint-green",
 };
 
 export const menus: NavItem[] = [

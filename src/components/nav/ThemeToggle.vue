@@ -1,5 +1,5 @@
 <template>
-    <button class="theme-toggle" :title="title" @click="settings.toggleTheme">
+    <button class="theme-toggle" :class="settings.theme === 'light' ? 'to-dark' : 'to-light'" :title="title" @click="settings.toggleTheme">
         <MoonSvg v-if="settings.theme === 'light'" />
         <SunSvg v-else />
     </button>
@@ -37,15 +37,25 @@ const title = computed(() => {
     // `:active { scale(0.94) }` was a third press behaviour next to the role's
     // 0.98 and the home button's push-into-the-shadow.
     @include btn-action($size: $bar-control);
-    background-color: $candy-pink;
-    // Hatch = "you can press this" (#378). `accent` because blush is a static
-    // fill: the strokes stay ink in both themes, like the glyph on top of them.
-    // 28px is the button tile — the same one the play CTA wears.
+    // Hatch = "you can press this" (#378). `accent` because every fill below is
+    // a static memphis colour: the strokes stay ink in both themes, like the
+    // glyph on top of them. 28px is the button tile — the play CTA's.
     @include mem-hatch(28px, $on: accent);
     color: $candy-black;
 
+    // The fill follows the GLYPH, not the theme: the moon (switch to dark)
+    // sits on lavender, the sun (switch to light) on yellow. The button says
+    // what the click will do, so its colour may as well say it too.
+    &.to-dark {
+        background-color: $mem-lavender;
+    }
+
+    &.to-light {
+        background-color: $mem-yellow;
+    }
+
     &:hover {
-        background-color: $candy-pink-deep;
+        background-color: $mem-blush;
     }
 }
 </style>
