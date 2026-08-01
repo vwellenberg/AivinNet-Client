@@ -6,9 +6,14 @@
             :icon="SearchSvg"
             :flag="!search.tracks.value.length"
         />
-        <div :class="{ isSmall, isMedium }" style="height: 100%">
+        <!-- `v-scroll-page` + `scroller` is the shared anatomy every other
+             virtualised page uses (the sibling tabs in CardGridPage.vue do the
+             same). It carries the page insets AND the player-bar reserve; this
+             view used to restate half of it by hand and got the reserve wrong. -->
+        <div class="v-scroll-page" :class="{ isSmall, isMedium }" style="height: 100%">
             <RecycleScroller
                 id="songlist-scroller"
+                class="scroller"
                 v-slot="{ item, index }"
                 style="height: 100%"
                 :items="scrollerItems"
@@ -93,15 +98,10 @@ function playFromSearch(index: number) {
         height: 100%;
     }
 
-    #songlist-scroller {
-        padding-left: $padleft;
-        padding-right: $padright;
-        padding-bottom: 4rem;
-
-        @include allPhones {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-    }
+    // No padding rules here: insets and the player-bar reserve come from
+    // `.v-scroll-page .scroller` in app-grid.scss. The hand-written copy that
+    // stood here reserved 4rem against a 5.125rem bar — the exact defect #307
+    // fixed for every other virtualised page, still sitting in the one view
+    // that had opted out of the shared selector.
 }
 </style>
