@@ -101,6 +101,20 @@ defineEmits<{
         // On the page ground -> theme-aware muted. Filled rows re-pin
         // ink-muted in SongItem.vue.
         color: $mem-content-muted;
+        // Framed like a runtime printed on a sleeve. `currentColor` on purpose:
+        // the row re-pins the text colour on every filled state (hover, playing,
+        // context menu), and the ring has to follow it or it strands as a grey
+        // outline on the yellow row.
+        border: 2px solid currentColor;
+        border-radius: $candy-radius-pill;
+        padding: 0.12rem 0.5rem;
+        font-weight: 600;
+        // The help-text twin below is absolutely positioned and must NOT take
+        // the frame — it is a caption, not a value.
+        &.help-text {
+            border: none;
+            padding: 0;
+        }
 
         @include mediumPhones {
             display: none;
