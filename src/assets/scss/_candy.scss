@@ -127,8 +127,17 @@ $candy-radius-pill: 999px; // pills, sliders
 // pseudo-elements and added a hand-tuned `margin-top` to re-centre it. A fixed
 // offset fits exactly one pairing of bar and knob, and there were four (#284),
 // so it was wrong in three of them (#285).
-$range-h-default: 0.6rem;
-$range-thumb-default: 1.1rem;
+//
+// The number that matters here is --range-track, not --range-h: the 3px ink
+// border sits INSIDE the bar, so a 0.6rem bar had 3.6px left to carry colour —
+// less than its own frame. Two things fell out of that. The sprinkle texture on
+// the played fill (a 20px tile) had no room to read as a pattern, and the knob
+// stood 1.83x taller than the bar it runs on, which makes the bar look thinner
+// still. 0.875rem leaves 8px of fill, and the knob follows to keep that ratio
+// at 1.43. The bar stays a pointer control — the touch pairing
+// (1.25rem/1.6rem) is set by the phone bar and the Now-Playing header.
+$range-h-default: 0.875rem;
+$range-thumb-default: 1.25rem;
 $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 
 @mixin range-geometry($h: $range-h-default, $thumb: $range-thumb-default) {
