@@ -42,6 +42,22 @@ const COMPACT_CONTROLS: [file: string, selector: string, what: string][] = [
   [TRACK_ITEM, ".remove-track", "the queue row's remove button"],
 ];
 
+const SIDEBAR = "/src/components/LeftSidebar/index.vue";
+
+/**
+ * The sidebar is the app's DENSE tier — 28px, deliberately below the 32px of a
+ * content row (#388 sized it so the row survives the hatch ring). Until it had
+ * a name it was 756 anonymous instances, the single biggest group in the app.
+ */
+const DENSE_CONTROLS: [file: string, selector: string, what: string][] = [
+  [SIDEBAR, ".sidebar-newfolder", "the library's new-folder button"],
+  [SIDEBAR, ".sidebar-pl-img", "the sidebar row thumbnail"],
+  [SIDEBAR, ".pl-play-overlay", "the play overlay on that thumbnail"],
+];
+
+/** A literal length where a tier token belongs. `%` is fine — it is relative. */
+const LITERAL_SIZE = /(?:^|[\s;{])(?:width|height)\s*:\s*[\d.]+(?:px|rem|em)\b/;
+
 describe("control scale", () => {
   it("reads the two footprint tokens", () => {
     // The guard on this file's own inputs: renamed or unreadable, and every
@@ -50,6 +66,12 @@ describe("control scale", () => {
     expect(scss).toMatch(/\$bar-control:\s*2\.75rem\s*;/);
     expect(scss).toMatch(/\$control-compact:\s*2rem\s*;/);
     expect(scss).toMatch(/\$control-compact-glyph:\s*1rem\s*;/);
+    expect(scss).toMatch(/\$control-dense:\s*1\.75rem\s*;/);
+    expect(scss).toMatch(/\$control-dense-glyph:\s*1rem\s*;/);
+
+    // The knob that stops small plates from overriding `svg` at their call
+    // site. Without it `btn-action` puts a 24px glyph in a 22px opening.
+    expect(scss, "btn-action lost its $glyph parameter").toMatch(/@mixin btn-action\([^)]*\$glyph:/);
   });
 
   it("gives the favourite toggle one role per footprint, in the component", () => {
@@ -94,6 +116,18 @@ describe("control scale", () => {
     expect(ownDeclarations(found[0]), `${what} sizes itself instead of reading the token`).toMatch(
       /\$control-compact/
     );
+  });
+
+  it.each(DENSE_CONTROLS)("%s › %s (%s) reads $control-dense", (file, selector, what) => {
+    const found = blocks(styleBlock(SOURCES[file]), selector);
+    expect(found.length, `${what}: no ${selector} block to read`).toBeGreaterThan(0);
+
+    expect(found[0], `${what} does not mention the dense tier`).toMatch(/\$control-dense/);
+    expect(
+      LITERAL_SIZE.test(ownDeclarations(found[0])),
+      `${what} states a literal width/height. The sidebar is a named tier now ($control-dense); ` +
+        `a literal here is how 756 controls came to share a size that no token knew about.`
+    ).toBe(false);
   });
 
   // Both used to be `<div>` with `@click`: not reachable by keyboard, no name,

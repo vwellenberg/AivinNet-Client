@@ -84,6 +84,33 @@ $control-compact: 2rem;
 $control-compact-glyph: 1rem;
 
 // ---------------------------------------------------------------------------
+// THE DENSE SCALE — the sidebar, and the last unnamed footprint.
+//
+// Same census, one round later: 28px is now the biggest group in the app (756
+// of 1156 square icon buttons, 65 %), and it owned no token either. It got
+// there deliberately — #388 pulled the sidebar thumbnail from 2rem to 1.75rem
+// so the row height would survive the hatch ring, and `sidebar-newfolder` was
+// already sitting at 1.75rem beside it.
+//
+// So this is NOT the compact scale under another name, and forcing the two
+// together would undo that reasoning. The sidebar row is 42px tall against a
+// track row's 72; it is genuinely denser, and it is the one zone where the ROW
+// is the tap target and the controls on it are secondary.
+//
+// Three tiers, then, each with a job:
+//
+//   $bar-control      44px  chrome — top bar, player bar, header actions
+//   $control-compact  32px  affordances in a content row — track rows, queue
+//   $control-dense    28px  the sidebar — thumbnails, their overlays, its
+//                           section buttons
+//
+// The 52px play disc on a cover tile stays a call-site decision: it is a
+// primary CTA sized to the artwork it sits on, not a member of any tier.
+// ---------------------------------------------------------------------------
+$control-dense: 1.75rem;
+$control-dense-glyph: 1rem;
+
+// ---------------------------------------------------------------------------
 // The keyboard focus ring. `Global/basic.scss` gives it to every <button>; this
 // mixin exists because a control that WEARS a button role is not always a
 // <button> element — the top bar's home button is a RouterLink, so it fell
@@ -291,7 +318,12 @@ $control-compact-glyph: 1rem;
 //                    transparent border is still RESERVED so hovering can
 //                    never shift the row by 2px.
 // ---------------------------------------------------------------------------
-@mixin btn-action($size: 2.75rem, $width: $size, $rest: surface, $radius: $candy-radius-sm) {
+// `$glyph` is a knob like `btn-quiet`'s, and it exists because this role is
+// used at more than one size: a plate at `$control-dense` with the chrome's
+// 1.5rem glyph would be a 24px icon in a 22px opening. Without the parameter
+// every small plate overrode `svg { width/height }` at its call site — which is
+// the outside-patch shape this file exists to remove.
+@mixin btn-action($size: 2.75rem, $width: $size, $rest: surface, $radius: $candy-radius-sm, $glyph: $bar-glyph) {
   @include btn-pop;
   width: $width;
   height: $size;
@@ -315,8 +347,8 @@ $control-compact-glyph: 1rem;
     color $motion-tint $motion-curve, box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
 
   svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: $glyph;
+    height: $glyph;
   }
 
   // Hover only. An open context menu is deliberately NOT folded in here: in

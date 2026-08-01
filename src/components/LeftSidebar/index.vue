@@ -736,13 +736,12 @@ onBeforeUnmount(teardown);
     // border, no shadow, and 22px across in a design where every other button
     // has a frame it sits in. It takes the action role now, at the smallest
     // size that still reads as a button next to the section caption.
+    // `$control-dense`, the same footprint as the thumbnails in the rows below
+    // — the size was already right, it just had no name, and the glyph came
+    // from a hand-written override because `btn-action` had no `$glyph` knob.
+    // It does now, so both numbers come from the tier.
     .sidebar-newfolder {
-      @include btn-action($size: 1.75rem, $radius: 50%);
-
-      svg {
-        width: 0.9rem;
-        height: 0.9rem;
-      }
+      @include btn-action($size: $control-dense, $glyph: $control-dense-glyph, $radius: 50%);
     }
   }
 
@@ -929,11 +928,13 @@ onBeforeUnmount(teardown);
   }
 
   .sidebar-pl-img {
-    // 1.75rem, not 2rem: the row's padding grew to make room for the hatch ring
-    // and the thumbnail gives that back, so the row height stays where it was
-    // (28 + 2x4 + 2x3 = 42px against the previous 43).
-    width: 1.75rem;
-    height: 1.75rem;
+    // `$control-dense`, the sidebar's tier — 28px rather than the content
+    // rows' 32: the row's padding grew to make room for the hatch ring and the
+    // thumbnail gives that back, so the row height stays where it was
+    // (28 + 2x4 + 2x3 = 42px against the previous 43). That decision is what
+    // the token now records; it used to be a literal with a comment.
+    width: $control-dense;
+    height: $control-dense;
     flex-shrink: 0;
     overflow: hidden;
     position: relative;
@@ -963,8 +964,8 @@ onBeforeUnmount(teardown);
       transition: opacity 0.15s ease;
 
       svg {
-        height: 1rem;
-        width: 1rem;
+        height: $control-dense-glyph;
+        width: $control-dense-glyph;
         // White play glyph over the dark hover scrim — static light.
         color: $mem-panel-static;
       }

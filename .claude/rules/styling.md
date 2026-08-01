@@ -379,6 +379,37 @@ in die man sich eintragen müsste**.
 (`src/components/__tests__/headerActionOrder.test.ts`): Ein Button am falschen Ende der Reihe oder
 eine fünfte `.header-actions`-Reihe, die der Test nicht kennt, lässt die Suite rot laufen.
 
+## ⚠️ Es gibt DREI Kantenlängen, und jede hat einen Namen
+
+Ein Zensus aller quadratischen Icon-Buttons der laufenden App
+(`~/uitest/ctlcensus.js`, 12 Routen × Desktop und Phone) fand **sechs** Größen — 22, 26, 28, 32,
+44, 52 px — von denen nur eine ein Token hatte. Die beiden größten Gruppen gehörten **niemandem**:
+32 px (780 Vorkommen) und 28 px (756). Genau die Form, in der #354 den 8-px-Radius fand: kein
+Fehler, sondern eine Entscheidung, die niemand aufgeschrieben hat.
+
+| Token | Wert | gilt für |
+|---|---|---|
+| `$bar-control` | 2.75rem · 44 px | Chrome: Top-Bar, Player-Bar, Header-Aktionen |
+| `$control-compact` | 2rem · 32 px | Bedienelemente **in einer Inhaltszeile**: Track-Zeile, Queue |
+| `$control-dense` | 1.75rem · 28 px | die **Sidebar**: Thumbnails, deren Overlays, Sektions-Buttons |
+
+Dazu je ein `*-glyph`-Token; die 52-px-Play-Scheibe auf einer Kachel bleibt bewusst eine
+Call-Site-Entscheidung (primäre CTA, auf das Artwork gesized, kein Mitglied einer Stufe).
+
+**Die drei sind kein Kompromiss, sondern drei Dichten.** Die Sidebar-Zeile ist 42 px hoch, eine
+Track-Zeile 72 — und in der Sidebar ist die **Zeile** das Tippziel, das Overlay darauf sekundär.
+Wer die Stufen zusammenzieht, macht entweder das Tippziel in der Track-Zeile kleiner oder kippt
+die Zeilenhöhen-Rechnung aus #388.
+
+⚠️ **`btn-action` hat ein `$glyph`-Argument** — ohne das überschrieb jede kleine Platte ihre
+Glyphgröße am Aufrufort (ein 24-px-Icon in einer 22-px-Öffnung), und genau solche Patches sammelt
+`_buttons.scss` ein.
+
+Der Zensus ist getestet (`src/components/__tests__/controlScale.test.ts`): Er prüft **alle**
+Komponenten auf Box-Geometrie an `.heart-button`, verlangt für die Zeilen- und Sidebar-Controls das
+jeweilige Token statt einer Literal-Größe und besteht darauf, dass Überlauf- und
+Entfernen-Trigger `<button>` mit `aria-label` sind.
+
 ## ⚠️ Die Chrome hat EINE Kantenlänge: `$bar-control`
 
 Player-Bar **und** Top-Bar lesen `$bar-control` (2.75rem = 44 px) aus
