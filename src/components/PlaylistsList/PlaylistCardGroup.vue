@@ -20,8 +20,13 @@ defineProps<{
 <style lang="scss">
 .playlistcardgroup {
   margin-bottom: 4rem;
+
+  // "Pinned" / "All playlists" are section captions on the memphis ground, so
+  // they are stickers like every other one.
   h3 {
-    margin-left: $medium;
+    @include mem-sticker;
+    margin: 0 0 $small $medium;
+    font-size: 1.15rem;
   }
 }
 </style>

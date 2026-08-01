@@ -105,7 +105,8 @@ const playlists = computed(() => {
 
     .grid {
         grid-template-columns: repeat(auto-fill, minmax($cardwidth, 1fr));
-        gap: 2.5rem 1.5rem;
+        // Stufe B: 32px zwischen den Spalten wie in den Home-Zeilen.
+        gap: 3.5rem 2rem;
 
         @include mediumPhones {
             grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));

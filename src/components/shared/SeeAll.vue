@@ -14,12 +14,24 @@ defineProps<{
 </script>
 
 <style lang="scss">
+// "SEE ALL" / "VIEW HISTORY" sits at the right end of a section caption, on the
+// memphis ground — so it is a sticker like the caption itself. It IS pressable,
+// but it is a text link rather than a control surface, so it takes the sticker
+// (no hatch) and answers with the row-plate's hover tint instead.
 .see-all {
-    font-size: $medium;
-    opacity: 0.75;
+    @include mem-sticker(999px, 0.25rem 0.7rem);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
 
-    a:hover {
-        text-decoration: underline;
+    &:hover {
+        background-color: $mem-hover;
+        @include candy-shadow(4px, 4px);
+    }
+
+    a {
+        color: $candy-text;
     }
 }
 </style>

@@ -134,10 +134,14 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
 
 <style lang="scss">
 .cardscroller {
-    padding: 1.5rem 0;
+    // Abstände nach Stufe B der Mockup-Runde: 28px oben und unten ergeben
+    // 56px zwischen zwei Zeilen (vorher 48), 32px zwischen zwei Kacheln
+    // (vorher 20). Der spürbare Teil ist der Abstand ZWISCHEN den Objekten —
+    // innerhalb der Kachel reichen 16px (Global/cards.scss).
+    padding: 1.75rem 0;
 
     .recentitems {
-        gap: 1.5rem 0;
+        gap: 2.5rem 2rem;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax($cardwidth, 1fr));
 
@@ -152,28 +156,51 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
 
     .rinfo {
         padding: 0 $medium;
-        margin-bottom: $medium;
+        // 24px von der Überschrift zur ersten Kachel (Stufe B).
+        margin-bottom: 1.5rem;
 
+        // The row's caption ("Recently played", "Artist mixes for you") and its
+        // "SEE ALL" link are stickers: they sat free on the doodle ground,
+        // which is exactly the pairing every plate in this design exists to
+        // avoid. The sticker goes on the TEXT, not on the flex row — a bar
+        // across the full width would read as a section divider.
         .rtitle {
             font-size: 1.15rem;
             font-weight: 700;
-            // Section heading rows sit on the page ground -> theme-aware.
-            color: $mem-content-text;
             display: flex;
-            align-items: baseline;
+            align-items: center;
             justify-content: space-between;
+            gap: $small;
+
+            > b {
+                @include mem-sticker;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
 
             a {
-                color: $mem-content-text;
+                color: $candy-text;
             }
         }
 
         .rdesc {
             font-size: 0.9rem;
-            color: $mem-content-muted;
             display: flex;
-            align-items: baseline;
+            align-items: center;
             justify-content: space-between;
+            gap: $small;
+            margin-top: $smaller;
+
+            > a {
+                @include mem-sticker;
+                color: $candy-text-muted;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
         }
     }
 

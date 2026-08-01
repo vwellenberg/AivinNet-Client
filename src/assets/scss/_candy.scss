@@ -386,6 +386,40 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 }
 
 // ---------------------------------------------------------------------------
+// HEADING STICKER — a caption sitting ON the memphis ground.
+//
+// Every plate in this design exists for the same reason: `$mem-content-muted`
+// (and often plain ink) over the doodle tile is not a readable pairing — the
+// text lands on whatever saturated shape happens to be behind it. Panels,
+// cards, rows and the detail heads all solved that; the section captions
+// ("Browse Library", "Recently played", "All Tracks", the page titles) were
+// the last text left standing free on the ground.
+//
+// A sticker is a plate MINUS the pressable statement: panel, ink frame, hard
+// offset shadow — and deliberately NO hatch. The texture means "you can press
+// this" (#378), and a caption is not a control. Same reason it takes no hover
+// and no press feedback.
+//
+// `width: fit-content` on purpose: a caption sticker is a label, not a bar
+// across the page.
+// ---------------------------------------------------------------------------
+@mixin mem-sticker($radius: $candy-radius-sm, $pad: 0.3rem 0.7rem) {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  padding: $pad;
+  background-color: $mem-panel;
+  border: $candy-border;
+  border-radius: $radius;
+  box-shadow: 3px 3px 0 var(--mem-shadow);
+  // The ground halos that used to prop these captions up (`text-shadow: 0 0 8px
+  // var(--mem-ground)`) are unnecessary on a panel — and so is the
+  // theme-aware content colour: this text reads against the panel now.
+  color: $candy-text;
+  text-shadow: none;
+}
+
+// ---------------------------------------------------------------------------
 // The active marker for a list whose rows are already coloured.
 //
 // Once every navigation row carries its own fill, "selected" can no longer BE a

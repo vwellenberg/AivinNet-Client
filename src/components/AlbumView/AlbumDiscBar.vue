@@ -32,14 +32,15 @@ defineEmits<{
     margin-top: $small;
     height: $song-item-height;
 
+    // The disc divider ("Disc 1") is a caption on the memphis ground like the
+    // section headings — sticker, and the muting comes from the muted text
+    // token rather than `opacity` (which would fade the frame with the text).
+    // The nested `.play` span/svg inherit this colour.
     .disc_number {
+        @include mem-sticker(999px, 0.25rem 0.8rem);
         font-size: $medium;
-        font-weight: 500;
-        // Disc divider caption + its "Play Disc" hover action sit on the page
-        // ground -> theme-aware (opacity provides the muting). The nested
-        // .play span/svg inherit this colour.
-        color: $mem-content-text;
-        opacity: 0.75;
+        font-weight: 700;
+        color: $candy-text-muted;
         display: flex;
     }
 
