@@ -82,14 +82,19 @@ import { menus } from "./navitems";
 
     // Every entry carries its own memphis fill (the class comes from
     // navitems.ts, not from an nth-child rule — the list has a separator in it).
+    // Toned toward the paper ground (mem-pastel): six accents at full strength
+    // in one narrow column read as shouting, while the same hues in the
+    // reference art sit calmly behind the panels because they are large areas
+    // rather than stacked marks.
+    //
     // Blush is deliberately NOT in this list: it is the hover fill, and a row
     // that wears the pointer state at rest looks permanently hovered.
-    &.tint-green { @include mem-row-plate-tint($brand-green); }
-    &.tint-teal { @include mem-row-plate-tint($mem-teal); }
-    &.tint-yellow { @include mem-row-plate-tint($mem-yellow); }
-    &.tint-lavender { @include mem-row-plate-tint($mem-lavender); }
-    &.tint-pink { @include mem-row-plate-tint($mem-pink); }
-    &.tint-coral { @include mem-row-plate-tint($mem-coral); }
+    &.tint-green { @include mem-row-plate-tint(mem-pastel($brand-green)); }
+    &.tint-teal { @include mem-row-plate-tint(mem-pastel($mem-teal)); }
+    &.tint-yellow { @include mem-row-plate-tint(mem-pastel($mem-yellow)); }
+    &.tint-lavender { @include mem-row-plate-tint(mem-pastel($mem-lavender)); }
+    &.tint-pink { @include mem-row-plate-tint(mem-pastel($mem-pink)); }
+    &.tint-coral { @include mem-row-plate-tint(mem-pastel($mem-coral)); }
 
     // Selected keeps its colour and gains the ink zigzag on the leading edge.
     // With every row coloured, "active" cannot be a fill any more — see

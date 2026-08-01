@@ -47,11 +47,11 @@ const title = computed(() => {
     // sits on lavender, the sun (switch to light) on yellow. The button says
     // what the click will do, so its colour may as well say it too.
     &.to-dark {
-        background-color: $mem-lavender;
+        background-color: mem-pastel($mem-lavender);
     }
 
     &.to-light {
-        background-color: $mem-yellow;
+        background-color: mem-pastel($mem-yellow);
     }
 
     &:hover {
