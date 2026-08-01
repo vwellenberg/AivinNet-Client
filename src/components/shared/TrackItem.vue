@@ -186,6 +186,17 @@ onBeforeUnmount(() => {
   // Absorb the 2px border into the queue's fixed 64px row slot.
   padding-top: calc(#{$small} - #{$candy-border-w});
   padding-bottom: calc(#{$small} - #{$candy-border-w});
+
+  // Full strength on the playing row, same call as in SongItem.vue: the
+  // sprinkle costs the dimmed artist line its legibility first, and this is
+  // the row being read.
+  .tags .title {
+    font-weight: 700;
+  }
+
+  .artist {
+    opacity: 1;
+  }
 }
 
 .contexton {
@@ -308,30 +319,19 @@ onBeforeUnmount(() => {
   }
 }
 
-// Drop marker. Drawn as a pseudo-element rather than a real border (which is
-// what the song rows use): those reserve a transparent border up front,
-// TrackItem does not, so a border here would shift the row by 3px the moment
-// the pointer crosses it. `.currentInQueue` clips its own overflow and owns
-// ::after for the zigzag, so the marker is inset and lives on ::before.
-.track-item.drag-over-top,
+// Drop marker. An inset box-shadow rather than a border or a pseudo-element.
+//
+// A real border is out because this row reserves none up front (unlike the song
+// rows): it would shift the row by 3px the moment the pointer crosses it. A
+// pseudo-element is out because BOTH of them belong to the playing state now —
+// `mem-now-playing-row` paints the sprinkle on ::before and the leading-edge
+// marker on ::after, and the playing row is a perfectly ordinary drop target.
+// An inset shadow costs no layout and no element.
+.track-item.drag-over-top {
+  box-shadow: inset 0 #{$candy-border-w} 0 $mem-line;
+}
+
 .track-item.drag-over-bottom {
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0.5rem;
-    right: 0.5rem;
-    height: 3px;
-    background-color: $mem-line;
-    pointer-events: none;
-    z-index: 2;
-  }
-}
-
-.track-item.drag-over-top::before {
-  top: 0;
-}
-
-.track-item.drag-over-bottom::before {
-  bottom: 0;
+  box-shadow: inset 0 #{-$candy-border-w} 0 $mem-line;
 }
 </style>

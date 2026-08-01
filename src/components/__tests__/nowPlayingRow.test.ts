@@ -109,6 +109,31 @@ describe("now-playing row", () => {
     expect(mixin).not.toContain("$mem-coral");
     // Leading edge, not the bottom one: the old strip ate the row's bottom air.
     expect(mixin).toMatch(/left:\s*0/);
-    expect(mixin).not.toMatch(/right:\s*0/);
+  });
+
+  it("keeps the texture off the text band", () => {
+    const candy = readFileSync(CANDY_FILE, "utf-8");
+    const mixin = blockFor(candy, `@mixin ${MIXIN}`) ?? "";
+
+    // Same "this is ON" texture as the transport's aux buttons...
+    expect(mixin).toContain("mem-sprinkle");
+    // ...but masked to the top and bottom edges. Without the mask it runs
+    // straight through the two text lines, and the muted columns (album, date,
+    // duration) are what stop being readable first.
+    expect(mixin).toMatch(/-webkit-mask-image:/);
+    expect(mixin).toMatch(/[^-]mask-image:/);
+    // The row's content has to sit above it, or the sprinkle paints ON the title.
+    expect(mixin).toMatch(/>\s*\*\s*\{[^}]*z-index/);
+  });
+
+  it("leaves the queue's drop marker a mechanism of its own", () => {
+    // Both pseudo-elements belong to the playing state now, so the drop marker
+    // cannot use one — it would collide on exactly the row that is playing.
+    const source = styleSource(SOURCES["/src/components/shared/TrackItem.vue"]);
+    const marker = blockFor(source, ".track-item.drag-over-top");
+
+    expect(marker, ".track-item.drag-over-top not found").toBeTruthy();
+    expect(marker).toContain("box-shadow");
+    expect(source).not.toMatch(/\.track-item\.drag-over-(top|bottom)::before/);
   });
 });

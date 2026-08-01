@@ -137,6 +137,24 @@ ist die Kontrastkante, unabhängig davon, was ein Wirt als `color` pinnt.
 
 Das horizontale `mem-zigzag`-Mixin gibt es damit nicht mehr — wer danach sucht, sucht vergeblich.
 
+**Die Fläche trägt den Sprinkle — aber nur an Ober- und Unterkante.** Es ist dieselbe Textur, die
+`mem-transport-aux-on` für „Shuffle/Repeat AN" malt, also eine Vokabel statt einer Erfindung pro
+Element. Läuft sie durch die ganze Zeile, liegt sie im Textband, und **zuerst brechen die
+gedämpften Spalten weg** (Album, Datum, Dauer): sie sind ohnehin nur Grau auf Gelb. Deshalb eine
+`mask-image`-Blende — 13 px Textur, bis 21 px ausgeblendet, an beiden Kanten.
+
+Dazu liest die laufende Zeile **auf voller Stärke**: Titel eine Gewichtsstufe höher, Künstlerzeile
+ohne `opacity`-Dämpfung, Album/Datum/Dauer in Ink statt Grau (in beiden Wirten). Das ist kein
+Schönheitsschritt, sondern die Konsequenz aus der Textur — und es ist die eine Zeile, die gerade
+gelesen wird. **Die Überschreibungen brauchen mehr Spezifität als die Vorgaben**, denn die stehen
+in den Kind-Komponenten (`TrackTitle`, `TrackAlbum`, `TrackDateAdded`, `TrackDuration`), deren
+Style-Blöcke in Import-Reihenfolge ausgegeben werden — bei Gleichstand entschiede der Bundler.
+
+⚠️ **Beide Pseudo-Elemente der Zeile sind vergeben** (`::before` Textur, `::after` Marke). Wer der
+Zeile noch etwas aufmalen will, braucht einen anderen Mechanismus: Die Drop-Marke der Queue ist
+deshalb ein **`inset box-shadow`** — sie lag vorher auf `::before` und hätte ausgerechnet auf der
+laufenden Zeile kollidiert.
+
 ## ⚠️ Ein Icon nicht mit `opacity` dämpfen, wenn es kein Zustand ist
 
 Die Sidebar-Glyphen liefen unter `opacity: 0.75` — ein Rest aus der Zeit der gefüllten
