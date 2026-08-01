@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
+import { block as blockOf, ownDeclarations, styleBlock } from "./scssBlocks";
+
 // ---------------------------------------------------------------------------
 // Every control in the top bar has ONE footprint, and it comes from
 // `$bar-control` in Global/_buttons.scss.
@@ -45,82 +47,16 @@ const CONTROLS: [file: string, selector: string, what: string][] = [
   ["/src/components/RightSideBar/SearchInput.vue", "#ginner", "the search pill"],
 ];
 
-/** A component's <style> content with comments removed. */
+/** A component's <style> content, with a guard that the file was found. */
 function styles(file: string): string {
   const source = SOURCES[file];
   expect(source, `${file} is not in the component glob`).toBeTruthy();
-  return source
-    .slice(source.indexOf("<style"))
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\/\/[^\n]*/g, "");
+  return styleBlock(source);
 }
 
-/**
- * The body of `selector { … }`.
- *
- * Matched only where the selector is followed by its own `{`, so
- * `.gsearch-input > #ginner > input {` cannot stand in for `#ginner {`.
- */
+/** The body of `selector { … }` — the parser itself lives in ./scssBlocks. */
 function block(css: string, selector: string): string {
-  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const opener = new RegExp(`(?:^|[\\s,>])${escaped}\\s*\\{`, "m").exec(css);
-  if (!opener) return "";
-
-  const start = css.indexOf("{", opener.index + opener[0].length - 1);
-  let depth = 1;
-  let i = start + 1;
-  while (i < css.length && depth > 0) {
-    if (css[i] === "{") depth++;
-    else if (css[i] === "}") depth--;
-    i++;
-  }
-  return css.slice(start + 1, i - 1);
-}
-
-/**
- * A block's own declarations plus those of its breakpoint overrides
- * (`@include allPhones { … }`), with child-element blocks removed.
- *
- * The breakpoints have to stay in: a control whose desktop size reads
- * `$bar-control` and whose phone size reads `2.25rem` is exactly the drift this
- * file exists to catch, and it hides in a nested block.
- */
-function ownDeclarations(css: string): string {
-  let out = "";
-  let pending = "";
-  let i = 0;
-
-  while (i < css.length) {
-    const char = css[i];
-
-    if (char === "{") {
-      let depth = 1;
-      let j = i + 1;
-      while (j < css.length && depth > 0) {
-        if (css[j] === "{") depth++;
-        else if (css[j] === "}") depth--;
-        j++;
-      }
-
-      if (pending.trim().startsWith("@")) {
-        out += "{" + ownDeclarations(css.slice(i + 1, j - 1)) + "}";
-      } else {
-        // Drop the child block together with the selector that opened it.
-        out = out.slice(0, out.length - pending.length);
-      }
-
-      pending = "";
-      i = j;
-      continue;
-    }
-
-    out += char;
-    pending += char;
-    if (char === ";" || char === "}") pending = "";
-    i++;
-  }
-
-  return out;
+  return blockOf(css, selector).body;
 }
 
 const LITERAL_SIZE = /(?:^|[\s;{])(?:width|height)\s*:\s*[\d.]+(?:px|rem|em)\b/;

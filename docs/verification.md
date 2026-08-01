@@ -120,6 +120,14 @@ ohne Tab ist dagegen ehrlich und zeigt „404! Page Not Found!".
   dauerhaft und feuern trotzdem nur beim App-Start. Wer die Deklaration misst, hält jeden
   Seitenwechsel für ein Ploppen. `getAnimations()` liefert zusätzlich `getComputedTiming()` mit dem
   **effektiven** Delay, also die Staffelung als Zahl statt als Absicht.
+- **⚠️ Wer eine GRÖSSE misst, nimmt den Computed Style — nicht `getBoundingClientRect()`.** Der
+  Rect enthält laufende Transforms, und `btn-action`/`btn-pill` bringen den Mount-Pop mit, dessen
+  erster Keyframe `scale(0.82)` ist. Ein Zensus, der beim Booten misst, liest deshalb Größen, die
+  **in keinem Stylesheet stehen**: der Favoriten-Toggle im Now-Playing-Header kam als 36×36 mit
+  19,7-px-Glyph zurück (44 × 0,82 = 36,1 · 24 × 0,82 = 19,7) und sah aus wie eine Regression, die
+  es nicht gab. Gegenprobe ist `getComputedStyle(el).width` neben dem Rect: weichen sie ab, misst
+  man eine Animation. `ctlcensus.js` liest deshalb den Computed Style, `whereis.js` noch den Rect
+  — dort also länger warten oder gegenprüfen.
 - **Ein zu kurzes Messfenster liest sich wie „ploppt gar nicht".** Auf einer kalt geladenen
   Detailseite steht die Header-Reihe erst nach 500–1000 ms; ein 2-Sekunden-Fenster, das vor dem
   Rendern beginnt, meldet sauber „0 Pops" (real passiert: mobile Album-, Artist- und

@@ -17,6 +17,7 @@
         />
         <HeartSvg
             v-if="settings.use_np_img && !isMobile"
+            btn_role="bar"
             :state="queue.currenttrack?.is_favorite"
             @handleFav="$emit('handleFav')"
         />
@@ -54,6 +55,7 @@
         <HeartSvg
             v-if="!isMobile"
             class="np-fav"
+            btn_role="bar"
             title="Favorite"
             :state="queue.currenttrack?.is_favorite"
             @handleFav="$emit('handleFav')"
@@ -207,29 +209,14 @@ defineEmits<{
     margin-right: $medium;
 
     // Favorite check next to the title (Spotify-style), desktop only.
-    // Compact: the shared HeartSvg renders a 1.75rem glyph, too chunky for the
-    // bar. height + width !important square the hit-box (overriding HeartSvg's
-    // aspect-ratio: 1.5) so the trimmed 1.3rem glyph below stays contained.
-    .np-fav {
-        height: 1.6rem !important;
-        width: 1.6rem !important;
-        border: none !important;
-        background-color: transparent !important;
-        flex-shrink: 0;
-
-        &:hover {
-            background-color: transparent !important;
-            opacity: 0.85;
-        }
-
-        // Smaller glyph — scoped to the title-side check ONLY, so the
-        // use_np_img cover-replacement heart and the mobile Actions heart
-        // keep their 1.75rem size.
-        div svg {
-            height: 1.3rem;
-            width: 1.3rem;
-        }
-    }
+    //
+    // Nothing to state here any more: the box comes from `btn_role="bar"` at
+    // the call site, so this control reads `$bar-control` like the transport
+    // three centimetres to its right. What stood here was four `!important`
+    // squaring it to 1.6rem plus a 1.3rem glyph override — and the comment
+    // justifying them cited an `aspect-ratio: 1.5` the component had already
+    // stopped having. Measured, the result was a 26px control in a row of 44px
+    // ones.
 
     .np-image {
         position: relative;
@@ -299,12 +286,10 @@ defineEmits<{
         }
     }
 
-    .heart-button {
-        height: 3rem;
-        width: 3rem;
-        border: solid 1px $gray4;
-        padding: 0;
-    }
+    // (The cover-replacement heart used to be squared to 3rem here, with a
+    // `border: solid 1px $gray4` — a 1px ink line in a design whose border
+    // width is 3px, and the only one in this bar. It reads `$bar-control` from
+    // its role now, like everything else in the row.)
 
     .track-info {
         // Flex child: allow the title to truncate (ellipsis) and keep the
@@ -358,11 +343,6 @@ defineEmits<{
         grid-template-columns: max-content 1fr;
         grid-auto-columns: max-content;
         margin-right: unset;
-
-        .heart-button {
-            height: max-content;
-            border: 1px solid transparent;
-        }
     }
 
     @include largePhones {

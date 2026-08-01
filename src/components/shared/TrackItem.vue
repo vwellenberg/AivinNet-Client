@@ -42,9 +42,16 @@
       >
         <HeartSvg :state="is_fav" :no_emit="true" />
       </div>
-      <div v-if="isQueueTrack" class="remove-track" title="Remove from queue" @click.stop="player.removeByIndex(index ?? 0)">
+      <button
+        v-if="isQueueTrack"
+        class="remove-track"
+        type="button"
+        title="Remove from queue"
+        aria-label="Remove from queue"
+        @click.stop="player.removeByIndex(index ?? 0)"
+      >
         <DelSvg />
-      </div>
+      </button>
     </div>
   </div>
 </template>
@@ -246,13 +253,11 @@ onBeforeUnmount(() => {
       cursor: pointer;
     }
 
+    // No box here any more — `width/height/padding/border/background` were a
+    // hand-written copy of `btn-quiet` at a size the component itself did not
+    // know about. It states `$control-compact` now, which is the same 2rem this
+    // rule was asking for, from the one place that owns it.
     .heart-button {
-      width: 2rem;
-      height: 2rem;
-      padding: 0;
-      border: none;
-      background-color: transparent;
-
       // The UNFAVOURITED plus only. This selector (0,2,1) outranks
       // `.heart-button.is-fav` (0,2,0), so written bare it also repainted the
       // favourite marker — a favourited queue track has been drawing ink
@@ -263,16 +268,19 @@ onBeforeUnmount(() => {
       }
     }
 
+    // A <button> now, not a <div> with @click — it removes a track from the
+    // queue, so it has to be reachable by keyboard and announce a name. Same
+    // 2rem it always had, from `$control-compact` rather than by hand.
+    //
+    // ⚠️ The rotation moved onto the GLYPH. It turns the plus into an ×, so it
+    // belongs to the drawing — but `transform` replaces, it does not compose:
+    // left on the button, the role's `:hover { scale(1.06) }` would drop the
+    // rotation and the × would snap back to a + under the pointer.
     .remove-track {
-      transform: rotate(45deg);
-      height: 2rem;
-      width: 2rem;
+      @include btn-quiet($size: $control-compact, $glyph: $control-compact-glyph);
 
-      display: grid;
-      place-items: center;
-
-      &:hover {
-        border-radius: 1rem;
+      svg {
+        transform: rotate(45deg);
       }
     }
 
@@ -286,9 +294,11 @@ onBeforeUnmount(() => {
       opacity: 1;
     }
 
-    .remove-track {
-      transform: translateY(0) rotate(45deg);
-    }
+    // (`.remove-track { transform: translateY(0) rotate(45deg) }` stood here —
+    // a row-hover rule re-asserting a rotation that nothing was taking away,
+    // and the `translateY(0)` had no counterpart anywhere. Both would now fight
+    // the role's pointer feedback for the same property; the rotation lives on
+    // the glyph instead.)
 
     background-color: $candy-pink-soft;
     border-radius: $candy-radius-sm;
