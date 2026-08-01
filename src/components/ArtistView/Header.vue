@@ -143,7 +143,17 @@ const containerHeight = computed(() => {
         height: auto !important;
         min-height: 0 !important;
 
-        .artist-img,
+        // The size goes on the PHOTO, never on its frame. The frame carries
+        // `padding: 1rem` in circular mode, so forcing 7rem onto it too left
+        // the photo overflowing its own box by exactly that padding — 16px out
+        // to the right, 9px of it across the artist's name (measured). Size the
+        // photo and let the frame hug it.
+        .artist-img {
+            padding: $small !important;
+            height: auto !important;
+            width: auto !important;
+        }
+
         .artist-img img,
         .artist-img .artist-img-placeholder {
             // 7rem is what the playlist and album covers take here.
