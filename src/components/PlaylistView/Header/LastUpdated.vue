@@ -18,22 +18,15 @@ const playlist = usePStore()
 </script>
 
 <style lang="scss">
+// Part of the header's meta line since the plate anatomy — it used to be an
+// absolutely positioned box in the bottom-right corner, and that is precisely
+// how its two buttons once ended up NEXT TO the action row without belonging
+// to it (see the note in the template).
 .last-updated {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-    padding: $smaller $small;
-    font-size: 0.9rem;
-    font-weight: 500;
-    border-radius: $smaller;
-    z-index: 12;
+    display: inline;
 
-    // Sits on the playlist header ground (square-image mode) -> theme-aware.
-    // Banner-image mode overrides to $candy-white in Header.vue.
-    color: $mem-content-text;
-
-    display: flex;
-    align-items: center;
-    gap: $smaller;
+    &::before {
+        content: " • ";
+    }
 }
 </style>

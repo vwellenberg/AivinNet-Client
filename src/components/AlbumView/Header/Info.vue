@@ -1,9 +1,9 @@
 <template>
-  <div class="album-info">
+  <div class="album-info dh-body">
     <div class="top">
       <!-- <AlbumType :album="album" /> -->
-      <div class="albumtype">{{ album.type }}</div>
-      <div id="albumheadertitle" class="title ellip2">
+      <div class="albumtype dh-type">{{ album.type }}</div>
+      <div id="albumheadertitle" class="title dh-title ellip2">
         <span v-for="t in titleSplits" :key="t">{{ t }}<br /></span>
       </div>
     </div>
@@ -52,31 +52,19 @@ onBeforeRouteUpdate(() => {
 </script>
 
 <style lang="scss">
+// Type, title and meta sizes come from `.dh-type` / `.dh-title` in the shared
+// anatomy (Global/detail-head.scss). The ground halos that used to sit on the
+// type and the meta line are gone with them: they existed because the text
+// stood free on the doodle ground, and it now stands on a panel.
 .album-info {
-  img {
-    height: 6rem;
-    aspect-ratio: 1;
-    object-fit: cover;
-    user-select: none;
-  }
-
   .top {
     .albumtype {
-      font-size: 14px;
-      font-weight: 700;
       text-transform: capitalize;
-      // Full-strength adaptive text + soft ground halo: the copied reference
-      // art puts saturated shapes behind the header, where muted grey failed.
-      color: $mem-content-text;
-      text-shadow: 0 0 8px var(--mem-ground);
     }
 
     .title {
-      font-size: $detail-title-size;
-      font-weight: $detail-title-weight;
       width: fit-content;
       cursor: text;
-      color: $mem-content-text;
     }
 
     .artist {
