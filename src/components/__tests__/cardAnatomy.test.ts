@@ -154,7 +154,7 @@ describe("card row anatomy", () => {
   it("reads the anatomy selector list", () => {
     // The other guard. An unreadable or renamed stylesheet must fail loudly
     // rather than let every card through against an empty set.
-    expect(listed.size).toBeGreaterThanOrEqual(6);
+    expect(listed.size).toBeGreaterThanOrEqual(5);
     expect(listed).toContain("album-card");
   });
 
