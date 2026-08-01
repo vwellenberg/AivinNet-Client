@@ -708,6 +708,16 @@ onBeforeUnmount(teardown);
   padding-top: 0.75rem;
   border-top: 1px solid $separator;
 
+  // The rows are plates now (#378), so the list needs the same air and the same
+  // reserved room for the offset shadow as the navigation above it — the two
+  // lists sit directly on top of each other and any difference shows.
+  .sidebar-toplevel {
+    display: flex;
+    flex-direction: column;
+    gap: $small;
+    padding-right: $small;
+  }
+
   .sidebar-library-title {
     display: flex;
     align-items: center;
@@ -734,8 +744,19 @@ onBeforeUnmount(teardown);
     }
   }
 
+  // A FOLDER IS ONE PLATE, not a plate with plates inside it (#378).
+  //
+  // The alternatives both broke down at the same place. Giving each child its
+  // own plate makes six equal-ranking plates out of a group, so the folder stops
+  // reading as a folder; leaving the children flat rebuilds — in miniature — the
+  // exact seam between plates and bare rows that this whole round removed from
+  // the sidebar. Wrapping head and contents in ONE box solves both: the children
+  // may be flat BECAUSE they sit on a plate, and the group is visible as a group.
   .sidebar-folder {
-    border-radius: $sidebar-row-radius;
+    @include mem-row-plate($sidebar-row-radius);
+    // The children sit flush against the frame, so the box has to clip them —
+    // this is also what keeps the head's fill inside the rounded corners.
+    overflow: hidden;
 
     &.drag-over {
       background-color: $candy-pink-soft;
@@ -747,22 +768,22 @@ onBeforeUnmount(teardown);
       align-items: center;
       gap: $small;
       // Match a playlist row's height exactly (2rem thumbnail + 2x0.35rem
-      // padding) so folders sit in the same rhythm as the other items — which
-      // is also why the reserved transparent frame and the shrunk padding
-      // below mirror .sidebar-playlist-item exactly.
+      // padding) so folders sit in the same rhythm as the other items.
       min-height: 2.7rem;
-      @include candy-row-base($sidebar-row-radius);
-      padding: calc(0.35rem - #{$candy-border-w}) calc(#{$small} - #{$candy-border-w});
+      // NO plate of its own: the head is the top section of the folder's box.
+      // It keeps the full padding (nothing to subtract — there is no border
+      // here) and is separated from the contents by one ink line.
+      padding: 0.35rem $small;
+      background-color: transparent;
       cursor: pointer;
       font-size: $sidebar-row-font;
       font-weight: 600;
+      transition: background-color 0.2s ease-out;
 
-      // Same shared hover as every other row in the library list. Hand-setting
-      // only the fill here is why a folder header lit up without the ink frame
-      // that the playlist row directly above it draws — the reserved border was
-      // already there, hovering just never coloured it.
+      // Hover fills the head's section of the box rather than drawing a second
+      // frame inside the first one.
       &:hover {
-        @include candy-row-hover($candy-pink-soft, $sidebar-row-radius);
+        background-color: $mem-soft;
       }
 
       .folder-icon-slot {
@@ -808,10 +829,40 @@ onBeforeUnmount(teardown);
       }
     }
 
+    // The contents live INSIDE the folder's plate, separated from the head by
+    // one ink line — the indent rail (margin + 1px border-left) that used to
+    // mark the group is what the box does now, and doing both would state the
+    // same thing twice.
     .sidebar-folder-items {
-      margin-left: 0.85rem;
-      padding-left: 0.4rem;
-      border-left: 1px solid $separator;
+      border-top: $candy-border-w solid $mem-line;
+      padding: $smaller;
+      display: flex;
+      flex-direction: column;
+      gap: $smallest;
+
+      // Flat BECAUSE they sit on a plate: no frame, no offset, no hatch. This
+      // is the one place a library row is allowed to drop the plate, and it is
+      // allowed precisely because the folder around it already is one.
+      .sidebar-playlist-item {
+        background-color: transparent;
+        background-image: none;
+        border-color: transparent;
+        box-shadow: none;
+
+        &:hover {
+          background-color: $mem-soft;
+          border-color: transparent;
+          box-shadow: none;
+        }
+
+        // The selection still needs to be visible in here, so the fill and its
+        // accent hatch stay — only frame and offset are dropped.
+        &.active {
+          @include mem-row-plate-active;
+          border-color: transparent;
+          box-shadow: none;
+        }
+      }
     }
 
     .sidebar-folder-empty {
@@ -826,26 +877,19 @@ onBeforeUnmount(teardown);
     display: flex;
     align-items: center;
     gap: $small;
-    // The ink frame of the active row is reserved as a transparent border on
-    // every row (and shaved off the padding), so selecting a playlist draws
-    // the frame without nudging the row's contents or changing its height.
-    @include candy-row-base($sidebar-row-radius);
+    // Same plate as the navigation above: panel fill, ink frame, offset shadow,
+    // hatch. The padding still subtracts the border width so the row height does
+    // not follow $candy-border-w.
+    @include mem-row-plate($sidebar-row-radius);
     padding: calc(0.35rem - #{$candy-border-w}) calc(#{$small} - #{$candy-border-w});
     font-size: $sidebar-row-font;
     font-weight: 500;
 
-    // Hover draws the ink frame too, not just a fill. The transparent border is
-    // already reserved above (that is how `.active` gets its frame without
-    // nudging the row), so hovering only had to colour it — it just never did,
-    // leaving the sidebar the one hoverable list in the app without a frame.
-    &:hover { @include candy-row-hover($candy-pink-soft, $sidebar-row-radius); }
+    &:hover { @include mem-row-plate-hover; }
     &.active {
-      // Blush accent -> pin static ink for the row text. The selected item is
-      // the one filled surface in the sidebar, so it carries the ink frame
-      // like every other filled surface in this design.
-      background-color: $candy-pink;
-      border-color: $mem-line;
-      color: $mem-ink;
+      // Static blush + the accent hatch; frame and offset are already on the
+      // plate, so selecting a playlist changes colour only.
+      @include mem-row-plate-active;
     }
 
     span.ellip {

@@ -198,6 +198,7 @@ const mobileTitle = computed(() => {
         // different buttons.
         .mobile-header-action {
             @include btn-action($size: $bar-control);
+            @include mem-hatch(28px, $on: accent);
             margin-right: $smaller;
             background-color: $candy-pink;
             color: $candy-black;
@@ -221,6 +222,8 @@ const mobileTitle = computed(() => {
         .nav-home {
             @include btn-action($size: $bar-control);
             @include focus-ring;
+            // Hatch = pressable (#378), accent token because blush is static.
+            @include mem-hatch(28px, $on: accent);
             margin-left: auto;
             background-color: $candy-pink;
             color: $candy-black;

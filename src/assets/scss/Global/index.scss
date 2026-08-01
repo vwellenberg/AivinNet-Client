@@ -41,6 +41,24 @@
     --mem-shadow: #{$mem-ink};
     --mem-scrollbar-thumb: #{rgba($mem-ink, 0.35)};
     --mem-scrollbar-thumb-hover: #{rgba($mem-ink, 0.55)};
+
+    // HATCH — the texture that means "you can press this" (see mem-hatch in
+    // _candy.scss). Two tokens, because the stroke colour has to answer to what
+    // it is drawn ON, and that is not the same question in both themes:
+    //
+    //   --mem-hatch         a PANEL surface. Theme-aware: the panel is white in
+    //                       light and near-black in dark, so ink strokes would
+    //                       simply vanish there.
+    //   --mem-hatch-accent  a STATIC accent fill (blush/teal/yellow). Those are
+    //                       identical in both themes, so the strokes stay ink —
+    //                       the same call the button roles make for $mem-ink.
+    //
+    // The opacity lives INSIDE the sprite as `stroke-opacity`, not as a CSS
+    // `opacity` on an overlay: the rows this lands on already spend both
+    // pseudo-elements on their drag/drop markers (styling.md), so the texture
+    // has to be a background layer rather than a ::before.
+    --mem-hatch: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><g stroke="%2317171A" stroke-opacity="0.30" stroke-width="2.6" stroke-linecap="round"><line x1="7" y1="9" x2="14" y2="13"/><line x1="30" y1="6" x2="36" y2="2"/><line x1="38" y1="26" x2="43" y2="31"/><line x1="14" y1="34" x2="20" y2="31"/><line x1="26" y1="42" x2="33" y2="40"/><line x1="3" y1="24" x2="8" y2="21"/></g></svg>');
+    --mem-hatch-accent: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><g stroke="%2317171A" stroke-opacity="0.42" stroke-width="2.6" stroke-linecap="round"><line x1="7" y1="9" x2="14" y2="13"/><line x1="30" y1="6" x2="36" y2="2"/><line x1="38" y1="26" x2="43" y2="31"/><line x1="14" y1="34" x2="20" y2="31"/><line x1="26" y1="42" x2="33" y2="40"/><line x1="3" y1="24" x2="8" y2="21"/></g></svg>');
 }
 
 body.theme-dark {
@@ -64,6 +82,10 @@ body.theme-dark {
     --mem-shadow: rgba(244, 242, 237, 0.42);
     --mem-scrollbar-thumb: rgba(255, 255, 255, 0.45);
     --mem-scrollbar-thumb-hover: rgba(255, 255, 255, 0.65);
+    // Paper strokes on the near-black panel. `--mem-hatch-accent` is NOT
+    // overridden here on purpose: blush, teal and yellow are the same colour in
+    // both themes, so their texture stays ink — exactly like the glyphs on them.
+    --mem-hatch: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><g stroke="%23F4F2ED" stroke-opacity="0.26" stroke-width="2.6" stroke-linecap="round"><line x1="7" y1="9" x2="14" y2="13"/><line x1="30" y1="6" x2="36" y2="2"/><line x1="38" y1="26" x2="43" y2="31"/><line x1="14" y1="34" x2="20" y2="31"/><line x1="26" y1="42" x2="33" y2="40"/><line x1="3" y1="24" x2="8" y2="21"/></g></svg>');
 }
 
 body.use-spotify-font {

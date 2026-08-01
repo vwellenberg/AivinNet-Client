@@ -19,13 +19,26 @@ import { describe, expect, it } from "vitest";
 // .claude/rules/testing.md — hence every row host here is a .vue file.)
 const SOURCES = import.meta.glob("/src/**/*.vue", { as: "raw", eager: true }) as Record<string, string>;
 
-/** Every row list in the app, as file + the selector that owns the row. */
+/** Every FLAT row list in the app, as file + the selector that owns the row. */
 const ROWS = [
-  { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-folder-header" },
-  { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-playlist-item" },
-  { file: "/src/components/LeftSidebar/NavButtons.vue", selector: ".nav-item" },
   { file: "/src/components/FolderView/FolderList.vue", selector: ".f-item" },
   { file: "/src/components/shared/SongItem.vue", selector: ".songlist-item" },
+];
+
+/**
+ * The sidebar's rows left this treatment in #378: they are PLATES now (panel
+ * fill, ink frame, offset shadow, hatch), so `candy-row-base` no longer applies
+ * to them — but the drift it guarded against is the same one, so the census
+ * moved rather than disappeared.
+ *
+ * `.sidebar-folder` is the folder's outer box; its head deliberately has NO
+ * plate of its own (that is the "one plate per folder" decision) and is
+ * therefore not listed here.
+ */
+const PLATES = [
+  { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-playlist-item" },
+  { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-folder" },
+  { file: "/src/components/LeftSidebar/NavButtons.vue", selector: ".nav-item" },
 ];
 
 /** The static light fills a hovered/marked row is allowed to wear. */
@@ -189,5 +202,61 @@ describe("list row hover", () => {
       .sort();
 
     expect(found).toEqual([...new Set(ROWS.map(row => row.file))].sort());
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The sidebar's plate anatomy (#378). Same reason as above, one design decision
+// later: the rows became buttons, so what has to stay identical between them is
+// the PLATE, not the hover fill. The three mixins live in _candy.scss.
+//
+// The hatch is the load-bearing part. It means "you can press this", which only
+// works if pressable surfaces all wear it — and its stroke colour has to answer
+// to the fill: `surface` (theme-aware) on the panel plate, `accent` (static ink)
+// on the blush active state. An accent hatch on a panel plate is invisible in
+// the dark theme, which is exactly the kind of miss that no screenshot of the
+// light theme would ever show.
+// ---------------------------------------------------------------------------
+describe("sidebar plate anatomy", () => {
+  it("reads the plate sources it claims to check", () => {
+    for (const { file, selector } of PLATES) {
+      expect(SOURCES[file], `${file} not readable`).toBeTruthy();
+      expect(rulesFor(SOURCES[file], selector).length, `${selector} not found in ${file}`).toBeGreaterThan(0);
+    }
+  });
+
+  it.each(PLATES)("$selector takes the shared plate", ({ file, selector }) => {
+    const takesPlate = rulesFor(SOURCES[file], selector).some(rule => /@include\s+mem-row-plate\b/.test(rule.body));
+    expect(takesPlate, `${selector} does not @include mem-row-plate`).toBe(true);
+  });
+
+  it("knows about every host of the plate mixins", () => {
+    const found = Object.entries(SOURCES)
+      .filter(([, source]) => /@include\s+mem-row-plate(-hover|-active)?\b/.test(styleSource(source)))
+      .map(([file]) => file)
+      .sort();
+
+    expect(found).toEqual([...new Set(PLATES.map(plate => plate.file))].sort());
+  });
+
+  // The pairing that cannot be seen in the light theme: a hatch whose stroke
+  // colour does not match the fill it is drawn on.
+  it("never hatches a static accent fill with the theme-aware token", () => {
+    const offenders: string[] = [];
+
+    for (const [file, source] of Object.entries(SOURCES)) {
+      const clean = styleSource(source);
+      // `mem-row-plate-active` sets the blush fill AND its accent hatch in one
+      // mixin, so a call site that adds its own surface hatch next to it is
+      // painting ink-on-panel over a static accent.
+      for (const rule of rules(clean)) {
+        if (!/@include\s+mem-row-plate-active/.test(rule.body)) continue;
+        if (/@include\s+mem-hatch\([^)]*surface/.test(rule.body)) {
+          offenders.push(`${file}: ${rule.selectors.join(", ")}`);
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
   });
 });
