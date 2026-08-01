@@ -340,6 +340,12 @@ $control-dense-glyph: 1rem;
   cursor: pointer;
   background-color: if($rest == surface, $mem-panel, transparent);
   border: $candy-border-w solid if($rest == surface, $mem-line, transparent);
+  // The hatch means "you can press this" (styling.md). It needs a SURFACE, so
+  // only the plated variant gets it at rest — `$rest: bare` is transparent
+  // until hover and takes the texture together with its plate, below.
+  @if $rest == surface {
+    @include mem-hatch(28px, $on: surface);
+  }
   // Theme-aware, because the fill under it is. See the token note at the top.
   color: $mem-content-text;
   box-shadow: if($rest == surface, 3px 3px 0 var(--mem-shadow), none);
@@ -359,7 +365,13 @@ $control-dense-glyph: 1rem;
   &:hover {
     background-color: $mem-blush;
     border-color: $mem-line;
-    // Static ink is legal here ONLY because the blush fill above is static.
+    // Static ink is legal here ONLY because the blush fill above is static —
+    // and for the same reason the hatch has to switch to the ACCENT token here.
+    // The surface token is paper-coloured in the dark theme, which on blush
+    // would be near-invisible: the one pairing that light-theme eyes never see.
+    // This is also where `$rest: bare` gets its texture, together with the
+    // plate it only grows on hover.
+    @include mem-hatch(28px, $on: accent);
     color: $mem-ink;
     box-shadow: if($rest == surface, 4px 4px, 3px 3px) 0 var(--mem-shadow);
     transform: scale(1.06);
@@ -419,6 +431,11 @@ $control-dense-glyph: 1rem;
 
   &:hover {
     background-color: $mem-hover;
+    // The one moment this role HAS a surface, so the one moment it may carry
+    // the texture (styling.md: the hatch needs something to sit on). `surface`,
+    // not `accent`: `$mem-hover` is theme-aware — blush in light, a dark tint
+    // in dark — and the theme-aware token is what follows it.
+    @include mem-hatch(28px, $on: surface);
     transform: scale(1.06);
   }
 
@@ -445,9 +462,11 @@ $control-dense-glyph: 1rem;
   justify-content: center;
   gap: 0.4rem;
   background-color: $fill;
+  // The pill fills are static accents, so the hatch takes the accent token —
+  // same reason the ink glyph colour below is correct here.
+  @include mem-hatch(28px, $on: accent);
   border: $candy-border;
   border-radius: $radius;
-  // The pill fills are static accents, so static ink is correct.
   color: $mem-ink;
   font-size: 0.9rem;
   font-weight: 700;
