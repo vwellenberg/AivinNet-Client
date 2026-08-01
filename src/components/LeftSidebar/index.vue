@@ -768,9 +768,12 @@ onBeforeUnmount(teardown);
       display: flex;
       align-items: center;
       gap: $small;
-      // Match a playlist row's height exactly so folders sit in the same
-      // rhythm as everything else in this sidebar.
-      min-height: 2.75rem;
+      // 38px, NOT the 44px a playlist row is — and that difference is the
+      // point. The head sits INSIDE the folder's plate, so the box adds its own
+      // 3px frame above and below: a head as tall as a row made the collapsed
+      // folder 50px against 44 everywhere else, visible as one row sticking out
+      // of the rhythm. 38 + 2x3 = 44.
+      min-height: 2.375rem;
       // NO plate of its own: the head is the top section of the folder's box.
       // But it IS the pressable part of that box, so it carries the hatch —
       // as a ring in its own padding, like every other row.
@@ -791,11 +794,12 @@ onBeforeUnmount(teardown);
       }
 
       .folder-icon-slot {
-        // Same 2rem slot as a playlist thumbnail so the folder icon lines up
-        // with the other library items (no left-chevron indent).
+        // Same slot as a playlist thumbnail (1.75rem since #388) so the folder
+        // icon lines up with the other library items — and so the head fits in
+        // its 38px without the slot pushing it back open.
         flex-shrink: 0;
-        width: 2rem;
-        height: 2rem;
+        width: 1.75rem;
+        height: 1.75rem;
         display: grid;
         place-items: center;
       }
