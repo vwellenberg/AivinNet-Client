@@ -794,12 +794,12 @@ onBeforeUnmount(teardown);
       }
 
       .folder-icon-slot {
-        // Same slot as a playlist thumbnail (1.75rem since #388) so the folder
-        // icon lines up with the other library items — and so the head fits in
-        // its 38px without the slot pushing it back open.
+        // The sidebar's own tier, same slot as a playlist thumbnail, so the
+        // folder icon lines up with the other library items — and so the head
+        // fits in its 38px without the slot pushing it back open.
         flex-shrink: 0;
-        width: 1.75rem;
-        height: 1.75rem;
+        width: $control-dense;
+        height: $control-dense;
         display: grid;
         place-items: center;
       }
