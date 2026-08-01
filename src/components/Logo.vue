@@ -20,7 +20,7 @@
   gap: 0.6rem;
   width: 100%;
   height: 100%;
-  // The hover orbit reaches 7px past the planet — never clip it.
+  // The hover orbit reaches 5px past the planet — never clip it.
   overflow: visible;
 }
 
@@ -74,9 +74,22 @@
 // scale on a transition); the inner layer carries the rotation. Put both on one
 // element and the keyframes' `transform` wins over the declared `scale(1)`, so
 // the ring would pop in at full size instead of growing.
+// It stays a CIRCLE, and that is a finding rather than a default. A flat,
+// tilted ellipse was built and measured first, on the theory that a slanted
+// path reads more like an orbit than a halo. It does — but it is smaller than
+// the body it orbits, so it disappeared behind the planet and left two dashes
+// sticking out at the sides. A path has to be bigger than what it goes around,
+// and vertically there is no room for that: the planet is $bar-control (44px)
+// in a 72px bar. On top of that, a moon on an ellipse needs `offset-path` to
+// follow the ring, and Chromium and Firefox placed it in visibly different
+// spots. A circle is rotationally symmetric, so the moon on the rotating layer
+// below sits exactly on the ring in every engine, for free.
+//
+// What is left of that round: the radius. Measured against the bar's top edge,
+// -7px left 5.5px of air and read as crowded; -5px leaves 7.5px.
 .logo-orbit {
   position: absolute;
-  inset: -7px;
+  inset: -5px;
   border: 2px dashed $mem-line;
   border-radius: 50%;
   opacity: 0;
