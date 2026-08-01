@@ -34,8 +34,8 @@ optische Größe am Füllgrad der jeweiligen viewBox (daher kam „Lyrics-Icon z
 
 Seit #311 sind die Navigations- und Chrome-Glyphen (home, search, folder\*, bookmark\*, playlist\*,
 chart, settings, album, artist, delete, plus, queue, more, expand, arrow\*, volume-\*, pin\*,
-download, pencil, reload, devices, headphones, a, square, check.filled, check.circle.fill) **ein**
-Satz:
+download, pencil, reload, devices, headphones, a, square, check.filled, check.circle.fill,
+heart\*) **ein** Satz:
 
 - **24×24-Box, ~18 px optisches Glyph** (Ink von 3 bis 21), **2,4 px** Strich, runde Kappen und
   Ecken. 2 px war der erste Wurf und las sich neben den 3-px-Rahmen und der fetten Schrift dieses
@@ -237,7 +237,8 @@ Noch im alten Stil (selten, einzeln, kein sichtbarer Stilbruch): `mic`, `paintbr
 `eye*`, `logout`, `avatar`, `lyrics`, `add_to_queue`, `add-to-queue`.
 
 ⚠️ **Diese Liste zählte lange auch Dateien mit, die gar nicht mehr importiert wurden**
-(`tag`, `sdcard`, `hifi`, `upload`, `play-next`, `previous`, `heart*`, `lyrics2`, `clock` und
+(`tag`, `sdcard`, `hifi`, `upload`, `play-next`, `previous`, `heart*` — seit dem Wechsel des
+Favoriten-Zeichens wieder da, neu auf dem Raster —, `lyrics2`, `clock` und
 neun weitere — 18 von 83). Eine Datei im Ordner ist kein Beleg dafür, dass sie benutzt wird:
 `vite-svg-loader` übersetzt SVGs in Vue-Komponenten, ungenutzte landen also **nicht** im Bundle
 und fallen bei nichts auf. Wer den Satz inventarisiert, zählt über die **Importe**, nicht über

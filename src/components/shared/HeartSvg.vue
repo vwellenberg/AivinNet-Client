@@ -12,15 +12,20 @@
              in late. <Motion> renders a div, so keeping a div here preserves
              the `div { ... }` rules below verbatim. -->
         <div>
-            <CheckCircleSvg v-if="state" class="check-circle" />
-            <PlusSvg v-else />
+            <HeartFillSvg v-if="state" class="heart-fill" />
+            <HeartOutlineSvg v-else />
         </div>
     </button>
 </template>
 
 <script setup lang="ts">
-import CheckCircleSvg from '@/assets/icons/check.circle.fill.svg'
-import PlusSvg from '@/assets/icons/plus.svg'
+// One sign, two fillings — hollow means "not saved", solid means "saved".
+//
+// The pair replaces plus + check-circle, and the plus is what made that pair
+// awkward: a tick has no hollow reading, so the unset state had to borrow a
+// different glyph entirely. Two shapes for one toggle is one shape too many.
+import HeartFillSvg from '@/assets/icons/heart.fill.svg'
+import HeartOutlineSvg from '@/assets/icons/heart.svg'
 
 withDefaults(
     defineProps<{
@@ -112,14 +117,15 @@ defineEmits<{
         // same 21px the scale factor used to produce.
     }
 
-    // Favorited state: teal fills the check-circle's disc (the asset's
-    // `currentColor`); its edge and tick are fixed ink in the asset itself.
+    // Favorited state: teal fills the heart (the asset's `currentColor`); its
+    // edge is fixed ink in the asset itself.
     //
     // Teal alone does NOT carry this on every host — it measures 1.24:1 on the
     // yellow playing row, under the 3:1 WCAG 1.4.11 wants of a graphic. The ink
     // edge is what makes the marker legible there (9.64:1), which is why this
-    // rule only owns the fill and the asset owns the outline. Never a heart;
-    // that is the app's favourite iconography.
+    // rule only owns the fill and the asset owns the outline. That split came
+    // with the check-circle (#370) and survives the change of sign unchanged —
+    // the reason for it was never the shape.
     &.is-fav {
         color: $mem-teal;
 

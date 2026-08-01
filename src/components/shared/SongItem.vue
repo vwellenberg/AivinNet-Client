@@ -243,7 +243,7 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     // responsive grids in app-grid.scss.
     //
     // The duration column is wider here (10rem vs the default 7.5rem): on
-    // favorited rows the green check-circle is shown inline in that column, and
+    // favorited rows the teal heart is shown inline in that column, and
     // at 7.5rem the check + duration + options overflowed left over the Plays
     // number (justify-content: end). 10rem keeps the check inside its own column
     // with enough headroom for the longest (HH:MM:SS) durations.
@@ -254,7 +254,7 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     // "Date added" column (playlist page): inserted between album and duration,
     // same rationale as .with-plays above. The date column fits the longest
     // absolute date ("Sep 28, 2026"); the duration column keeps the 10rem
-    // headroom for the inline favorite check-circle. Shared with the
+    // headroom for the inline favorite heart. Shared with the
     // AfterHeader caption row via $songlist-columns-with-date.
     &.with-date {
         grid-template-columns: $songlist-columns-with-date;
