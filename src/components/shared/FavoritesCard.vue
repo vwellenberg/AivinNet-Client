@@ -69,7 +69,11 @@ defineProps<{
     }
 
     .heart {
-        color: $candy-black;
+        // Feeds the asset's `currentColor` disc, so this is the same teal the
+        // toggle wears — the tile shows the marker, not a recoloured variant of
+        // it. Ink here would paint disc, edge and tick in one colour and leave a
+        // solid blob on the blush plate.
+        color: $mem-teal;
         width: 45%;
         height: auto;
     }

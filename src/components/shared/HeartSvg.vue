@@ -83,28 +83,26 @@ defineEmits<{
             display: block;
         }
 
-        // The two states are drawn to very different scales: the plus fills
-        // ~52% of its viewBox, the check-circle fills 100% of its own (a solid
-        // r=14 circle in a 28 box). At one CSS size the glyph therefore JUMPED
-        // from ~13px to ~25px the moment a track was favourited, and the circle
-        // sat flush against the edges of its button with no breathing room.
+        // No per-state scaling here, deliberately. Both glyphs are now drawn on
+        // the chrome grid (24 box, ink 3..21), so one CSS size renders them at
+        // one optical size — which is the whole point of the grid (#311).
         //
-        // Scaled rather than resized: a percentage height against this
-        // `max-content` parent is indeterminate and silently resolves to auto,
-        // and a fixed rem would only be right in one of the several contexts
-        // this button appears in. A transform stays relative to whatever size
-        // the context set. A disc reads slightly larger than an outline glyph
-        // of equal height, so it keeps a little more than the plus.
-        .check-circle {
-            transform: scale(0.75);
-        }
+        // What stood here was `transform: scale(0.75)` on the check, because
+        // the old asset was a solid r=14 disc in a 28 box: 100% of its viewBox
+        // against the plus's ~52%, so the glyph JUMPED from ~13px to ~25px the
+        // moment a track was favourited. The compensation and the mismatch it
+        // compensated for are gone together; the ring's outer edge lands at the
+        // same 21px the scale factor used to produce.
     }
 
-    // Favorited state: teal check circle (drives the SVG's currentColor
-    // circle; the check itself is fixed white in the asset). Teal is the
-    // theme-invariant "active" accent — readable on light and dark chrome
-    // and on the yellow playing row. Never a heart; that is the app's
-    // favourite iconography.
+    // Favorited state: teal fills the check-circle's disc (the asset's
+    // `currentColor`); its edge and tick are fixed ink in the asset itself.
+    //
+    // Teal alone does NOT carry this on every host — it measures 1.24:1 on the
+    // yellow playing row, under the 3:1 WCAG 1.4.11 wants of a graphic. The ink
+    // edge is what makes the marker legible there (9.64:1), which is why this
+    // rule only owns the fill and the asset owns the outline. Never a heart;
+    // that is the app's favourite iconography.
     &.is-fav {
         color: $mem-teal;
     }
