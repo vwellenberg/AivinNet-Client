@@ -4,19 +4,23 @@
        and flipped with `flex-direction: column-reverse`, purely to pin it to
        the bottom of the header. `justify-content: flex-end` does that without
        making the markup lie about what comes first. -->
-  <div class="playlist-info">
-    <div class="type">Playlist</div>
-    <div ref="test_elem"></div>
-    <div class="title ellip2">
-      <span v-for="t in balanceText(playlist.info.name, test_elem?.offsetWidth || 0, '2.75rem')" :key="t">
-        {{ t }}
-        <br />
-      </span>
-    </div>
-    <div class="duration">
+  <div class="playlist-info dh-body">
+    <div class="type dh-type">Playlist</div>
+    <!-- One line, ellipsed — no `balanceText` any more. Balancing a title over
+         two lines made sense while the head was 18rem of free space; inside the
+         plate every extra line pushes the whole head taller (measured: 289px
+         against 221px for a one-line title) and stretches the media cell into a
+         portrait crop with it. Same decision the Now-Playing source plate made
+         for the same reason. -->
+    <div class="title dh-title ellip" :title="playlist.info.name">{{ playlist.info.name }}</div>
+    <!-- One meta line. "Last updated" used to be an absolutely positioned box
+         in the header's bottom-right corner, which is why it kept colliding
+         with the action row on small screens; it is part of the meta now. -->
+    <div class="duration dh-meta">
       {{ playlist.info.count.toLocaleString() + ` ${playlist.info.count == 1 ? "Track" : "Tracks"}` }}
       •
       {{ formatSeconds(playlist.info.duration, true) }}
+      <LastUpdated />
     </div>
     <!-- Canonical order: Play · Favourite · Pin · Secondary action · Overflow.
          A playlist has no favourite, so that slot is absent and the rest keep
@@ -57,17 +61,16 @@ import { getBaseUrl, paths } from "@/config";
 import { DownloadIcon } from "@/icons";
 
 import MoreSvg from "@/assets/icons/more.svg";
+import LastUpdated from "./LastUpdated.vue";
 import PlayBtnRect from "@/components/shared/PlayBtnRect.vue";
 import PinButton from "@/components/shared/PinButton.vue";
 import usePStore from "@/stores/pages/playlist";
 import { showPlaylistContextMenu } from "@/helpers/contextMenuHandler";
 import { togglePlaylistPin } from "@/helpers/pinPlaylist";
-import { balanceText } from "@/utils/balanceText";
-import { Ref, ref } from "vue";
+import { ref } from "vue";
 
 const playlist = usePStore();
 
-const test_elem: Ref<HTMLElement | null> = ref(null);
 const context_menu_showing = ref(false);
 
 function showContextMenu(e: MouseEvent) {
@@ -88,53 +91,18 @@ function pinPlaylist(pid: number) {
 </script>
 
 <style lang="scss">
+// Type, title and meta sizes come from `.dh-type` / `.dh-title` / `.dh-meta`
+// in the shared anatomy (Global/detail-head.scss). The ground halos went with
+// them: they existed because this text stood free on the doodle ground, and it
+// now stands on a panel.
 .playlist-info {
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-  display: flex;
-  // Normal order, pinned to the bottom — see the note on the markup. The
-  // padding is the album header's (its text column has none of its own; the
-  // 1.25rem here is what made the two text columns start 4px apart).
-  flex-direction: column;
-  justify-content: flex-end;
-  // Square-image / gradient mode: title/meta sit on the page ground -> theme
-  // aware (type & duration mute via opacity). Banner-image mode overrides this
-  // to $candy-white in Header.vue (higher specificity), which is preserved.
-  color: $mem-content-text;
-
-  // The same treatment the album header already arrived at
-  // (AlbumView/Header/Info.vue `.albumtype`): full-strength adaptive text plus
-  // a soft ground halo. `opacity: 0.85` made the label's contrast depend on
-  // whatever memphis shape happened to sit behind it — over a saturated doodle
-  // it was barely legible, and no opacity value fixes that, because the problem
-  // is the pattern, not the darkness.
-  .type {
-    font-size: 14px;
-    font-weight: 700;
-    color: $mem-content-text;
-    text-shadow: 0 0 8px var(--mem-ground);
-  }
-
   .title {
-    font-size: $detail-title-size;
-    font-weight: $detail-title-weight;
     width: fit-content;
     cursor: text;
   }
 
-  // The meta line — "40 Tracks • 2 hrs, 24 minutes" — is the album header's
-  // Stats row by another name, so it reads at the same size and weight.
-  // Same box as the album header's stats row (0.75rem of air above and below,
-  // no padding of its own), so the title and the type label above it land on
-  // the same baselines rather than 11px lower.
   .duration {
-    font-size: $detail-meta-size;
-    font-weight: $detail-meta-weight;
-    padding: 0;
-    margin: 0.75rem 0;
     cursor: text;
-    text-shadow: 0 0 8px var(--mem-ground);
   }
 
   // Flex, gap and wrapping come from `.header-actions`; the margin is this

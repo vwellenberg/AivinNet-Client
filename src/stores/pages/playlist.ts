@@ -15,7 +15,6 @@ export default defineStore('playlist-tracks', {
     state: () => ({
         info: <Playlist>{},
         query: '',
-        initialBannerPos: 0,
         allTracks: <Track[]>[],
         // True once every stored trackhash has been requested. Used to stop the
         // play path from re-fetching forever when info.count counts an
@@ -38,8 +37,6 @@ export default defineStore('playlist-tracks', {
          * @param id The id of the playlist to fetch
          */
         async fetchAll(id: number, no_tracks = false, fetchAll = false) {
-            this.resetBannerPos()
-
             const isFreshLoad = this.allTracks.length === 0
             // track_limit can be 0 before the layout is measured; fall back so
             // we never request an empty page or stall pagination.
@@ -54,7 +51,6 @@ export default defineStore('playlist-tracks', {
 
             if (isFreshLoad) {
                 this.info = playlist?.info || ({} as Playlist)
-                this.initialBannerPos = this.info.settings.banner_pos
                 this.createImageLink()
 
                 this.resetColors()
@@ -134,24 +130,12 @@ export default defineStore('playlist-tracks', {
 
             setColorsToStore(this, paths.images.thumb.medium + first.image)
         },
-        setInitialBannerPos() {
-            this.info.settings.banner_pos = 50
-        },
         resetColors() {
             this.colors = {
                 bg: '',
                 bg2: '',
                 btn: '',
             }
-        },
-        plusBannerPos() {
-            this.info.settings.banner_pos !== 100 ? (this.info.settings.banner_pos += 5) : null
-        },
-        minusBannerPos() {
-            this.info.settings.banner_pos !== 0 ? (this.info.settings.banner_pos -= 5) : null
-        },
-        toggleSquareImage() {
-            this.info.settings.square_img = !this.info.settings.square_img
         },
         setImage(image: string) {
             this.info.image = image
@@ -168,13 +152,6 @@ export default defineStore('playlist-tracks', {
         },
         addTrack(track: Track) {
             this.allTracks.push(track)
-        },
-        resetBannerPos() {
-            try {
-                this.info.settings.banner_pos = 50
-            } catch (e) {
-                /* empty */
-            }
         },
         // Clears the loaded tracklist and its pagination state. Call this when
         // switching to a different playlist so stale tracks/offset don't leak.
@@ -206,9 +183,6 @@ export default defineStore('playlist-tracks', {
             })
 
             return tracks
-        },
-        bannerPosUpdated(): boolean {
-            return this.info.settings.banner_pos - this.initialBannerPos !== 0
         },
     },
 })

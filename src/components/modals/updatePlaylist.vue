@@ -53,22 +53,10 @@
             Find cover online
         </button>
 
-        <label v-if="playlist.has_image && !playlist.settings.square_img">Settings</label>
-        <div v-if="image || playlist.has_image" class="banner-settings rounded-sm">
-            <div>Show square cover image</div>
-            <Switch :state="playlist.settings.square_img || false" @click="pStore.toggleSquareImage" />
-        </div>
-        <div v-if="playlist.has_image && !playlist.settings.square_img" class="boxed banner-position-adjust rounded-sm">
-            <div class="t-center">Adjust image position • {{ pStore.info.settings.banner_pos }}%</div>
-            <div class="buttons">
-                <button @click.stop.prevent="pStore.minusBannerPos">
-                    <ExpandSvg />
-                </button>
-                <button @click.stop.prevent="pStore.plusBannerPos">
-                    <ExpandSvg />
-                </button>
-            </div>
-        </div>
+        <!-- The banner switch and the position nudger are gone with the banner
+             mode itself: the playlist header shows the image in a square media
+             cell now, so there is no full-width photo left to square off or to
+             pan up and down. -->
 
         <button type="submit" class="btn-pill">
             {{ clicked ? 'Saving' : 'Update' }}
@@ -85,11 +73,9 @@ import useModalStore from '@/stores/modal'
 import usePStore from '@/stores/pages/playlist'
 
 import DeleteIcon from '@/assets/icons/delete.svg'
-import ExpandSvg from '@/assets/icons/expand.svg'
 import ImageIcon from '@/assets/icons/image.svg'
 import SearchIcon from '@/assets/icons/search.svg'
 
-import Switch from '../SettingsView/Components/Switch.vue'
 
 const pStore = usePStore()
 const { info: playlist } = storeToRefs(pStore)
@@ -143,7 +129,6 @@ function handleFile(file: File) {
 
     if (preview) {
         pStore.setImage(obj_url)
-        pStore.setInitialBannerPos()
     }
 
     image.value = file
@@ -205,16 +190,6 @@ function update_playlist(e: Event) {
         grid-template-columns: 1fr max-content;
     }
 
-    .banner-settings {
-        font-weight: 500;
-        padding: 1rem;
-        @include candy-box($candy-pink-soft, $candy-radius-sm);
-        display: grid;
-        grid-template-columns: 1fr max-content;
-        align-items: center;
-        gap: $small;
-        margin: $small 0 1rem 0;
-    }
 
     .find-cover-online {
         width: 100%;
@@ -304,42 +279,5 @@ function update_playlist(e: Event) {
         }
     }
 
-    .banner-position-adjust {
-        gap: 1rem;
-        padding: $small 1rem;
-        margin-bottom: 1rem;
-
-        .t-center {
-            position: relative;
-            font-weight: 500;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .buttons {
-            display: grid;
-            gap: $small;
-
-            // Banner-position steppers: icon controls, so the action role —
-            // but they sit inside the cover preview and must stay small, so
-            // the size stays at the call site (the role owns fill, border,
-            // shadow and feedback, never the footprint).
-            button {
-                @include btn-action($size: 2rem);
-                background-color: $candy-pink;
-
-                &:first-child {
-                    transform: rotate(-90deg);
-                }
-
-                &:last-child {
-                    transform: rotate(90deg);
-                }
-
-                &:hover {
-                    background-color: $candy-pink-deep;
-                }
-            }
-        }
-    }
 }
 </style>

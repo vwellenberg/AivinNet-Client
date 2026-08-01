@@ -1,9 +1,10 @@
 <template>
-    <!-- Transparent header: the centralized page gradient shows through — no box
-         fill and no surrounding shadow — matching the artist & playlist headers. -->
-    <div ref="albumheaderthing" class="a-header rounded-lg">
-        <div class="big-img no-scroll" :class="`${isHeaderSmall ? 'imgSmall' : ''} shadow-lg rounded-sm`">
-            <img :src="imguri.thumb.large + album.image + (store.coverVersion ? '?v=' + store.coverVersion : '')" class="rounded-sm" />
+    <!-- One plate: media cell, dividing rule, text side. Shape, frame, shadow
+         and the small-screen sizes live in Global/detail-head.scss — the four
+         detail headers share them. -->
+    <div ref="albumheaderthing" class="a-header">
+        <div class="dh-art no-scroll">
+            <img :src="imguri.thumb.large + album.image + (store.coverVersion ? '?v=' + store.coverVersion : '')" />
         </div>
         <Info />
     </div>
@@ -50,116 +51,17 @@ useVisibility(albumheaderthing, handleVisibilityState)
     left: -9999px;
 }
 
+// Geometry, frame, shadow and every small-screen size come from the shared
+// anatomy in Global/detail-head.scss. What used to stand here — a 16rem cover
+// with a 12rem variant, `$banner-height`, and two breakpoint blocks that
+// restated the cover size and the title size a third and fourth time — is the
+// drift that anatomy exists to prevent.
 .a-header {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: 1rem;
-    padding: 1rem;
-    height: $banner-height;
-    // background-color: $black;
-    align-items: flex-end;
-
-    .big-img {
-        height: 16rem;
-        display: flex;
-        align-items: flex-end;
-
-        img {
-            height: 16rem;
-            max-width: 16rem;
-            object-fit: contain;
-            border: $candy-border;
-            border-radius: $candy-radius-sm;
-        }
-    }
-
-    .big-img.imgSmall {
-        width: 12rem;
-        height: 12rem;
-
-        img {
-            height: 12rem;
-        }
-    }
-
-    // A landscape phone: `$banner-height` (18rem) plus a 16rem cover is taller
-    // than the whole 390px viewport, so the header pushed its own action row
-    // and the disc bar off the bottom. Measured 288 -> 163px.
-    @include shortViewport {
-        height: auto;
-        min-height: 0;
-        padding: $medium 1rem;
-
-        .big-img,
-        .big-img img,
-        .big-img.imgSmall,
-        .big-img.imgSmall img {
-            height: 7rem;
-            width: auto;
-            max-width: 7rem;
-        }
-
-        .title {
-            font-size: $detail-title-size-phone !important;
-        }
-    }
-
-    .nocontrast {
-        color: $black;
-
-        .top {
-            .albumtype {
-                color: $candy-text-muted;
-            }
-        }
-    }
-
-    @include largePhones {
-        grid-template-columns: 1fr;
-        padding: 2rem 1rem;
-        // Grows with its contents instead of clipping them. A fixed 25rem was
-        // enough only as long as the action row was one line of small buttons;
-        // at 44px targets (and wrapping on narrow phones) the row ran into the
-        // disc bar below it.
-        height: auto;
-        min-height: 25rem;
-
-        .big-img {
-            width: 14rem !important;
-            height: 14rem !important;
-            aspect-ratio: 1;
-            margin: 0 auto;
-
-            img {
-                height: 14rem !important;
-            }
-        }
-
-        .albumtype {
-            text-align: center;
-        }
-
-        .title {
-            font-size: $detail-title-size-phone !important;
-            max-width: fit-content;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .album-buttons {
-            justify-content: center;
-        }
-
-        .album-stats > div {
-            border: none;
-            margin: $small auto;
-        }
-
-        .versions {
-            margin-bottom: 0 !important;
-            margin-left: 0 !important;
-            text-align: center;
-        }
+    // The album is the one head whose artwork is not always square: a wide
+    // scan should sit inside the cell rather than be cropped to it.
+    .dh-art img {
+        object-fit: contain;
+        background-color: $candy-pink-soft;
     }
 }
 </style>

@@ -1,13 +1,13 @@
 <template>
     <div class="mixheader" v-if="mix.title">
-        <MixImage :mix="mix" :on_header="true" />
-        <div class="mixinfo">
-            <div class="header_type">{{ mix.extra['type'] }} mix</div>
-            <div class="header_title">{{ mix.title }}</div>
+        <MixImage :mix="mix" :on_header="true" class="dh-art" />
+        <div class="mixinfo dh-body">
+            <div class="header_type dh-type">{{ mix.extra['type'] }} mix</div>
+            <div class="header_title dh-title">{{ mix.title }}</div>
             <div class="header_description ellip2">
                 {{ mix.description }}
             </div>
-            <div class="bunchofstuff">
+            <div class="bunchofstuff dh-meta">
                 {{ mix.trackcount }} track{{ mix.trackcount === 1 ? '' : 's' }} ▸ {{ mix.duration }}
             </div>
             <!-- Canonical order: Play · Favourite · Pin · Secondary action ·
@@ -76,29 +76,14 @@ async function saveMix() {
 </script>
 
 <style lang="scss">
+// Geometry, frame, shadow and the small-screen sizes come from the shared
+// anatomy in Global/detail-head.scss. What stood here — an 18rem head with a
+// 17.5rem image column and a 4rem/900 title (the largest of the four detail
+// headers, against a shared token of 2.75rem/700) — is the drift that anatomy
+// prevents.
 .mixheader {
-    height: 18rem;
-    display: grid;
-    grid-template-columns: 17.5rem 1fr;
-    gap: 1rem;
-    padding: $small;
-
-    .mixinfo {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-    }
-
     .header_type {
-        font-weight: 600;
         text-transform: capitalize;
-        font-size: 14px;
-        color: $candy-text-muted;
-    }
-
-    .header_title {
-        font-size: 4rem;
-        font-weight: 900;
     }
 
     .header_description {

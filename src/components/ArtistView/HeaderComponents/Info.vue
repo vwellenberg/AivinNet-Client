@@ -1,11 +1,11 @@
 <template>
-    <div class="artist-info">
+    <div class="artist-info dh-body">
         <section class="text">
-            <div class="card-title">Artist</div>
-            <div class="artist-name" :class="`${useCircularImage ? 'ellip' : 'ellip2'}`" :title="artist.name">
+            <div class="card-title dh-type">Artist</div>
+            <div class="artist-name dh-title" :class="`${useCircularImage ? 'ellip' : 'ellip2'}`" :title="artist.name">
                 {{ artist.name }}
             </div>
-            <div class="stats">
+            <div class="stats dh-meta">
                 <span v-if="artist.trackcount">
                     {{ artist.trackcount.toLocaleString() }} Track{{ `${artist.trackcount == 1 ? '' : 's'} • ` }}
                 </span>
@@ -33,42 +33,18 @@ defineProps<{
 </script>
 
 <style lang="scss">
+// Type, title and meta sizes come from `.dh-type` / `.dh-title` / `.dh-meta`
+// in the shared anatomy (Global/detail-head.scss). The 3.5rem name was the
+// fourth title size among four detail headers; it reads the shared token now.
 .artist-info {
-    z-index: 1;
-    padding: 1rem;
-    padding-right: 0;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-
-    gap: 1rem;
-
     .text {
         display: flex;
         flex-direction: column;
-        gap: $small;
-    }
-
-    .card-title {
-        font-size: small;
-        font-weight: 700;
-        // Header text on the page ground -> theme-aware.
-        color: $mem-content-muted;
+        gap: $smaller;
     }
 
     .artist-name {
-        font-size: 3.5rem;
-        font-weight: 700;
-        word-wrap: break-all;
-        margin-left: -1px;
-        color: $mem-content-text;
-    }
-
-    .stats {
-        font-size: small;
-        font-weight: 700;
-        color: $mem-content-muted;
+        word-wrap: break-word;
     }
 }
 </style>
