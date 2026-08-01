@@ -3,24 +3,8 @@
     class="index t-center ellip"
     @dblclick.prevent.stop="() => {}"
   >
-    <div
-      v-if="is_current"
-      class="now-playing-wave"
-      :class="{ paused: !is_current_playing }"
-      aria-hidden="true"
-    >
-      <svg id="wave" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 30">
-        <title>Now playing</title>
-        <rect id="Line_1" x="1" y="11" width="2" height="8" rx="1" ry="1" />
-        <rect id="Line_2" x="4" y="8" width="2" height="14" rx="1" ry="1" />
-        <rect id="Line_3" x="7" y="4" width="2" height="22" rx="1" ry="1" />
-        <rect id="Line_4" x="10" y="6" width="2" height="18" rx="1" ry="1" />
-        <rect id="Line_5" x="13" y="11" width="2" height="8" rx="1" ry="1" />
-        <rect id="Line_6" x="16" y="6" width="2" height="18" rx="1" ry="1" />
-        <rect id="Line_7" x="19" y="4" width="2" height="22" rx="1" ry="1" />
-        <rect id="Line_8" x="22" y="8" width="2" height="14" rx="1" ry="1" />
-        <rect id="Line_9" x="25" y="11" width="2" height="8" rx="1" ry="1" />
-      </svg>
+    <div v-if="is_current" class="now-playing-meter">
+      <PlayingMeter :playing="is_current_playing" />
     </div>
     <div v-else class="text">
       {{ index }}
@@ -29,6 +13,8 @@
 </template>
 
 <script setup lang="ts">
+import PlayingMeter from '@/components/shared/PlayingMeter.vue';
+
 defineProps<{
   index: number | string;
   is_fav: boolean | undefined;
@@ -60,37 +46,20 @@ defineEmits<{
     width: 100%;
   }
 
-  // Now-playing equalizer shown in place of the track number (issue #67).
-  // Animates while playing; freezes (static bars) when paused.
-  .now-playing-wave {
+  // Now-playing meter shown in place of the track number (#67, redrawn in #357).
+  // Animation, geometry and the paused state all live in PlayingMeter.vue.
+  .now-playing-meter {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
 
-    svg {
-      width: 1.05rem;
-      height: auto;
-      fill: $candy-black;
-    }
-
-    @for $i from 1 through 9 {
-      #Line_#{$i} {
-        animation: nowPlayingWave 0.6s infinite;
-        animation-delay: $i * 0.12s;
-        transform: scaleY(0.8);
-        transform-origin: center;
-      }
-    }
-
-    &.paused {
-      @for $i from 1 through 9 {
-        #Line_#{$i} {
-          animation-play-state: paused;
-        }
-      }
-    }
+    // This row is always `.songlist-item.current`, i.e. $mem-yellow. Measured
+    // against that fill, $mem-coral is 1.98:1 and misses the 3:1 WCAG 1.4.11
+    // floor for graphics, so the peak drops back to the row ink (9.64:1). The
+    // accent lives where it reads: on the dark player bar.
+    --meter-peak: currentColor;
   }
 
   .heart-icon {
@@ -109,23 +78,6 @@ defineEmits<{
       padding: 0;
       background-color: transparent;
     }
-  }
-}
-
-@keyframes nowPlayingWave {
-  0% {
-    transform: scaleY(0.8);
-    transform-origin: 50% 50%;
-  }
-
-  50% {
-    transform: scaleY(0.6);
-    transform-origin: 50% 50%;
-  }
-
-  100% {
-    transform: scaleY(0.8);
-    transform-origin: 50% 50%;
   }
 }
 </style>
