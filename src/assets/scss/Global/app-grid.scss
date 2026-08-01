@@ -97,7 +97,13 @@ $g-border: solid $candy-border-w $mem-line;
 }
 
 .content-page {
-    scrollbar-gutter: stable;
+    // `both-edges`, not plain `stable`: the gutter is 12px and the scrollbar
+    // auto-hides, so reserving it on one side only left every list sitting
+    // 35px from the left edge and 47px from the right — measured identical on
+    // playlist, favorites, search and stats, with 32px padding declared on
+    // both sides. Reserving both keeps the column centred, and nothing shifts
+    // when the bar fades in.
+    scrollbar-gutter: stable both-edges;
     padding-left: $padleft;
     padding-right: $padright;
     // Reserve the player bar's row — see $bottombarheight for why the content
@@ -182,7 +188,8 @@ $g-border: solid $candy-border-w $mem-line;
 }
 
 .vue-recycle-scroller {
-    scrollbar-gutter: stable;
+    // See the note on `.content-page` — same reason, same 12px.
+    scrollbar-gutter: stable both-edges;
     padding-left: $padleft;
 }
 
