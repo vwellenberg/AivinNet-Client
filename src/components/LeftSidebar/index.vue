@@ -775,7 +775,8 @@ onBeforeUnmount(teardown);
       // as a ring in its own padding, like every other row.
       padding: $smaller $small;
       --row-fill: #{$mem-panel};
-      @include mem-hatch-ring(38px, $on: surface);
+      background-color: var(--row-fill);
+      @include mem-hatch(38px, $on: surface);
       cursor: pointer;
       font-size: $sidebar-row-font;
       font-weight: 600;
@@ -817,12 +818,14 @@ onBeforeUnmount(teardown);
         }
       }
 
+      // Same as the playlist rows: the name carries the smooth fill, the space
+      // before the count and chevron stays texture.
       span.ellip {
-        flex: 1;
-        min-width: 0;
+        @include mem-hatch-clear;
       }
 
       .folder-count {
+        margin-left: auto;
         flex-shrink: 0;
         font-size: 0.7rem;
         font-weight: 500;
@@ -899,13 +902,17 @@ onBeforeUnmount(teardown);
       @include mem-row-plate-active;
     }
 
+    // The label carries the smooth fill and is only as wide as its own text —
+    // the space between it and the pin stays texture. The thumbnail needs no
+    // cover of its own: it is opaque and hides what is under it.
     span.ellip {
       opacity: 0.85;
-      flex: 1;
-      min-width: 0;
+      @include mem-hatch-clear;
     }
 
     .pl-pin {
+      // Pushed to the far edge now that the label no longer fills the row.
+      margin-left: auto;
       flex-shrink: 0;
       width: 0.95rem;
       height: 0.95rem;

@@ -295,9 +295,12 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // dark theme, and a surface hatch on blush would be nearly invisible in both.
 // ---------------------------------------------------------------------------
 @mixin mem-row-plate($radius: $candy-radius-sm) {
-  // Fill and cover read the same custom property — see mem-hatch-ring.
+  // Fill and cover read the same custom property — see mem-hatch-ring. The
+  // texture runs across the WHOLE plate here; what keeps it off the label is
+  // `mem-hatch-clear` on the content, not a clip on the row.
   --row-fill: #{$mem-panel};
-  @include mem-hatch-ring(38px, $on: surface);
+  background-color: var(--row-fill);
+  @include mem-hatch(38px, $on: surface);
   border: $candy-border-w solid $mem-line;
   border-radius: $radius;
   color: $mem-content-text;
@@ -324,7 +327,8 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // static fill under the theme-aware hatch is blank in the dark theme.
 @mixin mem-row-plate-tint($fill) {
   --row-fill: #{$fill};
-  @include mem-hatch-ring(38px, $on: accent);
+  background-color: var(--row-fill);
+  @include mem-hatch(38px, $on: accent);
   color: $mem-ink;
 }
 
@@ -349,11 +353,10 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 @mixin mem-row-marker($w: 9px) {
   padding-left: $w;
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="9" height="14"><path d="M0 0 L9 3.5 L0 7 L9 10.5 L0 14 Z" fill="%2317171A"/></svg>'),
-    linear-gradient(var(--row-fill), var(--row-fill)), var(--mem-hatch-accent);
-  background-clip: border-box, content-box, border-box;
-  background-repeat: repeat-y, no-repeat, repeat;
-  background-position: left top, center, left top;
-  background-size: 9px 14px, auto, 38px 38px;
+    var(--mem-hatch-accent);
+  background-repeat: repeat-y, repeat;
+  background-position: left top, left top;
+  background-size: 9px 14px, 38px 38px;
 }
 
 // ---------------------------------------------------------------------------
@@ -456,6 +459,30 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
   background-clip: content-box, border-box;
   background-repeat: no-repeat, repeat;
   background-size: auto, $size $size;
+}
+
+// ---------------------------------------------------------------------------
+// KEEPING THE TEXTURE OFF THE TEXT — the second half of the ring idea.
+//
+// Clipping the cover to the content box makes the ring exactly as wide as the
+// padding, and on the right that is a few pixels: the label's box stretches to
+// the end of the row whether the word is "Funk" or a full album title, so the
+// space next to a short name was covered as well. Reported as "too much of the
+// hatch is cut away on the right".
+//
+// So the cover moves from the ROW onto its CONTENT: the label carries it and is
+// only as wide as its own text (`flex: 0 1 auto`), and everything beside it
+// stays texture. Same colour source as always — `--row-fill`, never restated.
+//
+// The padding is the buffer that keeps the letters off the strokes; without it
+// the text ends exactly where the texture begins and reads as cramped.
+// ---------------------------------------------------------------------------
+@mixin mem-hatch-clear($buffer: 26px) {
+  flex: 0 1 auto;
+  min-width: 0;
+  background-color: var(--row-fill);
+  border-radius: 7px;
+  padding: 2px $buffer 2px 4px;
 }
 
 // Sprinkle / terrazzo dash texture. Sets ONLY the pattern image + tile size —
