@@ -56,6 +56,39 @@ Zwei Fallen beim Ersetzen eines Legacy-Glyphs:
 - **Ein Glyph kann anderswo als roher Pfad einkopiert sein.** `FolderCard.vue` trug eine private
   Kopie von `folder-1.svg` im Template, die keine Icon-Änderung je erreicht hätte.
 
+## ⚠️ Ein Akzent auf einer gefüllten Zeile ist eine Messung, keine Wahl
+
+Die laufende Track-Zeile ist `$mem-yellow` (`.songlist-item.current`, dazu
+`.track-item.currentInQueue`). Alles, was **auf** ihr sitzt, misst gegen diese Fläche — und die
+Brandfarben verlieren dort:
+
+| auf `$mem-yellow` | Kontrast |
+|---|---|
+| `$mem-teal` | **1,24:1** |
+| `$mem-coral` | **1,98:1** |
+| Ink | 9,64:1 |
+
+WCAG 1.4.11 verlangt **3:1** für grafische Elemente. Teal und Coral sind auf der gelben Zeile also
+beide unbrauchbar, obwohl beide auf Panel, Papier und dunklem Grund tragen. Genau deshalb stand am
+alten Now-Playing-Glyph ein hartes `fill: $candy-black` — kein Versehen, sondern die einzige
+Farbe, die dort funktioniert.
+
+Die Regel daraus: **ein Glyph auf einer gefüllten Zeile nimmt `currentColor`** (die Zeile pinnt
+Ink ohnehin, siehe „Filled row states" in `SongItem.vue`), und ein Akzent bekommt eine
+**Custom Property mit Fallback**, die der Wirt zurücknehmen kann:
+
+```scss
+.peak { fill: var(--meter-peak, #{$mem-coral}); }   // Komponente
+.now-playing-meter { --meter-peak: currentColor; }  // gelbe Zeile nimmt ihn zurück
+```
+
+So bleibt der Akzent dort, wo er misst (Player-Bar: 3,68:1 auf Weiß, 5,14:1 auf dem dunklen
+Grund), ohne dass die Komponente ihre Wirte kennen muss. `PlayingMeter.vue` ist das Vorbild.
+
+**Vorsicht bei der Gegenprobe:** Ein Element-Screenshot der Zeile allein beweist nichts — er
+rendert auf weißem Grund und lässt jede Farbe gut aussehen. Gemessen wird der **computed
+`fill`/`backgroundColor` im laufenden Browser**, gegeneinander gerechnet.
+
 ## ⚠️ Ein Icon nicht mit `opacity` dämpfen, wenn es kein Zustand ist
 
 Die Sidebar-Glyphen liefen unter `opacity: 0.75` — ein Rest aus der Zeit der gefüllten

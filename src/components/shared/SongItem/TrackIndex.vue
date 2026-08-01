@@ -59,7 +59,7 @@ defineEmits<{
     // against that fill, $mem-coral is 1.98:1 and misses the 3:1 WCAG 1.4.11
     // floor for graphics, so the peak drops back to the row ink (9.64:1). The
     // accent lives where it reads: on the dark player bar.
-    --eq-peak: currentColor;
+    --meter-peak: currentColor;
   }
 
   .heart-icon {

@@ -63,4 +63,20 @@ describe("PlayingMeter", () => {
     expect(mount(PlayingMeter, { props: { playing: true } }).attributes("aria-label")).toBe("Now playing");
     expect(mount(PlayingMeter, { props: { playing: false } }).attributes("aria-label")).toBe("Paused");
   });
+
+  it("goes silent where it only repeats what the chrome already says", () => {
+    // The player bar carries a second meter next to the track title and the
+    // transport buttons. Announcing "Now playing" twice on one screen is noise,
+    // so that copy asks to be skipped — and must not keep a contradictory
+    // role/label alongside aria-hidden.
+    const decorative = mount(PlayingMeter, { props: { decorative: true } });
+
+    expect(decorative.attributes("aria-hidden")).toBe("true");
+    expect(decorative.attributes("aria-label")).toBeUndefined();
+    expect(decorative.attributes("role")).toBeUndefined();
+
+    const labelled = mount(PlayingMeter);
+    expect(labelled.attributes("aria-hidden")).toBeUndefined();
+    expect(labelled.attributes("role")).toBe("img");
+  });
 });

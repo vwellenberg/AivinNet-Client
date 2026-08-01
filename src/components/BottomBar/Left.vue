@@ -4,10 +4,16 @@
              an accent cannot clear 3:1 (see #357). Here the ground is the dark
              panel, so this is the one place the coral peak is legible. Desktop
              only: the phone bar already trades this space for navigation. -->
+        <!-- Guard on the hash, not on `currenttrack`: that getter answers an
+             empty queue with `{} as Track`, which is truthy, so the meter would
+             stand next to the "Hello there" placeholder on a fresh session.
+             Decorative here — the title and the transport already say it, and
+             the track row's meter is the one that carries the label. -->
         <PlayingMeter
-            v-if="!isMobile && queue.currenttrack"
+            v-if="!isMobile && queue.currenttrackhash"
             class="bar-meter"
             :playing="queue.playing"
+            decorative
         />
         <HeartSvg
             v-if="settings.use_np_img && !isMobile"

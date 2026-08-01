@@ -3,8 +3,9 @@
     class="playing-meter"
     :class="{ paused: !playing }"
     viewBox="0 0 24 24"
-    role="img"
-    :aria-label="playing ? 'Now playing' : 'Paused'"
+    :role="decorative ? undefined : 'img'"
+    :aria-label="decorative ? undefined : playing ? 'Now playing' : 'Paused'"
+    :aria-hidden="decorative ? 'true' : undefined"
   >
     <defs>
       <!-- The LED grid. It sits FIXED in the icon while the bars scale beneath
@@ -45,7 +46,19 @@ let seq = 0
 </script>
 
 <script setup lang="ts">
-withDefaults(defineProps<{ playing?: boolean }>(), { playing: true })
+withDefaults(
+  defineProps<{
+    playing?: boolean
+    /**
+     * Silence it for assistive tech. Use wherever a second meter repeats what
+     * the surrounding chrome already announces — the player bar states the
+     * track and the transport state on its own, so a second "Now playing"
+     * there is noise.
+     */
+    decorative?: boolean
+  }>(),
+  { playing: true, decorative: false }
+)
 
 // Chrome raster (#311): 24x24 box, ink from 3 to 21.
 const TOP = 3
@@ -85,7 +98,7 @@ const clipId = (i: number) => `pm-clip-${uid}-${i}`
 //   $mem-coral on the yellow playing row = 1.98:1  -> unusable
 //   ink        on the yellow playing row = 9.64:1
 // So the body is `currentColor` (ink on a filled row, light on the dark ground)
-// and only the peak carries an accent — overridable per context via --eq-peak,
+// and only the peak carries an accent — overridable per context via --meter-peak,
 // which is exactly what the track row does.
 .playing-meter {
   display: block;
@@ -97,7 +110,7 @@ const clipId = (i: number) => `pm-clip-${uid}-${i}`
   }
 
   .peak {
-    fill: var(--eq-peak, #{$mem-coral});
+    fill: var(--meter-peak, #{$mem-coral});
   }
 
   .bar {
