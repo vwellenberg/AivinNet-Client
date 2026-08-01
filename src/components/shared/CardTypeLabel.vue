@@ -24,7 +24,7 @@ import NoteSvg from '@/assets/icons/note.svg'
 import PlaylistSvg from '@/assets/icons/playlist.svg'
 import SparklesSvg from '@/assets/icons/sparkles.svg'
 
-export type CardType = 'album' | 'artist' | 'favorite' | 'folder' | 'mix' | 'playlist' | 'track'
+import { CARD_TYPE_LABELS, CardType } from '@/utils/cardTypes'
 
 const GLYPHS = {
     album: AlbumSvg,
@@ -37,15 +37,9 @@ const GLYPHS = {
     track: NoteSvg,
 }
 
-const LABELS: Record<CardType, string> = {
-    album: 'Album',
-    artist: 'Artist',
-    favorite: 'Favorites',
-    folder: 'Folder',
-    mix: 'Mix',
-    playlist: 'Playlist',
-    track: 'Track',
-}
+// The words themselves live next to `isTypeEcho()` in utils/cardTypes: the
+// tiles compare their help text against them, and two copies would drift.
+const LABELS = CARD_TYPE_LABELS
 
 defineProps<{
     type: CardType

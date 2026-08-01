@@ -19,7 +19,7 @@
             <PlayBtn :artisthash="artist.artisthash" :artistname="artist.name" :source="playSources.artist" />
         </div>
         <div class="card-plate">
-            <div v-if="artist.help_text" class="rhelp t-center">
+            <div v-if="artist.help_text && !isTypeEcho(artist.help_text, 'artist')" class="rhelp t-center">
                 <span class="help" :class="{ keep: !artist.time }">{{ artist.help_text }}</span>
                 <span class="time">{{ artist.time }}</span>
             </div>
@@ -43,6 +43,7 @@ import CardTypeLabel from './CardTypeLabel.vue'
 import PlayBtn from './PlayBtn.vue'
 import { ref } from 'vue'
 import { showArtistContextMenu } from '@/helpers/contextMenuHandler'
+import { isTypeEcho } from '@/utils/cardTypes'
 
 const imguri = paths.images.artist.medium
 const contextMenuFlag = ref(false)

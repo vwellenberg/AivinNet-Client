@@ -19,7 +19,7 @@
             />
         </div>
         <div class="card-plate">
-            <div v-if="album.help_text" class="rhelp album">
+            <div v-if="album.help_text && !isTypeEcho(album.help_text, 'album')" class="rhelp album">
                 <span class="help" :class="{ keep: !album.time }">{{ album.help_text }}</span>
                 <span class="time">{{ album.time }}</span>
             </div>
@@ -65,6 +65,7 @@ import useAlbumStore from '@/stores/pages/album'
 import { paths } from '../../config'
 import MasterFlag from './MasterFlag.vue'
 import { showAlbumContextMenu } from '@/helpers/contextMenuHandler'
+import { isTypeEcho } from '@/utils/cardTypes'
 
 const route = useRoute()
 const contextMenuFlag = ref(false)

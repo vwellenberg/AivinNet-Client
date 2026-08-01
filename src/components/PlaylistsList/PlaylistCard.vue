@@ -12,7 +12,7 @@
       <PlayBtn :source="playSources.playlist" :playlist="playlist.id.toString()"/>
     </div>
     <div class="overlay card-plate">
-      <div v-if="playlist.help_text" class="rhelp playlist">
+      <div v-if="playlist.help_text && !isTypeEcho(playlist.help_text, 'playlist')" class="rhelp playlist">
         <span class="help">{{ playlist.help_text }}</span>
         <span class="time">{{ playlist.time }}</span>
       </div>
@@ -31,6 +31,7 @@ import { playSources } from '@/enums'
 import CardTypeLabel from '../shared/CardTypeLabel.vue'
 import PlayBtn from '../shared/PlayBtn.vue'
 import PlaylistImages from '../shared/PlaylistImages.vue'
+import { isTypeEcho } from '@/utils/cardTypes'
 
 const imguri = paths.images.playlist;
 defineProps<{

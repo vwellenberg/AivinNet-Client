@@ -14,7 +14,7 @@
       <PlayBtn :source="playSource" :track="track" />
     </div>
     <div class="tinfo card-plate">
-      <div v-if="track.help_text" class="rhelp track">
+      <div v-if="track.help_text && !isTypeEcho(track.help_text, 'track')" class="rhelp track">
         <span class="help">{{ track.help_text }}</span>
         <span class="time">{{ track.time }}</span>
       </div>
@@ -33,6 +33,7 @@ import { Routes } from "@/router";
 import ArtistName from "../shared/ArtistName.vue";
 import CardTypeLabel from "../shared/CardTypeLabel.vue";
 import PlayBtn from "../shared/PlayBtn.vue";
+import { isTypeEcho } from "@/utils/cardTypes";
 
 defineProps<{
   track: Track;

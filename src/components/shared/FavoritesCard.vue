@@ -10,8 +10,10 @@
             <PlayBtn :source="playSources.favorite" />
         </div>
         <div class="info card-plate">
+            <!-- No "PLAYLIST" caption here any more: the type label above the
+                 artwork says what this tile is, and it said something else than
+                 this line did. -->
             <div class="rhelp playlist">
-                <span class="help">PLAYLIST</span>
                 <span class="time">{{ item.time }}</span>
             </div>
             <div class="title">Favorite Tracks</div>

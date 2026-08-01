@@ -18,7 +18,7 @@
     </div>
 
     <div class="card-plate">
-      <div v-if="folder.help_text" class="rhelp folder">
+      <div v-if="folder.help_text && !isTypeEcho(folder.help_text, 'folder')" class="rhelp folder">
         <span class="help">{{ folder.help_text }}</span>
         <span class="time">{{ folder.time }}</span>
       </div>
@@ -38,6 +38,7 @@ import { Routes } from "@/router";
 import CardTypeLabel from "../shared/CardTypeLabel.vue";
 import PlayBtn from "../shared/PlayBtn.vue";
 import FolderSvg from "@/assets/icons/folder.svg";
+import { isTypeEcho } from "@/utils/cardTypes";
 
 defineProps<{
   folder: {
