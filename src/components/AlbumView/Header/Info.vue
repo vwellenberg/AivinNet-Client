@@ -3,12 +3,13 @@
     <div class="top">
       <!-- <AlbumType :album="album" /> -->
       <div class="albumtype dh-type">{{ album.type }}</div>
-      <div id="albumheadertitle" class="title dh-title ellip2">
-        <span v-for="t in titleSplits" :key="t">{{ t }}<br /></span>
-      </div>
+      <!-- One line, ellipsed. Balancing the title over two lines made sense
+           while the head was 18rem of free space; inside the plate every extra
+           line pushes the whole head taller and stretches the media cell into a
+           portrait crop with it. -->
+      <div id="albumheadertitle" class="title dh-title ellip" :title="album.title">{{ album.title }}</div>
     </div>
     <div class="bottom">
-      <div id="test-elem"></div>
       <Versions :versions="album.versions" />
       <Stats :album="album" />
       <Buttons />
@@ -18,10 +19,9 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { onMounted, ref } from "vue";
+import { onMounted } from "vue";
 import { onBeforeRouteUpdate } from "vue-router";
 
-import { balanceText } from "@/utils/balanceText";
 
 import useAlbumStore from "@/stores/pages/album";
 import updatePageTitle from "@/utils/updatePageTitle";
@@ -34,12 +34,9 @@ import AlbumType from "./AlbumType.vue";
 const store = useAlbumStore();
 
 const { info: album } = storeToRefs(store);
-const titleSplits = ref([""]);
 
 const updateTitle = () => {
   updatePageTitle(album.value.title + " - " + album.value.albumartists[0].name);
-  const elem = document.getElementById("test-elem");
-  titleSplits.value = balanceText(album.value.title, elem?.offsetWidth || 0);
 };
 
 onMounted(() => {

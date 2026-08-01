@@ -6,13 +6,13 @@
        making the markup lie about what comes first. -->
   <div class="playlist-info dh-body">
     <div class="type dh-type">Playlist</div>
-    <div ref="test_elem"></div>
-    <div class="title dh-title ellip2">
-      <span v-for="t in balanceText(playlist.info.name, test_elem?.offsetWidth || 0, '2.75rem')" :key="t">
-        {{ t }}
-        <br />
-      </span>
-    </div>
+    <!-- One line, ellipsed — no `balanceText` any more. Balancing a title over
+         two lines made sense while the head was 18rem of free space; inside the
+         plate every extra line pushes the whole head taller (measured: 289px
+         against 221px for a one-line title) and stretches the media cell into a
+         portrait crop with it. Same decision the Now-Playing source plate made
+         for the same reason. -->
+    <div class="title dh-title ellip" :title="playlist.info.name">{{ playlist.info.name }}</div>
     <!-- One meta line. "Last updated" used to be an absolutely positioned box
          in the header's bottom-right corner, which is why it kept colliding
          with the action row on small screens; it is part of the meta now. -->
@@ -67,12 +67,10 @@ import PinButton from "@/components/shared/PinButton.vue";
 import usePStore from "@/stores/pages/playlist";
 import { showPlaylistContextMenu } from "@/helpers/contextMenuHandler";
 import { togglePlaylistPin } from "@/helpers/pinPlaylist";
-import { balanceText } from "@/utils/balanceText";
-import { Ref, ref } from "vue";
+import { ref } from "vue";
 
 const playlist = usePStore();
 
-const test_elem: Ref<HTMLElement | null> = ref(null);
 const context_menu_showing = ref(false);
 
 function showContextMenu(e: MouseEvent) {
