@@ -7,7 +7,7 @@
             :title="item.title || ''"
             :description="item.description"
             :items="item.items"
-            :play-source="playSources.mix"
+            :play-source="playSources.track"
             :route="item.path"
             :see-all-text="item.seeAllText"
         />

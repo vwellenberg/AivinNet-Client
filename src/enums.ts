@@ -8,7 +8,6 @@ export enum playSources {
   track,
   recentlyAdded,
   recentlyPlayed,
-  mix,
 }
 
 export enum NotifType {
@@ -26,8 +25,6 @@ export enum FromOptions {
   album = "album",
   search = "search",
   artist = "artist",
-  mix = "mix",
-  artistMix = "artist mix",
   albumCard = "albumCard",
   favorite = "favorite",
 }

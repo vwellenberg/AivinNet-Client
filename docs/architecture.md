@@ -70,7 +70,7 @@ RightSideBar · BottomBar. Was sichtbar ist, entscheiden Breakpoints und Einstel
 Beide Queue-Stores sind persistiert (localStorage), `player` nicht — er ist Laufzeit.
 
 `from` ist nicht dekorativ: Es trägt Typ und Herkunft der Liste (Album, Playlist, Ordner,
-Mix, Suche, Favoriten, Playlist-Ordner) und speist die „Playing from"-Anzeige und das
+Suche, Favoriten, Playlist-Ordner) und speist die „Playing from"-Anzeige und das
 Scrobble-`source`-Feld.
 
 **`AudioSource` hält zwei `<audio>`-Elemente** im DOM. Der Standby-Kanal lädt den nächsten Track

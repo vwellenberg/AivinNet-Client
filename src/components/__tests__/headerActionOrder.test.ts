@@ -22,7 +22,6 @@ const HEADERS = [
   "/src/components/AlbumView/Header/Buttons.vue",
   "/src/components/ArtistView/HeaderComponents/Buttons.vue",
   "/src/components/PlaylistView/Header/Info.vue",
-  "/src/components/Mixes/MixesHeader.vue",
 ];
 
 interface Tag {
@@ -109,8 +108,9 @@ function slotOf(tag: Tag): Slot {
 
   const classes = classesOf(tag.attrs);
   if (classes.includes("options")) return "overflow";
-  // "Save mix" is the mix page's favourite: same meaning, bookmark glyph — the
-  // app's favourite iconography for a saved collection, never a heart.
+  // A "save" button means the same thing as a favourite on a collection page —
+  // bookmark glyph, never a heart. No header uses it right now (the mix header
+  // was the last one); kept so the next one does not have to rediscover it.
   if (classes.includes("savebtn")) return "favourite";
   return "secondary";
 }
@@ -152,9 +152,9 @@ describe("detail header action rows", () => {
     expect(new Set(positions).size).toBe(positions.length);
   });
 
-  // The mix header existed through two rounds of header work without anyone
-  // noticing it was a fourth detail header. If a fifth appears, this fails
-  // until it is listed above and therefore checked.
+  // A mix header once existed through two rounds of header work without anyone
+  // noticing it was a fourth detail header. If a fourth appears again, this
+  // fails until it is listed above and therefore checked.
   it("knows about every header action row in the codebase", () => {
     const found = Object.entries(SOURCES)
       .filter(([, source]) => /\bclass="[^"]*\bheader-actions\b/.test(source))

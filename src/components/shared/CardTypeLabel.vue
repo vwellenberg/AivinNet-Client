@@ -22,8 +22,6 @@ import BookmarkSvg from '@/assets/icons/bookmark.svg'
 import FolderSvg from '@/assets/icons/folder.svg'
 import NoteSvg from '@/assets/icons/note.svg'
 import PlaylistSvg from '@/assets/icons/playlist.svg'
-import SparklesSvg from '@/assets/icons/sparkles.svg'
-
 import { CARD_TYPE_LABELS, CardType } from '@/utils/cardTypes'
 
 const GLYPHS = {
@@ -32,7 +30,6 @@ const GLYPHS = {
     // The favourites section is a bookmark, never a heart.
     favorite: BookmarkSvg,
     folder: FolderSvg,
-    mix: SparklesSvg,
     playlist: PlaylistSvg,
     track: NoteSvg,
 }

@@ -59,9 +59,6 @@ export const paths = {
         lyrics: '/lyrics',
         coverart: '/coverart',
         plugins: '/plugins',
-        get mixes() {
-            return this.plugins + '/mixes'
-        },
 
         // Single album
         album: '/album',
@@ -261,9 +258,5 @@ export const paths = {
         },
         playlist: baseImgUrl + imageRoutes.playlist,
         user: baseImgUrl + imageRoutes.user,
-        mix: {
-            medium: baseImgUrl + '/mix/medium/',
-            small: baseImgUrl + '/mix/small/',
-        },
     },
 }

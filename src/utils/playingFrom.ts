@@ -113,25 +113,6 @@ export default (source: From): PlayingFrom => {
                 image: '',
             }
 
-        case FromOptions.mix:
-            return {
-                name: source.name,
-                icon: RadioSvg,
-                location: {
-                    name: Routes.Mix,
-                    params: {
-                        mixid: source.mixid,
-                    },
-                    query: {
-                        src: source.sourcehash,
-                    },
-                },
-                image:
-                    source.image.type === 'mix'
-                        ? paths.images.mix.small + source.image.image
-                        : paths.images.thumb.small + source.image.image,
-            }
-
         default:
             return { name: '👻 No source', location: {}, icon: '' }
     }

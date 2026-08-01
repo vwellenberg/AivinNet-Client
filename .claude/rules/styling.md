@@ -366,8 +366,9 @@ Slider-Track (der Knopf ist das Ziel) und Inline-Textlinks in Listenzeilen (die 
 tappbar).
 
 **Detail-Header haben eine feste Reihenfolge:** Play · Favorit · Pin · Zweitaktion · Overflow.
-Es gibt **vier** davon — Album, Artist, Playlist und **Mix** (`Mixes/MixesHeader.vue`,
-Route `/mix/:mixid`); der letzte wird beim Suchen leicht übersehen.
+Es gibt **drei** davon — Album, Artist und Playlist. (Ein vierter, der Mix-Header, fiel mit dem
+Mixes-Feature weg.) Wer einen neuen anlegt, trägt ihn in `headerActionOrder.test.ts` ein — der
+Zensus-Test dort schlägt sonst fehl, und genau das ist seine Aufgabe.
 
 Die Reihe selbst ist die geteilte Klasse **`.header-actions`** in
 [_button-classes.scss](../../src/assets/scss/Global/_button-classes.scss) — Flex, Gap, Wrap und

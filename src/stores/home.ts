@@ -17,10 +17,7 @@ export default defineStore('homepage', () => {
 
     const routes = {
         recently_played: '/playlist/recentlyplayed',
-        artist_mixes: '/mixes/artist',
-        custom_mixes: '/mixes/track',
         // top_streamed_weekly_artists: '',
-        // top_streamed_monthly_artists: '/featured-mixes',
         recently_added: '/playlist/recentlyadded',
     }
 

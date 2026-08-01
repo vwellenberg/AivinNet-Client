@@ -28,7 +28,7 @@
 
 // The one list. Read by the anatomy below, by the row geometry further down and
 // by the census test — a second copy is how the drift above started.
-$card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard, .mixcard, .favoritescard";
+$card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard, .favoritescard";
 
 #{$card-types} {
     display: grid;
@@ -77,7 +77,7 @@ $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard, .mixc
     @include candy-shadow(3px, 3px);
     transition: box-shadow $motion-shadow $motion-curve;
 
-    // Direct child only. A collage (PlaylistImages, MixImage) brings its own
+    // Direct child only. A collage (PlaylistImages) brings its own
     // grid of nested images with their own sizing; reaching those with a
     // descendant selector would fight it.
     > img {

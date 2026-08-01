@@ -5,15 +5,14 @@
 </template>
 
 <script setup lang="ts">
-import { Album, Artist, Mix, Playlist } from '@/interfaces'
+import { Album, Artist, Playlist } from '@/interfaces'
 import AlbumCard from './AlbumCard.vue'
 import ArtistCard from './ArtistCard.vue'
-import MixCard from '../Mixes/MixCard.vue'
 import PlaylistCard from '../PlaylistsList/PlaylistCard.vue'
 import { computed } from 'vue'
 
 const props = defineProps<{
-    items: Album[] | Artist[] | Mix[] | Playlist[]
+    items: Album[] | Artist[] | Playlist[]
 }>()
 
 const items = computed(() => {
@@ -37,13 +36,6 @@ const items = computed(() => {
                 i.key = item.artisthash
                 i.props = {
                     artist: item,
-                }
-                break
-            case 'mix':
-                i.component = MixCard
-                i.key = item.sourcehash
-                i.props = {
-                    mix: item,
                 }
                 break
             case 'playlist':

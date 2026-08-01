@@ -47,13 +47,15 @@
 // ---------------------------------------------------------------------------
 // HEADER ACTION ROW — the container half of the detail-header anatomy.
 //
-// There are FOUR detail headers (album, artist, playlist, mix) and each one
+// There are THREE detail headers (album, artist, playlist) and each one
 // hand-wrote the same four declarations for its action row. They are one thing,
-// so they are written once.
+// so they are written once. (A fourth, the mix header, was removed with the
+// mixes feature — the census test in headerActionOrder.test.ts is what keeps
+// this count honest.)
 //
 // A CLASS and not a Vue component, deliberately. The row has no behaviour, no
 // props and no shared markup — its children differ per header (a playlist has
-// no favourite, a mix has no pin), so a wrapper component would exist purely to
+// no favourite), so a wrapper component would exist purely to
 // emit a <div>. It would also cost something real: the stagger below reads
 // `:nth-child` off the DOM, and every header would have to keep passing its
 // buttons through a slot for that to keep resolving to the same positions. A
@@ -80,9 +82,9 @@
   // the album and artist lists needs the same gesture and a second copy of five
   // nth-child rules is exactly the drift this file exists to end.
   //
-  // This used to list all four rows by their own class names, which is how the
-  // mix header came to be missing from the group until #293 went looking. One
-  // shared class is one place to be on.
+  // This used to list every row by its own class name, which is how a header
+  // came to be missing from the group until #293 went looking. One shared
+  // class is one place to be on.
   @include btn-pop-stagger;
 }
 
