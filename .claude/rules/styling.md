@@ -112,6 +112,53 @@ Zeichnung („diese Kante ist die Kontrastkante"), keine Aussage des Wirts.
 rendert auf weißem Grund und lässt jede Farbe gut aussehen. Gemessen wird der **computed
 `fill`/`backgroundColor` im laufenden Browser**, gegeneinander gerechnet.
 
+## ⚠️ Die Songliste ist ein Kassetten-Inlay — und ihr Rahmen hat drei Besitzer
+
+Die Track-Zeile trägt seit dem Inlay-Redesign vier Merkmale: **Farbleitband** auf der
+Vorderkante (fünf Akzente im Wechsel), **Track-Nummer im Ink-Kreis**, **Perforation** zwischen den
+Zeilen und ein **aufgeklebtes Cover** (voller Ink-Rahmen, Offset-Schatten, leichte Neigung, die
+sich unter dem Zeiger geradezieht). Die Dauer sitzt in einer umrandeten Pille.
+
+**Die Farbrotation kommt aus dem Zeilen-Index, niemals aus `:nth-child`.** Alle Songlisten rendern
+durch `vue-virtual-scroller`, und der **recycelt** seine Zeilen-Elemente: DOM-Position folgt dort
+dem Scroll-Offset, nicht der Liste. Eine `nth-child`-Regel gäbe demselben Track bei jedem Scrollen
+eine andere Farbe — im Standbild unauffällig, in Bewegung ein Flackern. Zuständig ist
+`trackBandClass()` in `utils/songItemMethods.ts`, die Farben stehen als `$mem-band-colours` in
+`_candy.scss` und werden von `mem-band-cycle` zu `band-0`…`band-4` ausgerollt. Beide Hälften sind
+aneinander getestet (`utils/__tests__/trackBand.test.ts`): Die Zahl der Klassen, die JS erzeugen
+kann, muss der Länge der SCSS-Liste entsprechen — sonst steht eine Zeile still ohne Band da, weil
+`--band` einfach auf den Fallback fällt.
+
+⚠️ **Der `index`-Prop ist nicht überall die Listenposition.** Die Album-Ansicht reicht die
+Track-Nummer aus den Tags durch, `SongList` zählt bei gesetztem `total` **rückwärts**, und der Typ
+erlaubt einen String. Deshalb parst `trackBandClass` defensiv und normalisiert das Vorzeichen:
+`band--2` matcht keine Regel, und eine Zeile ohne Band liest sich als Fehler, während eine Zeile
+mit der Farbe ihres Nachbarn nur als Wiederholung liest.
+
+**Den Listenrahmen malen drei Stellen, und sie müssen zusammenpassen:**
+
+| Kante | wer |
+|---|---|
+| links | das Farbleitband (Background-Layer, ersetzt den linken Ink-Streifen) |
+| rechts | der Ink-Streifen (Background-Layer) |
+| oben | `.is-first` — **oder** die Ink-Kopfleiste der Playlist (`AfterHeader.caps-list`) |
+| unten | `.is-last` |
+
+⚠️ **Oben gibt es deshalb zwei mögliche Besitzer, und nur einer darf.** Trägt die Kopfleiste die
+Kappe, muss die erste Zeile ihre abgeben — sonst schiebt sich eine gerundete Ecke unter einen
+geraden Ink-Balken. `PlaylistView` berechnet das einmal als `captionCapsList` und liest es zweimal
+(Kopfleiste **und** `is_first`); die beiden als getrennte Bedingungen zu schreiben ist genau die
+Drift, die man erst im Screenshot sieht.
+
+**Die Perforation hängt an der UNTERkante, nicht an der oberen.** Sie gehört *zwischen* zwei
+Zeilen, und nur die Unterkante kann das ohne ein zweites Flag sagen: `.is-last` meldet sich selbst,
+während „erste Zeile" auf der Playlist-Seite gar nicht existiert (dort kappt die Leiste). Oben
+angehängt bräuchte sie eine eigene Aussage „über mir steht schon etwas".
+
+Alle drei Layer liegen im **Background**, nicht auf Pseudo-Elementen: `::before` und `::after`
+gehören der laufenden Zeile (Textur + Zackenband), und eine laufende Zeile braucht ihr Band
+weiterhin.
+
 ## ⚠️ Der Laufend-Zustand hat EINE Quelle und markiert die VORDERKANTE
 
 Fläche, Rahmen und Marke der laufenden Zeile kommen aus **`mem-now-playing-row`**
