@@ -5,8 +5,11 @@
              used to be an absolutely positioned sibling offset by the card's
              own padding, which no longer exists. -->
         <div class="img card-art is-glyph">
-            <!-- Favorites iconography is the check-circle (never a heart). -->
-            <CheckCircleSvg class="heart" />
+            <!-- Same sign as every favourite toggle in the app. It used to be
+                 the check-circle, back when a heart was ruled out; the tile has
+                 to follow the toggle, or the library shows one symbol and the
+                 rows another. -->
+            <HeartFillSvg class="heart" />
             <PlayBtn :source="playSources.favorite" />
         </div>
         <div class="info card-plate">
@@ -29,7 +32,7 @@ import { Routes } from '@/router'
 import { playSources } from '@/enums'
 import CardTypeLabel from '../shared/CardTypeLabel.vue'
 import PlayBtn from '../shared/PlayBtn.vue'
-import CheckCircleSvg from '@/assets/icons/check.circle.fill.svg'
+import HeartFillSvg from '@/assets/icons/heart.fill.svg'
 
 defineProps<{
     item: {

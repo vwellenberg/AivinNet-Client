@@ -87,7 +87,7 @@ defineEmits<{
         visibility: visible;
 
         svg {
-            // Inline favorited check-circle: teal "active" accent — readable
+            // Inline favorited heart: teal "active" accent — readable
             // on the light and dark grounds and on the filled row states
             // (SongItem.vue pins the same teal there).
             color: $mem-teal;
