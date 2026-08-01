@@ -66,10 +66,12 @@ defineEmits<{
 // anyone's intention.
 //
 // Both dimensions are stated now, through the role: 3.375rem x 2.25rem is the
-// same 54x36 box the ratio produced, and 10rem is the pill radius `.circular`
-// was handing it. Same pixels, one owner, no ordering luck.
+// same 54x36 box the ratio produced, and the radius is the pill token that
+// `.circular` was handing it (as 10rem back then — the utility reads the token
+// itself since #354, and a copy of its old value here would have quietly
+// become the app's last 160px corner). Same pixels, one owner, no ordering luck.
 .heart-button {
-    @include btn-quiet($size: 2.25rem, $width: 3.375rem, $radius: 10rem, $glyph: 1.75rem);
+    @include btn-quiet($size: 2.25rem, $width: 3.375rem, $radius: $candy-radius-pill, $glyph: 1.75rem);
 
     div {
         height: max-content;
