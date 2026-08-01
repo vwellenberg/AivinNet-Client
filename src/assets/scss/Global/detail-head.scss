@@ -47,14 +47,16 @@ $detail-heads: ".a-header, .artist-page-header, .p-header, .mixheader";
     color: $candy-text;
 }
 
-// The media cell. Square, and the plate's height comes from it: without
-// `align-self: flex-start` the flex container stretches it to the text's height
-// and the artwork turns into a strip.
+// The media cell. Square at rest (`min-height` = its width), but it STRETCHES
+// with the plate: a two-line title makes the text side taller than 11rem, and a
+// cell pinned to `align-self: flex-start` then left a slab of empty panel under
+// the artwork (measured: 289px plate against a 176px cell on "Monkey Island 2 -
+// LeChuck's Revenge"). Stretching keeps the plate closed at any title length.
 .dh-art {
     width: 11rem;
-    aspect-ratio: 1;
+    min-height: 11rem;
     flex-shrink: 0;
-    align-self: flex-start;
+    align-self: stretch;
     overflow: hidden;
     position: relative;
 
