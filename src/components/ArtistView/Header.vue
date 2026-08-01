@@ -113,9 +113,10 @@ const containerHeight = computed(() => {
 
     // Follows the header it tints — it is a separate absolutely positioned
     // element, so a shorter header would otherwise leave its wash hanging
-    // below the header's own bottom edge.
+    // below the header's own bottom edge. The header sizes to its content now,
+    // so this is the same content's height, not a copy of a fixed number.
     @include shortViewport {
-        height: 9rem;
+        height: 100%;
     }
 }
 
@@ -125,22 +126,44 @@ const containerHeight = computed(() => {
     position: relative;
 
     // A landscape phone. The height comes from an INLINE style (13rem circular
-    // / 18rem banner, 25rem on a small phone), so this has to shout to be heard
-    // — and the photo reads the same value, which is why both are here. The
-    // artist name is 3.5rem, roughly three times the line height that is left
-    // over: without shrinking it the action row landed on the "Tracks" heading.
+    // / 18rem banner, 25rem on a small phone), so this has to shout to be heard.
+    //
+    // ⚠️ `height: auto`, NOT a smaller fixed height. The first version of this
+    // block set `9rem !important` and the content did not fit: `.artist-info`
+    // measured 173px inside a 144px box, so the Play row hung 13px BELOW the
+    // header and landed on the "Tracks" heading, while the "Artist" label and
+    // the stats line slid behind the round photo. The playlist and album
+    // headers next door got this right — they RELEASE their floor instead of
+    // setting a new ceiling. A header sizes to its content; what makes it flat
+    // here is the content being smaller, not the box being shorter.
+    //
+    // Verify accordingly: not "how tall is the header", but "does .artist-info
+    // end inside it". The first round measured the former and passed.
     @include shortViewport {
-        height: 9rem !important;
+        height: auto !important;
+        min-height: 0 !important;
 
         .artist-img,
         .artist-img img,
         .artist-img .artist-img-placeholder {
-            height: 9rem !important;
-            width: 9rem !important;
+            // 7rem is what the playlist and album covers take here.
+            height: 7rem !important;
+            width: 7rem !important;
         }
 
-        .artist-info .artist-name {
-            font-size: $detail-title-size-phone;
+        .artist-info {
+            // 1rem of padding and a 1rem gap are 40px of the 173 — most of what
+            // did not fit. The 44px action row is untouchable, so the air goes.
+            padding: $small 0 $small $small;
+            gap: $small;
+
+            .text {
+                gap: $smaller;
+            }
+
+            .artist-name {
+                font-size: $detail-title-size-phone;
+            }
         }
     }
 
