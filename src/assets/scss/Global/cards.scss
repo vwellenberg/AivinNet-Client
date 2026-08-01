@@ -36,7 +36,9 @@ $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard, .favo
     // inside a mixed row, where the plate is pinned (see .cardscroller below).
     grid-template-rows: max-content max-content max-content;
     align-content: start;
-    gap: $small;
+    // Stufe B aus der Abstands-Runde: 16px statt 8px zwischen Etikett, Cover
+    // und Platte. Die Kachel bleibt ein Objekt, atmet aber.
+    gap: 1rem;
     height: max-content;
     // Grid items refuse to shrink below their min-content size by default, so
     // one long nowrap name silently pushed its card wider than the column.

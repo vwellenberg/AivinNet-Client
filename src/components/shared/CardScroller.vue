@@ -141,10 +141,14 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
 
 <style lang="scss">
 .cardscroller {
-    padding: 1.5rem 0;
+    // Abstände nach Stufe B der Mockup-Runde: 28px oben und unten ergeben
+    // 56px zwischen zwei Zeilen (vorher 48), 32px zwischen zwei Kacheln
+    // (vorher 20). Der spürbare Teil ist der Abstand ZWISCHEN den Objekten —
+    // innerhalb der Kachel reichen 16px (Global/cards.scss).
+    padding: 1.75rem 0;
 
     .recentitems {
-        gap: 1.5rem 0;
+        gap: 2.5rem 2rem;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax($cardwidth, 1fr));
 
@@ -159,7 +163,8 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
 
     .rinfo {
         padding: 0 $medium;
-        margin-bottom: $medium;
+        // 24px von der Überschrift zur ersten Kachel (Stufe B).
+        margin-bottom: 1.5rem;
 
         // The row's caption ("Recently played", "Artist mixes for you") and its
         // "SEE ALL" link are stickers: they sat free on the doodle ground,
