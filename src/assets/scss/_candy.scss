@@ -307,17 +307,51 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
   background-size: $size $size;
 }
 
-// Zigzag accent strip (replaces the candy stripes) — give the host element a
-// fixed height (~8-10px) and this paints a bunting-style zigzag edge.
-// The `position / size` slashes are interpolated so Sass doesn't parse them
-// as division.
-@mixin mem-zigzag($color: $mem-ink, $h: 9px, $w: 14px) {
-  background: linear-gradient(-45deg, transparent 72%, $color 0) 0 0 #{"/"} #{$w} #{$h} repeat-x,
-    linear-gradient(45deg, transparent 72%, $color 0) #{$w * 0.5} 0 #{"/"} #{$w} #{$h} repeat-x;
+// ---------------------------------------------------------------------------
+// The "this row is playing" state — ONE decision for BOTH track rows:
+// `.songlist-item.current` (SongItem.vue, every song list) and
+// `.track-item.currentInQueue` (TrackItem.vue, the queue panel). They carried
+// two hand-written copies of it before, which is how the same ornament had to
+// be edited twice.
+//
+// The mark is the design's bunting zigzag, but on the LEADING edge instead of
+// the bottom one. The bottom strip sat INSIDE the row (`overflow: hidden`), so
+// it ate 9px of the row's bottom air and ran right under the artist line, and
+// it repeated the frame's ink a second time on the one edge the frame already
+// owns. It also said nothing the row wasn't already saying — the meter glyph
+// and the yellow fill mark the state; the eye scans a list down its left edge,
+// which is where a marker belongs.
+//
+// Ink, not an accent: on `$mem-yellow` teal measures 1.24:1 and coral 1.98:1
+// against WCAG 1.4.11's 3:1 for graphical objects, ink 9.64:1 (see
+// .claude/rules/styling.md). The colour is baked into the asset for the same
+// reason the favourite marker's outline is: it IS the contrast edge, in both
+// themes, whatever the host pins as `color`.
+//
+// The teeth are a shape, and that matters — a straight ink bar in this spot
+// simply reads as a thicker left border, because it abuts the frame.
+// ---------------------------------------------------------------------------
+@mixin mem-now-playing-row($radius: $candy-radius-sm) {
+  position: relative;
+  overflow: hidden; // clip the teeth to the rounded corners
+  @include candy-box($mem-yellow, $radius);
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    pointer-events: none;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="14"><path d="M0 0 H3 L10 7 L3 14 H0 Z" fill="%2317171A"/></svg>');
+    background-size: 10px 14px;
+    background-repeat: repeat-y;
+  }
 }
 
 // DEPRECATED (candy design): diagonal candy stripes. Superseded by
-// mem-zigzag/mem-sprinkle — kept only until the last usage is migrated.
+// mem-now-playing-row/mem-sprinkle — kept only until the last usage is migrated.
 @mixin candy-stripes($a: $candy-pink-deep, $b: $candy-white, $w: 10px) {
   background: repeating-linear-gradient(-45deg, $a 0 $w, $b $w $w * 2);
 }

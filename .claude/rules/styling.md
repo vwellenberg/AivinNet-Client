@@ -112,6 +112,31 @@ Zeichnung („diese Kante ist die Kontrastkante"), keine Aussage des Wirts.
 rendert auf weißem Grund und lässt jede Farbe gut aussehen. Gemessen wird der **computed
 `fill`/`backgroundColor` im laufenden Browser**, gegeneinander gerechnet.
 
+## ⚠️ Der Laufend-Zustand hat EINE Quelle und markiert die VORDERKANTE
+
+Fläche, Rahmen und Marke der laufenden Zeile kommen aus **`mem-now-playing-row`**
+([_candy.scss](../../src/assets/scss/_candy.scss)). Beide Wirte binden nur noch das Mixin ein —
+`.songlist-item.current` (Songlisten) und `.track-item.currentInQueue` (Queue-Panel). Vorher stand
+der Zustand **zweimal wortgleich** da, also war jede Änderung am Ornament zwei Änderungen, und die
+zweite Stelle sieht man nur im rechten Seitenpanel und nur während etwas läuft. Der Zensus dazu
+ist getestet (`src/components/__tests__/nowPlayingRow.test.ts`).
+
+Das Zackenband sitzt an der **linken** Kante, nicht mehr unten. Drei Gründe, die alle drei zählen:
+
+- Die Zeile hat `overflow: hidden`, das untere Band lag also **innen** — 9 px Zeilenluft weg, die
+  Zacken klebten an der Künstlerzeile.
+- Unten gehört die Kante schon dem Rahmen; ein Ink-Band darüber wiederholt dieselbe Schwärze ein
+  zweites Mal. Das Auge fährt eine Liste aber **senkrecht** ab — die Marke gehört an die Kante,
+  die es dabei kreuzt.
+- **Ein gerader Ink-Balken an dieser Stelle liest sich als dickerer Rand**, nicht als Marke: er
+  stößt direkt an den Rahmen. Die Marke muss deshalb eine **Form** haben (Zacken), nicht nur eine
+  Breite. In Farbe wäre sie unbrauchbar — siehe die Kontrast-Tabelle oben.
+
+Die Ink-Farbe steht **im Asset** (`fill="%2317171A"` im data-URI), nicht in einer CSS-Regel: sie
+ist die Kontrastkante, unabhängig davon, was ein Wirt als `color` pinnt.
+
+Das horizontale `mem-zigzag`-Mixin gibt es damit nicht mehr — wer danach sucht, sucht vergeblich.
+
 ## ⚠️ Ein Icon nicht mit `opacity` dämpfen, wenn es kein Zustand ist
 
 Die Sidebar-Glyphen liefen unter `opacity: 0.75` — ein Rest aus der Zeit der gefüllten

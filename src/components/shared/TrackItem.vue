@@ -179,26 +179,13 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 .track-item.currentInQueue {
-  position: relative;
-  overflow: hidden;
-  background-color: $mem-yellow;
-  border: $candy-border;
-  border-radius: $candy-radius-sm;
+  // Fill, frame and the zigzag marker on the leading edge all come from the
+  // one mixin the song-list row uses too — see mem-now-playing-row in
+  // _candy.scss.
+  @include mem-now-playing-row;
   // Absorb the 2px border into the queue's fixed 64px row slot.
   padding-top: calc(#{$small} - #{$candy-border-w});
   padding-bottom: calc(#{$small} - #{$candy-border-w});
-
-  // Signature memphis accent: bunting-style zigzag strip along the bottom edge.
-  &::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 9px;
-    pointer-events: none;
-    @include mem-zigzag($mem-ink);
-  }
 }
 
 .contexton {
