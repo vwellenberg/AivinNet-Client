@@ -70,6 +70,18 @@ Pro Aufgabe/Issue:
    - Teilweise erledigt ⇒ nicht schließen, sondern kommentieren, welche Punkte stehen und welche nicht — mit Dateiverweis als Beleg.
    - **Englisches Schließwort** im PR-Text (`Fixes #N` / `Closes #N`); das deutsche „Behebt #N" schließt nichts.
 
+⚠️ **`--auto` setzen heißt: das Paket ist FERTIG.** Der Merge feuert, sobald die Required Checks
+des **aktuellen** Standes grün sind — das sind je nach Auslastung 40 Sekunden. Wer danach noch
+etwas nachbessert und pusht, pusht auf einen Branch, dessen PR bereits zu ist: der Commit ist auf
+GitHub, aber **nicht in `master`**, und nichts meldet das. In einer Sitzung zweimal passiert
+(#388 → Nachzügler #394, #397 → #398), beide Male erst beim Gegenlesen von `origin/master`
+aufgefallen. Also entweder erst am Ende `--auto` setzen, oder ohne `--auto` mergen und die Checks
+abwarten. Und nach jedem Merge einmal prüfen, dass die eigene Änderung wirklich drin ist:
+
+```bash
+git fetch && git show origin/master:<datei> | grep -c "<neues token>"
+```
+
 - Kein `dev`-Branch (Branches gehen direkt von `master` aus).
 - **`master` ändert sich laufend = normal und gewollt:** jeder gemergte PR bewegt `master`. Das ist KEIN Zeichen für Direkt-Commits, sondern der vorgesehene Fluss (Worktree → Branch → PR → Merge).
 
