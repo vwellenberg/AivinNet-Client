@@ -126,6 +126,19 @@ describe("now-playing row", () => {
     expect(mixin).toMatch(/>\s*\*\s*\{[^}]*z-index/);
   });
 
+  it("pins ink on the queue's playing row", () => {
+    // Regression: the row inherited the theme's `color`, so in dark its title
+    // and artist rendered paper on $mem-yellow — measured 1.66:1 in the running
+    // browser, against 9.6:1 for ink. SongItem.vue has pinned ink for its
+    // filled states all along; the queue row was the one that never did.
+    const block = blockFor(styleSource(SOURCES["/src/components/shared/TrackItem.vue"]), ".track-item.currentInQueue") ?? "";
+
+    expect(block).toMatch(/color:\s*\$mem-ink/);
+    // ...except the favourite marker, whose disc stays teal (its contrast edge
+    // is baked into the asset). Ink there would meet an ink tick: a blob.
+    expect(block).toMatch(/\.heart-button\.is-fav[\s\S]*\$mem-teal/);
+  });
+
   it("leaves the queue's drop marker a mechanism of its own", () => {
     // Both pseudo-elements belong to the playing state now, so the drop marker
     // cannot use one — it would collide on exactly the row that is playing.
