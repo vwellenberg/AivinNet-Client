@@ -201,7 +201,7 @@ const mobileTitle = computed(() => {
             margin-right: $smaller;
             // Pink, the same fill the Playlists row wears — this button only
             // appears on the playlists page and creates one.
-            background-color: $mem-pink;
+            background-color: mem-pastel($mem-pink);
             color: $candy-black;
 
             &:hover {
@@ -226,10 +226,10 @@ const mobileTitle = computed(() => {
             // Hatch = pressable (#378), accent token because the fill is static.
             @include mem-hatch(28px, $on: accent);
             margin-left: auto;
-            // Brand green, the same fill the sidebar's Home row wears — one
+            // Brand green, toned like the sidebar's Home row wears it — one
             // colour for one destination. Blush is the hover state now, so a
             // control cannot sit in it permanently.
-            background-color: $brand-green;
+            background-color: mem-pastel($brand-green);
             color: $candy-black;
 
             &:hover {

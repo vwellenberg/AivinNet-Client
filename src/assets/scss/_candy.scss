@@ -275,6 +275,28 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 }
 
 // ---------------------------------------------------------------------------
+// PASTEL — an accent toned down for a surface you look at all day.
+//
+// The full memphis accents are built for SMALL, rare marks: a play button, a
+// toggle that is on, the one running row. A navigation list is neither small
+// nor rare — six saturated fills stacked in a narrow column shout, and the
+// reference art does not: its shapes carry the same saturation but sit as large
+// areas BEHIND the panels, where they read as ground rather than as signal.
+//
+// Mixing toward the paper ground keeps each hue distinguishable (that is what
+// tells the entries apart) while dropping the loudness. Ink stays far above the
+// 4.5:1 it needs on every one of them — mixing toward paper only raises the
+// contrast against ink.
+//
+// NOT `lighten()`: that raises lightness in HSL and leaves saturation where it
+// was, which turns coral into neon rather than into a pastel. Mixing with the
+// actual ground colour is what makes the two look related.
+// ---------------------------------------------------------------------------
+@function mem-pastel($color, $amount: 55%) {
+  @return mix($color, $mem-paper, $amount);
+}
+
+// ---------------------------------------------------------------------------
 // SIDEBAR PLATE — the library list's row anatomy since #378.
 //
 // The sidebar's rows ARE buttons and now say so: panel fill, ink frame, the
