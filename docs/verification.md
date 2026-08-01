@@ -95,6 +95,26 @@ ohne Tab ist dagegen ehrlich und zeigt „404! Page Not Found!".
 
 - **Gegen `master` kontrollieren, immer.** Eine Null beweist ohne Kontrolllauf nur, dass man
   nicht misst.
+- **⚠️ Das Queue-Panel rendert in der Standard-Umgebung GAR NICHT.** `RightSideBar/Main.vue`
+  hängt an `settings.use_sidebar && xl` (`xl` = **> 1280 px**, `composables/useBreakpoints.ts`),
+  und ein frischer Playwright-Kontext hat weder das Setting noch zwangsläufig die Breite. Ein
+  `document.querySelector(".track-item.currentInQueue")` liefert dann `null` — was wie ein
+  falscher Selektor oder ein kaputtes Feature aussieht, obwohl es nur die Layout-Bedingung ist
+  (real passiert beim Nachmessen der Now-Playing-Markierung: `NO_QUEUE_PANEL` bei 1440 px).
+  Beides also im `addInitScript` bzw. im Kontext setzen:
+
+  ```js
+  await c.addInitScript(() => {
+    const s = JSON.parse(localStorage.getItem("settings") || "{}")
+    s.use_sidebar = true
+    localStorage.setItem("settings", JSON.stringify(s))
+  })
+  const c = await b.newContext({ viewport: { width: 1600, height: 950 } })   // > 1280
+  ```
+
+  Dasselbe gilt für alles andere im rechten Panel (Suche, Dashboard). Wer nur die Songliste
+  misst, hat die **zweite** Hälfte eines Zeilen-Zustands nicht geprüft: `.track-item` in der
+  Queue und `.songlist-item` in der Liste sind zwei verschiedene Komponenten.
 - **Ob eine Animation LÄUFT, weiß nur `document.getAnimations()`.** Ein computed `animation-name`
   sagt bloß, dass eine laufen *dürfte* — die Chrome-Buttons in Nav und Sidebar tragen `btn-pop`
   dauerhaft und feuern trotzdem nur beim App-Start. Wer die Deklaration misst, hält jeden
