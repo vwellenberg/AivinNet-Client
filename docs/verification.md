@@ -39,7 +39,7 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 | Skript | wofür |
 |---|---|
 | `shot.js` | Screenshot: `TOKEN=… CLIP=x,y,w,h OUT=…png node shot.js` |
-| `shot2.js` | die flexible Variante: `ROUTE=/playlist/3 MOBILE=1 THEME=dark W=390 H=844 OUT=… node shot2.js` |
+| `shot2.js` | die flexible Variante: `ROUTE=/playlist/3 MOBILE=1 THEME=dark W=390 H=844 OUT=… node shot2.js`; kennt `BASE`, läuft also auch hinter dem Preview-Proxy |
 | `debug.js` | computed styles auslesen — für „warum greift mein CSS nicht" |
 | `rangeshot.js` + `rangemeasure.py` | Regler-Geometrie in **Pixeln**, Chromium und Firefox |
 | `wavecheck.js` | welches Element beim Klick eine `v-wave`-Welle wirft, mit Farbe und Dauer |
@@ -48,6 +48,7 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 | `popaudit.js` | derselbe Befund über alle Routen in **einer** SPA-Sitzung, plus Staffel-Soll/Ist je Header-Reihe; kennt `REDUCED=1` |
 | `popframes.js` | tastet die laufende Skalierung **aller** Buttons einer Reihe ab (0,82 → 1,05 → 1,00) und schneidet einen Filmstreifen |
 | `btnaudit.js`, `bordermeasure.js`, `audit-shadows.js`, `mobile-audit.js` | Computed-Style-Audits über Routen × Themes |
+| `topbar-audit.js` | eine **Reihe** als Ganzes: Box, Glyph, Rahmen, Schatten je Bauteil — plus Hover und Press als **laufende** Matrix (echtes `hover()` und `mouse.down()`, nicht die Deklaration) und die Pops beim Boot. `ROUTE=`, `MOBILE=1`, `BASE=` |
 | `tokencensus.js` | **Design-Token-Zensus**: gruppiert Rahmenbreite, Radius, Schriftgröße und Schatten-Versatz über 12 Routen × hell/dunkel — siehe unten |
 | `previewproxy.js` + `run*.sh` | Branch-`dist` über einen Proxy servieren und messen |
 | `queueseams.js`, `verify3.js` | E2E für Queue-Seams und Group-Sync |
@@ -109,6 +110,12 @@ ohne Tab ist dagegen ehrlich und zeigt „404! Page Not Found!".
   Effekt", der Code ist in Ordnung (real passiert: Ordner-Kopf bei y≈1044 in einem 900-px-
   Viewport). Vor jeder Zeiger-Interaktion `scrollIntoViewIfNeeded()`, danach mit
   `elementFromPoint` prüfen, dass die Mitte wirklich das Ziel trifft.
+- **⚠️ Wer eine Reihe der Reihe nach DRÜCKT, ändert dabei den Zustand.** Ein Messlauf, der jedes
+  Element hovert und presst, klickt in der Top-Bar irgendwann den **Theme-Toggle** — alles danach
+  Gemessene steht im anderen Theme. Der Befund sieht dabei nicht falsch aus, sondern nur
+  unerklärlich: der Avatar meldete `--mem-hover` als `#222226`, den Dark-Wert, während der Rest der
+  Leiste sauber hell gemessen war. Zustandsändernde Bedienelemente also zuletzt drücken, einzeln
+  messen oder den Zustand nach jedem Klick zurücksetzen.
 - **Preview-Proxy-Ports kollidieren.** Alte `previewproxy.js`-Prozesse liefern womöglich ein
   **veraltetes `dist`** aus; der neue Proxy stirbt still mit `EADDRINUSE`, und man diagnostiziert
   am falschen Build (real passiert: „Button fehlt" an master-CSS gemessen). Immer die Startzeile
