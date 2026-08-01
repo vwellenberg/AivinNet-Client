@@ -59,7 +59,10 @@ import { menus } from "./navitems";
     // The ring IS the padding — the texture is only visible where there is
     // room for it, so the horizontal padding cannot be 0 any more. The 44px row
     // height is kept: 24px glyph + 2x7px padding + 2x3px border.
-    padding: calc(0.625rem - #{$candy-border-w}) $small;
+    // 5px, not 7: the label's own cover adds 2x2px of its own (mem-hatch-clear),
+    // so 7 measured 48px against the library's 44 and the two lists were
+    // visibly out of step. 24px glyph + 4 + 2x5 + 2x3 border = 44px.
+    padding: 5px $small;
     font-size: $sidebar-row-font;
     // 700, one step above the library below. The navigation is a layer, not a
     // list of data — and next to 3px frames and this design's headings, 500
