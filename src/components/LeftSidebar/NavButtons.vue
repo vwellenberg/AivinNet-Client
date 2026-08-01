@@ -67,9 +67,13 @@ import { menus } from "./navitems";
     // The row IS a button and says so: fill, ink frame, offset shadow, hatch.
     @include mem-row-plate($sidebar-row-radius);
 
+    // Glyph and label sit on the smooth fill; everything to their right stays
+    // texture. Without this the label's box stretched to the end of the row and
+    // covered the space next to a short word like "Home".
     & > div {
       display: flex;
       align-items: center;
+      @include mem-hatch-clear;
     }
 
     // Every entry carries its own memphis fill (the class comes from
