@@ -34,7 +34,7 @@ optische Größe am Füllgrad der jeweiligen viewBox (daher kam „Lyrics-Icon z
 
 Seit #311 sind die Navigations- und Chrome-Glyphen (home, search, folder\*, bookmark\*, playlist\*,
 chart, settings, album, artist, delete, plus, queue, more, expand, arrow\*, volume-\*, pin\*,
-download, pencil, reload, devices, headphones, clock, a, square, check.filled) **ein** Satz:
+download, pencil, reload, devices, headphones, a, square, check.filled) **ein** Satz:
 
 - **24×24-Box, ~18 px optisches Glyph** (Ink von 3 bis 21), **2,4 px** Strich, runde Kappen und
   Ecken. 2 px war der erste Wurf und las sich neben den 3-px-Rahmen und der fetten Schrift dieses
@@ -112,10 +112,25 @@ App der Theme-Toggle.
 Neu gezeichnete Icons vor dem Commit **ansehen, nicht nur schreiben**: ein Kontaktbogen aus allen
 Glyphen, hell und dunkel, bei 24/36/64 px, headless gerendert. Genau daran fiel das Zahnrad auf.
 
-Noch im alten Stil (selten, einzeln, kein sichtbarer Stilbruch): `mic`, `paintbrush`, `tag`,
-`calendar`, `explicit`, `lastfm`, `sdcard`, `symlink`, `grid`, `radio`, `sparkles`, `timer`,
-`hifi`, `phone`, `image`, `info`, `eye*`, `logout`, `avatar`, `upload`, `lyrics*`, `add_to_queue`,
-`add-to-queue`, `play-next`, `previous`, `heart*`.
+Noch im alten Stil (selten, einzeln, kein sichtbarer Stilbruch): `mic`, `paintbrush`, `calendar`,
+`explicit`, `lastfm`, `symlink`, `grid`, `radio`, `sparkles`, `timer`, `phone`, `image`, `info`,
+`eye*`, `logout`, `avatar`, `lyrics`, `add_to_queue`, `add-to-queue`.
+
+⚠️ **Diese Liste zählte lange auch Dateien mit, die gar nicht mehr importiert wurden**
+(`tag`, `sdcard`, `hifi`, `upload`, `play-next`, `previous`, `heart*`, `lyrics2`, `clock` und
+neun weitere — 18 von 83). Eine Datei im Ordner ist kein Beleg dafür, dass sie benutzt wird:
+`vite-svg-loader` übersetzt SVGs in Vue-Komponenten, ungenutzte landen also **nicht** im Bundle
+und fallen bei nichts auf. Wer den Satz inventarisiert, zählt über die **Importe**, nicht über
+`ls`:
+
+```bash
+for f in src/assets/icons/*; do n=$(basename "$f"); \
+  grep -rqF "$n" src || echo "TOT: $n"; done
+```
+
+Der Grep allein reicht als Beweis nicht — er findet keine dynamischen Pfade. Gegenprobe ist der
+**Content-Hash**: löschen, `rm -rf dist && yarn build`, und die Dateinamen in `dist/assets`
+vergleichen. Bleiben sie gleich, war der Beitrag null (so belegt beim Aufräumen dieser 18).
 
 ## ⚠️ Der Inhalt läuft HINTER der Player-Bar — jeder Scroller reserviert sie
 
