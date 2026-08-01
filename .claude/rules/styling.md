@@ -155,6 +155,60 @@ Zeile noch etwas aufmalen will, braucht einen anderen Mechanismus: Die Drop-Mark
 deshalb ein **`inset box-shadow`** — sie lag vorher auf `::before` und hätte ausgerechnet auf der
 laufenden Zeile kollidiert.
 
+## ⚠️ Die Schraffierung bedeutet „das kann man drücken" (#378)
+
+`mem-hatch` in [_candy.scss](../../src/assets/scss/_candy.scss) malt die Terrazzo-Striche, und
+sie sind **keine Dekoration, sondern eine Aussage**: **jede drückbare Fläche trägt sie** — Buttons,
+die Platten der Sidebar-Zeilen, Karten. Was nur *aussieht* wie eine Platte (Überschriften-Sticker,
+die Etiketten des Sortier-Banners), bleibt **glatt**, und genau dieser Unterschied unterscheidet
+die beiden.
+
+Die frühere Lesart („primär/aktiv" — Play-CTA und eingeschaltete Toggles) ist damit abgelöst. Sie
+war vom Bildschirm aus nicht lernbar: Die Hierarchie steckt ohnehin in der **Füllung** (teal =
+Wiedergabe, gelb = an, blush = ausgewählt), die Textur konnte sie nur wiederholen.
+
+Zwei Bedingungen, beide tragend:
+
+1. **Es braucht eine Fläche.** `btn-quiet` ist im Ruhezustand transparent und bleibt deshalb blank;
+   die Textur darf mit seiner Hover-Platte kommen. Ein Offset-Schatten unter nichts ist ein
+   Schmierfleck — dasselbe Argument wie beim Schatten.
+2. **Die Strichfarbe antwortet auf die Füllung darunter.** `$on: surface` liest das
+   theme-abhängige `--mem-hatch` (Ink auf hellem, Paper auf dunklem Panel), `$on: accent` das
+   statische `--mem-hatch-accent` (immer Ink — blush, teal und gelb sind in beiden Themes
+   dieselbe Farbe). **Die Verwechslung ist im Light-Theme unsichtbar** und im Dark-Theme eine
+   leere Fläche; der Zensus in `rowHover.test.ts` prüft deshalb genau dieses Paar.
+
+**Gemalt wird als Hintergrund-Ebene, nicht als `::before`-Overlay.** Die Sidebar-Zeilen verbrauchen
+beide Pseudo-Elemente für ihre Drag-Marken, die laufende Track-Zeile für Textur und Marke (siehe
+oben) — ein Overlay wäre ausgerechnet mit den Zuständen kollidiert, die man beim CSS-Schreiben
+nicht offen hat. Deshalb steckt die Deckkraft als `stroke-opacity` **im Sprite**, nicht in einer
+CSS-Regel, und `background-color` darf nie über die `background`-Kurzform gesetzt werden (die
+wischt die Bild-Ebene weg).
+
+**Die Kachelgröße folgt der Fläche:** 28 px auf einem 44-px-Button, 38 px auf einer Zeile, die
+sechsmal so breit ist. Die Button-Kachel auf einer Zeile liest sich als Textildruck — gemessen an
+der 260×44-Zeile in der Mockup-Runde zu #378.
+
+## ⚠️ Die Sidebar-Zeile IST ein Button (#378)
+
+Navigation und Bibliothek tragen dieselbe **Platte**: `mem-row-plate` / `-hover` / `-active` in
+[_candy.scss](../../src/assets/scss/_candy.scss) — Panel-Fläche, Ink-Rahmen, 3-px-Offset,
+Schraffur. Vorher waren es flache Zeilen; das war unter sich stimmig, zerlegte die Sidebar aber in
+zwei Hälften, sobald die Navigation Platten bekam.
+
+- **Die Mixins nehmen, nie ausschreiben.** Dieselbe Behandlung von Hand zu wiederholen hat vier
+  Runden gebraucht, bis die Zeilen dieser Sidebar übereinstimmten (siehe „die letzte Stelle" in
+  CLAUDE.md). Der Zensus steht in `rowHover.test.ts`.
+- **Der Aktiv-Zustand tauscht Füllung UND Schraffur** (`mem-row-plate-active`): statisches Blush
+  verlangt den Akzent-Token. Beides steckt im selben Mixin, damit es nicht getrennt driftet.
+- **Ein Ordner ist EINE Platte**, Kopf und Inhalt in einem Kasten, getrennt durch eine Ink-Linie.
+  Kinder als eigene Platten machen aus einer Gruppe sechs gleichrangige Platten; flache Kinder
+  neben Platten bauen die Naht im Kleinen wieder auf. In einem Kasten dürfen sie flach sein,
+  **weil** sie auf einer Platte sitzen — der Ordner-Kopf hat deshalb bewusst *keine* eigene Platte.
+- **Platten brauchen Luft:** `gap: $small` statt `$smaller`, und der Container reserviert rechts
+  `padding-right: $small`, weil `overflow: hidden` sonst den Offset-Schatten bündig abschneidet.
+  Kosten gemessen: 986 → 1046 px über 19 Einträge (+6 %), komplett in den Abständen.
+
 ## ⚠️ Ein Icon nicht mit `opacity` dämpfen, wenn es kein Zustand ist
 
 Die Sidebar-Glyphen liefen unter `opacity: 0.75` — ein Rest aus der Zeit der gefüllten
