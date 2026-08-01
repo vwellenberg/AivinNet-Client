@@ -113,6 +113,35 @@ function rules(clean: string): Rule[] {
   return found;
 }
 
+/**
+ * A rule's own declarations, with every nested block removed.
+ *
+ * `rules()` hands back each body verbatim, nested rules included — which is
+ * correct for finding rules but wrong for asking "what does THIS selector
+ * declare". Without this, every ancestor inherits the text of everything below
+ * it, and a check for two strings appearing together fires on the outermost
+ * wrapper of the file.
+ */
+function ownDeclarations(body: string): string {
+  let depth = 0;
+  let own = "";
+
+  for (let i = 0; i < body.length; i++) {
+    const char = body[i];
+    if (char === "{") {
+      // The first brace opens this rule itself; deeper ones open nested rules.
+      depth++;
+      if (depth === 1) continue;
+    } else if (char === "}") {
+      depth--;
+      continue;
+    }
+    if (depth <= 1) own += char;
+  }
+
+  return own;
+}
+
 /** The rules that style `selector` itself — its bare form and its pseudo states. */
 function rulesFor(source: string, selector: string): Rule[] {
   return rules(styleSource(source)).filter(rule =>
@@ -253,8 +282,15 @@ describe("sidebar plate anatomy", () => {
         // `-active` and `-tint` both set a STATIC accent fill together with the
         // accent hatch. A surface hatch stated next to either one paints
         // ink-on-panel over that accent — invisible in light, blank in dark.
-        if (!/@include\s+mem-row-plate-(active|tint)/.test(rule.body)) continue;
-        if (/@include\s+mem-hatch(-ring)?\([^)]*surface/.test(rule.body)) {
+        //
+        // Checked against the rule's OWN declarations. `rules()` returns each
+        // body with its nested rules still inside, so scanning the raw body
+        // matched any ancestor that happened to contain both strings anywhere
+        // below it — `.sidebar-library` and `.sidebar-folder` were both
+        // reported that way, neither of which states either include itself.
+        const own = ownDeclarations(rule.body);
+        if (!/@include\s+mem-row-plate-(active|tint)/.test(own)) continue;
+        if (/@include\s+mem-hatch(-ring)?\([^)]*surface/.test(own)) {
           offenders.push(`${file}: ${rule.selectors.join(", ")}`);
         }
       }
