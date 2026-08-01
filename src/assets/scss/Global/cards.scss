@@ -28,7 +28,7 @@
 
 // The one list. Read by the anatomy below, by the row geometry further down and
 // by the census test — a second copy is how the drift above started.
-$card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard, .favoritescard";
+$card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard";
 
 #{$card-types} {
     display: grid;
