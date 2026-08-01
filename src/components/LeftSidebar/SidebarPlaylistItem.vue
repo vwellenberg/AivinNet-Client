@@ -1,6 +1,5 @@
 <template>
     <RouterLink
-        v-wave
         :to="{ name: Routes.playlist, params: { pid: pl.id } }"
         class="sidebar-playlist-item"
         :class="{ active: $route.params.pid == String(pl.id) }"
