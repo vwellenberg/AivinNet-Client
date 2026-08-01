@@ -304,6 +304,36 @@ Hover-Vertiefung + Press-in-den-Schatten.
 Prüfen statt hoffen: `~/uitest/audit-shadows.js` läuft alle Routen in Desktop **und** Phone ab
 und listet jeden transparenten Button, der noch einen Schatten wirft.
 
+### ⚠️ Ein Kasten, der genau so groß ist wie sein Inhalt, frisst den Schatten
+
+Der Schatten ist **Ink-Overflow**: er vergrößert weder die Box noch `scrollWidth`/`scrollHeight`.
+Ein Vorfahr mit `overflow` ungleich `visible`, dessen Inhalt bündig an seiner Kante endet,
+schneidet ihn deshalb ab — und zwar spurlos. Die Deklaration steht da, der Computed Style sagt
+`3px 3px`, gemalt wird nichts. Real passiert bei den Such-Chips (#399): die Grid-Zeile war auf
+`2rem` gepinnt, exakt die Chip-Höhe, und darin lag eine geerbte `position: absolute;
+overflow: hidden`-Box.
+
+Drei Dinge, die dabei jedes Mal schiefgehen:
+
+- **Der Clipper ist selten der, den man zuerst anfasst.** `.tabheaders` (der Scroller) auf
+  `overflow: visible` zu setzen änderte **nichts** — der äußere `#right-tabs` schnitt an derselben
+  Kante weiter. Wer den Beweis führt, öffnet *alle* Vorfahren bis zum ersten sichtbaren Kasten.
+- **Eine feste Zeilenhöhe ist die eigentliche Ursache**, nicht der `overflow`. `2rem` war die
+  Chip-Höhe des Tages; sobald das Bedienelement wächst, wächst es in einen Kasten, der nicht
+  folgen kann. Also `max-content` und den Versatz per `padding` reservieren (`$small` deckt die
+  4 px Hover-Tiefe plus die 1.04-Hover-Skalierung), so wie es die Sidebar-Zeilen tun.
+- **Ein `border-radius` auf einem Scroller ohne eigene Füllung ist nur eine Clip-Maske.** Solange
+  der Kasten exakt eine Pille hoch war, lag er deckungsgleich auf deren Radius und fiel nie auf;
+  mit reserviertem Platz schneidet er die erste und letzte Pille an der Ecke.
+
+**Geometrie beweist das nicht — Pixel schon.** `getBoundingClientRect()` kennt den Schatten nicht,
+und `scrollWidth` unterschlägt in Chrome das `padding-right` des Containers, meldet also selbst
+für korrekt reservierte Kästen einen Fehlbetrag. Der belastbare Test ist ein **A/B-Screenshot**:
+einmal wie gebaut, einmal mit den Clip-Vorfahren auf `overflow: visible`, dann die Bilder diffen.
+Identisch = nichts wird abgeschnitten. ⚠️ Dabei **nur die betroffenen Vorfahren** öffnen, nicht
+`*` — ein globales `overflow: visible` reflowt die Seite, und der Diff misst danach das Layout
+statt des Schattens.
+
 ## ⚠️ Breakpoints lesen die Breite — bis auf einen
 
 `content-width.ts` und die Mixins in `_mixins.scss` sind bis auf **eine** Ausnahme reine

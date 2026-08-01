@@ -89,12 +89,14 @@ function clearAll() {
     padding: 0 $small;
   }
 
-  // The pill role, so these chips carry the same frame and the same hard
-  // offset as the filter chips right above them. Hand-built, they had a 1px
-  // border (while the app is on $candy-border-w) and no shadow at all — the
-  // one row of chips on the page that sat flat.
+  // The pill role, so these chips carry the same frame, the same hard offset
+  // AND the same footprint as the filter chips right above them. Hand-built,
+  // they had a 1px border (while the app is on $candy-border-w) and no shadow
+  // at all — the one row of chips on the page that sat flat. The `$h: 2.25rem`
+  // that followed made the comment above half true: same frame, 4px shorter,
+  // and both rows are on screen together in the empty state.
   .recent-chip {
-    @include btn-pill($h: 2.25rem, $radius: $candy-radius-pill, $fill: $candy-pink-soft);
+    @include btn-pill($radius: $candy-radius-pill, $fill: $candy-pink-soft);
     // The soft fill is theme-aware (dark in the dark theme), so the label has
     // to be too — the role's static ink is only legal on a static accent.
     color: $candy-text;
@@ -103,6 +105,8 @@ function clearAll() {
     padding: 0 0.5rem 0 0.85rem;
     gap: $smaller;
     max-width: 16rem;
+    // Lighter than the role, and that is the one difference worth keeping:
+    // a filter chip is a label, this one carries back a phrase the user typed.
     font-weight: 500;
 
     // Blush, not the role's default yellow: yellow means "active" in this
