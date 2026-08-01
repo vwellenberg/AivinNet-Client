@@ -80,14 +80,13 @@
 // the body it orbits, so it disappeared behind the planet and left two dashes
 // sticking out at the sides. A path has to be bigger than what it goes around,
 // and vertically there is no room for that: the planet is $bar-control (44px)
-// in a 72px bar, 60px when the bar is short (a flat desktop window; landscape
-// phones hide the logo altogether). On top of that, a moon on an ellipse needs
-// `offset-path` to follow the ring, and Chromium and Firefox placed it in
-// visibly different spots. A circle is rotationally symmetric, so the moon on
-// the rotating layer below sits exactly on the ring in every engine, for free.
+// in a 72px bar. On top of that, a moon on an ellipse needs `offset-path` to
+// follow the ring, and Chromium and Firefox placed it in visibly different
+// spots. A circle is rotationally symmetric, so the moon on the rotating layer
+// below sits exactly on the ring in every engine, for free.
 //
-// What is left of that round: the radius. At -7px the ring reached to ~1px of
-// the short bar's edge; -5px keeps the same shape with air around it.
+// What is left of that round: the radius. Measured against the bar's top edge,
+// -7px left 5.5px of air and read as crowded; -5px leaves 7.5px.
 .logo-orbit {
   position: absolute;
   inset: -5px;
