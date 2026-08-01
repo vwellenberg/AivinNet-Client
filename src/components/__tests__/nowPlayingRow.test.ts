@@ -43,9 +43,16 @@ function styleSource(source: string): string {
     .replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
-/** The body of the rule/mixin whose head matches `head`, braces balanced. */
+/**
+ * The body of the rule/mixin whose head matches `head`, braces balanced.
+ *
+ * The optional `(…)` is not decoration: a mixin declares its parameters between
+ * the name and the brace (`@mixin mem-now-playing-row($radius: …) {`), and
+ * without it this returned null for every mixin that takes one — which reads
+ * exactly like "the mixin is missing".
+ */
 function blockFor(source: string, head: string): string | null {
-  const opener = new RegExp(`${head.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\{`);
+  const opener = new RegExp(`${head.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*(\\([^)]*\\))?\\s*\\{`);
   const match = opener.exec(source);
   if (!match) return null;
 
@@ -72,6 +79,13 @@ describe("now-playing row", () => {
     // The parser has to be able to MISS, too — otherwise every check below
     // passes on an empty string.
     expect(blockFor(styleSource(SOURCES[ROWS[0].file]), ".songlist-item-does-not-exist")).toBeNull();
+
+    // And it has to survive a mixin's parameter list, which is what the first
+    // version of this file got wrong: `@mixin candy-box($bg: …, $radius: …)`
+    // came back null, indistinguishable from "the mixin is gone".
+    const candy = readFileSync(CANDY_FILE, "utf-8");
+    expect(candy.length).toBeGreaterThan(1000);
+    expect(blockFor(candy, "@mixin candy-box"), "parser trips over mixin parameters").toBeTruthy();
   });
 
   it.each(ROWS)("$selector takes the shared mixin instead of its own fill", ({ file, selector }) => {
