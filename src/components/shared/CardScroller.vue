@@ -45,7 +45,6 @@ import SeeAll from '../shared/SeeAll.vue'
 import AlbumCard from './AlbumCard.vue'
 import ArtistCard from './ArtistCard.vue'
 import CardContent from './CardContent.vue'
-import FavoritesCard from './FavoritesCard.vue'
 import FolderCard from './FolderCard.vue'
 import TrackCard from './TrackCard.vue'
 
@@ -96,8 +95,6 @@ function getComponent(type: string) {
             return FolderCard
         case 'playlist':
             return PlaylistCard
-        case 'favorite':
-            return FavoritesCard
     }
 }
 
@@ -130,10 +127,6 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
         case 'playlist':
             return {
                 playlist: item.item,
-            }
-        case 'favorite':
-            return {
-                item: item.item,
             }
     }
 }

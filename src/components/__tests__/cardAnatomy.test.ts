@@ -143,13 +143,18 @@ describe("card row anatomy", () => {
   it("finds the card components CardScroller can render", () => {
     // A guard on the parsing above: if the switch is rewritten in a shape this
     // test cannot read, the checks below would pass vacuously.
-    expect(cards.size).toBeGreaterThanOrEqual(6);
+    //
+    // Five since the favourites tile went (#402): it was in this switch but no
+    // caller ever produced a `favorite` item, so it rendered nowhere — counted
+    // here, unseen on screen. The floor is a parser guard, not a target; it
+    // moves with a deliberate removal and stays put for an accidental one.
+    expect(cards.size).toBeGreaterThanOrEqual(5);
   });
 
   it("reads the anatomy selector list", () => {
     // The other guard. An unreadable or renamed stylesheet must fail loudly
     // rather than let every card through against an empty set.
-    expect(listed.size).toBeGreaterThanOrEqual(6);
+    expect(listed.size).toBeGreaterThanOrEqual(5);
     expect(listed).toContain("album-card");
   });
 
