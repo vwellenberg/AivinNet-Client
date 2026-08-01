@@ -194,12 +194,28 @@ passende Datei gelesen wird:
 ```bash
 # Server 192.168.0.4. Lokaler Ordner heisst noch SubspaceRadio-Client,
 # auf Server + GitHub aber AivinNet-Client; systemd-Service heisst aivinnet.
-ssh -i /c/Users/vwell/.ssh/id_ed25519 vwellenberg@192.168.0.4 \
-  "cd ~/AivinNet-Client && NODE_OPTIONS='--dns-result-order=ipv4first' git pull -q && \
-   NODE_OPTIONS='--dns-result-order=ipv4first' yarn build 2>&1 | tail -2 && \
-   rm -rf ~/.config/swingmusic/client && cp -r dist ~/.config/swingmusic/client && \
-   sudo -n systemctl restart aivinnet && echo deployed"
+ssh -i /c/Users/vwell/.ssh/id_ed25519 vwellenberg@192.168.0.4 "bash ~/deploy-client.sh"
 ```
+
+⚠️ **Es gibt ZWEI Skripte mit diesem Namen, und nur eines holt den neuen Code.**
+`~/deploy-client.sh` ist der Wrapper: `git checkout master` + `git pull --ff-only`, dann
+`exec bash scripts/deploy-client.sh`. Die versionierte Datei
+[scripts/deploy-client.sh](scripts/deploy-client.sh) **pullt nicht** — sie baut den Checkout, wie
+er gerade dasteht, und meldet trotzdem `DEPLOYED`. Wer sie direkt aufruft, baut den alten Stand
+neu und bekommt eine Erfolgsmeldung dafür (zweimal in einer Sitzung passiert; die Beschriftungen
+aus #359 lagen danach weiter im alten Wortlaut im Bundle).
+
+**Deshalb gehört zum Deploy immer die Gegenprobe an den ausgelieferten Bytes** — nicht an der
+Meldung:
+
+```bash
+cd ~/AivinNet-Client && git log --oneline -1          # enthält der Checkout den Commit?
+grep -oh "<neuer Text>" ~/.config/swingmusic/client/assets/*.js | sort -u
+```
+
+**Zweite Falle:** direkt nach einem Merge kann der Pull den Stand **davor** ziehen — GitHub
+braucht einen Moment, bis der neue `master` überall sichtbar ist. Auch das fällt nur über die
+Gegenprobe oben auf; dann einfach nochmal deployen.
 
 **Wichtig:** Server hat IPv6-Problem — git/yarn brauchen `NODE_OPTIONS='--dns-result-order=ipv4first'`. Nach jedem sichtbaren Deploy `package.json` version bumpen (wird unten in der Sidebar angezeigt).
 
