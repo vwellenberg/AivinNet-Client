@@ -1,7 +1,7 @@
 <template>
     <button
         class="heart-button"
-        :class="{ 'is-fav': state, 'role-action': btn_role === 'action' }"
+        :class="{ 'is-fav': state, 'role-bar': btn_role === 'bar', 'role-action': btn_role === 'action' }"
         @click="!no_emit && $emit('handleFav')"
     >
         <!-- A plain div, deliberately: this used to be a <Motion> fading the
@@ -31,20 +31,30 @@ withDefaults(
         // typecheck with "boolean is not assignable to (props) => Boolean".
         no_emit?: boolean
         // Which button role this toggle wears (see Global/_buttons.scss).
-        // `quiet` is the bare in-context glyph — the player bar, track rows,
-        // the Now Playing panel. `action` is the plate-and-frame control the
-        // detail headers put in their action row.
+        // One value per FOOTPRINT it has to fit into, because that is what the
+        // call sites were overriding it for:
+        //
+        //   compact  in-row affordance — track rows, the queue. $control-compact
+        //   bar      chrome — the player bar, where it stands beside transport
+        //            controls at $bar-control
+        //   action   the plate-and-frame control of the four detail headers
+        //
+        // It used to be `quiet | action`, and `quiet` was the default — but no
+        // call site rendered it: the track row wiped it with `all: unset`, the
+        // player bar squared it with four `!important`, and the mobile bar
+        // excluded it from its own sizing rule by name. A role that every
+        // caller has to correct is not a role.
         //
         // Named `btn_role` rather than `role` on purpose: `role` is the ARIA
         // attribute, and a prop of that name would shadow it for anyone
         // reading the template.
-        btn_role?: 'quiet' | 'action'
+        btn_role?: 'compact' | 'bar' | 'action'
     }>(),
     // `no_emit` was implicitly undefined before this component had a
     // `withDefaults` wrapper at all; stated now because the wrapper is what
     // makes a missing default a lint finding, and `undefined` and `false` mean
     // the same thing to the click handler either way.
-    { btn_role: 'quiet', no_emit: false }
+    { btn_role: 'compact', no_emit: false }
 )
 
 defineEmits<{
@@ -65,13 +75,20 @@ defineEmits<{
 // rule, so which of the two won was decided by bundle order rather than by
 // anyone's intention.
 //
-// Both dimensions are stated now, through the role: 3.375rem x 2.25rem is the
-// same 54x36 box the ratio produced, and the radius is the pill token that
-// `.circular` was handing it (as 10rem back then — the utility reads the token
-// itself since #354, and a copy of its old value here would have quietly
-// become the app's last 160px corner). Same pixels, one owner, no ordering luck.
+// Stating them through the role fixed the ordering luck — but it stated the
+// WRONG box, and nothing said so, because every call site was already busy
+// correcting it: 54x36 with a 1.75rem glyph is a header-sized control, and the
+// three places that take the bare variant are a track row, a queue row and a
+// player bar. Measured, the component's declared box rendered in exactly zero
+// of them.
+//
+// So the bare variant is the compact scale now — square, `$control-compact`,
+// the same footprint the ⋯ button beside it in a track row has had all along
+// (2rem, it was just never named). Square also retires the pill radius: a pill
+// on a 54-wide box was a shape, on a 32px square it would be a circle, and this
+// design rounds its controls at `$candy-radius-sm`.
 .heart-button {
-    @include btn-quiet($size: 2.25rem, $width: 3.375rem, $radius: $candy-radius-pill, $glyph: 1.75rem);
+    @include btn-quiet($size: $control-compact, $glyph: $control-compact-glyph);
 
     div {
         height: max-content;
@@ -106,6 +123,17 @@ defineEmits<{
     &.is-fav {
         color: $mem-teal;
     }
+}
+
+// The chrome variant. In the player bar this toggle stands beside the transport
+// controls, which read `$bar-control` from one owner precisely so the two halves
+// of that bar cannot drift apart — and it was the one control in the row that
+// did not. It was corrected from the outside instead, twice over: four
+// `!important` squaring the box to 1.6rem in `BottomBar/Left.vue`, and a
+// `:not(.heart-button)` carve-out in `BottomBar/Right.vue` excluding it from the
+// row's own sizing rule by name. Both of those are this rule now.
+.heart-button.role-bar {
+    @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
 }
 
 // The header variant. Four detail headers stand this toggle in a row of

@@ -58,6 +58,32 @@ $bar-glyph: 1.5rem;
 $bar-glyph-play: 1.75rem;
 
 // ---------------------------------------------------------------------------
+// THE COMPACT SCALE — the app's SECOND footprint, which until now had no name.
+//
+// A census of every square icon button in the running app (12 routes, desktop
+// and phone: 1164 of them) found six sizes — 22, 26, 28, 32, 44, 52 px — and
+// only two of them owned by anything. The revealing number is 32: with 780
+// occurrences it is the MOST common icon button in the app, and it belonged to
+// no token at all. That is the same shape as the 8px radius in #354: not a
+// mistake, a decision nobody wrote down.
+//
+// It is a real second scale, not drift. A 44px control does not fit a 43px
+// sidebar row or a 32px thumbnail overlay, and the row-level affordances in a
+// track row are secondary to the row itself. What IS drift is that the same
+// zone also held 22, 26 and 28 — each of them a compensation for a size
+// somewhere else.
+//
+// So: chrome (top bar, player bar, header actions) reads `$bar-control`;
+// in-row and on-artwork affordances read this. Nothing reads a literal.
+//
+// The glyph is 1rem because that is what the compact zone already draws at —
+// the sidebar's row glyphs and its play overlay are both 16px. One zone, one
+// glyph size, the same argument the 24px chrome grid makes one level up.
+// ---------------------------------------------------------------------------
+$control-compact: 2rem;
+$control-compact-glyph: 1rem;
+
+// ---------------------------------------------------------------------------
 // The keyboard focus ring. `Global/basic.scss` gives it to every <button>; this
 // mixin exists because a control that WEARS a button role is not always a
 // <button> element — the top bar's home button is a RouterLink, so it fell

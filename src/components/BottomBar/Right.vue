@@ -23,6 +23,7 @@
             </button>
             <HeartSvg
                 v-if="!hideHeart"
+                btn_role="bar"
                 title="Favorite"
                 :state="queue.currenttrack?.is_favorite"
                 @handleFav="() => $emit('handleFav')"
@@ -84,6 +85,13 @@ defineEmits<{
     // HeartSvg (it takes its own role, plus a teal favourited state) and the joined
     // devices button (white glyph on a green box, owned by DevicesButton.vue).
     // Spelled out rather than left to specificity luck.
+    //
+    // ⚠️ The heart's exclusion used to be a hole in this rule rather than a
+    // delegation: its role rendered a header-sized 54x36 box, so the one
+    // control carved out of the row's sizing rule was the one that then did not
+    // match the row. It takes `btn_role="bar"` at the call site now, which
+    // reads the SAME `$bar-control` this rule does — the carve-out is about
+    // colour and state, not about size.
     > button:not(.heart-button):not(.ds-joined) {
         @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
         // The control glyphs are currentColor (filled bodies, stroked details)

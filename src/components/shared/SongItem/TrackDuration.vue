@@ -11,9 +11,16 @@
         <div class="song-duration help-text" v-if="help_text">
             {{ help_text }}
         </div>
-        <div class="options-icon circular" @click.stop="$emit('showMenu', $event)" @dblclick.stop="() => {}">
+        <button
+            class="options-icon"
+            type="button"
+            title="More options"
+            aria-label="More options"
+            @click.stop="$emit('showMenu', $event)"
+            @dblclick.stop="() => {}"
+        >
             <OptionSvg />
-        </div>
+        </button>
     </div>
 </template>
 
@@ -46,12 +53,6 @@ defineEmits<{
     margin-right: $small;
     position: relative;
 
-    @include mediumPhones {
-        > .heart-icon.is-favorited {
-            display: none;
-        }
-    }
-
     .heart-icon {
         // Reserve the slot (visibility, not display) so the duration keeps the
         // same x-position regardless of favourite/hover state — stops the
@@ -59,14 +60,16 @@ defineEmits<{
         // (margin-right dropped: the flex `gap: 1rem` already spaces it; the
         // extra $small made the heart->duration gap wider than the others.)
         visibility: hidden;
-        width: 28px;
-        height: 28px;
         user-select: none;
         opacity: 0.6;
-        transition: opacity 0.15s ease-out;
-        transform: scale(0.8);
+        transition: opacity $motion-tint $motion-curve;
         cursor: pointer;
 
+        // No size and no `transform: scale()` here, and no `all: unset` on the
+        // button below. The three went together: unsetting the role left the
+        // button at content size, the 28px wrapper and the 0.8 scale put a
+        // number back on it, and the result measured 22,4px — in a 72px row,
+        // beside a 32px ⋯ button. The toggle sizes itself from its role now.
         &:hover {
             opacity: 1;
         }
@@ -77,10 +80,6 @@ defineEmits<{
 
         @include mediumPhones {
             display: none;
-        }
-
-        > .heart-button {
-            all: unset !important;
         }
     }
 
@@ -125,15 +124,13 @@ defineEmits<{
         }
     }
 
+    // A <button>, not a <div> with @click: it opens the row's context menu, so
+    // it has to be reachable by keyboard and announce a name. Its 2rem box was
+    // right all along — it is simply `$control-compact` now, from the token
+    // rather than by coincidence, which is also what makes the favourite beside
+    // it the same size instead of 10px smaller.
     .options-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        aspect-ratio: 1;
-        width: 2rem;
-        cursor: pointer;
-        transition: background-color 0.2s ease-out;
+        @include btn-quiet($size: $control-compact, $glyph: $control-compact-glyph);
 
         svg {
             // Always-visible options glyph on the page ground -> theme-aware
@@ -141,14 +138,13 @@ defineEmits<{
             // re-pin ink-muted in SongItem.vue.
             stroke: $mem-content-muted;
         }
-
-        &:hover {
-            background-color: $gray3;
-        }
     }
 }
 
-.songlist-item:hover > .options-and-duration > .heart-icon.is-favorited {
-    opacity: 0;
-}
+// Removed with this change: two rules keyed on `.heart-icon.is-favorited`, a
+// class the template never sets (it binds `is_fav`). Both were dead — one hid
+// the favourited heart on medium phones, where `.heart-icon` is already
+// `display: none`, the other faded it out on row hover, which contradicts the
+// reserved-slot comment above. Restoring the intent is a decision, not a
+// rename, so they are gone rather than quietly switched on.
 </style>
