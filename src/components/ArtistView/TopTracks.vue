@@ -43,11 +43,13 @@ defineProps<{
 .artist-top-tracks {
     padding-top: 1rem;
 
+    // A section caption on the memphis ground — sticker, like the row captions
+    // on home and the page titles.
     .section-title {
+        @include mem-sticker;
         margin-left: 0;
-        align-items: baseline;
-        // Section heading over the page ground -> theme-aware.
-        color: $mem-content-text;
+        font-size: 1.15rem;
+        font-weight: 700;
     }
 
     .section-title.isSmall {
