@@ -50,14 +50,21 @@ describe("favourite state colour", () => {
       expect(body, `no \`.heart-button.${role}\` block found`).not.toBe("");
 
       // A role that brings no `btn-*` mixin cannot overwrite `color`, so it
-      // needs nothing. One that does must hand the state its colour back.
+      // needs nothing. One that does must SAY what the state looks like.
       if (!/@include\s+btn-/.test(body)) return;
 
+      // Deliberately not "must be teal". The bar states `$mem-content-text`,
+      // because there the fill of the glyph carries the state and teal is
+      // reserved for the play button — that is a decision, and it belongs in
+      // the file, not in this test. What must not happen is a role that says
+      // nothing and lets the cascade decide: intent and accident look the same
+      // on screen, which is how the bar lost its teal for a release (#396).
       expect(
-        /&\.is-fav[\s\S]{0,200}?\$mem-teal/.test(body),
-        `\`.heart-button.${role}\` includes a btn-* mixin (which sets \`color\`) but never ` +
-          "re-asserts `$mem-teal` for `&.is-fav` — the favourited marker will render in the " +
-          "role's ink instead of teal."
+        /&\.is-fav[\s\S]{0,240}?color\s*:/.test(body),
+        `\`.heart-button.${role}\` includes a btn-* mixin (which sets \`color\` at the same ` +
+          "specificity as `.heart-button.is-fav`, later in the file) but never states a colour " +
+          "for `&.is-fav`. Say what the favourited state looks like in this role — teal, the " +
+          "role's own tone, whatever it is — so the next reader can tell intent from accident."
       ).toBe(true);
     }
   );

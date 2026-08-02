@@ -97,7 +97,7 @@ defineEmits<{
     // reads the SAME `$bar-control` this rule does — the carve-out is about
     // colour and state, not about size.
     > button:not(.heart-button):not(.ds-joined) {
-        @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
+        @include btn-action($size: $bar-control);
         // The control glyphs are currentColor (filled bodies, stroked details)
         // — colour them through `color`, never `fill`, or the stroked ones
         // (shuffle, repeat, lyrics) get flooded solid.
@@ -130,7 +130,7 @@ defineEmits<{
 
     // Active shuffle / repeat wear the yellow memphis box, mirroring the
     // desktop transport (LeftSidebar/NP/HotKeys.vue). The footprint is already
-    // reserved by the quiet role above, so switching on changes colour only —
+    // reserved by the plated role above, so switching on changes colour only —
     // it used to also resize the button from 3rem to 2.5rem, which shoved its
     // neighbours on every toggle.
     button.aux:not(.aux-off) {

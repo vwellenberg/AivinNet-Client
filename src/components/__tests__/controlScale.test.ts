@@ -83,8 +83,12 @@ describe("control scale", () => {
     expect(css, "the bare variant no longer states the compact token").toMatch(
       /@include btn-quiet\(\$size: \$control-compact/
     );
+    // The FOOTPRINT is what this file guards, not which role supplies it: the
+    // bar variant moved from `btn-quiet` to `btn-action` when the bar's buttons
+    // got their plate, and it kept the same 44px box throughout. Pinning the
+    // mixin name here made a look change fail a size test.
     expect(css, "the bar variant no longer states $bar-control").toMatch(
-      /\.heart-button\.role-bar[\s\S]{0,200}@include btn-quiet\(\$size: \$bar-control/
+      /\.heart-button\.role-bar[\s\S]{0,200}@include btn-(?:quiet|action)\(\$size: \$bar-control/
     );
     expect(css, "the header variant no longer takes btn-action").toMatch(
       /\.heart-button\.role-action[\s\S]{0,200}@include btn-action/
