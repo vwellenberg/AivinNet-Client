@@ -15,14 +15,12 @@
             :playing="queue.playing"
             decorative
         />
-        <HeartSvg
-            v-if="settings.use_np_img && !isMobile"
-            btn_role="bar"
-            :state="queue.currenttrack?.is_favorite"
-            @handleFav="$emit('handleFav')"
-        />
+        <!-- The cover is unconditional now. It used to swap for a SECOND heart
+             whenever the left sidebar carried its own large artwork — a trade
+             that stopped making sense twice over: the sidebar art is gone, and
+             the row already ends in a heart a few elements down, so switching
+             it on put two of them in the same bar. -->
         <RouterLink
-            v-else
             title="Go to Now Playing"
             :to="{
                 name: Routes.nowPlaying,
