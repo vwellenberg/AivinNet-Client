@@ -114,18 +114,17 @@ const scrollerItems = computed(() => {
     const afterHeader: ScrollerItem = {
         id: 'afterHeader',
         component: AfterHeader,
-        // ⚠️ `size` has to include the caption's own `margin-top`. RecycleScroller
-        // lays items out ABSOLUTELY from these numbers and never measures the
-        // element, so a margin it doesn't know about pushes the caption down over
-        // the row below it — the scroller keeps placing that row at
-        // `previous + size`. Measured on the playlist page: the bar's bottom sat
-        // 12px past the first row's top (and 8px on the plain caption, which had
-        // the same mismatch all along — invisible only because bare text has no
-        // edge to notice).
+        // This is a DynamicScroller: it MEASURES each item, so `size` is only
+        // the estimate used before the first measurement (and a
+        // `size-dependencies` trigger). It does not have to be exact — but it
+        // does have to include the gap above the caption, which is why that gap
+        // is PADDING inside AfterHeader rather than a margin. A margin sits
+        // outside `getBoundingClientRect().height`, so the scroller would stack
+        // the first track row 12px too high and the bar would cover its top
+        // edge. Measured before the fix; see the note in AfterHeader.vue.
         //
-        // Both numbers are AfterHeader's, in the same order it declares them:
-        //   cap   2.4rem tall + $medium (0.75rem) top margin
-        //   plain 4rem   tall + $small  (0.5rem)  top margin
+        //   cap   2.4rem bar + $medium (0.75rem) padding
+        //   plain 4rem   bar + $small  (0.5rem)  padding
         size: captionCapsList ? 3.15 * 16 : 4.5 * 16,
         props: {
             show_date_added: supportsDateAdded.value,
