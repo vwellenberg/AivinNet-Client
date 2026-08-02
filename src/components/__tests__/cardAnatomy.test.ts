@@ -175,6 +175,24 @@ describe("card row anatomy", () => {
     expect(rootClasses(SOURCES[file])).not.toContain("rounded");
   });
 
+  // `.no-scroll` is `overflow: hidden`, and on a TILE root it eats the offset
+  // shadows of the three plates inside it — silently: the declaration stays,
+  // the computed style still reads `3px 3px`, nothing is painted (see the rule
+  // in .claude/rules/styling.md). Since #382 the tile carries no surface of its
+  // own, so it has nothing left to clip.
+  //
+  // It belongs on the ARTWORK, which really does need to cut a collage to its
+  // rounded corners — four of the five cards put it exactly there. The playlist
+  // tile had it in both places, and was the one card whose plate shadow was
+  // visibly cut off on the right and bottom.
+  it.each([...cards])("%s does not clip its own parts with .no-scroll", (_name, file) => {
+    expect(
+      rootClasses(SOURCES[file]),
+      `${file} has .no-scroll on the tile root. overflow:hidden there clips the offset shadows of ` +
+        `.card-art and .card-plate — put it on the artwork instead, which is what needs the clip.`
+    ).not.toContain("no-scroll");
+  });
+
   // ---------------------------------------------------------------------
   // The three parts of a tile. A card that keeps its picture or its text
   // outside `.card-art` / `.card-plate` still renders — it just renders
