@@ -60,9 +60,9 @@ const settings = useSettings()
 // sized itself. The sizes are read, not restated: "uniform" is only true if
 // there is one place to change.
 //
-// The roles carry the rest — shuffle/repeat and prev/next are `quiet` (bare
-// glyph, plate on hover), play/pause is `primary` (the teal box), and an
-// active shuffle/repeat is the yellow toggle box.
+// The roles carry the rest — shuffle/repeat and prev/next are `action` (panel
+// plate, ink frame, offset shadow, hatch), play/pause is `primary` (the teal
+// box), and an active shuffle/repeat is the yellow toggle box.
 .hotkeys {
     display: flex;
     align-items: center;
@@ -73,10 +73,14 @@ const settings = useSettings()
     gap: $bar-gap;
     height: 100%;
 
-    // prev / next / shuffle / repeat — bare glyphs on the bar.
+    // prev / next / shuffle / repeat — plated, like every other pressable
+    // surface in this design (styling.md: the hatch means "you can press
+    // this", and it needs a fill to sit on). They were bare glyphs while the
+    // play button was the only control in the bar with a plate; that made the
+    // bar the one place where "pressable" was not readable at rest.
     .skip,
     .aux {
-        @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
+        @include btn-action($size: $bar-control);
         // The transport glyphs are currentColor (filled play/pause/skip,
         // stroked shuffle/repeat) — drive them from `color` so they read on
         // the panel bar in BOTH themes (ink on light, paper on dark). Never

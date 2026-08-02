@@ -160,20 +160,36 @@ defineEmits<{
 // `:not(.heart-button)` carve-out in `BottomBar/Right.vue` excluding it from the
 // row's own sizing rule by name. Both of those are this rule now.
 .heart-button.role-bar {
-    @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
+    @include btn-action($size: $bar-control);
 
-    // Same correction role-action carries, and for the same reason: the mixin
-    // sets `color`, this block sits LATER in the file than `.heart-button.is-fav`
-    // and matches at the same specificity (0,2,0) — so the role's ink won the
-    // cascade and the favourited marker in the player bar lost its teal.
+    // In the bar the state is the FILL OF THE GLYPH, not a colour — hollow
+    // heart means not saved, solid heart means saved, and that is the whole
+    // signal. Teal is reserved for playback here: on this bar the play button
+    // is meant to be the only coloured thing, so a teal marker two controls
+    // away competes with it for the same glance.
     //
-    // Measured on the deployed app: `fill` came back rgb(23,23,26) where the
-    // same marker measures rgb(47,191,163) in a track row. It went unnoticed
-    // because the glyph it replaced was a disc with a fixed ink edge and an ink
-    // tick — ink on ink simply looked like a dark blob, not like a wrong colour.
-    &.is-fav,
+    // Stated rather than left to the role, and that is load-bearing: every
+    // `btn-*` mixin sets `color`, matches `.heart-button.is-fav` at the same
+    // specificity (0,2,0) and sits later in the file. Without this block the
+    // marker would take whatever the role happens to hand it, and nobody could
+    // tell the intent from the accident — which is exactly how the bar lost its
+    // teal unnoticed for a release (#396). `favouriteState.test.ts` therefore
+    // asks every role to state its state colour, not to state a particular one.
+    // Both halves spelled out, because `btn-action` colours its glyph twice:
+    // the panel-safe tone at rest, static ink on the blush hover fill.
+    &.is-fav {
+        color: $mem-content-text;
+    }
+
     &.is-fav:hover {
-        color: $mem-teal;
+        color: $mem-ink;
+    }
+
+    // No drop-shadow on the glyph here. It exists so the marker reads as a
+    // plate stuck onto a ROW; on a button that already carries the design's
+    // offset shadow it would be a second shadow inside the first.
+    &.is-fav svg {
+        filter: none;
     }
 }
 

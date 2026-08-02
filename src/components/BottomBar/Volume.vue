@@ -63,11 +63,11 @@ const handleMouseWheel = (event: WheelEvent) => {
     // half, not a third neighbour. Same reasoning the token carries.
     gap: $bar-gap-tight;
 
-    // Mute: the same quiet role and the same footprint as every other bar
+    // Mute: the same plated role and the same footprint as every other bar
     // control. It used to be the odd one out at 2.25rem — the smallest button
     // in a bar whose next-smallest was 3rem.
     .speaker-icon {
-        @include btn-quiet($size: $bar-control, $glyph: $bar-glyph);
+        @include btn-action($size: $bar-control);
         // The speaker glyph is currentColor; drive it from the adaptive text
         // colour so it reads on the bar in both themes.
         color: $candy-text;
