@@ -150,7 +150,10 @@ defineEmits<{
 <style lang="scss">
 .left-group {
     display: flex;
-    gap: $medium;
+    // The bar's spacing token, like the transport row and the right group. It
+    // stood at $medium (12px) here, which is the third of the three values the
+    // bar carried.
+    gap: $bar-gap;
 
     // Sized off the bar's own glyph token rather than a fresh number, and
     // pinned so the flexible track title cannot squeeze it.
