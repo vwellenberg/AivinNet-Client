@@ -130,6 +130,32 @@ describe("control scale", () => {
     ).toBe(false);
   });
 
+  // ⚠️ The list above is the weak spot, and it proved it within the hour: #407
+  // added a `.folder-icon-slot` at `width: 1.75rem` — a NEW selector, so no
+  // entry in DENSE_CONTROLS covered it, and its comment even pointed at another
+  // literal's history ("1.75rem since #388") instead of at the token.
+  //
+  // A tier value written as a literal is always a missed token, whatever the
+  // selector is called. So this rule is keyed on the VALUE, not on a list: in
+  // the sidebar, 1.75rem / 2rem / 2.75rem as a width or height is a finding.
+  // Other numbers are untouched — 3rem covers, 12px spacers and every `%` stay
+  // exactly as free as they were.
+  it("the sidebar writes no tier value as a literal", () => {
+    const css = styleBlock(SOURCES[SIDEBAR]);
+    expect(css.length, "the sidebar stylesheet is unreadable").toBeGreaterThan(1000);
+
+    const offenders = [...css.matchAll(/(?:^|[\s;{])(width|height)\s*:\s*(1\.75rem|2rem|2\.75rem)\s*;/g)].map(
+      m => `${m[1]}: ${m[2]}`
+    );
+
+    expect(
+      offenders,
+      `LeftSidebar/index.vue writes ${offenders.join(", ")} as a literal. Those are tier values: ` +
+        `1.75rem = $control-dense, 2rem = $control-compact, 2.75rem = $bar-control. Naming them is ` +
+        `the whole point — a literal here is a token that will drift again.`
+    ).toEqual([]);
+  });
+
   // Both used to be `<div>` with `@click`: not reachable by keyboard, no name,
   // no focus ring (the app's ring is on the `button` selector).
   it.each([
