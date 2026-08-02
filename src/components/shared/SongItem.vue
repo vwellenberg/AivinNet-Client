@@ -269,8 +269,8 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     }
 
     &:hover {
-        // The app-wide row hover (see candy-row-hover): static-light fill so the
-        // pinned ink text below stays readable in dark, inside the ink frame.
+        // The app-wide row hover (see candy-row-hover): soft blush inside the
+        // ink frame, static so the pinned ink text below stays readable in dark.
         @include candy-row-hover;
 
         .song-duration.has_help_text {
@@ -306,13 +306,17 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 }
 
 .songlist-item.contexton {
-    // Same frame as hover, but with the soft-blush fill that marks "this row owns
-    // the open context menu". Static light so the pinned ink text reads in dark.
-    @include candy-row-hover($mem-blush-soft-static);
-    background-color: $mem-blush-soft-static !important;
+    // Same frame as hover, one step DEEPER in the same blush: hover took over
+    // the soft tone, and two states sharing a fill is two states you cannot tell
+    // apart. "This row owns the open context menu" has to outrank "the pointer
+    // is here" — it survives the pointer leaving.
+    //
+    // Still a static accent, so the pinned ink text reads in the dark theme too.
+    @include candy-row-hover($mem-blush);
+    background-color: $mem-blush !important;
 }
 
-// Filled row states (white hover / yellow playing / blush marked): the base
+// Filled row states (soft-blush hover / yellow playing / blush marked): the base
 // row text is $mem-content-text (white on the dark ground), so pin ink for the
 // text and icons that now render over a light fill. The muted children carry
 // explicit content tokens (album/duration) that the row `color` can't cascade
