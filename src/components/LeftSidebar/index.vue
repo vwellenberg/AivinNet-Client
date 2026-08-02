@@ -702,9 +702,10 @@ onBeforeUnmount(teardown);
 }
 
 .sidebar-library {
-  margin-top: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid $separator;
+  // No border-top any more: the LIBRARY label carries its own surface and is
+  // the divider (see .sidebar-library-title). The 1px hairline that stood here
+  // was the only element of its weight among 3px ink frames.
+  margin-top: 1.4rem;
 
   // The rows are plates now (#378), so the list needs the same air and the same
   // reserved room for the offset shadow as the navigation above it — the two
@@ -727,9 +728,28 @@ onBeforeUnmount(teardown);
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: $candy-text;
-    padding: 0 $small 0.5rem;
+    padding: 0 0 0.6rem;
     letter-spacing: 0.05em;
+
+    // The heading IS the divider now. The 1px grey hairline that used to sit
+    // above it was the only element of that weight in a sidebar built from 3px
+    // ink frames — it read as a different kit (#355 collects the same mismatch
+    // elsewhere). A label with its own surface separates the two lists without
+    // drawing a line at all.
+    //
+    // Blush, and that only works since #418 moved hover to the contrast
+    // surface: while blush WAS the pointer colour, a heading wearing it looked
+    // permanently hovered.
+    //
+    // No hatch: the texture means "you can press this", and this is a caption.
+    > span {
+      background-color: $mem-blush;
+      color: $mem-ink;
+      border: $candy-border;
+      border-radius: 8px;
+      box-shadow: 3px 3px 0 var(--mem-shadow);
+      padding: 3px 10px;
+    }
 
     // "New folder". Its blush circle came from the global button base — the
     // comment here used to say so — which meant a control with no owner: no

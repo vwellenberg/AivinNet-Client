@@ -379,16 +379,17 @@ $control-dense-glyph: 1rem;
   // turn a state signal into the pointer signal — the same conflation that made
   // a pinned button look permanently hovered. Call sites keep their yellow.
   &:hover {
-    background-color: $mem-blush;
+    // The shared hover token (#418), not a hand-written fill: this role was one
+    // of the two places that wrote `$mem-blush` itself and therefore never
+    // moved when the pointer colour changed.
+    background-color: var(--mem-hover);
+    color: var(--mem-hover-text);
     border-color: $mem-line;
-    // Static ink is legal here ONLY because the blush fill above is static —
-    // and for the same reason the hatch has to switch to the ACCENT token here.
-    // The surface token is paper-coloured in the dark theme, which on blush
-    // would be near-invisible: the one pairing that light-theme eyes never see.
-    // This is also where `$rest: bare` gets its texture, together with the
-    // plate it only grows on hover.
-    @include mem-hatch(28px, $on: accent);
-    color: $mem-ink;
+    // The surface just went dark (light theme) or light (dark theme), so the
+    // texture takes the inverted sprite. This is also where `$rest: bare` gets
+    // its texture at all, together with the plate it only grows on hover.
+    background-image: var(--mem-hatch-hover);
+    background-size: 28px 28px;
     box-shadow: if($rest == surface, 4px 4px, 3px 3px) 0 var(--mem-shadow);
     transform: scale(1.06);
   }
@@ -446,12 +447,14 @@ $control-dense-glyph: 1rem;
   }
 
   &:hover {
+    // Same token as every other hover (#418) — this role already read it, the
+    // other two did not, which is what made the pointer colour a three-place
+    // change. Text and texture follow the fill, because the fill is now the
+    // contrast surface rather than a light tint.
     background-color: $mem-hover;
-    // The one moment this role HAS a surface, so the one moment it may carry
-    // the texture (styling.md: the hatch needs something to sit on). `surface`,
-    // not `accent`: `$mem-hover` is theme-aware — blush in light, a dark tint
-    // in dark — and the theme-aware token is what follows it.
-    @include mem-hatch(28px, $on: surface);
+    color: var(--mem-hover-text);
+    background-image: var(--mem-hatch-hover);
+    background-size: 28px 28px;
     transform: scale(1.06);
   }
 
