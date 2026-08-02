@@ -32,9 +32,24 @@
     --mem-line: #{$mem-ink};
     --mem-text: #{$mem-ink};
     --mem-text-muted: #{$mem-text-muted-static};
-    // Hover fill on cards/rows: blush in light, calm dark tint in dark
-    // (adaptive text keeps working — no per-child pinning needed).
-    --mem-hover: #{$mem-blush};
+    // HOVER — the pointer signal, and the ONE source for it (#418).
+    //
+    // It is the CONTRAST surface, not an accent: ink in light, paper in dark.
+    // Three reasons it cannot be a colour any more:
+    //   · blush became the label fill (the LIBRARY sticker), and one colour
+    //     cannot mean "heading" here and "you are pointing at this" there;
+    //   · the six navigation fills use up most of the palette, and a hover has
+    //     to read on ALL of them equally;
+    //   · teal means play and yellow means playing — both are spoken for.
+    // Ink as a FILL exists nowhere else in this app, which is exactly why it
+    // reads as a state instead of as another colour.
+    //
+    // `--mem-hover-text` is not optional: the fill is dark in light mode, so
+    // everything on it flips. `--mem-hatch-hover` does the same for the texture
+    // (paper strokes on the ink plate, ink strokes on the paper one).
+    --mem-hover: #{$mem-ink};
+    --mem-hover-text: #{$mem-panel-static};
+    --mem-hatch-hover: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><g stroke="%23F4F2ED" stroke-opacity="0.34" stroke-width="2.6" stroke-linecap="round"><line x1="7" y1="9" x2="14" y2="13"/><line x1="30" y1="6" x2="36" y2="2"/><line x1="38" y1="26" x2="43" y2="31"/><line x1="14" y1="34" x2="20" y2="31"/><line x1="26" y1="42" x2="33" y2="40"/><line x1="3" y1="24" x2="8" y2="21"/></g></svg>');
     // Translucent ground plate behind track lists: text reads clearly while
     // the grid + doodles still shimmer through.
     --mem-veil: #{rgba($mem-paper, 0.92)};
@@ -76,7 +91,11 @@ body.theme-dark {
     --mem-line: #{$mem-dark-line};
     --mem-text: #{$mem-dark-text};
     --mem-text-muted: #{$mem-dark-text-muted};
-    --mem-hover: #{$mem-dark-soft};
+    // The contrast surface flips with the theme: paper on the near-black
+    // ground, and everything on it goes dark. Same tokens, mirrored values.
+    --mem-hover: #{$mem-dark-line};
+    --mem-hover-text: #{$mem-dark-ground};
+    --mem-hatch-hover: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><g stroke="%2317171A" stroke-opacity="0.34" stroke-width="2.6" stroke-linecap="round"><line x1="7" y1="9" x2="14" y2="13"/><line x1="30" y1="6" x2="36" y2="2"/><line x1="38" y1="26" x2="43" y2="31"/><line x1="14" y1="34" x2="20" y2="31"/><line x1="26" y1="42" x2="33" y2="40"/><line x1="3" y1="24" x2="8" y2="21"/></g></svg>');
     --mem-veil: #{rgba($mem-dark-ground, 0.92)};
     // Ink is invisible on the indigo ground — the offset becomes a soft paper
     // edge instead, matching the paper borders of this theme.

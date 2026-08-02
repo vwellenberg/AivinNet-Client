@@ -264,23 +264,27 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
   transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
 }
 
-// The fill is BLUSH, not white. A hovered row used to take the panel colour,
-// which on the light theme meant "white on near-white" — the frame did the
-// whole job and the fill said nothing. Blush is the design's own colour for a
-// row you are pointing at, and it is what the nav rows have used all along; the
-// track and folder lists were the two places still hovering colourless.
+// The fill is the CONTRAST surface and comes from `--mem-hover` — the single
+// token every hover in this app reads (#418). Before that there were three
+// sources: this mixin, `mem-row-plate-hover` and `btn-action`, of which two
+// wrote `$mem-blush` by hand and ignored the token that existed for exactly
+// this. Changing the pointer colour meant finding all three.
 //
-// It stays a STATIC token, not the theme-aware `$mem-panel`: the row's text and
-// icons get pinned to `$mem-ink` on top of this fill, so it has to stay light in
-// the dark theme too or the ink goes unreadable. The border uses `$mem-line`,
-// which IS theme-aware (ink on light, paper on dark).
+// Why a contrast surface rather than a colour — the reasoning lives at the
+// token in Global/index.scss, short version: blush became the label fill, the
+// six navigation fills use up the palette, teal and yellow are spoken for.
 //
-// ⚠️ Anything that wants to read as STRONGER than hover has to move up with it —
-// `.songlist-item.contexton` (the row owning an open context menu) sat on this
-// exact token and would now be indistinguishable from hover, so it takes the
-// deeper `$mem-blush`.
-@mixin candy-row-hover($fill: $mem-blush-soft-static, $radius: $candy-radius-sm) {
+// ⚠️ TWO THINGS MOVE WITH THE FILL, and both are easy to forget because the
+// light theme hides one of them:
+//   1. The TEXT. `--mem-hover-text` — the fill is dark in light mode, so ink
+//      text on it is invisible. Hosts that pin ink on filled rows must exclude
+//      the hover case (see SongItem.vue's "Filled row states").
+//   2. Anything that has to read as STRONGER than hover moves up.
+//      `.songlist-item.contexton` (the row owning an open context menu) can
+//      now take blush, which hover just vacated.
+@mixin candy-row-hover($fill: var(--mem-hover), $radius: $candy-radius-sm) {
   background-color: $fill;
+  color: var(--mem-hover-text);
   border-color: $mem-line;
   border-radius: $radius;
 }
@@ -358,8 +362,13 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // The fill is the only thing that changes; the cover layer follows through
 // `--row-fill`, so the ring can never fall out of sync with the surface.
 @mixin mem-row-plate-hover {
-  --row-fill: #{$mem-blush};
-  color: $mem-ink;
+  // Reads the same token as every other hover in the app (#418) — the plate
+  // version additionally deepens its offset. `--row-fill` carries the fill to
+  // the label's cover layer, so the two cannot fall apart; the hatch switches
+  // to the inverted sprite because the surface under it just went dark.
+  --row-fill: var(--mem-hover);
+  color: var(--mem-hover-text);
+  background-image: var(--mem-hatch-hover);
   border-color: $mem-line;
   box-shadow: 4px 4px 0 var(--mem-shadow);
 }

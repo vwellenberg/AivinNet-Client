@@ -306,23 +306,29 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 }
 
 .songlist-item.contexton {
-    // Same frame as hover, one step DEEPER in the same blush: hover took over
-    // the soft tone, and two states sharing a fill is two states you cannot tell
-    // apart. "This row owns the open context menu" has to outrank "the pointer
-    // is here" — it survives the pointer leaving.
+    // Blush, which hover vacated when it became the contrast surface (#418).
+    // "This row owns the open context menu" still has to outrank "the pointer is
+    // here" in PERSISTENCE — it survives the pointer leaving — but no longer in
+    // loudness, so it takes the light accent while hover takes the dark one.
     //
-    // Still a static accent, so the pinned ink text reads in the dark theme too.
+    // A static accent, so the pinned ink text below reads in the dark theme too.
     @include candy-row-hover($mem-blush);
     background-color: $mem-blush !important;
+    color: $mem-ink;
 }
 
-// Filled row states (soft-blush hover / yellow playing / blush marked): the base
-// row text is $mem-content-text (white on the dark ground), so pin ink for the
-// text and icons that now render over a light fill. The muted children carry
-// explicit content tokens (album/duration) that the row `color` can't cascade
-// into, so they get explicit ink-muted here; the opacity-based children
+// Filled row states — the LIGHT ones only. The base row text is
+// $mem-content-text (white on the dark ground), so ink gets pinned for the text
+// and icons that now render over a light fill. The muted children carry explicit
+// content tokens (album/duration) that the row `color` can't cascade into, so
+// they get explicit ink-muted here; the opacity-based children
 // (index/plays/date/artist) inherit the row ink automatically.
-.songlist-item:hover,
+//
+// ⚠️ `:hover` is deliberately NOT in this list any more (#418). Its fill is the
+// contrast surface — dark in the light theme — and ink on it is invisible. The
+// hover block below pins the mirrored colours instead. Anyone adding a state
+// here checks first whether its fill is light or dark; the light theme shows
+// only half the answer.
 .songlist-item.current,
 .songlist-item.contexton {
     color: $mem-ink;
@@ -352,6 +358,38 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     // go ink here and, since its tick is ink too, read as a solid blob.
     .heart-button:not(.is-fav) {
         color: $mem-ink;
+    }
+}
+
+// The HOVERED row is the mirror image of the block above: its fill is the
+// contrast surface, so everything on it flips to `--mem-hover-text` instead of
+// ink. Same children, same reasons — the muted ones carry explicit tokens the
+// row `color` cannot reach, so they are named again.
+//
+// The selectors sit at the same depth as the light-fill block so the two never
+// fight; only one of them can match a given row at a time.
+.songlist-item:hover {
+    color: var(--mem-hover-text);
+
+    .song-album,
+    .song-duration {
+        color: var(--mem-hover-text);
+        opacity: 0.75;
+    }
+
+    .options-and-duration {
+        .heart-icon.is_fav svg {
+            // Teal keeps its meaning; it measures 3.9:1 on the ink surface.
+            color: $mem-teal;
+        }
+
+        .options-icon svg {
+            stroke: var(--mem-hover-text);
+        }
+    }
+
+    .heart-button:not(.is-fav) {
+        color: var(--mem-hover-text);
     }
 }
 
