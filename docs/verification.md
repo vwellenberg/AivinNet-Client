@@ -49,6 +49,7 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 | `popframes.js` | tastet die laufende Skalierung **aller** Buttons einer Reihe ab (0,82 → 1,05 → 1,00) und schneidet einen Filmstreifen |
 | `btnaudit.js`, `bordermeasure.js`, `audit-shadows.js`, `mobile-audit.js` | Computed-Style-Audits über Routen × Themes |
 | `topbar-audit.js` | eine **Reihe** als Ganzes: Box, Glyph, Rahmen, Schatten je Bauteil — plus Hover und Press als **laufende** Matrix (echtes `hover()` und `mouse.down()`, nicht die Deklaration) und die Pops beim Boot. `ROUTE=`, `MOBILE=1`, `BASE=` |
+| `clipfind.js` | **wer schneidet den Schatten ab?** Läuft die Vorfahren-Kette eines Elements hoch und listet je Ebene Box, `overflow` und `padding`. `SEL=`, `ROUTE=`, `BASE=` |
 | `tokencensus.js` | **Design-Token-Zensus**: gruppiert Rahmenbreite, Radius, Schriftgröße und Schatten-Versatz über 12 Routen × hell/dunkel — siehe unten |
 | `previewproxy.js` + `run*.sh` | Branch-`dist` über einen Proxy servieren und messen |
 | `queueseams.js`, `verify3.js` | E2E für Queue-Seams und Group-Sync |
@@ -120,6 +121,13 @@ ohne Tab ist dagegen ehrlich und zeigt „404! Page Not Found!".
   dauerhaft und feuern trotzdem nur beim App-Start. Wer die Deklaration misst, hält jeden
   Seitenwechsel für ein Ploppen. `getAnimations()` liefert zusätzlich `getComputedTiming()` mit dem
   **effektiven** Delay, also die Staffelung als Zahl statt als Absicht.
+- **⚠️ Ein Skript ohne `BASE` misst die LIVE-App, egal welchen Proxy man startet.** Der Proxy
+  läuft, die Startzeile im Log stimmt, das Skript geht trotzdem auf `:1970` — und dann vergleicht
+  man seinen Branch mit sich selbst. Aufgefallen bei #414: der Screenshot (über `BASE`) zeigte den
+  Fix, die Vorfahren-Messung daneben (hartes `:1970`) meldete den alten Zustand, und das sah nach
+  „Fix wirkt nicht" aus. Vor einem Branch-Messlauf einmal prüfen, dass das Skript `process.env.BASE`
+  überhaupt liest — und im Zweifel am **gebauten Artefakt** gegenlesen
+  (`grep -o '<markup>' dist/assets/*.js`), das lügt nicht.
 - **⚠️ Wer eine GRÖSSE misst, nimmt den Computed Style — nicht `getBoundingClientRect()`.** Der
   Rect enthält laufende Transforms, und `btn-action`/`btn-pill` bringen den Mount-Pop mit, dessen
   erster Keyframe `scale(0.82)` ist. Ein Zensus, der beim Booten misst, liest deshalb Größen, die
