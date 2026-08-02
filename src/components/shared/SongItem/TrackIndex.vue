@@ -64,6 +64,12 @@ defineEmits<{
     font-size: 0.76rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
+    // ⚠️ A four-digit ordinal does not fit: 23px of inner width against ~7.3px
+    // per tabular digit. Playlists that long exist, and without this the numeral
+    // would break OUT of the disc and run under the cover instead of the disc
+    // simply cropping it. Clipping inside the badge keeps the list's rhythm;
+    // breaking out of it does not.
+    overflow: hidden;
   }
 
   // Now-playing meter shown in place of the track number (#67, redrawn in #357).
