@@ -255,6 +255,15 @@ zwei Hälften, sobald die Navigation Platten bekam.
 - **Platten brauchen Luft:** `gap: $small` statt `$smaller`, und der Container reserviert rechts
   `padding-right: $small`, weil `overflow: hidden` sonst den Offset-Schatten bündig abschneidet.
   Kosten gemessen: 986 → 1046 px über 19 Einträge (+6 %), komplett in den Abständen.
+  ⚠️ **Auch unten** — ohne `padding-bottom` verlor die letzte Zeile ihren Schatten (Stats war die
+  eine Platte ohne, #397).
+- **Die Beschriftung IST der Trenner** (#422). Über LIBRARY stand eine 1-px-Haarlinie in Grau —
+  das einzige Element dieser Stärke in einer Sidebar aus 3-px-Ink-Rahmen; sie las sich wie aus
+  einem anderen Bausatz (#355 sammelt dieselbe Diskrepanz anderswo). Die Überschrift trägt
+  stattdessen einen **Blush-Sticker** und trennt damit selbst. Zwei Bedingungen: Er darf **keine
+  Schraffur** tragen (die bedeutet „drückbar", und das hier ist eine Beschriftung), und er
+  funktioniert nur, seit Blush nicht mehr die Zeigerfarbe ist — vorher hätte eine Beschriftung
+  dauerhaft gehovert ausgesehen.
 
 ## ⚠️ Ein Icon nicht mit `opacity` dämpfen, wenn es kein Zustand ist
 
@@ -567,6 +576,43 @@ kämpfen zwei Effekte um dasselbe Element. Farbe und Dauer stehen **einmal** in 
 
 v-wave setzt `overflow: hidden` auf einen **inneren** Container und erbt den Radius vom Wirt —
 Zeilenradius und absolut positionierte Drop-Marken bleiben also heil.
+
+### ⚠️ Der Zeiger hat EINE Farbe, und sie ist keine Farbe: `--mem-hover` (#422)
+
+Jede Hover-Fläche der App liest **ein** Token. Vorher waren es drei Quellen, von denen **zwei das
+Token ignorierten**, das genau dafür da war: `candy-row-hover` und `btn-action` schrieben
+`$mem-blush` von Hand, nur `btn-quiet` las `--mem-hover`. Die Zeigerfarbe zu ändern hieß also,
+alle drei zu finden — und auf die Frage „ist Hover zentralisiert?" lautete die ehrliche Antwort
+„halb".
+
+Das Token ist die **Kontrastfläche**: Ink im hellen, Paper im dunklen Theme. Keine Akzentfarbe,
+und zwar weil keine übrig ist — Blush ist die **Etikettenfarbe** (der LIBRARY-Sticker), die sechs
+Navigationsfüllungen verbrauchen die Palette, Teal heißt Wiedergabe und Gelb heißt „läuft". Ink
+als *Fläche* gibt es sonst nirgends, deshalb liest es sich als Zustand statt als weitere Farbe.
+
+**Zwei Tokens wandern zwingend mit der Füllung** — und das helle Theme verbirgt eines davon:
+
+| Token | wofür |
+|---|---|
+| `--mem-hover` | die Fläche |
+| `--mem-hover-text` | **alles darauf.** Die Fläche ist im hellen Theme dunkel; Ink darauf ist unsichtbar |
+| `--mem-hatch-hover` | die Textur: Paper-Striche auf der Ink-Platte, Ink-Striche auf der Paper-Platte |
+
+⚠️ **Wer Ink auf gefüllten Zeilen pinnt, muss den Hover-Fall ausnehmen.** `SongItem.vue` hatte
+einen Block „Filled row states", der `:hover`, `.current` und `.contexton` gemeinsam auf Ink
+setzte — richtig, solange alle drei Füllungen hell waren. Seit die Hover-Füllung die dunkle ist,
+steht `:hover` in einem eigenen, gespiegelten Block.
+
+**Und was lauter sein will als der Hover, rückt nach.** `.songlist-item.contexton` („diese Zeile
+besitzt das offene Kontextmenü") nimmt jetzt Blush, das der Hover freigemacht hat: Es schlägt
+„der Zeiger ist hier" weiterhin in **Dauerhaftigkeit** — es überlebt, dass der Zeiger weggeht —,
+nicht mehr in Lautstärke.
+
+Der Zensus ist getestet (`src/components/__tests__/hoverToken.test.ts`): Er lässt keine
+Hover-Regel durch, die eine Füllung aus einem Akzent statt aus dem Token malt, und kein
+Hover-Mixin, das die Fläche tauscht ohne die Textfarbe. Beim allerersten Lauf fand er
+`btn-pill` — Modal- und Dialog-Buttons hoverten auf `$candy-pink-deep`, was auf **`$mem-yellow`**
+zeigt: ein Dialog-Button war für die Dauer des Zeigers ein „läuft"-Signal.
 
 **Hover für Listenzeilen ist zentralisiert:** `candy-row-base` + `candy-row-hover` in
 `_candy.scss`. Die Base-Hälfte ist Pflicht (reservierter transparenter Rand in `$candy-border-w`)
