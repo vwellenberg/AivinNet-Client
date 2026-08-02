@@ -1,7 +1,13 @@
 <template>
   <!-- No .rounded utility here: it overrode the candy-box radius (16px vs the
-       14px every other card uses) and made playlist tiles a different shape. -->
-  <router-link :to="{ name: 'PlaylistView', params: { pid: playlist.id } }" class="p-card no-scroll">
+       14px every other card uses) and made playlist tiles a different shape.
+
+       And no .no-scroll either — `overflow: hidden` on the TILE clipped the
+       offset shadows of the parts inside it. Since the tile became three
+       separate plates (#382) it carries no surface of its own; the artwork
+       keeps the clip it actually needs (below), the tile stays open. This was
+       the only one of the five cards that clipped itself. -->
+  <router-link :to="{ name: 'PlaylistView', params: { pid: playlist.id } }" class="p-card">
     <CardTypeLabel type="playlist" />
     <div v-if="!playlist.has_image && playlist.images.length" class="image card-art no-scroll">
       <PlaylistImages :images="playlist.images" size="large" />
