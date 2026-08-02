@@ -67,7 +67,10 @@ const settings = useSettings()
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1.25rem;
+    // The value this row already had, now under its name — it is the one the
+    // other bar groups were brought to, so it should not be the one place that
+    // still spells it out.
+    gap: $bar-gap;
     height: 100%;
 
     // prev / next / shuffle / repeat — bare glyphs on the bar.

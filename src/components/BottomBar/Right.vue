@@ -68,7 +68,11 @@ defineEmits<{
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 2px;
+    // The bar's own spacing token. This group stood at 2px against the
+    // transport row's 20 — measured, not estimated — which is invisible while
+    // every glyph carries its own padding and unmissable the moment these
+    // buttons get a fill.
+    gap: $bar-gap;
     height: 4rem;
 
     @include allPhones {

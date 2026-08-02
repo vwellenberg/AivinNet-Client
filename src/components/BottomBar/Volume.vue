@@ -59,7 +59,9 @@ const handleMouseWheel = (event: WheelEvent) => {
 .b-bar .right-group .volume-control {
     display: flex;
     align-items: center;
-    gap: 2px;
+    // Tighter than the bar's gap on purpose: the slider is the speaker's other
+    // half, not a third neighbour. Same reasoning the token carries.
+    gap: $bar-gap-tight;
 
     // Mute: the same quiet role and the same footprint as every other bar
     // control. It used to be the odd one out at 2.25rem — the smallest button
