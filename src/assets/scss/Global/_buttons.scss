@@ -500,7 +500,14 @@ $control-dense-glyph: 1rem;
     transform $motion-press ease;
 
   &:hover {
-    background-color: $candy-pink-deep;
+    // Was `$candy-pink-deep`, which is YELLOW — and yellow means "playing" in
+    // this design, so a pill turned into a state signal for as long as the
+    // pointer sat on it. The shared token instead (#418); found by the census
+    // in hoverToken.test.ts the moment it existed.
+    background-color: var(--mem-hover);
+    color: var(--mem-hover-text);
+    background-image: var(--mem-hatch-hover);
+    background-size: 28px 28px;
     transform: scale(1.04);
   }
 

@@ -21,14 +21,22 @@ import { describe, expect, it } from "vitest";
 // ---------------------------------------------------------------------------
 const FILES = ["src/assets/scss/_candy.scss", "src/assets/scss/Global/_buttons.scss"];
 
-/** Fills that a hover rule may NOT set — every one of them is an accent. */
+/**
+ * Fills that a hover rule may NOT set — every one of them is an accent.
+ *
+ * Matched on a WORD BOUNDARY, not as a substring: `$candy-pink` otherwise also
+ * matches `$candy-pink-deep`, which would report the right rule for the wrong
+ * reason (that one is yellow, not pink).
+ */
 const FORBIDDEN = [
   "$mem-blush",
   "$mem-blush-soft-static",
   "$candy-pink",
   "$candy-pink-soft",
+  "$candy-pink-deep",
   "$mem-panel-static",
   "$mem-soft",
+  "$mem-yellow",
 ];
 
 /** Source with comments stripped, so prose about blush does not trip the scan. */
@@ -82,9 +90,12 @@ describe("hover has one source", () => {
       // as reading it, not as a second source.
       const fill = body.match(/(?:background-color|--row-fill)\s*:\s*([^;]+);/g) ?? [];
       for (const decl of fill) {
-        if (FORBIDDEN.some(bad => decl.includes(bad))) {
-          offenders.push(`${name}: ${decl.trim()}`);
-        }
+        const hit = FORBIDDEN.find(bad =>
+          // `\$` for the sigil, `(?![\w-])` so `$candy-pink` does not swallow
+          // `$candy-pink-deep` — a substring match names the wrong token.
+          new RegExp(`\\${bad}(?![\\w-])`).test(decl)
+        );
+        if (hit) offenders.push(`${name}: ${decl.trim()} (${hit})`);
       }
     }
 
