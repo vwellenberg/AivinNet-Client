@@ -661,6 +661,35 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
   }
 }
 
+// ---------------------------------------------------------------------------
+// THE COLOUR GUIDE BAND — the leading edge of a track row.
+//
+// A cassette inlay's spine: five accents cycling down the list, so the eye can
+// tell one row from the next without a fill or a rule between them. It replaces
+// the LEFT half of the row's ink side-stripes; the right one stays, and the
+// frame is still closed top/bottom by the .is-first/.is-last caps.
+//
+// ⚠️ The cycle is driven by a CLASS the component computes from the row index,
+// never by `:nth-child`. Track lists render through `vue-virtual-scroller`,
+// which RECYCLES its row elements — DOM order there is scroll state, not list
+// order, so an nth-child rule would repaint every row on every scroll tick and
+// show a different colour for the same track each time.
+//
+// The band is a background LAYER, not a pseudo-element: `::before` and
+// `::after` both belong to the now-playing state (texture + zigzag marker), and
+// a row that is playing still needs its band.
+// ---------------------------------------------------------------------------
+$mem-band-colours: $mem-teal, $mem-lavender, $mem-coral, $mem-pink, $mem-yellow;
+
+/// Declares `--band` for each `band-N` class. Applied to the row selector.
+@mixin mem-band-cycle {
+  @for $i from 1 through length($mem-band-colours) {
+    &.band-#{$i - 1} {
+      --band: #{nth($mem-band-colours, $i)};
+    }
+  }
+}
+
 // DEPRECATED (candy design): diagonal candy stripes. Superseded by
 // mem-now-playing-row/mem-sprinkle — kept only until the last usage is migrated.
 @mixin candy-stripes($a: $candy-pink-deep, $b: $candy-white, $w: 10px) {

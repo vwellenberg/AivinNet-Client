@@ -36,15 +36,40 @@ defineEmits<{
   height: 3rem;
   display: flex;
   justify-content: center;
+  align-items: center;
 
+  // The number sits in a stamped ink circle — the ticket number of the cassette
+  // inlay this list is built as, next to the guide band and the glued cover.
+  //
+  // It is no longer dimmed with `opacity`. On a bordered disc that fades the
+  // ring along with the numeral, and a half-strength ring beside a full-strength
+  // one reads as a broken row rather than a quiet one — the same finding the
+  // sidebar glyphs produced (.claude/rules/styling.md: opacity on a glyph is a
+  // state, not decoration). The number is quiet because it is small.
+  //
   // No transition: the number is not animated into anything. It is swapped for
   // the meter by `v-if`, and a node that enters the DOM has no previous value
   // to travel from. Measured on a hovered row: nothing on `.text` changes.
   .text {
-    opacity: 0.5;
-    margin: auto 0;
-    transform: translateX($smaller);
-    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // Fixed box, not a padded one: the disc has to stay round from "1" to
+    // "999", and `flex-shrink: 0` keeps the grid cell from squeezing it oval.
+    width: $index-badge;
+    height: $index-badge;
+    flex-shrink: 0;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.76rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    // ⚠️ A four-digit ordinal does not fit: 23px of inner width against ~7.3px
+    // per tabular digit. Playlists that long exist, and without this the numeral
+    // would break OUT of the disc and run under the cover instead of the disc
+    // simply cropping it. Clipping inside the badge keeps the list's rhythm;
+    // breaking out of it does not.
+    overflow: hidden;
   }
 
   // Now-playing meter shown in place of the track number (#67, redrawn in #357).

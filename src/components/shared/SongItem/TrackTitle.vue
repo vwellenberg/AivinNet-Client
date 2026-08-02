@@ -56,15 +56,35 @@ defineEmits<{
     position: relative;
     flex-shrink: 0;
 
+    // Glued into the inlay: the full ink frame and the offset shadow every
+    // other image surface in this app wears, plus a slight tilt. The 1px hairline
+    // it replaces was the one picture frame in the design that wasn't one.
+    //
+    // The shadow survives here because the row only clips on the state that
+    // fills it (`overflow: hidden` comes with mem-now-playing-row), and even
+    // there the cover sits an inset and an index column clear of the edge —
+    // the case .claude/rules/styling.md warns about is a box sized exactly to
+    // its content, which this is not.
     .album-art {
       width: 3rem;
       height: 3rem;
       object-fit: contain;
       cursor: pointer;
       z-index: 20;
-      border: 1px solid $mem-line;
+      border: $candy-border;
       border-radius: $candy-radius-sm;
-      transition: filter 0.15s ease;
+      @include candy-shadow(2px, 3px);
+      transform: rotate(-2.5deg);
+      // `box-shadow` and `transform` have to be listed once the mixin's own
+      // transition is overridden by this one — a later `transition` wins whole,
+      // not per-property.
+      transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+    // Straightens under the pointer: the tilt says "stuck on", the snap-to-square
+    // says "and you can pick it up".
+    &:hover .album-art {
+      transform: rotate(0deg);
     }
 
     .thumb-play-overlay {

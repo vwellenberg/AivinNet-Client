@@ -8,6 +8,7 @@
             { 'with-date': showDateColumn },
             { 'is-first': is_first },
             { 'is-last': is_last },
+            bandClass,
             dragOverClass,
         ]"
         :draggable="droppable"
@@ -71,7 +72,7 @@ import favoriteHandler from '@/helpers/favoriteHandler'
 import { Track } from '@/interfaces'
 import { isMedium, isSmall } from '@/stores/content-width'
 import useQueueStore from '@/stores/queue'
-import { showDragStart } from '@/utils/songItemMethods'
+import { showDragStart, trackBandClass } from '@/utils/songItemMethods'
 
 import TrackAlbum from './SongItem/TrackAlbum.vue'
 import TrackDateAdded from './SongItem/TrackDateAdded.vue'
@@ -115,6 +116,11 @@ const showPlaysColumn = computed(() => Boolean(props.show_plays) && !isSmall.val
 // recently added/played playlists have no per-track added_at) and hidden on
 // narrow layouts, following the same pattern as the Plays column.
 const showDateColumn = computed(() => Boolean(props.show_date_added) && !isSmall.value && !isMedium.value)
+
+// Colour guide band on the leading edge — see trackBandClass for why the cycle
+// is computed rather than expressed as `:nth-child`, and mem-band-cycle in
+// _candy.scss for the accents themselves.
+const bandClass = computed(() => trackBandClass(props.index))
 
 const is_fav = ref(props.track.is_favorite || false)
 
@@ -218,7 +224,7 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 // NOTE: CSS for responsiveness is at app-grid.scss
 .songlist-item {
     display: grid;
-    grid-template-columns: 1.75rem 2.5fr 1.5fr 7.5rem;
+    grid-template-columns: $songlist-index-col 2.5fr 1.5fr 7.5rem;
     align-items: center;
     justify-content: flex-start;
     gap: 1rem;
@@ -226,7 +232,9 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     line-height: 1.2;
     height: $song-item-height;
     user-select: none;
-    padding-left: $small;
+    // Clears the colour guide band on the leading edge (app-grid.scss paints
+    // it into this inset); $small would have put the index circle on top of it.
+    padding-left: $songlist-lead;
     position: relative;
     // Text sits directly on the page ground (grid area) -> theme-aware so it
     // turns white on the dark indigo ground. Filled row states (hover/current/
@@ -248,7 +256,7 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     // number (justify-content: end). 10rem keeps the check inside its own column
     // with enough headroom for the longest (HH:MM:SS) durations.
     &.with-plays {
-        grid-template-columns: 1.75rem 2.5fr 1.5fr 5rem 10rem;
+        grid-template-columns: $songlist-index-col 2.5fr 1.5fr 5rem 10rem;
     }
 
     // "Date added" column (playlist page): inserted between album and duration,

@@ -162,16 +162,53 @@ $g-border: solid $candy-border-w $mem-line;
         border-radius: 0;
     }
 
+    // The colour cycle of the guide band (see mem-band-cycle in _candy.scss).
+    // Declared on the row itself so `--band` resolves for every state, then
+    // read by the stripe layer below.
+    @include mem-band-cycle;
+
     // Filled row states carry their own full ink border at the same edge, so
     // the stripes are skipped there — a straight stripe would peek out inside
     // those rows' rounded corners.
+    //
+    // Three layers, and the order matters (the FIRST one paints on top):
+    //   1. the perforation that separates one row from the next — inset past
+    //      the band, so the band reads as one continuous spine rather than a
+    //      stack of dashes
+    //   2. the colour guide band on the leading edge
+    //   3. the ink side-stripe on the trailing edge (the leading one is the
+    //      band's job now)
+    //
+    // The perforation hangs off the BOTTOM edge, not the top. It belongs
+    // *between* two rows, and only the bottom edge can say that without a
+    // second flag: the last row already declares itself (`.is-last`, which
+    // closes the frame there), while "first" is not always the top of the frame
+    // — on the playlist page the caption bar caps it and no row is `.is-first`
+    // at all.
     &.rounded-sm:not(:hover):not(.current):not(.contexton) {
-        background-image: linear-gradient($mem-line, $mem-line),
+        background-image: repeating-linear-gradient(
+                90deg,
+                $mem-line 0 3px,
+                transparent 3px 7px
+            ),
+            linear-gradient(var(--band, #{$mem-line}), var(--band, #{$mem-line})),
             linear-gradient($mem-line, $mem-line);
         background-repeat: no-repeat;
         background-origin: border-box;
+        background-position: $songlist-band-w bottom, left top, right top;
+        background-size:
+            calc(100% - #{$songlist-band-w}) 2px,
+            $songlist-band-w 100%,
+            $candy-border-w 100%;
+    }
+
+    // The last row closes the frame with a solid border — a perforation on the
+    // same edge would double it.
+    &.is-last.rounded-sm:not(:hover):not(.current):not(.contexton) {
+        background-image: linear-gradient(var(--band, #{$mem-line}), var(--band, #{$mem-line})),
+            linear-gradient($mem-line, $mem-line);
         background-position: left top, right top;
-        background-size: $candy-border-w 100%, $candy-border-w 100%;
+        background-size: $songlist-band-w 100%, $candy-border-w 100%;
     }
 
     &.is-first.rounded-sm {
@@ -399,8 +436,9 @@ $g-border: solid $candy-border-w $mem-line;
         // The index column is dropped on small layouts, so the thumbnail
         // becomes the first cell — without extra padding it sits flush
         // against the row edge (clearly visible on the highlighted
-        // currently-playing row).
-        padding-left: 1rem;
+        // currently-playing row). The guide band still runs down the leading
+        // edge here, so the inset has to clear it like it does on wide layouts.
+        padding-left: $songlist-lead;
         padding-right: $small;
 
         // disable hover on mobile
@@ -422,7 +460,7 @@ $g-border: solid $candy-border-w $mem-line;
 .isMedium {
     // hide album column on medium screens
     .songlist-item {
-        grid-template-columns: 1.75rem 2.5fr 7.5rem;
+        grid-template-columns: $songlist-index-col 2.5fr 7.5rem;
     }
 
     .song-album {

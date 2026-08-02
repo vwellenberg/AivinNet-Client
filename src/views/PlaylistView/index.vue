@@ -105,12 +105,30 @@ const scrollerItems = computed(() => {
         size: isSmallPhone.value ? 24 * 16 : 18 * 16,
     }
 
+    // The caption row caps the track list's ink frame whenever there IS a list
+    // under it (AfterHeader `.caps-list`). Computed once and read twice — the
+    // cap and the rows' `is_first` are two halves of one decision, and letting
+    // them drift apart is what puts a rounded corner under a straight bar.
+    const captionCapsList = playlist.tracks.length > 0
+
     const afterHeader: ScrollerItem = {
         id: 'afterHeader',
         component: AfterHeader,
-        size: 4 * 16,
+        // This is a DynamicScroller: it MEASURES each item, so `size` is only
+        // the estimate used before the first measurement (and a
+        // `size-dependencies` trigger). It does not have to be exact — but it
+        // does have to include the gap above the caption, which is why that gap
+        // is PADDING inside AfterHeader rather than a margin. A margin sits
+        // outside `getBoundingClientRect().height`, so the scroller would stack
+        // the first track row 12px too high and the bar would cover its top
+        // edge. Measured before the fix; see the note in AfterHeader.vue.
+        //
+        //   cap   2.4rem bar + $medium (0.75rem) padding
+        //   plain 4rem   bar + $small  (0.5rem)  padding
+        size: captionCapsList ? 3.15 * 16 : 4.5 * 16,
         props: {
             show_date_added: supportsDateAdded.value,
+            caps_list: captionCapsList,
         },
     }
 
@@ -129,7 +147,13 @@ const scrollerItems = computed(() => {
                 // under an in-playlist search track.index is the refIndex into
                 // the unfiltered list, so the first/last filtered row would
                 // never get its cap.
-                is_first: i === 0,
+                //
+                // The TOP cap is the caption bar's job whenever it renders as
+                // one (see captionCapsList above) — leaving it on as well would
+                // round the first row's corners underneath a straight ink bar.
+                // Expressed against the same flag rather than hard-coded false,
+                // so the two halves cannot drift apart.
+                is_first: !captionCapsList && i === 0,
                 is_last: i === playlist.tracks.length - 1,
                 droppable: !playlist.query,
                 source: dropSources.playlist,
