@@ -109,7 +109,6 @@
       </div>
     </div>
 
-    <SongCard v-if="settings.use_np_img" />
     <div class="sidebar-version" :title="`AivinNet ${version}`">v{{ version }}</div>
     <div
       class="sidebar-resize-handle"
@@ -129,7 +128,6 @@ import { paths } from '@/config'
 import { Album, Playlist, Track } from "@/interfaces";
 
 import Navigation from "@/components/LeftSidebar/NavButtons.vue";
-import SongCard from "./NP/SongCard.vue";
 import SidebarPlaylistItem from "./SidebarPlaylistItem.vue";
 import PlaySvg from "@/assets/icons/play.svg";
 import PauseSvg from "@/assets/icons/pause.svg";

@@ -100,7 +100,6 @@ export default defineStore('settings', {
         use_page_gradient: true,
         // INFO: Default to alternate layout from v2.0.0
         layout: 'alternate',
-        use_np_img: false,
         // Now Playing Lauflicht intensity. Defaults to the subtler level.
         np_lauflicht_level: <'off' | 'subtle' | 'normal'>'subtle',
         use_sidebar: false,
@@ -170,9 +169,6 @@ export default defineStore('settings', {
             this.use_page_gradient = !this.use_page_gradient
         },
         // now playing 👇
-        toggleUseNPImg() {
-            this.use_np_img = !this.use_np_img
-        },
         setNpLauflichtLevel(level: 'off' | 'subtle' | 'normal') {
             this.np_lauflicht_level = level
         },
@@ -370,12 +366,10 @@ export default defineStore('settings', {
             if (this.layout == '') {
                 this.layout = 'alternate'
                 this.use_sidebar = false
-                this.use_np_img = false
                 return
             }
 
             this.layout = ''
-            this.use_np_img = true
         },
 
         toggleNowPlayingTrackOnTabTitle() {

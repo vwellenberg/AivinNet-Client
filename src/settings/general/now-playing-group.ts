@@ -5,14 +5,6 @@ import useSettingsStore from '@/stores/settings'
 
 const settings = useSettingsStore
 
-const disable_np_img: Setting = {
-    title: 'Hide album art from the left sidebar',
-    type: SettingType.binary,
-    state: () => !settings().use_np_img,
-    action: () => settings().toggleUseNPImg(),
-    show_if: () => !settings().is_alt_layout,
-}
-
 const npLauflicht: Setting = {
     title: 'Now Playing glow',
     desc: 'Animated brand light around the Now Playing artwork (pink glow + running comet). Pick how intense it is.',
@@ -52,4 +44,4 @@ const highlightFavoriteTracks: Setting = {
     show_if: () => settings().showInlineFavIcon,
 }
 
-export default [disable_np_img, npLauflicht, showNowPlayingOnTabTitle, showInlineFavIcon, highlightFavoriteTracks]
+export default [npLauflicht, showNowPlayingOnTabTitle, showInlineFavIcon, highlightFavoriteTracks]
