@@ -149,6 +149,7 @@ export default defineConfig({
           `$mem-panel: ${brandColors.memphis.panel}; $mem-teal: ${brandColors.memphis.teal}; ` +
           `$mem-yellow: ${brandColors.memphis.yellow}; $mem-coral: ${brandColors.memphis.coral}; ` +
           `$mem-lavender: ${brandColors.memphis.lavender}; $mem-pink: ${brandColors.memphis.pink}; ` +
+          `$mem-blue: ${brandColors.memphis.blue}; ` +
           `$mem-blush: ${brandColors.memphis.blush}; $mem-blush-soft: ${brandColors.memphis.blushSoft}; ` +
           `$mem-text-muted: ${brandColors.memphis.textMuted}; ` +
           `$mem-dark-ground: ${brandColors.memphisDark.ground}; ` +

@@ -7,7 +7,7 @@
 
          `pointer-events: none`: the whole tile is one link, and a label that
          swallowed clicks would leave a dead strip at its top edge. -->
-    <div class="card-type-label">
+    <div class="card-type-label" :class="`is-${type}`">
         <div class="glyph">
             <component :is="GLYPHS[type]" />
         </div>
@@ -65,14 +65,26 @@ defineProps<{
     overflow: hidden;
     transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
 
+    // The glyph cell carries the ENTITY colour (see $mem-entities in
+    // _candy.scss): the smallest possible dose — one small field that already
+    // had a fill of its own — and enough for the eye to sort a mixed row by
+    // type. No text changes its background, so no contrast pairing changes.
+    @each $name, $colour in $mem-entities {
+        &.is-#{$name} .glyph {
+            @include mem-entity-tint($name);
+        }
+    }
+
     .glyph {
         flex-shrink: 0;
         width: 1.9rem;
         display: flex;
         align-items: center;
         justify-content: center;
+        // Fallback for a type without an entity colour. The tint above is
+        // STATIC (mixed toward paper), so the glyph on it is static ink — same
+        // rule as the sidebar's tinted row plates.
         background-color: $candy-pink-soft;
-        // Soft fill is theme-aware (dark in dark), so the glyph must adapt too.
         color: $candy-text;
 
         svg {

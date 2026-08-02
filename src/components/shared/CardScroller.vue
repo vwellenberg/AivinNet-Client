@@ -1,5 +1,5 @@
 <template>
-    <div class="cardscroller">
+    <div class="cardscroller" :class="uniformType ? `row-is-${uniformType}` : ``">
         <div class="rinfo">
             <div class="rtitle">
                 <b>
@@ -65,6 +65,19 @@ const props = defineProps<{
 defineEmits<{
     playThis: [index: number]
 }>()
+
+/**
+ * The row's type, if it has exactly one — "Top artists this week" is all
+ * artists, "Recently played" is a mix.
+ *
+ * The caption sticker takes the entity colour only in the first case. That
+ * keeps one meaning per colour: coral says "artist", never "this row". A mixed
+ * row has no single thing to name, so it stays neutral.
+ */
+const uniformType = computed(() => {
+    const types = new Set(props.items.map(i => i.type))
+    return types.size === 1 ? [...types][0] : null
+})
 
 const itemlist = computed(() => {
     if (!props.items.length) {
@@ -171,6 +184,15 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
             align-items: center;
             justify-content: space-between;
             gap: $small;
+
+            // A row of exactly one type names that type in colour; a mixed row
+            // stays neutral (see `uniformType`). Written on the row root so the
+            // caption and its description answer together.
+            @each $name, $colour in $mem-entities {
+                .cardscroller.row-is-#{$name} & > b {
+                    @include mem-entity-tint($name);
+                }
+            }
 
             > b {
                 @include mem-sticker;
