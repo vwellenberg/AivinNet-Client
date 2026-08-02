@@ -25,6 +25,10 @@ $mem-yellow: #f5b23c !default; // active states (playing row, hovers)
 $mem-coral: #e2574c !default; // secondary accent
 $mem-lavender: #8b8beb !default; // badges, chips
 $mem-pink: #f2799f !default; // decorative accent
+// Added for the entity palette (see mem-entity-tint at the end of this file):
+// a TRUE blue. The palette's only other cool tones are teal (blue-green) and
+// lavender (blue-violet), and six entities need six separable hues.
+$mem-blue: #3b82d9 !default;
 $mem-blush: #f5c6ce !default; // soft fills (nav active, buttons)
 $mem-blush-soft: #fbe3e7 !default; // input fills, hover on white
 $mem-text-muted: #6d6a62 !default; // subtitles, captions
@@ -714,4 +718,65 @@ $mem-band-colours: $mem-teal, $mem-lavender, $mem-coral, $mem-pink, $mem-yellow;
 // mem-now-playing-row/mem-sprinkle — kept only until the last usage is migrated.
 @mixin candy-stripes($a: $candy-pink-deep, $b: $candy-white, $w: 10px) {
   background: repeating-linear-gradient(-45deg, $a 0 $w, $b $w $w * 2);
+}
+
+// ---------------------------------------------------------------------------
+// ENTITY COLOURS — one colour per THING, for good.
+//
+// The palette carries three separate jobs, and the whole point of this block is
+// that they never get mixed up:
+//
+//   NEUTRAL  panel · ground · ink · muted · soft — structure, no meaning
+//   STATE    (full strength) teal = playing, yellow = on, blush = selected
+//   ENTITY   (pastel) album · artist · track · playlist · folder · favourites
+//
+// State and entity share the palette but use two REGISTERS: saturated and small
+// against pale and flat. That is why the teal play disc does not collide with
+// the teal favourites tint — the sidebar has worked this way since #384, this
+// block only extends it from places to things.
+//
+// The assignment follows three rules, in order:
+//   1. Whoever already has a colour in the navigation keeps it (playlist =
+//      pink, favourites = teal) — otherwise the same thing would be two
+//      colours in two places.
+//   2. Album · artist · track have to be maximally distinct FROM EACH OTHER,
+//      because they stand side by side in the same row. So: lavender (cool),
+//      coral (warm), yellow (neutral-light).
+//   3. The most frequent and smallest entry gets the calmest tone (track).
+//
+// Measured, not guessed: the closest pair in this set is artist/playlist at
+// ΔE 17 (CIE76). The rejected draft had folder on green, which sat at ΔE 8
+// against the teal favourites — below the ~15 where two colours stop being
+// tellable apart, and it was spotted on screen before it was measured.
+//
+// The tint is STATIC (mem-pastel mixes toward paper), so anything on top of it
+// is static ink in both themes — same rule as the sidebar's row plates.
+//
+// ⚠️ There is a THIRD use of the same palette, and it is neither state nor
+// entity: `$mem-band-colours` cycles five accents down the song list as
+// decoration (the cassette-inlay leading edge). It stays legible next to this
+// block because it is full strength, a 4px stripe, and lives inside a track
+// list — while an entity tint is pale, flat, and lives on a tile. Anyone adding
+// a fourth use of the palette owes the same three-way separation.
+// ---------------------------------------------------------------------------
+$mem-entities: (
+  "album": $mem-lavender,
+  "artist": $mem-coral,
+  "track": $mem-yellow,
+  "playlist": $mem-pink,
+  "folder": $mem-blue,
+  "favorite": $mem-teal,
+);
+
+@mixin mem-entity-tint($entity) {
+  background-color: mem-pastel(map-get($mem-entities, $entity));
+  color: $mem-ink;
+}
+
+// Emits `--ent-<name>` for every entity. Hosts that cannot switch on a class
+// (a row caption whose colour depends on its contents) read the variable.
+@mixin mem-entity-vars {
+  @each $name, $colour in $mem-entities {
+    --ent-#{$name}: #{mem-pastel($colour)};
+  }
 }
