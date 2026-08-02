@@ -123,7 +123,19 @@ const showDateHeading = computed(() => Boolean(props.show_date_added) && !isSmal
             padding-left: $songlist-lead;
         }
 
+        // ⚠️ The captions are `mem-sticker`s above — plates that carry their own
+        // panel fill, ink frame and offset shadow, because they used to sit bare
+        // on the doodled ground. THIS bar is that surface now, so the stickers
+        // hand their plate back: two nested plates would put a white pill on an
+        // ink bar and shadow it against its own frame. The sticker stays where
+        // it belongs (the caption on the ground); here the bar is the plate.
+        .ah-label,
         .date-added-heading {
+            padding: 0;
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            color: inherit;
             font-size: inherit;
         }
     }
