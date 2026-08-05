@@ -107,15 +107,20 @@ const pageStart = computed(() => page.value * pageSize.value)
 // a page loads, so the buttons don't vanish underneath the pointer.
 const showPager = computed(() => total.value > CHART_PAGE_SIZES[0])
 
+// Fast page flips can overtake each other; only the newest request may write
+// the UI, or a stale response repaints the pager with the previous page's data.
+let fetchSeq = 0
+
 // Functions
 async function getItems() {
+    const seq = ++fetchSeq
     items2[settings.statsgroup] = []
     loaded.value = false
     let isPending = true
 
     // Set a timeout to show the loader after 250ms
     setTimeout(() => {
-        if (isPending) {
+        if (isPending && seq === fetchSeq) {
             loading.value = true
         }
     }, 450)
@@ -128,6 +133,11 @@ async function getItems() {
             'playduration',
             pageStart.value
         )
+
+        if (seq !== fetchSeq) {
+            return
+        }
+
         items2[settings.statsgroup] = res.data[settings.statsgroup]
         total.value = res.data.total ?? res.data[settings.statsgroup].length
         scrobbleInfo.value = res.data.scrobbles
@@ -141,8 +151,11 @@ async function getItems() {
         }
     } finally {
         isPending = false
-        loading.value = false
-        loaded.value = true
+        // A superseded request must not touch the loader the newer one owns.
+        if (seq === fetchSeq) {
+            loading.value = false
+            loaded.value = true
+        }
     }
 }
 
