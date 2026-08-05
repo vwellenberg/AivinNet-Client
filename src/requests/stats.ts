@@ -1,9 +1,9 @@
 import { paths } from '@/config'
 import useAxios from './useAxios'
 
-export async function getChartItem(item: string, duration: string, limit: number, order_by: string) {
+export async function getChartItem(item: string, duration: string, limit: number, order_by: string, offset = 0) {
     const res = await useAxios({
-        url: paths.api.stats.base + `/top-${item}?duration=${duration}&limit=${limit}&order_by=${order_by}`,
+        url: paths.api.stats.base + `/top-${item}?duration=${duration}&limit=${limit}&offset=${offset}&order_by=${order_by}`,
         method: 'GET',
     })
 
