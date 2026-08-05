@@ -60,9 +60,24 @@ Pro Aufgabe/Issue:
    - Slug knapp + sprechend, optional Issue-Nr.: `fix/34-drawer-glow`, `feat/track-edit`.
 2. **Implementieren** im Worktree (nie im Hauptverzeichnis auf `master`).
    - **Tests gehören in denselben PR (Pflicht):** Bugfix ⇒ **Regressionstest**, der den Bug reproduziert (vor dem Fix rot, danach grün) — kein Bugfix-PR ohne Test. Neue Store-/Util-/Request-Logik ⇒ Vitest in `src/**/__tests__/`. Realistische Fixtures verwenden (Backend-Formate wie `image`-Strings mit `?pathhash=`-Suffix, `image="None"` etc.). Reines CSS/Markup ist die Ausnahme — dort ersetzt die headless Screenshot-Verifikation (Schritt 6) den Test; Submit-/FormData-/Fetch-Logik ist NICHT „nur Markup".
-3. **PR** öffnen → **Self-Review** (`/code-review`), Findings fixen, erneut prüfen — bis sauber.
+3. **Self-Review — VOR dem PR, nicht danach.** `/code-review` auf den Arbeits-Diff laufen
+   lassen, Findings fixen, erneut prüfen, bis nichts Größeres mehr kommt. **Erst dann** den PR
+   öffnen.
+   - Die Reihenfolge ist der Punkt. Stand hier lange „PR öffnen → Self-Review", und dabei
+     entfällt das Review in der Praxis: Sobald der PR offen ist und die CI grün läuft, sieht das
+     Paket fertig aus, und der nächste Griff ist `gh pr merge`. In einer Sitzung mit **fünf**
+     PRs (#382, #385, #393, #404, #421) wurde so kein einziges Review gefahren — aufgefallen ist
+     es erst, als der Nutzer nachfragte.
+   - **Grün ist kein Review.** Lint, Typecheck, Tests und Build sagen „es baut und bricht nichts
+     Bekanntes". Sie sagen nichts über die Dinge, die hier tatsächlich schiefgehen: eine Regel,
+     die an einer zweiten Stelle nochmal ausgeschrieben wird, ein Zustand ohne Gegenstück im
+     Dark-Theme, ein Touch-Ziel unter 44 px, eine Kachel, die aus der geteilten Anatomie fällt.
+   - **Steht `/code-review` gerade nicht zur Verfügung, ersetzt es der eigene Diff — vollständig
+     gelesen**, `git diff origin/master...HEAD` von oben bis unten, nicht nur die Stellen, die
+     man im Kopf hat. Das ist die Untergrenze, keine gleichwertige Alternative: im PR-Text
+     vermerken, dass das Review nicht lief.
 4. **CI grün abwarten** (Lint/Tests/Build).
-5. **Autonom (squash) mergen**, sobald Review sauber: `gh pr merge --repo vwellenberg/AivinNet-Client --squash --delete-branch --auto` — `--auto` merged automatisch, sobald die Required Checks grün sind. Keine Rückfrage, kein Review-Zwang.
+5. **Autonom (squash) mergen**, sobald Review (Schritt 3) sauber und CI grün: `gh pr merge --repo vwellenberg/AivinNet-Client --squash --delete-branch --auto` — `--auto` merged automatisch, sobald die Required Checks grün sind. Keine Rückfrage beim Nutzer nötig — „kein Review-Zwang" heißt dabei nur, dass **GitHub** keinen Fremd-Reviewer verlangt; das Self-Review aus Schritt 3 ist trotzdem Pflicht.
 6. **Deploy von `master`** + verifizieren (bei UI: Headless-Screenshot), dann **Worktree entfernen** (`git worktree remove`) + lokalen Branch löschen.
 7. **Issue-Abgleich — Pflicht, nicht Kür.** Nach **jeder** Implementierung prüfen, ob es dazu ein Issue gibt (`gh issue list --repo vwellenberg/AivinNet-Client --state open`), und es schließen **mit einem Kommentar, der die Lösung beschreibt** — was geändert wurde, in welchem PR, womit belegt.
    - Das gilt auch für Arbeit, die **nebenbei** ein Issue erledigt: Features lösen regelmäßig fremde Issues mit, ohne dass jemand die Verbindung zieht. Real passiert: die Album-Hash-Migration aus #255 hat den halben Punkt B von #31 miterledigt, und die Ordner-Arbeit aus #83 die halbe Akzeptanzliste von #94 — beide Issues standen danach monatelang offen und sahen unangetastet aus.
@@ -111,7 +126,8 @@ nachziehen.
 
 ## CI
 
-GitHub Actions laufen (Lint/Tests/Build) und **gaten den Merge** — Branch Protection auf `master` erzwingt diese drei Checks als Required (`strict:false`, kein Review-Zwang, `enforce_admins:false`). Zusätzliches Qualitäts-Gate ist das Self-Review oben:
+GitHub Actions laufen (Lint/Tests/Build) und **gaten den Merge** — Branch Protection auf `master` erzwingt diese drei Checks als Required (`strict:false`, kein Review-Zwang, `enforce_admins:false`). Das eigentliche Qualitäts-Gate ist aber das Self-Review aus Schritt 3, und es läuft **vor** dem
+PR — die CI kann nur prüfen, was sich automatisch prüfen lässt:
 - **Lint** — ESLint (`yarn lint:check`)
 - **Tests** — Vitest (`yarn test`)
 - **Build** — Vite Build (`yarn build`)
