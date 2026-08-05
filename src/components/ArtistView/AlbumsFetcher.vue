@@ -5,10 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted } from "vue";
+import { onMounted } from "vue";
 import { onBeforeRouteUpdate } from "vue-router";
-
-import { updateCardWidth } from "@/stores/content-width";
 
 const props = defineProps<{
   show_text?: boolean;
@@ -17,19 +15,13 @@ const props = defineProps<{
   outside_route?: boolean;
 }>();
 
-const update = async () => {
-  await nextTick();
-
-  updateCardWidth();
-};
-
 onMounted(async () => {
-  props.fetch_callback().then(update);
+  props.fetch_callback();
 });
 
 !props.outside_route &&
   onBeforeRouteUpdate(() => {
     if (!props.reset_callback) return;
-    props.reset_callback().then(update);
+    props.reset_callback();
   });
 </script>

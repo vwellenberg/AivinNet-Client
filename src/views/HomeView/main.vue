@@ -15,10 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted } from 'vue'
+import { onMounted } from 'vue'
 
 import { playSources } from '@/enums'
-import { updateCardWidth } from '@/stores/content-width'
 import useHome from '@/stores/home'
 import updatePageTitle from '@/utils/updatePageTitle'
 
@@ -31,8 +30,6 @@ const home = useHome()
 onMounted(async () => {
     updatePageTitle('Home')
     await home.fetchAll()
-    await nextTick()
-    updateCardWidth()
 })
 </script>
 

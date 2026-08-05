@@ -43,9 +43,9 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, Ref, ref } from 'vue'
+import { onMounted, Ref, ref } from 'vue'
 
-import { maxAbumCards, updateCardWidth } from '@/stores/content-width'
+import { maxAbumCards } from '@/stores/content-width'
 
 import { dropSources, playSources } from '@/enums'
 import { playFromFavorites } from '@/helpers/usePlayFrom'
@@ -87,10 +87,6 @@ onMounted(() => {
         })
         .then(() => {
             noFavs.value = !favAlbums.value.length && !favTracks.value.length && !favArtists.value.length
-        })
-        .then(async () => {
-            await nextTick()
-            updateCardWidth()
         })
 })
 
