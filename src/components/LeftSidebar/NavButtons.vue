@@ -136,6 +136,15 @@ import { menus } from "./navitems";
       display: none;
     }
 
+    // The label is hidden here, so the clear-cover's 26px text buffer has
+    // nothing to keep clear — it only widens each item to 92px, and five of
+    // those force the whole page to 533px on a 390px phone: the layout
+    // viewport zooms out and nothing is responsive any more. The glyph's own
+    // margins already keep the smooth patch around it.
+    .nav-item > div {
+      padding: 2px 0;
+    }
+
     .separator {
       display: none;
     }
