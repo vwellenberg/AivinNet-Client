@@ -38,10 +38,16 @@ const queue = useQueueStore();
     width: 20rem;
     @include candy-box($candy-pink-soft, $candy-radius-sm);
     cursor: pointer;
+    // On the element, not inside `:hover` — a transition declared there only
+    // eases the way in.
+    transition: background-color 0.2s ease-out, color 0.2s ease-out;
 
+    // The shared pointer signal (#422). This card still hovered blush, the
+    // retired pointer colour; the text token travels with the contrast fill,
+    // and nothing inside pins a colour, so inheriting it is enough.
     &:hover {
-      transition: all 0.25s ease;
-      background-color: $candy-pink;
+      background-color: $mem-hover;
+      color: var(--mem-hover-text);
     }
 
     img {

@@ -282,8 +282,8 @@ $control-dense-glyph: 1rem;
   // `$press: false` — this role keeps the scale feedback below instead of the
   // press-into-shadow, so the two never fight over `transform`.
   @include candy-raised(3px, 3px, $press: false);
-  transition: background-color $motion-tint $motion-curve, box-shadow $motion-shadow $motion-curve,
-    transform $motion-press ease;
+  transition: background-color $motion-tint $motion-curve, color $motion-tint $motion-curve,
+    box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
 
   &::before {
     content: "";
@@ -305,11 +305,26 @@ $control-dense-glyph: 1rem;
     height: $glyph;
   }
 
-  // No colour flip on hover: that keeps the primary distinct from the yellow
-  // "playing/active" states, which is a deliberate call from the v1.4.0 round.
+  // The shared pointer signal (#422), like every other button. The v1.4.0
+  // rule this replaces said "no colour flip", but it was aimed at YELLOW —
+  // hover borrowing the playing/active colour. The contrast surface carries no
+  // state meaning, so the conflict that rule prevented no longer exists; what
+  // DID exist was a play button that was the one control in the bar the
+  // pointer said nothing on.
   &:hover {
-    background-color: $mem-teal;
+    background-color: var(--mem-hover);
+    color: var(--mem-hover-text);
+    // The hatch, not the sprinkle: on the contrast surface the texture means
+    // what it means on every other hovered plate. The sprinkle underneath is
+    // ink-stroked and would sit invisible (light) or as a second, clashing
+    // texture (dark), so it yields for the duration.
+    background-image: var(--mem-hatch-hover);
+    background-size: 28px 28px;
     transform: scale(1.06);
+
+    &::before {
+      opacity: 0;
+    }
   }
 
   &:active {
@@ -551,4 +566,33 @@ $control-dense-glyph: 1rem;
   // wanted. The other roles pop when they appear, which is why the two below
   // stay out of it.
   @include btn-pop;
+  // After `candy-raised`, which pins its own shorter list — the fill and glyph
+  // flip on hover here, so both need to ease like they do in every other role.
+  transition: background-color $motion-tint $motion-curve, color $motion-tint $motion-curve,
+    box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
+
+  // The pointer signal, stated IN the role (#422). It used to live at the two
+  // call sites (desktop and mobile transport), both still hovering the old
+  // pointer colour blush — the exact "changing it means finding every copy"
+  // this file exists to end. The on-state's own class outranks the base role's
+  // hover in specificity, so without this block an ON shuffle/repeat is the
+  // one button the pointer says nothing on.
+  &:hover {
+    background-color: var(--mem-hover);
+    color: var(--mem-hover-text);
+    // Hatch over sprinkle, same trade as `btn-primary`'s hover: the ink-
+    // stroked sprinkle is invisible on the ink plate and a second texture on
+    // the paper one.
+    background-image: var(--mem-hatch-hover);
+    background-size: 28px 28px;
+    transform: scale(1.06);
+
+    &::before {
+      opacity: 0;
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 }

@@ -62,7 +62,32 @@ $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard";
         .card-type-label,
         .card-plate {
             background-color: $mem-hover;
+            // The fill is the contrast surface (#422), so its two companions
+            // travel with it: the text token, and the inverted hatch sprite —
+            // the resting hatch is drawn in the surface's own contrast and
+            // vanishes on the flipped plate. Only the image swaps; each plate
+            // keeps its own tile size (38px plate, 28px label).
+            color: var(--mem-hover-text);
+            background-image: var(--mem-hatch-hover);
             @include candy-shadow(4px, 4px);
+        }
+
+        // The card components pin their own text colours ($candy-text on the
+        // name, $candy-text-muted on the meta line), which outrank an inherited
+        // colour — every pinned child flips explicitly. The label's glyph cell
+        // stays out: it keeps its own static entity tint, so its ink glyph
+        // stays right without help.
+        .card-plate *,
+        .card-type-label .label {
+            color: var(--mem-hover-text);
+        }
+
+        // Same exemption as the glyph cell, one level deeper: a child that
+        // keeps a STATIC fill of its own (the album version badges) keeps the
+        // static ink that belongs on it — flipped, its text would sit
+        // paper-on-lavender.
+        .card-plate .master-flag {
+            color: $mem-ink;
         }
     }
 }

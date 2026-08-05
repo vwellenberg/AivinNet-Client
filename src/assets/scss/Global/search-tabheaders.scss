@@ -16,13 +16,9 @@
     @include btn-pill($radius: $candy-radius-pill, $fill: $candy-pink-soft);
     color: $candy-text;
     text-transform: capitalize;
-
-    // Blush on hover, not the role's default yellow. The selected tab IS
-    // yellow, so hovering any tab made it look selected — two signals, one
-    // colour, and no way to tell which tab you were actually on.
-    &:hover {
-      background-color: $mem-hover;
-    }
+    // No hover of its own: the role reads the shared token (#422). The
+    // override this replaces predates that and existed to dodge the role's
+    // then-yellow hover, which made every hovered tab look selected.
   }
 
   .activetab,

@@ -1,4 +1,5 @@
-import { readFileSync } from "fs";
+import { readFileSync, readdirSync, statSync } from "fs";
+import { join } from "path";
 import { describe, expect, it } from "vitest";
 
 // ---------------------------------------------------------------------------
@@ -111,5 +112,103 @@ describe("hover has one source", () => {
       const body = hoverBodies(candy).find(rule => rule.name.includes(mixin))?.body ?? "";
       expect(body, `${mixin} does not set --mem-hover-text`).toMatch(/--mem-hover-text/);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// THE SAME RULE AT EVERY CALL SITE — because the first census stopped at the
+// two central stylesheets, and that boundary was exactly where the bugs lived.
+//
+// When #422 made the hover fill the CONTRAST surface, five call sites kept
+// painting the token fill without flipping what sits on it — the home page's
+// browse tiles, the SEE-ALL sticker and every cover tile's plates went solid
+// ink with invisible ink text on hover. All five were outside the two files
+// the census read.
+//
+// So: in EVERY stylesheet of the app, a rule under a `:hover` selector that
+// paints the token fill must name `--mem-hover-text` in the same block (or
+// include one of the two row mixins, which carry it). Stating the text token
+// where the fill is stated is the convention — even where a role would supply
+// it anyway — because "the two only ever move together" is the entire lesson
+// of this round.
+// ---------------------------------------------------------------------------
+function sourceFiles(dir: string): string[] {
+  // Hand-rolled walk instead of `readdirSync(..., { recursive: true })`, which
+  // needs a newer Node than this repo pins.
+  const found: string[] = [];
+  for (const entry of readdirSync(dir)) {
+    const path = join(dir, entry);
+    if (statSync(path).isDirectory()) {
+      if (entry !== "node_modules" && entry !== "__tests__") found.push(...sourceFiles(path));
+    } else if (/\.(scss|vue)$/.test(entry)) {
+      found.push(path);
+    }
+  }
+  return found;
+}
+
+/**
+ * Every rule whose selector mentions `:hover`, with its FULL body — nested
+ * rules included, and selector lists that span lines (`&:hover,\n&.open {`)
+ * recognised. The narrower `hoverBodies` above deliberately excludes nested
+ * content to attribute a declaration to one rule; this scan needs the opposite,
+ * because a tile's hover block restyles its child plates.
+ */
+function hoverBlocksDeep(source: string): { name: string; body: string }[] {
+  const clean = code(source);
+  const found: { name: string; body: string }[] = [];
+
+  for (let i = 0; i < clean.length; i++) {
+    if (clean[i] !== "{") continue;
+    // The selector is everything since the previous `{`, `}` or `;`.
+    const start = Math.max(...[...";{}"].map(stop => clean.lastIndexOf(stop, i - 1)));
+    const selector = clean.slice(start + 1, i).trim();
+    if (!/:hover/.test(selector)) continue;
+
+    let depth = 0;
+    let end = i;
+    for (let j = i; j < clean.length; j++) {
+      if (clean[j] === "{") depth++;
+      else if (clean[j] === "}") {
+        depth--;
+        if (depth === 0) {
+          end = j;
+          break;
+        }
+      }
+    }
+    found.push({ name: selector.replace(/\s+/g, " "), body: clean.slice(i + 1, end) });
+  }
+  return found;
+}
+
+describe("hover call sites keep the text token beside the fill", () => {
+  const files = sourceFiles("src");
+
+  it("finds the files and hover blocks it claims to check", () => {
+    // Self-check first (.claude/rules/testing.md): a walker or parser that
+    // breaks must not go silently green. The two known token call sites stand
+    // in for "the scan reaches vue AND scss files".
+    expect(files.length).toBeGreaterThan(100);
+    const browse = hoverBlocksDeep(readFileSync("src/components/HomeView/Browse.vue", "utf8"));
+    const cards = hoverBlocksDeep(readFileSync("src/assets/scss/Global/cards.scss", "utf8"));
+    expect(browse.some(rule => /background-color/.test(rule.body))).toBe(true);
+    expect(cards.some(rule => /--mem-hover-text/.test(rule.body))).toBe(true);
+  });
+
+  it("never paints the token fill without flipping the text", () => {
+    const offenders: string[] = [];
+    const fillsToken = /(?:background-color|--row-fill)\s*:[^;]*(?:\$mem-hover(?![\w-])|var\(--mem-hover\))/;
+    const flipsText = /--mem-hover-text|@include\s+(?:candy-row-hover|mem-row-plate-hover)/;
+
+    for (const file of files) {
+      for (const { name, body } of hoverBlocksDeep(readFileSync(file, "utf8"))) {
+        if (fillsToken.test(body) && !flipsText.test(body)) {
+          offenders.push(`${file} → ${name}`);
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
   });
 });

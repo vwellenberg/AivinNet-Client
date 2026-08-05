@@ -132,13 +132,10 @@ defineEmits<{
     // desktop transport (LeftSidebar/NP/HotKeys.vue). The footprint is already
     // reserved by the plated role above, so switching on changes colour only —
     // it used to also resize the button from 3rem to 2.5rem, which shoved its
-    // neighbours on every toggle.
+    // neighbours on every toggle. Hover comes with the role (#422); the copy
+    // here was still blush, the old pointer colour.
     button.aux:not(.aux-off) {
         @include btn-toggle-on;
-
-        &:hover {
-            background-color: $mem-blush;
-        }
     }
 }
 </style>

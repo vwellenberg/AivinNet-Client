@@ -25,13 +25,15 @@ defineProps<{
     flex-shrink: 0;
     transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
 
+    // The text token travels with the fill (#422) and reaches the link by
+    // INHERITANCE — the global anchor rule is `color: inherit`, and the sticker
+    // already colours the capsule. The `a { color: $candy-text }` pin that used
+    // to sit here restated that inheritance and, on hover, outweighed it: the
+    // pill went solid ink with invisible ink text.
     &:hover {
         background-color: $mem-hover;
+        color: var(--mem-hover-text);
         @include candy-shadow(4px, 4px);
-    }
-
-    a {
-        color: $candy-text;
     }
 }
 </style>

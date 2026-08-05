@@ -222,9 +222,11 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
                 white-space: nowrap;
             }
 
-            a {
-                color: $candy-text;
-            }
+            // No anchor pin here, deliberately. The global rule is
+            // `a { color: inherit }` and the sticker above colours the caption,
+            // so a pin adds nothing — except weight: at three classes deep it
+            // outranked the SEE ALL pill's own hover flip, which left that pill
+            // solid ink with invisible ink text (#422's fill, nobody's text).
         }
 
         .rdesc {

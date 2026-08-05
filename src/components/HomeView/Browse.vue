@@ -111,7 +111,7 @@ const browselist: BrowseItem[] = [
     // Hard offset shadow: the tile sits above the grid ground (memphis).
     @include candy-raised(3px, 3px, $press: false);
     color: $candy-text;
-    transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
+    transition: background-color 0.2s ease-out, color 0.2s ease-out, box-shadow 0.12s ease-out;
 
     display: grid;
     grid-template-columns: max-content 1fr;
@@ -124,7 +124,9 @@ const browselist: BrowseItem[] = [
 
     svg {
       height: 1.75rem;
-      color: $candy-text;
+      // No colour of its own: it inherits the tile's, so the hover flip below
+      // reaches the glyph too. A pinned `$candy-text` here sat ink-on-ink the
+      // moment the hover fill became the contrast surface (#422).
     }
   }
 
@@ -139,6 +141,9 @@ const browselist: BrowseItem[] = [
 
   .browseitem:hover {
     background-color: $mem-hover;
+    // The text token travels with the fill (#422) — the fill is the contrast
+    // surface now, so without this the tile is an unreadable solid plate.
+    color: var(--mem-hover-text);
   }
 }
 </style>
