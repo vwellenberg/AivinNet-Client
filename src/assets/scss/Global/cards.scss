@@ -81,6 +81,14 @@ $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard";
         .card-type-label .label {
             color: var(--mem-hover-text);
         }
+
+        // Same exemption as the glyph cell, one level deeper: a child that
+        // keeps a STATIC fill of its own (the album version badges) keeps the
+        // static ink that belongs on it — flipped, its text would sit
+        // paper-on-lavender.
+        .card-plate .master-flag {
+            color: $mem-ink;
+        }
     }
 }
 
