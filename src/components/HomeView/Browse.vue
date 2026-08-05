@@ -7,7 +7,6 @@
         :key="i.title"
         class="browseitem rounded-sm"
         :to="{ name: i.route || '', params: i.params }"
-        :style="{ width: `${album_card_with - 24}px` }"
         @click="i.action && i.action()"
         :class="i.class"
       >
@@ -30,7 +29,6 @@ import {
   PlaylistIcon,
 } from "@/icons";
 import { Routes } from "@/router";
-import { album_card_with } from "@/stores/content-width";
 
 // A library shortcut card. `icon` is a raw svg string rendered via `v-html`.
 interface BrowseItem {
@@ -102,6 +100,11 @@ const browselist: BrowseItem[] = [
   }
 
   .browseitem {
+    // Fixed width: these tiles are a free-wrapping flex row with no alignment
+    // contract to the card grid. They used to borrow the MEASURED card width
+    // from content-width.ts, which made them jump between ~137px (unmeasured
+    // default) and ~200px depending on which page had measured last.
+    width: calc(#{$cardwidth} - 24px);
     font-weight: 500;
     padding: 1.25rem 1rem;
     @include candy-box($mem-panel, $candy-radius-sm);

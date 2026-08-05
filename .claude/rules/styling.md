@@ -309,6 +309,26 @@ Der Grep allein reicht als Beweis nicht — er findet keine dynamischen Pfade. G
 **Content-Hash**: löschen, `rm -rf dist && yarn build`, und die Dateinamen in `dist/assets`
 vergleichen. Bleiben sie gleich, war der Beitrag null (so belegt beim Aufräumen dieser 18).
 
+## ⚠️ Eine Ein-Zeilen-Kartenreihe rendert GENAU so viele Karten wie CSS Spalten baut
+
+Der `CardScroller` (Home-Zeilen, „ähnliche Alben/Artists", Favoriten-Reihen) ist ein
+`repeat(auto-fill, minmax($cardwidth, 1fr))`-Grid und soll **eine** Zeile sein — eine Karte mehr
+als das Grid Spalten hat, und die überzählige bricht in eine zweite Zeile um. Die Spaltenzahl von
+`auto-fill` ist `floor((Breite + Gap) / (Mindestbreite + Gap))`; der JS-Spiegel dazu ist
+`utils/cardColumns.ts`, gespeist aus der **gemessenen Breite des Grids selbst**
+(`useElementSize`), nicht aus einer Seiten-Heuristik.
+
+- **Wer `$cardwidth`, den Spalten-Gap der `.recentitems` oder den `mediumPhones`-Override
+  (9rem) ändert, zieht die Konstanten in `cardColumns.ts` mit** — beide Hälften sind aneinander
+  getestet (`utils/__tests__/cardColumns.test.ts`, gegen eine Nachbildung des
+  auto-fill-Algorithmus).
+- `maxAbumCards` (content-width.ts) ist nur noch die **Fetch-Heuristik** (wie viele Items der
+  Server liefern soll) und die Gruppengröße der virtualisierten Alben-/Artist-Liste. Die alte
+  Fassung teilte durch eine **gemessene** Kartenbreite (`Math.round`, gestreckte 1fr-Karten,
+  aktualisiert von wechselnden Seiten): das Ergebnis hing von der Navigationsreihenfolge ab und
+  überschoss auf halber Bildschirmbreite die echte Spaltenzahl — „Recently played" stand
+  zweizeilig da.
+
 ## ⚠️ Der Inhalt läuft HINTER der Player-Bar — jeder Scroller reserviert sie
 
 `#acontent` spannt die Grid-Zeilen 2–4 (`grid-row: 2 / 4`), damit der Memphis-Grund hinter der Bar

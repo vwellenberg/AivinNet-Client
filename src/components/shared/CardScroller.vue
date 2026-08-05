@@ -22,10 +22,10 @@
                 <SeeAll v-if="route && itemlist.length >= maxAbumCards" :route="route" :text="seeAllText" />
             </div>
         </div>
-        <div class="recentitems">
+        <div ref="grid" class="recentitems">
             <component
                 :is="getComponent(i.type)"
-                v-for="(i, index) in itemlist.slice(0, maxAbumCards)"
+                v-for="(i, index) in itemlist.slice(0, columns)"
                 :key="i"
                 class="hlistitem"
                 v-bind="getProps(i)"
@@ -36,10 +36,13 @@
 </template>
 
 <script setup lang="ts">
-import { playSources } from '@/enums'
-import { maxAbumCards } from '@/stores/content-width'
+import { useElementSize } from '@vueuse/core'
 
-import { computed } from 'vue'
+import { playSources } from '@/enums'
+import { maxAbumCards, win_width } from '@/stores/content-width'
+import { cardColumns } from '@/utils/cardColumns'
+
+import { computed, ref } from 'vue'
 import PlaylistCard from '../PlaylistsList/PlaylistCard.vue'
 import SeeAll from '../shared/SeeAll.vue'
 import AlbumCard from './AlbumCard.vue'
@@ -79,9 +82,26 @@ const uniformType = computed(() => {
     return types.size === 1 ? [...types][0] : null
 })
 
+/**
+ * This is a ONE-row scroller: it must render exactly as many cards as the
+ * grid below has columns, or the surplus card wraps into a second row. The
+ * count therefore comes from the grid's own measured width run through the
+ * CSS auto-fill formula (utils/cardColumns.ts) — never from a heuristic like
+ * the old global `maxAbumCards`, which overshot on half-width screens.
+ * `maxAbumCards` stays as the pre-measure fallback and the SEE ALL threshold.
+ */
+const grid = ref<HTMLElement | null>(null)
+const { width: gridWidth } = useElementSize(grid)
+
+const columns = computed(() => {
+    if (!gridWidth.value) return maxAbumCards.value
+
+    return cardColumns(gridWidth.value, win_width.value)
+})
+
 const itemlist = computed(() => {
     if (!props.items.length) {
-        const items = Array.from(Array(maxAbumCards.value)).fill({
+        const items = Array.from(Array(columns.value)).fill({
             type: 'placeholder',
             with_helptext: true,
         })

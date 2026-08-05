@@ -1,6 +1,8 @@
 import { useWindowSize } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
+import { CARD_MIN, CARD_MIN_PHONE, MEDIUM_PHONE_MAX } from '@/utils/cardColumns'
+
 const content_width = ref(0)
 const content_height = ref(0)
 
@@ -35,17 +37,26 @@ const isMedium = computed(() => {
     return content_width.value > brk.small && content_width.value <= brk.medium
 })
 
-const paddings = 0
-const album_card_with = ref(161.6)
-
-const elemclass = 'hlistitem'
-
+/**
+ * How many cards to FETCH for a one-row scroller, and the group size of the
+ * album/artist list rows. This is a heuristic, not the rendered count — the
+ * `CardScroller` measures its own grid and renders exactly as many cards as
+ * fit one row (utils/cardColumns.ts). This estimate deliberately divides by
+ * the bare card minimum (no gap), so it lands at or slightly above the
+ * gapped one-row column count: over-fetching trims to a full row,
+ * under-fetching would leave a hole.
+ *
+ * The old version divided by a MEASURED card width (Math.round, stretched
+ * 1fr cards, updated per page): it depended on which page measured last and
+ * overshot the real column count on half-width screens — the surplus card
+ * wrapped "Recently played" into a second row.
+ */
 const maxAbumCards = computed(() => {
-    const max = Math.round((resizer_width.value - paddings) / album_card_with.value)
+    if (resizer_width.value == 0) return 7
 
-    if (max == 0) return 7
+    const min = win_width.value <= MEDIUM_PHONE_MAX ? CARD_MIN_PHONE : CARD_MIN
 
-    return max
+    return Math.max(2, Math.floor(resizer_width.value / min))
 })
 
 // WINDOW SIZES
@@ -78,17 +89,7 @@ export const isSmallestPhone = computed(() => win_width.value <= SMALL_MOBILE_WI
 /** Keep in step with the `shortViewport` mixin in `assets/scss/_mixins.scss`. */
 export const isShort = computed(() => win_height.value <= SHORT_HEIGHT && win_width.value > win_height.value)
 
-const updateCardWidth = () => {
-    // if (album_card_with.value !== 161.6) return;
-    const elems = document.getElementsByClassName(elemclass)
-
-    if (elems.length) {
-        album_card_with.value = elems[0].clientWidth
-    }
-}
-
 export {
-    album_card_with,
     content_height,
     content_width,
     heightLarge,
@@ -97,7 +98,6 @@ export {
     isSmall,
     maxAbumCards,
     resizer_width,
-    updateCardWidth,
     win_width,
     track_limit,
 }

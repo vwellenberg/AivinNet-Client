@@ -40,7 +40,7 @@ import { BalancerProvider } from "vue-wrap-balancer";
 // @stores
 import useAuth from "@/stores/auth";
 import useDeviceSync from "@/stores/devicesync";
-import { content_height, content_width, isMobile, resizer_width, updateCardWidth } from "@/stores/content-width";
+import { content_height, content_width, isMobile, resizer_width } from "@/stores/content-width";
 import useLyrics from "@/stores/lyrics";
 import useModal from "@/stores/modal";
 import useQueue from "@/stores/queue";
@@ -145,7 +145,6 @@ function updateContentElemSize({ width, height }: { width: number; height: numbe
     content_height.value = height;
 
     resizer_width.value = elem_width;
-    updateCardWidth();
 }
 
 function handleRootDirsPrompt() {
