@@ -54,8 +54,15 @@ const title = computed(() => {
         background-color: mem-pastel($mem-yellow);
     }
 
+    // Restated on purpose, though the role already hovers: `.to-dark` and
+    // `.to-light` tie with the role's `:hover` on specificity and stand later
+    // in source, so their fill would win and the button would not answer the
+    // pointer (this copy was still blush, the colour #422 retired). The hatch
+    // arrives from the role unopposed; the text token stands beside the fill
+    // because the two only ever move together.
     &:hover {
-        background-color: $mem-blush;
+        background-color: var(--mem-hover);
+        color: var(--mem-hover-text);
     }
 }
 </style>

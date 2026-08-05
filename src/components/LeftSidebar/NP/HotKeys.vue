@@ -130,15 +130,12 @@ const settings = useSettings()
 
     // Active shuffle / repeat: the yellow memphis box (v1.4.0 decision, kept).
     // The footprint is unchanged between off and on — reserved by the quiet
-    // role above — so toggling can never shove the row sideways.
+    // role above — so toggling can never shove the row sideways. The role owns
+    // hover too (#422): the hand-written one here was still blush, the old
+    // pointer colour.
     .aux.shuffle:not(.aux-off),
     .aux.repeat:not(.aux-off) {
         @include btn-toggle-on;
-
-        &:hover {
-            background-color: $mem-blush;
-            transform: scale(1.06);
-        }
     }
 
     @include allPhones {

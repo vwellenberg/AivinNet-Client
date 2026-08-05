@@ -28,10 +28,18 @@ defineProps<{
     &:hover {
         background-color: $mem-hover;
         @include candy-shadow(4px, 4px);
+
+        // The text token travels with the fill (#422): the link below pins its
+        // own colour, so the flip has to reach past the sticker to it — or the
+        // pill is a solid ink capsule with invisible text.
+        a {
+            color: var(--mem-hover-text);
+        }
     }
 
     a {
         color: $candy-text;
+        transition: color 0.2s ease-out;
     }
 }
 </style>

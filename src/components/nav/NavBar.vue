@@ -200,13 +200,11 @@ const mobileTitle = computed(() => {
             @include mem-hatch(28px, $on: accent);
             margin-right: $smaller;
             // Pink, the same fill the Playlists row wears — this button only
-            // appears on the playlists page and creates one.
+            // appears on the playlists page and creates one. Hover stays with
+            // the role: the override here still painted blush, the pointer
+            // colour #422 retired.
             background-color: mem-pastel($mem-pink);
             color: $candy-black;
-
-            &:hover {
-                background-color: $mem-blush;
-            }
         }
 
         // Spotify-style layout: the two auto margins (one before the home
@@ -227,14 +225,11 @@ const mobileTitle = computed(() => {
             @include mem-hatch(28px, $on: accent);
             margin-left: auto;
             // Brand green, toned like the sidebar's Home row wears it — one
-            // colour for one destination. Blush is the hover state now, so a
-            // control cannot sit in it permanently.
+            // colour for one destination. Hover stays with the role: the
+            // override here still painted blush, the pointer colour #422
+            // retired.
             background-color: mem-pastel($brand-green);
             color: $candy-black;
-
-            &:hover {
-                background-color: $mem-blush;
-            }
         }
 
         // The free space is claimed BEFORE the theme toggle, not before the

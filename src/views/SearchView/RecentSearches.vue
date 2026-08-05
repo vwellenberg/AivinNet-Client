@@ -108,12 +108,10 @@ function clearAll() {
     // Lighter than the role, and that is the one difference worth keeping:
     // a filter chip is a label, this one carries back a phrase the user typed.
     font-weight: 500;
-
-    // Blush, not the role's default yellow: yellow means "active" in this
-    // design and a recent search is not a state — it is a thing you can click.
-    &:hover {
-      background-color: $mem-hover;
-    }
+    // No hover of its own: the role reads the shared token (#422). The
+    // override this replaces predates that and existed to dodge the role's
+    // then-yellow hover — yellow means "active", and a recent search is not
+    // a state.
 
     .chip-search {
       width: 1rem;
