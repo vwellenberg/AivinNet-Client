@@ -10,6 +10,9 @@
         <DynamicScroller style="height: 100%" class="scroller" :min-item-size="64" :items="scrollerItems">
             <template #before>
                 <slot name="header"></slot>
+                <!-- Zero-height probe with the exact width of every card row
+                     below: the group size must match the CSS column count. -->
+                <div ref="gridprobe" aria-hidden="true"></div>
             </template>
             <template #default="{ item, index, active }">
                 <DynamicScrollerItem
@@ -26,10 +29,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import useSearchStore from '@/stores/search'
-import { maxAbumCards } from '@/stores/content-width'
+import useCardGridColumns from '@/helpers/useCardGridColumns'
 
 import SearchSvg from '@/assets/icons/search.svg'
 import NoItems from '@/components/shared/NoItems.vue'
@@ -52,8 +55,15 @@ const desc = computed(() =>
         : `Results for '${search.query}' should appear here`
 )
 
+// Rows are partitioned by the columns the gapped grid really builds (see
+// helpers/useCardGridColumns.ts) — except in the right sidebar's search tab
+// (`outside_route`), where the narrow grid wraps by design and 6 per group
+// simply caps how many cards a tab shows.
+const gridprobe = ref<HTMLElement | null>(null)
+const columns = useCardGridColumns(gridprobe)
+
 const scrollerItems = computed(() => {
-    let maxCards = maxAbumCards.value
+    let maxCards = columns.value
 
     if (props.outside_route) {
         maxCards = 6

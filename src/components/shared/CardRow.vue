@@ -56,7 +56,13 @@ const items = computed(() => {
 .cardlistrow {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax($cardwidth, 1fr));
-    padding-bottom: 2rem;
+    // Same spacing as the Home rows. The tiles carry no surface or padding of
+    // their own since the plate anatomy (Global/cards.scss), so without a gap
+    // this grid stood the covers edge-to-edge — only their ink frames met.
+    gap: $card-row-gap $card-col-gap;
+    // The vertical distance between two virtualised rows: a grid gap cannot
+    // reach across scroller items, so the row gap repeats as bottom padding.
+    padding-bottom: $card-row-gap;
     z-index: -1;
 
     @include mediumPhones {

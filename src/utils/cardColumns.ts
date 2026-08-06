@@ -11,8 +11,10 @@
  * so "Recently played" broke into two rows on half-width screens).
  *
  * The constants mirror the SCSS and must move with it:
- * `$cardwidth: 12rem` (_variables.scss), 9rem under `mediumPhones` (≤460px,
- * _mixins.scss), 2rem column gap (`.recentitems`, CardScroller.vue).
+ * `$cardwidth: 12rem` and the `$card-col-gap: 2rem` column gap every card
+ * grid reads (_variables.scss), 9rem under `mediumPhones` (≤460px,
+ * _mixins.scss). The pair is tied together by
+ * components/__tests__/cardGridGap.test.ts.
  */
 export const CARD_MIN = 192
 export const CARD_MIN_PHONE = 144
