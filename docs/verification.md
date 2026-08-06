@@ -51,6 +51,7 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 | `topbar-audit.js` | eine **Reihe** als Ganzes: Box, Glyph, Rahmen, Schatten je Bauteil — plus Hover und Press als **laufende** Matrix (echtes `hover()` und `mouse.down()`, nicht die Deklaration) und die Pops beim Boot. `ROUTE=`, `MOBILE=1`, `BASE=` |
 | `clipfind.js` | **wer schneidet den Schatten ab?** Läuft die Vorfahren-Kette eines Elements hoch und listet je Ebene Box, `overflow` und `padding`. `SEL=`, `ROUTE=`, `BASE=` |
 | `tokencensus.js` | **Design-Token-Zensus**: gruppiert Rahmenbreite, Radius, Schriftgröße und Schatten-Versatz über 12 Routen × hell/dunkel — siehe unten |
+| `scripts/overflow-check.js` (**im Repo**, nicht in `~/uitest`) | **Mobile-Overflow-Gate**: rendert `/` und die Suche über 320/360/390/412/430 px und schlägt fehl, sobald der Layout-Viewport breiter wird als der Bildschirm. Läuft automatisch am Ende von `scripts/deploy-client.sh`; für Branch-Builds von Hand mit `BASE=<proxy>` |
 | `previewproxy.js` + `run*.sh` | Branch-`dist` über einen Proxy servieren und messen |
 | `queueseams.js`, `verify3.js` | E2E für Queue-Seams und Group-Sync |
 | `shuffleverify.js`, `endlessverify.js`, `groupshuffle.js` | E2E für die Zufallswiedergabe: wiederholt sie einen Song, stoppt sie auf der letzten Zeile, würfelt die Gruppe? |
@@ -94,6 +95,13 @@ ohne Tab ist dagegen ehrlich und zeigt „404! Page Not Found!".
 
 ## ⚠️ Fallen beim Messen
 
+- **⚠️ EINE Phone-Breite ist keine Mobile-Verifikation.** Ein Layout, dessen Min-Content zufällig
+  knapp unter der Messbreite liegt, ist bei 390 px grün und bei 360 px (häufigste Android-Breite)
+  kaputt — real passiert: die Bottom-Bar maß nach dem 533-px-Fix exakt 383 px Min-Content, der
+  390er-Check meldete `docScrollW == 390`, und auf dem Telefon des Nutzers (360) lief die Seite
+  wieder über. Mobile-Layout-Befunde deshalb immer über das Spektrum fahren —
+  `scripts/overflow-check.js` (320/360/390/412/430) tut genau das und läuft seitdem als Gate am
+  Ende jedes Deploys.
 - **Gegen `master` kontrollieren, immer.** Eine Null beweist ohne Kontrolllauf nur, dass man
   nicht misst.
 - **⚠️ Das Queue-Panel rendert in der Standard-Umgebung GAR NICHT.** `RightSideBar/Main.vue`
