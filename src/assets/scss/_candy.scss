@@ -732,10 +732,15 @@ $mem-band-tint: 6%;
   );
 }
 
-/// The row's zebra fill: its own band hue, faint. Rows without a band class
-/// mix transparent into transparent — i.e. no fill, not a wrong one.
+/// The row's zebra fill: the band hue folded INTO the row's translucent plate
+/// (`--mem-veil`, set in app-grid.scss), never instead of it. Mixing against
+/// `transparent` would win the bundle-order race against app-grid's plain
+/// veil plate and drop the plate entirely — rows would sit bare on the
+/// doodled ground, which is the exact readability failure the plate exists
+/// to prevent. Rows without a band class fold the veil into itself: a no-op,
+/// not a wrong colour.
 @mixin mem-band-tint {
-  background-color: color-mix(in srgb, var(--band-hue, transparent) $mem-band-tint, transparent);
+  background-color: color-mix(in srgb, var(--band-hue, var(--mem-veil)) $mem-band-tint, var(--mem-veil));
 }
 
 // DEPRECATED (candy design): diagonal candy stripes. Superseded by
