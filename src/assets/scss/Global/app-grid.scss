@@ -78,12 +78,24 @@ $g-border: solid $candy-border-w $mem-line;
         border: $candy-border;
     }
 
-    // The phone pill keeps its shape, on a shorter row: the margin above it is
-    // what the grid row has left over, so it has to shrink with the row or the
-    // pill grows past it and sits on the content card.
     @include shortViewport {
-        margin: $smaller 1rem;
-        padding: 3px 6px;
+        // The bar follows its grid row (#366): the grid hands the nav row
+        // $navheight-short here, but the fixed $navheight above kept the bar at
+        // 72px — 12px past its 60px row, so the one-row chrome this viewport is
+        // about never happened for the top bar.
+        height: $navheight-short;
+
+        // The phone pill keeps its shape, on a shorter row: the margin above it
+        // is what the grid row has left over, so it has to shrink with the row
+        // or the pill grows past it and sits on the content card. Nested under
+        // allPhones on purpose — a flat DESKTOP window is also a short
+        // viewport, and the pill's margin/padding used to land on the
+        // full-width bar there, which has no pill to shape.
+        @include allPhones {
+            height: unset;
+            margin: $smaller 1rem;
+            padding: 3px 6px;
+        }
     }
 }
 
