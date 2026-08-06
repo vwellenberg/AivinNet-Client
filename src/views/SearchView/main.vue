@@ -1,6 +1,12 @@
 <template>
-  <div class="search-view" :class="{ is_alt_layout }">
-    <div v-if="is_alt_layout" class="buttons-area">
+  <div class="search-view" :class="{ is_alt_layout, has_query }">
+    <!-- The tab chips live HERE, in the page — never in the top bar. The old
+      desktop layout rendered a second, four-entry copy of this switcher in the
+      chrome (nav/Titles/SearchTitle.vue), which put content controls into the
+      top bar and silently hid the playlists + folders tabs on wide screens.
+      With no query there is nothing to filter (the page shows recent
+      searches / an idle prompt), so the row only appears once a query exists. -->
+    <div v-if="has_query" class="buttons-area">
       <Tabs
         :tabs="pages"
         :current-tab="($route.params.page as string)"
@@ -38,6 +44,7 @@ const settings = useSettings();
 const search = useSearchStore();
 
 const is_alt_layout = computed(() => settings.is_alt_layout || content_width.value < 1100);
+const has_query = computed(() => (search.query || "").trim().length > 0);
 
 const pages = ["top", "tracks", "albums", "artists", "playlists", "folders"];
 
@@ -143,7 +150,11 @@ onMounted(() => {
     }
   }
 
-  &.is_alt_layout {
+  // The chip row renders in every layout now (it used to be the alt-layout
+  // half of a duplicated switcher; the other copy sat in the top bar), but
+  // only while a query exists — so the grid row hangs on `has_query`, not on
+  // the layout.
+  &.has_query {
     // `max-content`, not a literal: the row used to be pinned to 2rem, which
     // was exactly the chip height of the day. A control that grows — to reach
     // the 44px touch target, say — then grows into a box that cannot follow,
@@ -153,7 +164,11 @@ onMounted(() => {
     gap: $small;
     padding-top: 1rem;
 
-    .vue-recycle-scroller {
+    // Only the alt layout gives every scroller 2rem of top padding
+    // (app-grid.scss); with the chip row above, that padding doubles the gap.
+    // Scoped to has_query: with no query there is no chip row, and the page
+    // should breathe like every other alt-layout page.
+    &.is_alt_layout .vue-recycle-scroller {
       padding-top: 0 !important;
     }
   }

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -65,6 +65,44 @@ function mixinBody(css: string, name: string): string {
 const TABS = ["top", "tracks", "albums", "artists", "playlists", "folders"];
 
 describe("search filter chips", () => {
+  describe("the chip row lives in the page, not the chrome", () => {
+    // The desktop layout used to render a SECOND copy of this switcher in the
+    // top bar (nav/Titles/SearchTitle.vue): four hardcoded tabs, so the
+    // playlists and folders tabs simply did not exist on wide screens, and
+    // the chips sat in the chrome even in the empty state, where there is
+    // nothing to filter.
+    it("renders no search tabs in the top bar", () => {
+      const nav = read("src/components/nav/NavTitles.vue");
+      expect(nav, "NavTitles.vue could not be read").toContain("<template>");
+      expect(nav, "the top bar imports the search-tab switcher again").not.toContain(
+        "SearchTitle"
+      );
+      expect(
+        existsSync("src/components/nav/Titles/SearchTitle.vue"),
+        "the top-bar copy of the search tabs is back"
+      ).toBe(false);
+    });
+
+    it("gates the in-page chip row on a non-empty query", () => {
+      const view = read(VIEW_FILE);
+      const buttonsArea = /<div v-if="([^"]*)" class="buttons-area">/.exec(view);
+      expect(buttonsArea, "no gated .buttons-area in the search view").not.toBeNull();
+      expect(
+        buttonsArea![1],
+        `the chip row must hang on the query, not on the layout — with no query the ` +
+          `page shows recent searches and the chips have nothing to filter.`
+      ).toBe("has_query");
+    });
+
+    it("offers every tab, including playlists and folders", () => {
+      const view = read(VIEW_FILE);
+      expect(view, "the search view could not be read").toContain("buttons-area");
+      for (const tab of TABS) {
+        expect(view, `tab "${tab}" is missing from the search view`).toContain(`"${tab}"`);
+      }
+    });
+  });
+
   describe("footprint comes from the role", () => {
     // Both rows of chips are on screen together in the empty state, so a
     // height stated at one of them is a difference you can see side by side.
@@ -117,10 +155,10 @@ describe("search filter chips", () => {
           `shadow on the bottom and right, or the hard shadow is cut off flush.`
       ).toBe(true);
 
-      const alt = block(css, "&.is_alt_layout").body;
-      expect(alt, "no .is_alt_layout block in the search view").toContain("grid-template-rows");
+      const withQuery = block(css, "&.has_query").body;
+      expect(withQuery, "no .has_query block in the search view").toContain("grid-template-rows");
       expect(
-        alt,
+        withQuery,
         `the chip row is pinned to a literal height again. It has to follow its content — ` +
           `a fixed row equal to the chip height is what cropped the shadow.`
       ).toMatch(/grid-template-rows:\s*max-content/);
