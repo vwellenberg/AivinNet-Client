@@ -278,11 +278,25 @@ export default defineStore('tracklist', {
                 }
             })
         },
+        /**
+         * "Play next": drop tracks into the slot right behind the playing one.
+         *
+         * Goes through `insertAt` rather than splicing itself — that is the only
+         * place the queue is allowed to grow. Splicing here directly skipped BOTH
+         * of its jobs: the group-session seam (the local list grew while the
+         * server's queue_id stayed put, so nothing re-mirrored and every other
+         * device kept the old queue with a currentindex pointing at the wrong
+         * track) and the `clearNextAudio()` right after it — the inserted track
+         * lands exactly on `nextindex`, so the already-preloaded audio was the
+         * track this insert just displaced.
+         */
         insertAfterCurrent(tracks: Track[]) {
             const { currentindex } = useQueue()
 
-            this.tracklist.splice(currentindex + 1, 0, ...tracks)
+            this.insertAt(tracks, currentindex + 1)
 
+            // Shown in the group case too (same as addTracks): the insert was
+            // accepted, it just travels via the server.
             const Toast = useToast()
             Toast.showNotification(`Added ${tracks.length} tracks to queue`, NotifType.Success)
         },
