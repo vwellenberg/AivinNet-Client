@@ -145,6 +145,17 @@ import { menus } from "./navitems";
       padding: 2px 0;
     }
 
+    // The glyph margins exist to space a label that is hidden here — but they
+    // still count into the item's min-content, and min-content is what the
+    // bar cannot shrink below: 62px an item, 383px the bar, wider than a
+    // 360px phone (the most common Android width). The item centers its glyph
+    // itself, so the margins have no job on phones.
+    // The compound selector is deliberate: the plain `svg` margin rule sits
+    // LATER in this file and would win an equal-specificity tie.
+    .nav-item svg {
+      margin: 0;
+    }
+
     .separator {
       display: none;
     }
