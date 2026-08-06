@@ -162,7 +162,9 @@ $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard";
     border: $candy-border;
     border-radius: $candy-radius;
     box-shadow: 3px 3px 0 var(--mem-shadow);
-    transition: background-color 0.2s ease-out, box-shadow $motion-shadow $motion-curve;
+    // Motion only — the paint is a cut (styling.md): the plate flips to the
+    // contrast surface together with its text and hatch, in one frame.
+    transition: box-shadow $motion-shadow $motion-curve;
 }
 
 // ---------------------------------------------------------------------------

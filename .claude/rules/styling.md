@@ -652,6 +652,27 @@ benutzt, verlangt für jede **beide** Hälften, und lässt in der Sidebar keine 
 die eine Zeilen-Fläche (`$candy-pink-soft`, `$mem-panel-static`, `$mem-blush-soft-static`) ohne
 `candy-row-hover` setzt.
 
+### ⚠️ Der Zeigerwechsel ist ein SCHNITT, kein Fade
+
+Seit die Hover-Füllung die Kontrastfläche ist, wechseln Füllung und Text beim Hovern in
+**entgegengesetzte Richtungen** (Fläche hell→dunkel, Text dunkel→hell). Eine Farb-Transition hat
+deshalb zwingend einen Mittel-Frame, in dem **beide grau** sind: der Kontrast bricht kurz
+zusammen, und der Wechsel liest sich, „als legte sich das Schwarz an zwei Stellen
+unterschiedlich über die Farbe" (so der Nutzerbericht wörtlich). Die Schraffur kann ohnehin
+nicht faden — sie ist ein Bild-Tausch — und lief daher immer sichtbar neben jedem Fade her.
+
+**Die Regel:** Farbe (Füllung, Rahmen, Glyphe, Textur) schaltet in **einem Frame** um; nur die
+**Bewegung** bleibt weich (`box-shadow $motion-shadow`, `transform $motion-press`) — der Knopf
+hebt sich fühlbar, aber die Farbe ist sofort da. In einer `transition`-Liste der Rollen und
+Zeilen-Mixins hat keine Farb-Eigenschaft etwas verloren. Der Fade stammte aus der Zeit, als
+Hover eine **gleichsinnige** Blush-Tönung war — dort gab es kein Kreuzen. Gleichsinnige Tönungen
+abseits des Zeiger-Tokens (z. B. das Gelb des Kontextmenü-Eintrags) dürfen weiter faden.
+
+Der Zensus dazu steckt in `hoverToken.test.ts` („the pointer flip is a cut"): In `_candy.scss`
+und `Global/_buttons.scss` darf keine `transition` eine Farb-Eigenschaft nennen. Entschieden in
+der Mockup-Runde `Desktop\AivinNet\mockups\hover-sync\` (vier Timing-Varianten, Zeitlupe): der
+harte Schnitt schlug 0,07-s-Fade und Stufen-Timing.
+
 ## ⚠️ `:hover` latcht auf Touch — nie zum Verstecken nutzen
 
 Auf dem Handy bleibt der Hover-Zustand nach dem ersten Tap hängen. Die mobile Seek-Bar hatte

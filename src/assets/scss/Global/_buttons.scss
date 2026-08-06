@@ -282,8 +282,10 @@ $control-dense-glyph: 1rem;
   // `$press: false` — this role keeps the scale feedback below instead of the
   // press-into-shadow, so the two never fight over `transform`.
   @include candy-raised(3px, 3px, $press: false);
-  transition: background-color $motion-tint $motion-curve, color $motion-tint $motion-curve,
-    box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
+  // Motion only — the PAINT is a cut (styling.md: the pointer flip is a cut,
+  // not a fade). Fill and glyph swap in opposite directions, so a fade has a
+  // mid-frame where both are grey and the flip looks asynchronous.
+  transition: box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
 
   &::before {
     content: "";
@@ -380,8 +382,11 @@ $control-dense-glyph: 1rem;
   // Theme-aware, because the fill under it is. See the token note at the top.
   color: $mem-content-text;
   box-shadow: if($rest == surface, 3px 3px 0 var(--mem-shadow), none);
-  transition: background-color $motion-tint $motion-curve, border-color $motion-tint $motion-curve,
-    color $motion-tint $motion-curve, box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
+  // Motion only — the paint (fill, frame, glyph) is a cut. The hover flips to
+  // the contrast surface, and a cross-fade of two opposing colours meets in
+  // the middle at grey; the hatch cannot fade at all (it is an image swap), so
+  // fading the rest just left it visibly out of step (styling.md).
+  transition: box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
 
   svg {
     width: $glyph;
@@ -453,8 +458,8 @@ $control-dense-glyph: 1rem;
   color: $mem-content-text;
   box-shadow: none;
   cursor: pointer;
-  transition: background-color $motion-tint $motion-curve, color $motion-tint $motion-curve,
-    transform $motion-press ease;
+  // Motion only — the paint is a cut, like every role (styling.md).
+  transition: transform $motion-press ease;
 
   svg {
     width: $glyph;
@@ -511,8 +516,11 @@ $control-dense-glyph: 1rem;
   // of the three were this role — so it was never a pill decision, it was a
   // default nobody had a reason for.
   @include candy-raised(3px, 3px, $press: false);
-  transition: background-color $motion-tint $motion-curve, box-shadow $motion-shadow $motion-curve,
-    transform $motion-press ease;
+  // Motion only — the paint is a cut (styling.md). This role was already half
+  // there by accident: `color` was never in its list, so the label snapped
+  // while the fill faded — one more voice in the "it looks asynchronous"
+  // report this rule ends.
+  transition: box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
 
   &:hover {
     // Was `$candy-pink-deep`, which is YELLOW — and yellow means "playing" in
@@ -566,10 +574,9 @@ $control-dense-glyph: 1rem;
   // wanted. The other roles pop when they appear, which is why the two below
   // stay out of it.
   @include btn-pop;
-  // After `candy-raised`, which pins its own shorter list — the fill and glyph
-  // flip on hover here, so both need to ease like they do in every other role.
-  transition: background-color $motion-tint $motion-curve, color $motion-tint $motion-curve,
-    box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
+  // After `candy-raised`, which pins its own shorter list. Motion only — the
+  // paint is a cut, like every role (styling.md).
+  transition: box-shadow $motion-shadow $motion-curve, transform $motion-press ease;
 
   // The pointer signal, stated IN the role (#422). It used to live at the two
   // call sites (desktop and mobile transport), both still hovering the old
