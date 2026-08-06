@@ -11,7 +11,7 @@
         :class="i.class"
       >
         <div class="icon" v-html="i.icon"></div>
-        <div style="width: 100%">
+        <div class="label">
           {{ i.title }}
         </div>
       </RouterLink>
@@ -107,7 +107,12 @@ const browselist: BrowseItem[] = [
     width: calc(#{$cardwidth} - 24px);
     font-weight: 500;
     padding: 1.25rem 1rem;
-    @include candy-box($mem-panel, $candy-radius-sm);
+    // A pressable card carries the hatch (#378). Content sits on smooth cover
+    // patches that read the same `--row-fill` as the tile itself, so a fill
+    // swap can never split surface and cover — the mem-row-plate pattern.
+    --row-fill: #{$mem-panel};
+    @include candy-box(var(--row-fill), $candy-radius-sm);
+    @include mem-hatch(38px, $on: surface);
     // Hard offset shadow: the tile sits above the grid ground (memphis).
     @include candy-raised(3px, 3px, $press: false);
     color: $candy-text;
@@ -118,8 +123,17 @@ const browselist: BrowseItem[] = [
     place-items: center;
     gap: $small;
 
+    .icon,
+    .label {
+      @include mem-hatch-clear(4px);
+    }
+
+    .label {
+      width: 100%;
+    }
+
     .icon {
-      height: 1.75rem;
+      height: calc(1.75rem + 4px); // glyph + the cover's 2px vertical buffer
     }
 
     svg {
@@ -140,10 +154,31 @@ const browselist: BrowseItem[] = [
   }
 
   .browseitem:hover {
-    background-color: $mem-hover;
+    --row-fill: var(--mem-hover);
+    background-color: var(--mem-hover);
+    // The hatch answers the fill (#422): paper strokes on the dark plate in
+    // light mode, ink strokes on the paper plate in dark mode.
+    background-image: var(--mem-hatch-hover);
     // The text token travels with the fill (#422) — the fill is the contrast
     // surface now, so without this the tile is an unreadable solid plate.
     color: var(--mem-hover-text);
+  }
+
+  // Phones: two tiles side by side instead of one fixed-width tile per row.
+  // The fixed width has no room at 390px (168px + 24px gap wraps to a single
+  // column), so the grid owns the width and the tiles give theirs up.
+  @include mediumPhones {
+    .browselist {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .browseitem {
+      width: auto;
+      padding: 0.9rem 0.75rem;
+      font-size: 0.95rem;
+    }
   }
 }
 </style>
