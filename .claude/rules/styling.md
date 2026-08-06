@@ -318,16 +318,23 @@ als das Grid Spalten hat, und die überzählige bricht in eine zweite Zeile um. 
 `utils/cardColumns.ts`, gespeist aus der **gemessenen Breite des Grids selbst**
 (`useElementSize`), nicht aus einer Seiten-Heuristik.
 
-- **Wer `$cardwidth`, den Spalten-Gap der `.recentitems` oder den `mediumPhones`-Override
-  (9rem) ändert, zieht die Konstanten in `cardColumns.ts` mit** — beide Hälften sind aneinander
-  getestet (`utils/__tests__/cardColumns.test.ts`, gegen eine Nachbildung des
-  auto-fill-Algorithmus).
-- `maxAbumCards` (content-width.ts) ist nur noch die **Fetch-Heuristik** (wie viele Items der
-  Server liefern soll) und die Gruppengröße der virtualisierten Alben-/Artist-Liste. Die alte
-  Fassung teilte durch eine **gemessene** Kartenbreite (`Math.round`, gestreckte 1fr-Karten,
-  aktualisiert von wechselnden Seiten): das Ergebnis hing von der Navigationsreihenfolge ab und
-  überschoss auf halber Bildschirmbreite die echte Spaltenzahl — „Recently played" stand
-  zweizeilig da.
+- **Der Kartenabstand hat EINE Quelle:** `$card-row-gap` / `$card-col-gap` in `_variables.scss`.
+  Jedes Karten-Grid (`minmax($cardwidth, …)`) liest den Spalten-Gap aus dem Token — der Zensus
+  dazu ist getestet (`components/__tests__/cardGridGap.test.ts`). Die Alben-/Künstlerliste, die
+  Such-Kartenseiten und die Discography standen bis #440 **ohne** Gap da: Seit die Kacheln keine
+  eigene Fläche mehr tragen (Platten-Anatomie), stießen die Cover dort Kante an Kante — sichtbar
+  nur im Vergleich mit den Home-Zeilen nebenan, und kein Diff einer einzelnen Datei sagte es.
+- **Wer `$cardwidth`, `$card-col-gap` oder den `mediumPhones`-Override (9rem) ändert, zieht die
+  Konstanten in `cardColumns.ts` mit** — beide Hälften sind aneinander getestet
+  (`utils/__tests__/cardColumns.test.ts` gegen eine Nachbildung des auto-fill-Algorithmus,
+  `cardGridGap.test.ts` für die Token-Spiegelung).
+- **Was Items in Kartenzeilen partitioniert, zählt Spalten MIT Gap:** `useCardGridColumns()`
+  (helpers) misst das Grid bzw. eine Null-Höhen-Probe im `#before`-Slot des Scrollers und
+  rechnet durch den auto-fill-Spiegel. `maxAbumCards` (content-width.ts) ist nur noch die
+  **Fetch-Heuristik** (wie viele Items der Server liefern soll) — sie ignoriert den Gap bewusst
+  und überschösse als Gruppengröße nahe der Breakpoints um eine Karte, die dann **innerhalb**
+  jeder virtualisierten Zeile umbricht. Der Zensus in `cardGridGap.test.ts` verbietet
+  `maxAbumCards` deshalb in den Partitionierern (`AlbumListView`, `CardGridPage`).
 
 ## ⚠️ Der Inhalt läuft HINTER der Player-Bar — jeder Scroller reserviert sie
 
