@@ -39,7 +39,11 @@ if (ds.joined && !ds.applying) { ds.intercept('play', index); return }
 
 - `queue.ts` — play, playPause, seek, playNext, playPrev, shuffleQueue, **clearQueue**;
   `autoPlayNext` wird zum No-op.
-- `queue/tracklist.ts` — `insertAt` **und** `removeByIndex` (Play next / Add to queue / Remove).
+- `queue/tracklist.ts` — `insertAt`, `moveTrack` **und** `removeByIndex` (Add to queue / Reorder /
+  Remove). Wer eine Queue-Mutation baut, ruft **eine dieser drei** auf, statt selbst zu splicen:
+  `insertAfterCurrent` („Play next") hat das getan und dabei nicht nur den Seam verloren, sondern
+  auch das `clearNextAudio()` aus `insertAt` — es fügt genau auf `nextindex` ein, das vorgeladene
+  Audio war also der gerade verdrängte Track (#434).
 - `player.ts` — `onAudioEnded`: der Leader plant `track_change`. Gapless und Crossfade sind im
   Gruppenmodus **aus**.
 - `tracker.ts` — nur der Scrobble-Leader submittet; Nicht-Leader verwerfen die Akkumulation.
@@ -62,6 +66,11 @@ splicen ändert die Server-`queue_id` **nicht**, also re-mirrort niemand, und de
   Anker auf 0 stand, und der Steer-Loop riss es alle 250 ms zurück. Leere Queue ⇒
   `queue.playing = false`, `pausePlayingSource()`, `resetRate`, `loadedTrackhash = ''`. Dazu Guard
   in `onTrackEnded`: ein `track_change` in eine leere Session beantwortet der Server mit 400.
+- **Die Liste wird gezählt, nicht aufgeschrieben.** `queue.groupmode.test.ts` prüft eine *feste*
+  Auswahl von Actions — eine neue Mutation ohne `intercept` bleibt dort grün, und genau so ist
+  #434 durchgerutscht. Der Zensus `queue/__tests__/queueSeamCensus.test.ts` liest stattdessen den
+  Quelltext beider Queue-Stores: jede Action, die `this.tracklist` strukturell schreibt, muss den
+  Seam vor der Mutation erreichen oder mit Begründung in `LOCAL_BY_DESIGN` stehen.
 - E2E: `~/uitest/queueseams.js`.
 
 ## Zufallswiedergabe in der Gruppe

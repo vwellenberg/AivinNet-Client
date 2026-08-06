@@ -101,6 +101,36 @@ describe('queue group-mode seams', () => {
         expect(dsMock.intercept).not.toHaveBeenCalled()
     })
 
+    // "Play next" (context menus of album/artist/folder/playlist and the
+    // sidebar's playlist row) used to splice the local list itself, so the
+    // group queue never learned about it — the classic silent desync (#434).
+    it('joined + not applying: "Play next" routes to intercept and leaves the local list alone', () => {
+        const q = useQueue()
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('a'), mkTrack('b'), mkTrack('c')]
+        q.currentindex = 1
+        dsMock.joined = true
+
+        const added = [mkTrack('x'), mkTrack('y')]
+        tl.insertAfterCurrent(added)
+
+        // The insert lands behind the playing track — index 2 here.
+        expect(dsMock.intercept).toHaveBeenCalledWith('insertTracks', added, 2)
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['a', 'b', 'c'])
+    })
+
+    it('solo: "Play next" splices right after the current track', () => {
+        const q = useQueue()
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('a'), mkTrack('b'), mkTrack('c')]
+        q.currentindex = 1
+
+        tl.insertAfterCurrent([mkTrack('x'), mkTrack('y')])
+
+        expect(dsMock.intercept).not.toHaveBeenCalled()
+        expect(tl.tracklist.map((t: any) => t.trackhash)).toEqual(['a', 'b', 'x', 'y', 'c'])
+    })
+
     it('joined + not applying: reordering the queue routes to intercept', () => {
         const tl = useTracklist()
         tl.tracklist = [mkTrack('a'), mkTrack('b'), mkTrack('c')]
