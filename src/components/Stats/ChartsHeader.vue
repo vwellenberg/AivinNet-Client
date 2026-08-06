@@ -1,27 +1,28 @@
 <template>
     <div class="chartheader">
-        <!-- <div class="title">{{ name }}</div> -->
-        <div class="group">
-            <div
-                class="group-item"
+        <div class="seg" role="group" aria-label="Chart type">
+            <button
                 v-for="g in groups"
                 :key="g"
-                :class="g === name ? 'active' : ''"
+                type="button"
+                :class="{ active: g === name }"
+                :aria-pressed="g === name"
                 @click="$emit('changeGroup', g)"
             >
                 {{ g }}
-            </div>
+            </button>
         </div>
-        <div class="period">
-            <div
-                class="period-item"
+        <div class="seg" role="group" aria-label="Chart period">
+            <button
                 v-for="p in periods"
                 :key="p"
-                :class="p === period ? 'active' : ''"
+                type="button"
+                :class="{ active: p === period }"
+                :aria-pressed="p === period"
                 @click="$emit('changePeriod', p)"
             >
                 {{ p }}
-            </div>
+            </button>
         </div>
     </div>
 </template>
@@ -48,30 +49,65 @@ const periods = ['week', 'month', 'year', 'alltime']
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: solid 1px $gray5;
-    // margin-left: -1rem;
+    flex-wrap: wrap;
+    gap: $small;
 
-    .title {
-        font-size: 1rem;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
+    // One segmented PLATE per tab group ("a folder is ONE plate"): panel
+    // fill, ink frame, offset shadow, hatch — the pressable statement the
+    // old text-only tabs never made. Active is yellow, the design's "on"
+    // signal, exactly like the pager chips at the bottom of this screen.
+    // No separate underline: the plate is its own divider (#422 — no more
+    // 1px hairlines in a 3px ink world).
+    .seg {
+        display: inline-flex;
+        background-color: $mem-panel;
+        @include mem-hatch(28px, $on: surface);
+        border: $candy-border;
+        border-radius: $candy-radius-sm;
+        box-shadow: 3px 3px 0 var(--mem-shadow);
+        overflow: hidden;
 
-    .period,
-    .group {
-        display: flex;
-        gap: 1rem;
-        text-transform: uppercase;
-
-        .period-item,
-        .group-item {
-            cursor: pointer;
+        button {
+            // 44px interior — the chrome touch-target floor (styling.md).
+            height: $bar-control;
+            padding: 0 $medium;
             font-size: 0.85rem;
-            font-weight: 600;
-            color: $gray2;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: $mem-content-text;
+            background-color: transparent;
+            border: none;
+            border-right: $candy-border;
+            border-radius: 0;
+            cursor: pointer;
 
-            &.active {
-                color: $white;
+            &:last-child {
+                border-right: none;
+            }
+
+            // The pointer flip is a CUT (styling.md): fill, hatch and text
+            // swap in one frame, --mem-hover-text travels with the fill.
+            &:hover {
+                background-color: var(--mem-hover);
+                background-image: var(--mem-hatch-hover);
+                background-size: 46px 46px;
+                color: var(--mem-hover-text);
+            }
+
+            &.active,
+            &.active:hover {
+                background-color: $mem-yellow;
+                background-image: var(--mem-hatch-accent);
+                background-size: 46px 46px;
+                color: $mem-ink;
+            }
+        }
+
+        @include allPhones {
+            button {
+                padding: 0 0.55rem;
+                font-size: 0.8rem;
             }
         }
     }

@@ -39,6 +39,9 @@ const PLATES = [
   { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-playlist-item" },
   { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-folder" },
   { file: "/src/components/LeftSidebar/NavButtons.vue", selector: ".nav-item" },
+  // Charts rows are navigating plates too — they keep the veil fill through
+  // the plate's own `--row-fill` indirection instead of the panel fill.
+  { file: "/src/components/Stats/ChartItem.vue", selector: ".chartitem" },
 ];
 
 /** The static light fills a hovered/marked row is allowed to wear. */
