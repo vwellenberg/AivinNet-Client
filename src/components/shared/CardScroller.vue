@@ -180,7 +180,11 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
     // ground (indigo in dark) bleed through the card.
 
     .rinfo {
-        padding: 0 $medium;
+        // No horizontal padding: the caption sticker shares its left edge with
+        // the first tile below (and SEE ALL its right edge with the last one).
+        // The old $medium indent left the heading 12px right of the cards —
+        // next to the tiles' crisp ink frames that read as misaligned, not as
+        // breathing room.
         // 24px von der Überschrift zur ersten Kachel (Stufe B).
         margin-bottom: 1.5rem;
 
