@@ -1,7 +1,6 @@
 <template>
   <div class="info">
     <SettingsTitle v-if="$route.name == Routes.settings" :text="'Settings'" />
-    <SearchTitle v-if="$route.name == Routes.search" />
     <PlaylistsTitle v-if="$route.name == Routes.playlists" />
     <SimpleNav
       v-if="$route.name == Routes.artistTracks"
@@ -15,7 +14,6 @@
 import { Routes } from "@/router";
 
 import SimpleNav from "./Titles/SimpleNav.vue";
-import SearchTitle from "./Titles/SearchTitle.vue";
 import SettingsTitle from "./Titles/SettingsTitle.vue";
 import PlaylistsTitle from "./Titles/PlaylistsTitle.vue";
 </script>
