@@ -34,7 +34,11 @@ vi.mock('@/stores/queue/tracklist', () => ({
 const notification = vi.fn()
 vi.mock('@/stores/notification', () => ({
     NotifType: { Success: 0, Error: 1, Info: 2 },
-    Notification: (...a: any[]) => notification(...a),
+    // Called with `new` in the component — an arrow function here throws
+    // "is not a constructor" and takes the whole submit handler down with it.
+    Notification: function (...a: any[]) {
+        notification(...a)
+    },
 }))
 
 import NewPlaylist from '@/components/modals/NewPlaylist.vue'
