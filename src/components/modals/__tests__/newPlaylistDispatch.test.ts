@@ -1,5 +1,5 @@
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // NewPlaylist.vue's create() is a priority chain — path → albumhash →
 // artisthash → trackhash → is_queue → empty — fed by whatever props the
@@ -46,20 +46,28 @@ import NewPlaylist from '@/components/modals/NewPlaylist.vue'
 const PLAYLIST = { id: 5, name: 'typed name' }
 const ALL_SAVERS = [saveTrackAsPlaylist, saveAlbumAsPlaylist, saveArtistAsPlaylist, saveFolderAsPlaylist, createNewPlaylist]
 
+// Unmounted in afterEach — tearing down inside submit() raced the .then that
+// emits hideModal, so the emit was never recorded.
+let mounted: ReturnType<typeof mount>[] = []
+
 async function submit(props: Record<string, unknown>, name = 'typed name') {
     const wrapper = mount(NewPlaylist, { props, attachTo: document.body })
+    mounted.push(wrapper)
 
     const input = wrapper.find('input').element as HTMLInputElement
     input.value = name
 
     await wrapper.find('form').trigger('submit')
     // create() chains a .then on the mocked request promise.
-    await Promise.resolve()
-    await Promise.resolve()
+    await flushPromises()
 
-    wrapper.unmount()
     return wrapper
 }
+
+afterEach(() => {
+    mounted.forEach(w => w.unmount())
+    mounted = []
+})
 
 beforeEach(() => {
     ALL_SAVERS.forEach(saver => {
