@@ -123,7 +123,9 @@ function getRouterParams() {
     padding-left: 1.25rem;
 
     display: grid;
-    grid-template-columns: 1.5rem 2.9rem max-content 1fr max-content;
+    // Last column `auto`, not `max-content`: under pressure (phones) the
+    // duration may wrap instead of running out of the row's frame.
+    grid-template-columns: 1.5rem 2.9rem max-content 1fr auto;
     gap: 1.5rem;
     align-items: center;
 
@@ -262,6 +264,27 @@ function getRouterParams() {
         text-align: right;
         text-transform: uppercase;
         font-weight: bold;
+    }
+
+    // Narrow phones: the row keeps all five cells, so every fixed width
+    // shrinks a step — measured against 360/390px, where the duration used
+    // to run out of the frame. Sits at the end of the selector on purpose
+    // (styling.md: breakpoint blocks last, or equal-specificity rules above
+    // win by order).
+    @include allPhones {
+        padding: $small 0.9rem $small 0.75rem;
+        grid-template-columns: 1.25rem 2.4rem max-content 1fr auto;
+        gap: 0.75rem;
+
+        .rank {
+            width: 2.2rem;
+            height: 2.2rem;
+            font-size: 1.05rem;
+        }
+
+        .helptext {
+            font-size: 0.7rem;
+        }
     }
 }
 </style>
