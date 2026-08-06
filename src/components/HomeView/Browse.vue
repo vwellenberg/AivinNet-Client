@@ -80,8 +80,10 @@ const browselist: BrowseItem[] = [
 
 <style lang="scss">
 .homebrowse {
+  // No horizontal padding: the caption sticker and the tiles sit on the
+  // page's own content edge — the same line the card rows below start on.
+  // An extra indent here put the whole block 8px right of everything else.
   padding: 1.5rem 0;
-  padding-left: $small;
 
   .btitle {
     // A sticker, like every other section caption: it stood free on the doodle
