@@ -38,6 +38,7 @@ import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { Track } from '@/interfaces'
 
 import { pageGradient } from '@/utils/colortools/pageGradient'
+import { trackBandFade } from '@/utils/songItemMethods'
 import useAlbumStore from '@/stores/pages/album'
 import useQueueStore from '@/stores/queue'
 import useTracklist from '@/stores/queue/tracklist'
@@ -75,7 +76,7 @@ class songItem {
     props = {}
     component: typeof SongItem | typeof AlbumDiscBar
 
-    constructor(track: Track, is_first = false, is_last = false) {
+    constructor(track: Track, is_first = false, is_last = false, band_fade = 1) {
         this.id = track.filepath || Math.random()
         this.props = track.is_album_disc_number
             ? { album_disc: track }
@@ -86,6 +87,7 @@ class songItem {
                   is_first,
                   is_last,
                   source: dropSources.album,
+                  band_fade,
               }
         this.component = track.is_album_disc_number ? AlbumDiscBar : SongItem
     }
@@ -121,10 +123,22 @@ function getSongItems() {
     // Frame each disc section on its own: a row is "first"/"last" when its
     // neighbor is a disc-number pseudo-track (rendered as AlbumDiscBar) or the
     // list edge, so every disc group gets a closed ink frame.
+    //
+    // The band fade counts the REAL tracks across the whole album (disc bars
+    // excluded, discs not restarted) — `track.track` is the per-disc tag number
+    // and would snap the gauge back to pale at every disc boundary.
+    const totalReal = album.tracks.filter(t => !t.is_album_disc_number).length
+    let pos = 0
     return album.tracks.map((track, i) => {
         const prev = album.tracks[i - 1]
         const next = album.tracks[i + 1]
-        return new songItem(track, !prev || !!prev.is_album_disc_number, !next || !!next.is_album_disc_number)
+        if (!track.is_album_disc_number) pos++
+        return new songItem(
+            track,
+            !prev || !!prev.is_album_disc_number,
+            !next || !!next.is_album_disc_number,
+            trackBandFade(pos, totalReal)
+        )
     })
 }
 

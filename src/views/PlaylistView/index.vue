@@ -60,6 +60,7 @@ import { pageGradient } from '@/utils/colortools/pageGradient'
 import { createDragAutoScroller } from '@/utils/dragAutoScroll'
 import { resolveMove } from '@/utils/playlistMove'
 import { rangeAligns } from '@/utils/queueMove'
+import { trackBandFade } from '@/utils/songItemMethods'
 
 const queue = useQueue()
 const tracklist = useTracklist()
@@ -158,6 +159,10 @@ const scrollerItems = computed(() => {
                 droppable: !playlist.query,
                 source: dropSources.playlist,
                 show_date_added: supportsDateAdded.value,
+                // Fade follows the RENDERED position (i) for the same reason
+                // the frame caps do: under an in-playlist search track.index
+                // points into the unfiltered list.
+                band_fade: trackBandFade(i + 1, playlist.tracks.length),
             },
             size: 72,
         }

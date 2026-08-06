@@ -54,6 +54,7 @@ import SongItem from "@/components/shared/SongItem.vue";
 import updatePageTitle from "@/utils/updatePageTitle";
 import { pageGradient } from "@/utils/colortools/pageGradient";
 import { createDragAutoScroller } from "@/utils/dragAutoScroll";
+import { trackBandFade } from "@/utils/songItemMethods";
 
 
 const queue = useQueueStore();
@@ -114,6 +115,7 @@ const scrollerItems = computed(() => {
         // carries is a queue index.
         droppable: true,
         source: dropSources.queue,
+        band_fade: trackBandFade(index + 1, store.tracklist.length),
       },
     };
   });

@@ -11,6 +11,7 @@
             bandClass,
             dragOverClass,
         ]"
+        :style="{ '--band-fade': band_fade ?? 1 }"
         :draggable="droppable"
         @dragstart="onDragStart"
         @dragover.prevent="onDragOver"
@@ -105,6 +106,10 @@ const props = defineProps<{
     source: dropSources
     show_plays?: boolean
     show_date_added?: boolean
+    // Band strength for this row, 0.25–1 (see trackBandFade). Callers compute
+    // it from the row's RENDERED position and the list total; omitted = 1
+    // (lists with no usable total keep a uniform full-strength band).
+    band_fade?: number
 }>()
 
 // Plays column is opt-in (artist "Popular"/Top Tracks) and hidden on narrow
@@ -244,6 +249,11 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     // never shifts the content. (app-grid.scss zeroes the radius again for the
     // middle rows of the list plate — the frame there is continuous.)
     @include candy-row-base;
+    // Zebra: the row's own band hue, faint, so the fill alternates warm/cool
+    // with the band instead of adding a grey third layer. The filled states
+    // (hover/current/contexton) each set their own background and win — hover
+    // by pseudo-class, the other two by their extra class.
+    @include mem-band-tint;
 
     // Plays column (issue #68): inserted between album and duration. Only set
     // on wide layouts (the .with-plays class is toggled off on isSmall/isMedium

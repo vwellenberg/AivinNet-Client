@@ -688,10 +688,15 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // ---------------------------------------------------------------------------
 // THE COLOUR GUIDE BAND — the leading edge of a track row.
 //
-// A cassette inlay's spine: five accents cycling down the list, so the eye can
-// tell one row from the next without a fill or a rule between them. It replaces
-// the LEFT half of the row's ink side-stripes; the right one stays, and the
-// frame is still closed top/bottom by the .is-first/.is-last caps.
+// A cassette inlay's spine. TWO accents in alternation (was five): warm coral
+// against cool teal, the widest pair the palette has, so two neighbouring rows
+// tell apart even when both are pale. Five full-strength accents said nothing —
+// colour 3 only ever meant "third row in the cycle". Now the hue separates
+// neighbours and the STRENGTH carries the meaning: `--band-fade` (set inline
+// from trackBandFade) runs 0.25 → 1 over the list, so the band reads as a
+// how-far-am-I gauge mid-scroll. It replaces the LEFT half of the row's ink
+// side-stripes; the right one stays, and the frame is still closed top/bottom
+// by the .is-first/.is-last caps.
 //
 // ⚠️ The cycle is driven by a CLASS the component computes from the row index,
 // never by `:nth-child`. Track lists render through `vue-virtual-scroller`,
@@ -703,15 +708,39 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // `::after` both belong to the now-playing state (texture + zigzag marker), and
 // a row that is playing still needs its band.
 // ---------------------------------------------------------------------------
-$mem-band-colours: $mem-teal, $mem-lavender, $mem-coral, $mem-pink, $mem-yellow;
+$mem-band-colours: $mem-coral, $mem-teal;
 
-/// Declares `--band` for each `band-N` class. Applied to the row selector.
+/// How much of the row's band hue tints its background — the "zebra" that
+/// separates rows in the flat, retelling the band's two-colour story instead
+/// of introducing a third, grey layer. Faint on purpose: text sits on it.
+$mem-band-tint: 6%;
+
+/// Declares `--band-hue` for each `band-N` class and derives `--band` from it
+/// at the row's fade strength. Applied to the row selector.
 @mixin mem-band-cycle {
   @for $i from 1 through length($mem-band-colours) {
     &.band-#{$i - 1} {
-      --band: #{nth($mem-band-colours, $i)};
+      --band-hue: #{nth($mem-band-colours, $i)};
     }
   }
+  // Fallback hue = ink line, fallback fade = 1: a row without a band class or
+  // fade value keeps the old full-strength edge instead of losing it.
+  --band: color-mix(
+    in srgb,
+    var(--band-hue, #{$mem-line}) calc(var(--band-fade, 1) * 100%),
+    transparent
+  );
+}
+
+/// The row's zebra fill: the band hue folded INTO the row's translucent plate
+/// (`--mem-veil`, set in app-grid.scss), never instead of it. Mixing against
+/// `transparent` would win the bundle-order race against app-grid's plain
+/// veil plate and drop the plate entirely — rows would sit bare on the
+/// doodled ground, which is the exact readability failure the plate exists
+/// to prevent. Rows without a band class fold the veil into itself: a no-op,
+/// not a wrong colour.
+@mixin mem-band-tint {
+  background-color: color-mix(in srgb, var(--band-hue, var(--mem-veil)) $mem-band-tint, var(--mem-veil));
 }
 
 // DEPRECATED (candy design): diagonal candy stripes. Superseded by
