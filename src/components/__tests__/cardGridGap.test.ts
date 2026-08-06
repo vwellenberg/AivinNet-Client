@@ -46,9 +46,16 @@ function scssFiles(dir: string): string[] {
   return files;
 }
 
-/** Comments go first: a token named in prose must not satisfy the census. */
+/**
+ * Comments go first: a token named in prose must neither satisfy the census
+ * nor trip the maxAbumCards ban below (the very comments explaining the rule
+ * name the banned identifier).
+ */
 function stripComments(source: string): string {
-  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+  return source
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/[^\n]*/g, "");
 }
 
 function cardGrids(): Map<string, string> {
@@ -118,8 +125,8 @@ describe("card grid spacing", () => {
     "/src/views/AlbumListView/main.vue",
     "/src/views/SearchView/CardGridPage.vue",
   ])("%s partitions rows by the measured column count", file => {
-    const source = VUE_SOURCES[file];
-    expect(source, `${file} is gone — update this census`).toBeTruthy();
+    expect(VUE_SOURCES[file], `${file} is gone — update this census`).toBeTruthy();
+    const source = stripComments(VUE_SOURCES[file]);
     expect(source).toMatch(/useCardGridColumns/);
     expect(
       source.includes("maxAbumCards"),
