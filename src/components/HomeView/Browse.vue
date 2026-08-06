@@ -104,7 +104,10 @@ const browselist: BrowseItem[] = [
     // contract to the card grid. They used to borrow the MEASURED card width
     // from content-width.ts, which made them jump between ~137px (unmeasured
     // default) and ~200px depending on which page had measured last.
-    width: calc(#{$cardwidth} - 24px);
+    // -8px, not -24px: the two hatch cover patches take 16px out of the label
+    // line, and "Fav. albums" needed exactly the old width — measured 74px one
+    // line at 168px, 92px wrapped when the covers arrived.
+    width: calc(#{$cardwidth} - 8px);
     font-weight: 500;
     padding: 1.25rem 1rem;
     // A pressable card carries the hatch (#378). Content sits on smooth cover
