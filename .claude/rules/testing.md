@@ -38,8 +38,9 @@ Test-Reset-Helper, der im `beforeEach` aufgerufen wird — Vorbild:
 
 ## ⚠️ Quelltext-scannende Tests: `import.meta.glob(..., { as: "raw" })` liefert bei `.scss` LEER
 
-Es gibt hier zwei Tests, die den Quelltext selbst prüfen, weil Prosa die Regel nicht gehalten
-hat (`headerActionOrder`, `cardAnatomy`). Für `.vue` ist der Glob richtig — der Test sieht genau
+Es gibt hier mehrere Tests, die den Quelltext selbst prüfen, weil Prosa die Regel nicht gehalten
+hat (`headerActionOrder`, `cardAnatomy`, `rowHover`, `queueSeamCensus`). Für `.vue` ist der Glob
+richtig — der Test sieht genau
 die Dateien, die der Build sieht. Für `.scss` **nicht**: Vite schickt Stylesheets erst durch die
 CSS-Pipeline, und die ist unter Test ausgestubbt. Zurück kommt ein **leerer String** — kein
 Fehler, kein `undefined`, nichts, woran man es merkt. Die erste Fassung von `cardAnatomy` prüfte

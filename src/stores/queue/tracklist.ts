@@ -286,9 +286,9 @@ export default defineStore('tracklist', {
          * of its jobs: the group-session seam (the local list grew while the
          * server's queue_id stayed put, so nothing re-mirrored and every other
          * device kept the old queue with a currentindex pointing at the wrong
-         * track) and the `clearNextAudio()` right after it — the inserted track
-         * lands exactly on `nextindex`, so the already-preloaded audio was the
-         * track this insert just displaced.
+         * track) and the `clearNextAudio()` right after it — in sequential order
+         * the insert lands exactly on `nextindex`, so the already-preloaded
+         * audio was the track this insert just displaced.
          */
         insertAfterCurrent(tracks: Track[]) {
             const { currentindex } = useQueue()

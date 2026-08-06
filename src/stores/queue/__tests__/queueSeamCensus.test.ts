@@ -10,8 +10,8 @@ import { describe, expect, it } from 'vitest'
 // is a check that counts the mutations instead of naming them: `queue.groupmode`
 // asserts a FIXED list of actions, so a new mutation that never learned about
 // the seam stays green there. That is exactly how `insertAfterCurrent` — the
-// "Play next" of five context menus — spliced the local list for months while
-// the server's queue_id stayed put: nothing re-mirrored, and the mirrored
+// "Play next" of five context menus — kept splicing the local list unnoticed
+// while the server's queue_id stayed put: nothing re-mirrored, and the mirrored
 // currentindex pointed at the wrong track on every other device (#434).
 //
 // So this test enumerates the mutations from the SOURCE and demands that each
@@ -40,7 +40,13 @@ const SOURCES: Record<string, string> = {
  * that is already in the list. They leave the trackhash sequence untouched, so
  * they cannot desync the group queue.
  */
-const MUTATION = /this\.tracklist\s*(?:=(?!=)|\.(?:splice|push|pop|shift|unshift|reverse|sort|fill|copyWithin)\s*\(|\[[^\]]*\]\s*=(?!=))/
+const MUTATION = new RegExp(
+    'this\\.tracklist\\s*(?:' +
+        '=(?!=)' + // whole-list replacement
+        '|\\.(?:splice|push|pop|shift|unshift|reverse|sort|fill|copyWithin)\\s*\\(' +
+        '|\\[[^\\]]*\\]\\s*=(?!=)' + // writing a slot
+        ')'
+)
 
 /**
  * The seam, with the guard and the intercept tied to the SAME store handle:
