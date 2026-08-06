@@ -1,10 +1,10 @@
 import { readFileSync } from "fs";
 import { describe, expect, it } from "vitest";
 
-import { TRACK_BAND_COUNT, trackBandClass } from "../songItemMethods";
+import { TRACK_BAND_COUNT, TRACK_BAND_MIN_FADE, trackBandClass, trackBandFade } from "../songItemMethods";
 
 // ---------------------------------------------------------------------------
-// The colour guide band on the leading edge of a track row cycles through five
+// The colour guide band on the leading edge of a track row alternates two
 // accents, and the cycle is computed in JS rather than written as `:nth-child`.
 //
 // That is not a style preference. Track lists render through
@@ -27,23 +27,21 @@ import { TRACK_BAND_COUNT, trackBandClass } from "../songItemMethods";
 const CANDY = readFileSync("src/assets/scss/_candy.scss", "utf-8");
 
 describe("trackBandClass", () => {
-  it("cycles through the accents in order", () => {
-    expect([0, 1, 2, 3, 4, 5, 6].map(trackBandClass)).toEqual([
+  it("alternates the two accents", () => {
+    expect([0, 1, 2, 3, 4].map(trackBandClass)).toEqual([
       "band-0",
       "band-1",
-      "band-2",
-      "band-3",
-      "band-4",
       "band-0",
       "band-1",
+      "band-0",
     ]);
   });
 
   it("accepts the string ordinals the prop's type allows", () => {
     // `index` is typed `number | string`; ArtistTracks and the search view pass
     // it straight through from their own counters.
-    expect(trackBandClass("7")).toBe("band-2");
-    expect(trackBandClass("12")).toBe("band-2");
+    expect(trackBandClass("7")).toBe("band-1");
+    expect(trackBandClass("12")).toBe("band-0");
   });
 
   it("never emits a negative class", () => {
@@ -52,7 +50,7 @@ describe("trackBandClass", () => {
     // no rule, which would drop the band on exactly those rows.
     for (const n of [-1, -4, -5, -6, -13]) {
       const cls = trackBandClass(n);
-      expect(cls).toMatch(/^band-[0-4]$/);
+      expect(cls).toMatch(/^band-[01]$/);
     }
   });
 
@@ -80,8 +78,40 @@ describe("trackBandClass", () => {
 
   it("emits the band classes from the shared cycle mixin, not by hand", () => {
     // The `@for` in mem-band-cycle is what keeps the class count tied to the
-    // colour list. Spelling the five rules out again would let the two drift.
+    // colour list. Spelling the rules out again would let the two drift.
     expect(CANDY).toMatch(/@mixin\s+mem-band-cycle/);
     expect(CANDY).toMatch(/&\.band-#\{\$i - 1\}/);
+  });
+});
+
+describe("trackBandFade", () => {
+  it("runs from the floor at the top to full strength at the bottom", () => {
+    expect(trackBandFade(1, 10)).toBe(TRACK_BAND_MIN_FADE);
+    expect(trackBandFade(10, 10)).toBe(1);
+    // Monotonic in between — the whole point is a readable gauge.
+    const fades = [1, 2, 3, 4, 5].map((p) => trackBandFade(p, 5));
+    expect([...fades].sort((a, b) => a - b)).toEqual(fades);
+  });
+
+  it("is 1 without a usable total", () => {
+    // Mixed/paginated sources (search) have no stable total; a uniform
+    // full-strength band is the fallback, never an invisible one.
+    expect(trackBandFade(3)).toBe(1);
+    expect(trackBandFade(3, 0)).toBe(1);
+    expect(trackBandFade(3, 1)).toBe(1);
+    expect(trackBandFade(NaN, 10)).toBe(1);
+  });
+
+  it("clamps positions outside the claimed total", () => {
+    // A list shorter or longer than its claimed total (stale count while
+    // pages stream in) must not push the fade outside [floor, 1].
+    expect(trackBandFade(0, 10)).toBe(TRACK_BAND_MIN_FADE);
+    expect(trackBandFade(999, 10)).toBe(1);
+  });
+
+  it("keeps the floor visible", () => {
+    // 0 would make row 1 the only row without a spine.
+    expect(TRACK_BAND_MIN_FADE).toBeGreaterThan(0);
+    expect(TRACK_BAND_MIN_FADE).toBeLessThan(1);
   });
 });

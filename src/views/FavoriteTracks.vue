@@ -4,6 +4,7 @@
         :desc="`You have ${trackCount} favorited track${trackCount == 1 ? '' : 's'}`"
         :noitemsicon="BookmarkSvg"
         :more-items-loader="loadMore"
+        :total="trackCount"
         @playThis="handlePlay"
     >
         <template #header>

@@ -40,12 +40,16 @@ import NoItems from '@/components/shared/NoItems.vue'
 import SongItem from '@/components/shared/SongItem.vue'
 import AlbumsFetcher from '@/components/ArtistView/AlbumsFetcher.vue'
 import { dropSources } from '@/enums'
+import { trackBandFade } from '@/utils/songItemMethods'
 
 const props = defineProps<{
     tracks: Track[]
     desc: string
     noitemsicon: any
     moreItemsLoader: () => Promise<void>
+    // The list's REAL total (API count), not the loaded window: rows keep
+    // their band strength as more pages arrive. Omitted = uniform bands.
+    total?: number
 }>()
 
 defineEmits<{
@@ -68,6 +72,7 @@ const scrollerItems = computed(() => {
             is_first: index === 0,
             is_last: index === props.tracks.length - 1,
             source: dropSources.favorite,
+            band_fade: trackBandFade(index + 1, props.total),
         },
     }))
 

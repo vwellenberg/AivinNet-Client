@@ -64,6 +64,7 @@ import SongItem from '@/components/shared/SongItem.vue'
 import { xl } from '@/composables/useBreakpoints'
 import AlbumsFetcher from '@/components/ArtistView/AlbumsFetcher.vue'
 import { getFiles } from '@/requests/folders'
+import { trackBandFade } from '@/utils/songItemMethods'
 
 const queue = useQueue()
 const folder = useFolder()
@@ -83,9 +84,9 @@ class songItem {
     props: any
     component = SongItem
 
-    constructor(track: Track, is_first = false, is_last = false) {
+    constructor(track: Track, is_first = false, is_last = false, band_fade = 1) {
         this.id = track.filepath
-        this.props = { ...createTrackProps(track), is_first, is_last, source: dropSources.folder }
+        this.props = { ...createTrackProps(track), is_first, is_last, source: dropSources.folder, band_fade }
     }
 }
 
@@ -103,7 +104,10 @@ const scrollerItems = computed(() => {
     }
 
     folder.tracks.forEach((track, i) => {
-        items.push(new songItem(track, i === 0, i === folder.tracks.length - 1))
+        // trackTotal is the folder's REAL count; the loaded window grows page
+        // by page, and normalising against it would re-shade every row on each
+        // fetch.
+        items.push(new songItem(track, i === 0, i === folder.tracks.length - 1, trackBandFade(i + 1, folder.trackTotal)))
     })
 
     if (folder.tracks.length >= track_limit.value) {

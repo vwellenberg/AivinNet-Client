@@ -12,6 +12,7 @@
                 :index="total ? total - index : index + 1"
                 :is_first="index === 0"
                 :is_last="index === tracks.length - 1"
+                :band_fade="trackBandFade(index + 1, tracks.length)"
                 :source="source"
                 :show_plays="show_plays"
                 @playThis="playHandler(index)"
@@ -27,6 +28,7 @@ import { Track } from '@/interfaces'
 import { isMedium, isSmall } from '@/stores/content-width'
 import SeeAll from '../shared/SeeAll.vue'
 import SongItem from '../shared/SongItem.vue'
+import { trackBandFade } from '@/utils/songItemMethods'
 
 defineProps<{
     tracks: Track[]

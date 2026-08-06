@@ -17,6 +17,7 @@
         :index="index + 1"
         :is_first="index === 0"
         :is_last="index === scrollerItems.length - 1"
+        :band_fade="trackBandFade(index + 1, scrollerItems.length)"
         :source="dropSources.artist"
         @playThis="playFromPage(index)"
       />
@@ -38,6 +39,7 @@ import { getArtistTracks } from "@/requests/artists";
 import { isMedium, isSmall } from "@/stores/content-width";
 
 import SongItem from "@/components/shared/SongItem.vue";
+import { trackBandFade } from "@/utils/songItemMethods";
 
 const itemHeight = 64;
 const route = useRoute();

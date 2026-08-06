@@ -6,7 +6,14 @@ import { Track } from "@/interfaces";
  * `$mem-band-colours` in _candy.scss, which emits one `band-N` class per entry;
  * a class this returns without a matching rule leaves that row with no band.
  */
-export const TRACK_BAND_COUNT = 5;
+// TWO, not five. Five rotating full-strength accents made the list loud and
+// said nothing — colour 3 only ever meant "third row in the cycle". Two cool
+// tones do the one job a band has to do (tell two neighbouring rows apart), and
+// a SECOND dimension carries the meaning instead: see `trackBandFade`.
+export const TRACK_BAND_COUNT = 2;
+
+/** Weakest the band ever gets, so row 1 still has a visible spine. */
+export const TRACK_BAND_MIN_FADE = 0.25;
 
 /**
  * The `band-N` class for a track row's colour guide band (the inlay spine on
@@ -28,6 +35,32 @@ export function trackBandClass(index: number | string): string {
   if (!Number.isFinite(n)) return "band-0";
   // JS `%` keeps the sign of the dividend, and `band--2` matches no rule.
   return `band-${((n % TRACK_BAND_COUNT) + TRACK_BAND_COUNT) % TRACK_BAND_COUNT}`;
+}
+
+/**
+ * How strong a row's band is: 0.25 at the top of the list, 1 at the bottom.
+ *
+ * This is the part that carries information. The two alternating colours only
+ * separate neighbours; the STRENGTH says how far into the list a row sits —
+ * readable mid-scroll, when the scrollbar is the only other clue.
+ *
+ * Normalised against the list LENGTH, not an absolute step count. An absolute
+ * scale keeps one step meaning the same everywhere, but on a 993-track playlist
+ * everything past its cap looks identical; normalising uses the whole range in
+ * every list, which is what a scrollbar does too.
+ *
+ * `position` is the 1-based RENDERED position (top row = 1), not the `index`
+ * prop. The two disagree exactly where it matters: the album view numbers its
+ * rows per disc, and the favourites lists number DOWNWARDS from the total —
+ * a fade fed those ordinals would restart mid-list or run upside down.
+ *
+ * Without a usable total (mixed sources, unknown length) the fade is 1 — a
+ * uniform, full-strength band is the honest fallback, never an invisible one.
+ */
+export function trackBandFade(position: number, total?: number): number {
+  if (!Number.isFinite(position) || !total || total < 2) return 1;
+  const pos = Math.min(Math.max(position - 1, 0), total - 1);
+  return TRACK_BAND_MIN_FADE + (1 - TRACK_BAND_MIN_FADE) * (pos / (total - 1));
 }
 
 export function showDragStart(

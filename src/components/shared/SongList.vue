@@ -19,6 +19,7 @@
                 <SongItem
                     :track="item.track"
                     :index="total ? total - index : index + 1"
+                    :band_fade="trackBandFade(index + 1, tracks.length)"
                     :is_queue_track="is_queue"
                     :is_first="index == 0"
                     :is_last="index == tracks.length - 1"
@@ -35,6 +36,7 @@
 <script setup lang="ts">
 import SongItem from '@/components/shared/SongItem.vue'
 import { dropSources } from '@/enums'
+import { trackBandFade } from '@/utils/songItemMethods'
 import { Track } from '@/interfaces'
 import { isMedium, isSmall } from '@/stores/content-width'
 
