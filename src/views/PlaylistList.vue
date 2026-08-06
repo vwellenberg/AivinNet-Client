@@ -105,8 +105,10 @@ const playlists = computed(() => {
 
     .grid {
         grid-template-columns: repeat(auto-fill, minmax($cardwidth, 1fr));
-        // Stufe B: 32px zwischen den Spalten wie in den Home-Zeilen.
-        gap: 3.5rem 2rem;
+        // Column gap from the shared token; the roomier row gap is this
+        // page's own decision (Stufe B) — groups of playlist tiles breathe
+        // more than the dense library grids.
+        gap: 3.5rem $card-col-gap;
 
         @include mediumPhones {
             grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));

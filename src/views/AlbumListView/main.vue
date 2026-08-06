@@ -6,6 +6,11 @@
       :min-item-size="64"
       :items="scrollerItems"
     >
+      <!-- Zero-height probe with the exact width of every card row below:
+           the group size must match the columns CSS actually builds. -->
+      <template #before>
+        <div ref="gridprobe" aria-hidden="true"></div>
+      </template>
       <template #default="{ item, index, active }">
         <DynamicScrollerItem
           :item="item"
@@ -27,10 +32,10 @@
 <script setup lang="ts">
 import { Routes } from "@/router";
 import { storeToRefs } from "pinia";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from "vue-router";
 
-import { maxAbumCards } from "@/stores/content-width";
+import useCardGridColumns from "@/helpers/useCardGridColumns";
 import { useAlbumList, useArtistList } from "@/stores/pages/itemlist";
 
 import Fetcher from "@/components/ArtistView/AlbumsFetcher.vue";
@@ -42,6 +47,12 @@ const route = useRoute();
 const store = route.name == Routes.AlbumList ? useAlbumList() : useArtistList();
 
 const { items: storeitems, total } = storeToRefs(store);
+
+// Rows are partitioned by the columns the gapped grid really builds — the
+// `maxAbumCards` heuristic ignores the gap and would overshoot by one near
+// the breakpoints, wrapping the surplus card inside every row.
+const gridprobe = ref<HTMLElement | null>(null);
+const columns = useCardGridColumns(gridprobe);
 
 const scrollerItems = computed(() => {
   const items = [];
@@ -62,7 +73,7 @@ const scrollerItems = computed(() => {
     ]
   );
 
-  const groups = Math.ceil(storeitems.value.length / maxAbumCards.value);
+  const groups = Math.ceil(storeitems.value.length / columns.value);
   for (let i = 0; i < groups; i++) {
     items.push({
       id: i,
@@ -70,8 +81,8 @@ const scrollerItems = computed(() => {
       props: {
         type: route.name == Routes.AlbumList ? "album" : "artist",
         items: storeitems.value.slice(
-          i * maxAbumCards.value,
-          (i + 1) * maxAbumCards.value
+          i * columns.value,
+          (i + 1) * columns.value
         ),
       },
     });

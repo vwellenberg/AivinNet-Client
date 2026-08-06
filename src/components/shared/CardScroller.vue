@@ -36,11 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import { useElementSize } from '@vueuse/core'
-
 import { playSources } from '@/enums'
-import { maxAbumCards, win_width } from '@/stores/content-width'
-import { cardColumns } from '@/utils/cardColumns'
+import { maxAbumCards } from '@/stores/content-width'
+import useCardGridColumns from '@/helpers/useCardGridColumns'
 
 import { computed, ref } from 'vue'
 import PlaylistCard from '../PlaylistsList/PlaylistCard.vue'
@@ -86,18 +84,12 @@ const uniformType = computed(() => {
  * This is a ONE-row scroller: it must render exactly as many cards as the
  * grid below has columns, or the surplus card wraps into a second row. The
  * count therefore comes from the grid's own measured width run through the
- * CSS auto-fill formula (utils/cardColumns.ts) — never from a heuristic like
- * the old global `maxAbumCards`, which overshot on half-width screens.
- * `maxAbumCards` stays as the pre-measure fallback and the SEE ALL threshold.
+ * CSS auto-fill formula (helpers/useCardGridColumns.ts) — never from a
+ * heuristic like the old global `maxAbumCards`, which overshot on half-width
+ * screens. `maxAbumCards` stays as the SEE ALL threshold.
  */
 const grid = ref<HTMLElement | null>(null)
-const { width: gridWidth } = useElementSize(grid)
-
-const columns = computed(() => {
-    if (!gridWidth.value) return maxAbumCards.value
-
-    return cardColumns(gridWidth.value, win_width.value)
-})
+const columns = useCardGridColumns(grid)
 
 const itemlist = computed(() => {
     if (!props.items.length) {
@@ -174,7 +166,7 @@ function getProps(item: { type: string; item?: any; with_helptext?: boolean }) {
     padding: 1.75rem 0;
 
     .recentitems {
-        gap: 2.5rem 2rem;
+        gap: $card-row-gap $card-col-gap;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax($cardwidth, 1fr));
 

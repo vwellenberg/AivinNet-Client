@@ -163,6 +163,15 @@ $bottombarheight-short: 3.75rem;
 // whole viewport is 390.
 $navheight-short: 3.75rem;
 $cardwidth: 12rem;
+// One spacing for EVERY cover-card grid: the Home rows (.recentitems), the
+// virtualised album/artist list and the search card pages (.cardlistrow) and
+// the discography grid. The tiles carry no surface of their own since the
+// plate anatomy (Global/cards.scss) — a gapless grid stands the covers
+// edge-to-edge, which is exactly how the album list looked while the Home
+// rows next door breathed. The column gap is mirrored as CARD_GAP in
+// utils/cardColumns.ts; the pair is tied together by cardGridGap.test.ts.
+$card-row-gap: 2.5rem;
+$card-col-gap: 2rem;
 $maxpadleft: 5rem;
 
 $alt_layout_pad: max(2rem, calc((100% - 1600px) / 2));

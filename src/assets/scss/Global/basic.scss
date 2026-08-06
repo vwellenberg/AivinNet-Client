@@ -218,6 +218,7 @@ button {
   .cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax($cardwidth, 1fr));
+    gap: $card-row-gap $card-col-gap;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     flex-direction: row;
