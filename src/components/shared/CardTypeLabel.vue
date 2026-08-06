@@ -63,7 +63,8 @@ defineProps<{
     border-radius: $candy-radius-sm;
     box-shadow: 3px 3px 0 var(--mem-shadow);
     overflow: hidden;
-    transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
+    // Motion only — the paint is a cut (styling.md), together with the plate.
+    transition: box-shadow 0.12s ease-out;
 
     // The glyph cell carries the ENTITY colour (see $mem-entities in
     // _candy.scss): the smallest possible dose — one small field that already

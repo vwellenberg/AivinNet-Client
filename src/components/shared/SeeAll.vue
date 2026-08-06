@@ -23,7 +23,8 @@ defineProps<{
     font-size: 0.75rem;
     letter-spacing: 0.04em;
     flex-shrink: 0;
-    transition: background-color 0.2s ease-out, box-shadow 0.12s ease-out;
+    // Motion only — the paint is a cut (styling.md).
+    transition: box-shadow 0.12s ease-out;
 
     // The text token travels with the fill (#422) and reaches the link by
     // INHERITANCE — the global anchor rule is `color: inherit`, and the sticker

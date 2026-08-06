@@ -803,12 +803,21 @@ onBeforeUnmount(teardown);
       font-size: $sidebar-row-font;
       // Same weight as every other row in this sidebar.
       font-weight: 700;
-      transition: background-color 0.2s ease-out;
+      // NO transition: the paint is a cut (styling.md).
 
       // Hover tints the head's section of the box rather than drawing a second
       // frame inside the first one. The ring follows via --row-fill.
+      //
+      // The SHARED pointer token, not blush — this head was the last hover in
+      // the app still painting the retired pointer colour, invisible to the
+      // hoverToken census because the fill travels through `--row-fill`. Blush
+      // means "label" and "owns the open context menu" since #422; a hover may
+      // not impersonate either. Text and hatch flip with the fill, exactly as
+      // on the row plates one section up.
       &:hover {
-        --row-fill: #{$mem-blush};
+        --row-fill: var(--mem-hover);
+        color: var(--mem-hover-text);
+        background-image: var(--mem-hatch-hover);
       }
 
       .folder-icon-slot {

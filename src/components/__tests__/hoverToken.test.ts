@@ -212,3 +212,38 @@ describe("hover call sites keep the text token beside the fill", () => {
     expect(offenders).toEqual([]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// THE POINTER FLIP IS A CUT, NOT A FADE (styling.md).
+//
+// Since the hover fill is the CONTRAST surface, fill and text swap in opposite
+// directions on hover. A transition therefore has a mid-frame where both sit
+// at grey — the contrast collapses, and the flip reads as "the black arrives
+// at two different places" (the user's exact report). The hatch cannot fade at
+// all (it is an image swap), so a colour fade is also always out of step with
+// the texture.
+//
+// The rule this pins: in the two stylesheets that own the roles and the row
+// anatomy, no `transition` may name a colour property. Motion (box-shadow,
+// transform) stays eased — the paint switches in one frame.
+// ---------------------------------------------------------------------------
+describe("the pointer flip is a cut", () => {
+  it.each(FILES)("%s eases motion only, never paint", file => {
+    const clean = code(readFileSync(file, "utf8"));
+    const offenders: string[] = [];
+    // Multi-line lists: match from `transition:` to the closing semicolon.
+    for (const match of clean.match(/transition\s*:[^;]+;/g) ?? []) {
+      if (/background-color|border-color|[^-]color\s*[, $]|[^-]color\s*;/.test(match)) {
+        offenders.push(match.replace(/\s+/g, " ").trim());
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it("still sees transitions at all", () => {
+    // Parser self-check: if the extraction regex rots, the test above goes
+    // silently green. The roles do declare motion transitions — find them.
+    const buttons = code(readFileSync("src/assets/scss/Global/_buttons.scss", "utf8"));
+    expect((buttons.match(/transition\s*:[^;]+;/g) ?? []).length).toBeGreaterThanOrEqual(4);
+  });
+});

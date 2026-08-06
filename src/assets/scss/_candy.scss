@@ -261,11 +261,12 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 @mixin candy-row-base($radius: $candy-radius-sm) {
   border: $candy-border-w solid transparent;
   border-radius: $radius;
-  // The frame fades in with the fill. Without `border-color` here the ink frame
-  // snaps on instantly while the blush fill eases in behind it — the nav rows
-  // were the only ones that had listed it, so they were the only ones that
-  // looked deliberate.
-  transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+  // NO transition, deliberately: the paint is a cut (styling.md). The fade
+  // this replaces was written when hover was a blush TINT — fill and frame
+  // easing in together read as one gesture. Since #422 the hover fill is the
+  // CONTRAST surface, and a fade of fill (light→dark) against text (dark→
+  // light) meets in the middle at grey: reported as "the black arrives at two
+  // different places". Fill, frame and text now flip in the same frame.
 }
 
 // The fill is the CONTRAST surface and comes from `--mem-hover` — the single
@@ -346,11 +347,10 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
   border-radius: $radius;
   color: $mem-content-text;
   box-shadow: 3px 3px 0 var(--mem-shadow);
-  // Literal durations, like every other transition in this file: `_motion.scss`
-  // is imported AFTER `_candy.scss` (see vite.config.ts), so its tokens are not
-  // resolvable from here.
-  transition: background-color 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.12s ease-out,
-    transform 0.12s ease-out;
+  // Motion only — the paint is a cut (styling.md). Literal durations, like
+  // every transition in this file: `_motion.scss` is imported AFTER
+  // `_candy.scss` (see vite.config.ts), so its tokens are not resolvable here.
+  transition: box-shadow 0.12s ease-out, transform 0.12s ease-out;
   @include mem-row-plate-press;
 }
 
