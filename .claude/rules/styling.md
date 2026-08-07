@@ -944,6 +944,13 @@ Solche Tests gegen Mutationen prüfen, nicht nur gegen den Ist-Zustand.
 
 ## Weitere Fallen
 
+- **Abstand nie als INHALT schreiben** (`<br>`, `&nbsp;`). Was als Text im Markup steht, sieht keine
+  Regel und kein Rhythmus kann es einschließen — und es driftet garantiert von den Nachbarn weg. Im
+  About-Bereich standen beide Varianten (#495): `<br /><br />` vor der Links-Gruppe und vier
+  `&nbsp;` als Polster im „Reset client"-Label, obwohl `btn-pill` seit immer `padding: 0 $medium`
+  trägt (der Knopf war dadurch 138 statt 114 px breit). Symptom war ein anderes: die Reihen der
+  Link-Pillen hatten 16 px Abstand, der Reset-Knopf **0** — der Offset-Schatten stieß an den Knopf
+  darunter. Ein Pane bekommt **einen** Schritt, Gruppen setzen sich mit dem doppelten ab.
 - **CSS-Spezifität statt `!important`.** `.b-bar .with-time button{background:transparent}` (0,2,1)
   schlug `.hotkeys .play` (0,2,0) → weißer Play-Kreis wurde transparent. Fix an der Quelle:
   `button:not(.play)`. Wenn ein Style nicht greift: computed style im Headless-Browser prüfen.
