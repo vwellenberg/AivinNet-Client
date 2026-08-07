@@ -688,6 +688,45 @@ also, sobald man ihn anfasste. Für Drag-Controls gilt: sichtbarer Knopf, Touch-
 (`range-geometry` auf dem Wrapper) und **`touch-action: none`** auf dem Input, sonst frisst der
 Page-Scroll die horizontale Geste.
 
+### ⚠️ Ein Zeilen-Hover wird an der QUELLE gegatet, nicht per Breite neutralisiert (#457)
+
+Die Track-Zeile trug beides gleichzeitig: in `app-grid.scss` eine breiten-gekoppelte
+Halb-Maßnahme (`„disable hover on mobile"`, `background-color: unset`, Spezifität 0,3,0) und in
+`SongItem.vue` den unveränderten Text-Flip. Die erste schlug damit auch die **gelbe Füllung der
+laufenden Zeile** (0,2,0), die zweite malte weiter weiß — nach einem Tap stand die laufende Zeile
+transparent da, mit weißer Künstlerzeile auf hellem Grund (gemessen: `bg rgba(0,0,0,0)`,
+`artist rgb(255,255,255)`).
+
+**Die Ursache ist die Achse, nicht die Zahl.** Breite ist nicht Zeigerfähigkeit — ein schmales
+Desktop-Fenster verlor seinen Hover, ein Touch-Tablet behielt ihn. Und weil so eine Maßnahme
+immer nur die Hälfte trifft, an die man gerade denkt (die Füllung), bleibt der Rest stehen. Also:
+**`@media (hover: hover)` um die Hover-Regeln selbst**, dort wo sie stehen.
+
+Drei Dinge, die dabei jedes Mal auffallen — und zwei davon erst beim Messen:
+
+- **`:not(:hover)` ist ein Hover-Test in Verkleidung.** Die Inlay-Ebenen (Farbleitband,
+  Perforation, Ink-Streifen) hingen daran. Sobald die Füllung gegatet ist, reißt dieses `:not`
+  beim gelatchten Tap — und weil nun *nichts* mehr an ihre Stelle malt, verliert die Zeile ihre
+  komplette Anatomie. Die Ausnahme gehört als **eigene gegatete Regel** hinter die Basis-Blöcke
+  (sie zieht bei (0,5,0) mit der `.is-last`-Variante gleich, also entscheidet die Reihenfolge).
+- **Gaten nimmt weg, was nur über den Latch erreichbar war.** `.heart-icon` ist
+  `visibility: hidden` und wurde allein vom Zeilen-Hover enthüllt — auf Touch also nur, weil der
+  Tap hängen blieb. Ein Gate ohne Gegenstück macht daraus ein dauerhaft unsichtbares
+  Bedienelement (auf dem Tablet; Phones sind unter 460 px ohnehin `display: none`). Jedes Gate
+  braucht deshalb die Frage „und wie kommt Touch da jetzt dran?" — Antwort ist ein
+  `@media (hover: none)`-Zweig, wie ihn `_mixins.scss` für den Karten-Play-Button schon hat.
+- **Sichtbar latchen nur Zeilen, die NICHT navigieren.** Charts- und Ordner-Zeilen wurden
+  gemessen (`latched: false`): Ein Tap wechselt dort die Route, das Element rendert neu, der
+  Latch ist weg. Track-Zeilen spielen in-place ab und bleiben unter dem Finger stehen — deshalb
+  sind sie der Sonderfall und nicht „die erste von vielen".
+
+Aufgezählt wird über das **gemeinsame Merkmal** („Komponente, die eine Track-Zeile auf Hover
+gestaltet"), nicht über das Symptom: Zwei der fünf Wirte malen gar keine Füllung
+(`TrackTitle.vue` richtet nur das gekippte Cover gerade, `app-grid.scss` die Ebenen oben) und
+wären beim Suchen nach dem sichtbaren Fehler durchgerutscht. Der Zensus dazu steht in
+`rowHover.test.ts` („track row hover is pointer-gated"): In den vier Track-Zeilen-Komponenten
+muss jede `:hover`-Regel innerhalb eines Gates liegen.
+
 ## ⚠️ Regler-Geometrie hat EINE Quelle
 
 `range-geometry($h, $thumb)` in `_candy.scss` setzt `--range-h` (Leistenhöhe), `--range-thumb`
