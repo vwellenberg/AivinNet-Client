@@ -20,7 +20,7 @@
             seen: index < lyrics.currentLine,
           }"
           :style="index == lyrics.currentLine ? currentLineStyle : undefined"
-          @click="queue.seek(line.time / 1000)"
+          @click="seekToLine(index, line.time)"
         >
           <span class="stamp">{{ formatSeconds(line.time / 1000) }}</span>
           <span class="text">{{ line.text }}</span>
@@ -91,6 +91,17 @@ const currentLineStyle = computed(() => ({
   "--line-progress": `${lineProgress.value * 100}%`,
 }));
 
+/**
+ * Clicking a line seeks to it — and MARKS it, rather than waiting for the
+ * player to say so. While paused nothing advances `currentLine` at all, so the
+ * mark (and with it the scrubber) would otherwise sit on the line playback
+ * left, filled to 100 % because the clock has already run past its end.
+ */
+function seekToLine(index: number, time: number) {
+  queue.seek(time / 1000);
+  lyrics.setCurrentLine(index, false);
+}
+
 const onScroll = (e: Event) => {
   lyrics.setUserScrolled(true);
 };
@@ -153,13 +164,16 @@ onMounted(() => {
   // old view gave no sign at all that clicking a line jumps there.
   .line {
     display: grid;
-    grid-template-columns: 3.6rem 1fr;
+    grid-template-columns: auto 1fr;
     gap: $small;
     align-items: baseline;
     width: 100%;
-    padding: 0.42rem 0.7rem;
-    // candy-row-base reserves the frame the current state paints, so nothing
-    // shifts when a line becomes the current one.
+    // EVERY line reserves what the current state paints — the frame (a
+    // transparent border, like candy-row-base), the room the zigzag needs on
+    // the leading edge, and the band the scrubber sits in. Reserving it only on
+    // `.current` would shove the text sideways and grow the row on every line
+    // change, which in a list that is already scrolling itself reads as a jump.
+    padding: 0.42rem 0.7rem 0.95rem 1.3rem;
     border: $candy-border-w solid transparent;
     border-radius: $candy-radius-sm;
     background-color: transparent;
@@ -172,7 +186,6 @@ onMounted(() => {
     cursor: pointer;
 
     @include allPhones {
-      grid-template-columns: 3.1rem 1fr;
       gap: $smaller;
       font-size: 1.2rem;
     }
@@ -203,7 +216,12 @@ onMounted(() => {
 
   .stamp {
     justify-self: start;
+    // A floor, not a fixed width: past the hour formatSeconds returns
+    // HH:MM:SS, and a fixed column would push the pill under the lyric. Every
+    // line of a given track formats the same way, so the column stays even.
+    min-width: 3.6rem;
     padding: 0.1rem 0.35rem;
+    text-align: center;
     background-color: $mem-panel;
     border: 2px solid $mem-line;
     border-radius: $candy-radius-pill;
@@ -215,11 +233,10 @@ onMounted(() => {
 
   // "This line is playing" takes the app's ONE vocabulary for it
   // (mem-now-playing-row): yellow fill, ink frame, the zigzag on the leading
-  // edge, sprinkle fading in at both edges.
+  // edge, sprinkle fading in at both edges. Geometry is NOT restated here —
+  // every line already reserves it (see .line above).
   .line.current {
     @include mem-now-playing-row;
-    padding-left: 1.3rem; // clear the zigzag teeth
-    padding-bottom: 0.95rem; // room for the scrubber below the descenders
     color: $candy-black;
     box-shadow: 3px 3px 0 var(--mem-shadow);
 
@@ -257,6 +274,10 @@ onMounted(() => {
   // Unsynced lyrics cannot seek, so they must not look like a list of seek
   // targets: running text, one weight down, with real leading.
   .line-plain {
+    // The UA gives <p> a 1em top AND bottom margin, and there is no global
+    // reset for it here — left alone it would override the leading below and
+    // pad both ends of the plate.
+    margin: 0;
     padding: 0.15rem 0.7rem;
     font-size: 1.3rem;
     font-weight: 500;
