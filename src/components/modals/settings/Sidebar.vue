@@ -107,59 +107,78 @@ defineEmits<{
         flex-direction: column;
     }
 
+    // These rows navigate the modal, so they are buttons and wear the plate the
+    // app's own sidebar wears (#378). They were flat, hovered on a yellow accent
+    // (`$candy-pink-deep` — "playing" in this palette, see #422) and marked the
+    // active tab with a white fill and no frame; next to the plated sidebar two
+    // panels away that read as a different kit.
     .gitem {
-        padding: $small;
+        padding: 6px $small;
         cursor: pointer;
         display: flex;
         align-items: center;
         gap: $medium;
-        color: $candy-text-muted;
-        font-weight: 500;
+        font-weight: 700;
         font-size: 14px;
         margin-top: $smaller;
         position: relative;
-        transition: background-color 0.2s ease-out, color 0.2s ease-out;
+        // Parentheses on purpose: the hatch census reads the argument list, so
+        // an argument-less include would read as "states no answer" (#468).
+        @include mem-row-plate($hatch: true);
 
         @include largePhones {
-            padding: 0.551rem;
+            padding: 5px $small;
+        }
+
+        // Glyph and label ride on the smooth fill; the texture stays in the
+        // ring. Only the spans: the Profile row renders an <Avatar> whose root
+        // is the bare image/svg, and a cover with padding would shrink it
+        // inside its fixed 20px box — and only for users who uploaded a picture,
+        // because the two avatar variants render different elements.
+        > span {
+            @include mem-hatch-clear(4px);
         }
 
         svg {
             width: 1.25rem;
-            transition: color 0.2s ease-out;
         }
 
         .icon {
             height: 1.25rem;
         }
 
-        &:hover {
-            background-color: $candy-pink-deep;
-        }
-
-        &.active {
-            background-color: $candy-white;
-            color: $candy-text;
-            font-weight: bold;
-
-            svg {
-                color: $candy-text;
+        // Pointer-gated at the source (#457) — a latched tap would leave one
+        // entry inverted on touch.
+        @media (hover: hover) {
+            &:hover {
+                @include mem-row-plate-hover($hatch: true);
             }
         }
 
-        &.about {
-            margin-top: 14px;
+        &.active {
+            @include mem-row-plate-active;
         }
 
+        &.about {
+            // The ink line above About reaches the frame instead of being a 1px
+            // grey hairline drawn inside it — the same correction #422 made over
+            // the LIBRARY caption.
+            margin-top: 1rem;
+        }
+
+        // ⚠️ `left: 0` on an absolutely positioned child resolves against the
+        // PADDING box, so the plate's own 3px border would inset the divider by
+        // 3px on each side and leave it visibly short of the frame it is meant
+        // to reach. Pulled back out by exactly the border width.
         &.about::before {
             content: '';
-            height: 1px;
+            height: $candy-border-w;
             position: absolute;
-            top: -$small;
-            left: 0;
+            top: -0.5rem;
+            left: -$candy-border-w;
 
-            background-color: $separator;
-            width: 100%;
+            background-color: $mem-line;
+            width: calc(100% + #{$candy-border-w * 2});
         }
     }
 }

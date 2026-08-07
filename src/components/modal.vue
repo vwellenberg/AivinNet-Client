@@ -55,7 +55,11 @@
             </div>
             <SetRootDirs v-if="modal.component == modal.options.setRootDirs" @hideModal="hideModal" />
             <RootDirsPrompt v-if="modal.component == modal.options.rootDirsPrompt" @hideModal="hideModal" />
-            <Settings @set-title="setTitle" v-if="modal.component == modal.options.settings" />
+            <Settings
+                v-if="modal.component == modal.options.settings"
+                @set-title="setTitle"
+                @hideModal="hideModal"
+            />
             <Devices v-if="modal.component == modal.options.devices" @setTitle="setTitle" />
         </div>
     </div>

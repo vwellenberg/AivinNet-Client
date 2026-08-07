@@ -43,12 +43,22 @@ const PLATES = [
   // Charts rows are navigating plates too — they keep the veil fill through
   // the plate's own `--row-fill` indirection instead of the panel fill.
   //
-  // `hatch: false` is the ONE exception and it is deliberate (#468): the
-  // texture marks a control among non-controls, and a full-width content list
-  // where every row is a control has nothing for it to mark. Recorded here so
-  // the exception stays a decision instead of becoming the new default — the
-  // three sidebar plates above must keep it.
+  // `hatch: false` is deliberate (#468): the texture marks a control among
+  // non-controls, and a full-width content list where every row is a control
+  // has nothing for it to mark. Recorded here so the exception stays a decision
+  // instead of becoming the new default — the sidebar plates must keep it.
   { file: "/src/components/Stats/ChartItem.vue", selector: ".chartitem", hatch: false },
+  // The settings modal: its tab list navigates and its setting rows toggle, so
+  // both are buttons by the #378 reading. They were the last flat rows in the
+  // app, and the settings row was additionally the last place with 1px grey
+  // hairlines between rows.
+  //
+  // The tab list is a sidebar — narrow rows between captions and a divider, so
+  // the texture separates something. The setting rows are the chart-row case:
+  // a 490px-wide list in which EVERY row is a control, two lines of type per
+  // row, nothing for the texture to distinguish.
+  { file: "/src/components/modals/settings/Sidebar.vue", selector: ".gitem", hatch: true },
+  { file: "/src/components/SettingsView/Group.vue", selector: ".setting-item", hatch: false },
 ];
 
 /** The static light fills a hovered/marked row is allowed to wear. */
