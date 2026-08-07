@@ -60,7 +60,10 @@ const lyrics = useLyrics();
     gap: $small;
   }
 
-  a {
+  // The COVER link only — a bare `a` selector also catches the artist links
+  // inside ArtistName, and `line-height: 0` collapses their line box to zero
+  // height: the artist name is still in the DOM, still ink, and invisible.
+  > a {
     display: block;
     line-height: 0;
   }
