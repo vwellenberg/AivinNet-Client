@@ -260,6 +260,26 @@ Drei Bedingungen, alle tragend:
    etwas sagen könnte. Icon-Buttons sind davon unberührt: Ein Glyph ist eine Strichzeichnung mit
    eigenem Kontrast, kein Fließtext.
 
+**Und wo sie bleibt, läuft sie nie durch ein Schriftband.** Trägt eine schraffierte Fläche Text,
+liegen die Striche zwischen den Buchstaben und berühren sie bei 2× sichtbar. Dafür gibt es das
+Mixin-Paar: `mem-hatch-ring($size, $on)` auf der **Fläche** (Textur über die ganze Box plus eine
+Deckschicht in der eigenen Füllung, auf die Content-Box geclippt) und `mem-hatch-clear($buffer)`
+auf dem **Inhalt** (Label, Glyph-Zeile). Sichtbar bleibt exakt das Padding — ein Ring aus Textur um
+ein glattes Schriftband. Vorbilder: `NavButtons.vue`, `LeftSidebar/index.vue`, das aktive Segment
+in `SettingsView/Components/Select.vue`.
+
+Zwei Bedingungen: **Die Füllung hat EINE Quelle** — `--row-fill`; wer daneben von Hand ein
+`background-color` schreibt, malt ein sichtbares Rechteck um sein Label. Und **der Ring ist nur so
+breit wie das Padding**: Eine Zeile, deren Padding nach Abzug der 3-px-Kante bei ~3 px landet,
+zeigt gar keine Textur mehr.
+
+⚠️ **Der Ring ist die Antwort auf „Textur UND Text", nicht auf „Textur oder nicht".** Steht die
+Frage, ob eine Fläche überhaupt schraffiert gehört, entscheidet die Chrome-Regel oben — bei einer
+Inhaltsliste heißt die Antwort `$hatch: false`, und dann braucht es auch keinen Ring. Der Weg
+dorthin ist in dieser Sitzung zweimal falsch abgebogen: erst Striche quer durch die
+Button-Beschriftung (Mockup-Runde, `Desktop\AivinNet\2026-08-07-settings\`), dann ein Ring auf
+einer Zeile, die gar keine Textur haben sollte.
+
 **Gemalt wird als Hintergrund-Ebene, nicht als `::before`-Overlay.** Die Sidebar-Zeilen verbrauchen
 beide Pseudo-Elemente für ihre Drag-Marken, die laufende Track-Zeile für Textur und Marke (siehe
 oben) — ein Overlay wäre ausgerechnet mit den Zuständen kollidiert, die man beim CSS-Schreiben

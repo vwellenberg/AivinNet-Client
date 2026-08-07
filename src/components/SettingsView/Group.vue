@@ -8,6 +8,7 @@
                 :class="{
                     inactive: setting.inactive && setting.inactive(),
                     'is-list': setting.type === SettingType.root_dirs,
+                    panel: PANEL_TYPES.includes(setting.type),
                 }"
             >
                 <div class="text" @click="setting.defaultAction ? setting.defaultAction() : setting.action()">
@@ -117,6 +118,25 @@ import SecretInput from './Components/SecretInput.vue'
 defineProps<{
     group: SettingGroup
 }>()
+
+/**
+ * Types whose "row" is really a whole sub-panel (a form, a list, an about
+ * text). They get no plate: the plate says "press this row to flip it", and
+ * these rows flip nothing — their controls sit inside. Hovering one would also
+ * invert a panel full of components that pin their own colours (the Accounts
+ * user cards, the Profile validation message), which is how the exception was
+ * found.
+ */
+const PANEL_TYPES = [
+    SettingType.profile,
+    SettingType.accounts,
+    SettingType.about,
+    SettingType.pairing,
+    SettingType.backup,
+    SettingType.root_dirs,
+    SettingType.separators_input,
+    SettingType.secretinput,
+]
 </script>
 
 <style lang="scss">
@@ -140,17 +160,27 @@ defineProps<{
     }
 
     .desc {
-        opacity: 0.5;
+        // A muted TOKEN, not `opacity: 0.5`. Half-strength ink measured #8b8b8d
+        // on the panel — the description was the palest text in the app while
+        // sitting right under a bold title, which is what "die Schrift ist
+        // nicht richtig schwarz" was about. `$mem-content-muted` is the same
+        // grey every other caption uses and answers the dark theme too.
+        color: $mem-content-muted;
         font-size: 0.8rem;
         font-weight: 500;
     }
 
     .setting {
-        // background-color: $gray;
-
-        @include mediumPhones {
-            padding: 1rem $small;
-        }
+        // The plates need room: `overflow: hidden` on the scrolling pane would
+        // otherwise crop the 3px offset shadow of the last row flush (#397).
+        display: grid;
+        gap: $small;
+        // Longhands on purpose: the shorthand would outrank the `.pad-lg` class
+        // this element also carries and zero its top/left padding, which puts
+        // the first plate's 3px frame flush against the head's 3px rule as one
+        // 6px line.
+        padding-right: $smaller;
+        padding-bottom: $smaller;
 
         .inactive {
             opacity: 0.5;
@@ -169,10 +199,47 @@ defineProps<{
         }
     }
 
-    .setting-item {
+    // A settings row IS a button — clicking its text flips the setting — so it
+    // wears the plate the sidebar rows wear (#378): panel fill, ink frame,
+    // offset shadow, hatch. What it replaces was a 1px grey hairline between
+    // flat rows: the only stroke of that weight in a panel made of 3px frames,
+    // and nothing on the row said it could be pressed.
+    // No hatch, by the #468 reading: this is a ~490px content list in which
+    // EVERY row is a control and each carries two lines of type, so the texture
+    // separates nothing and only costs legibility — the chart-row case exactly.
+    // It also keeps the plate honest around the rows that wrap a whole
+    // sub-panel (About, Profile, Accounts, Pair device, Backup, root dirs),
+    // whose own text would otherwise sit on terrazzo.
+    // `:not(.panel)` — see PANEL_TYPES in the script block: a row that contains
+    // a whole form or list is not a button and must not be inverted on hover.
+    .setting-item:not(.panel) {
         user-select: none;
-        border-bottom: solid 1px $gray5;
-        padding: 1.25rem 0;
+        padding: 0.85rem 1rem;
+        @include mem-row-plate($hatch: false);
+
+        // The press belongs to the CONTROL, not to the row around it: `:active`
+        // matches ancestors, so a held stepper or a dragged text field would
+        // shove the whole plate 3px under the cursor. Same trap the cards took
+        // `$press: false` for.
+        &:active {
+            transform: none;
+            box-shadow: 3px 3px 0 var(--mem-shadow);
+        }
+
+        // Pointer-gated at the source (#457): on touch `:hover` latches after a
+        // tap, and a latched plate would leave one row inverted until the next
+        // tap somewhere else.
+        @media (hover: hover) {
+            &:hover {
+                @include mem-row-plate-hover($hatch: false);
+
+                // The muted caption is explicit, so it cannot inherit the
+                // flipped row colour — the hovered row reads at full strength.
+                .desc {
+                    color: var(--mem-hover-text);
+                }
+            }
+        }
 
         // Control buttons (e.g. the cover-fetch button) sit in the max-content
         // column; let long labels wrap and cap the width so they don't overflow
@@ -202,7 +269,9 @@ defineProps<{
             width: 100%;
 
             .title {
-                font-weight: 500;
+                // 700, like every other row label in this design. 500 read as a
+                // caption next to 3px frames and the bold headings around it.
+                font-weight: 700;
                 margin: auto 0;
                 display: flex;
                 align-items: center;
@@ -226,14 +295,10 @@ defineProps<{
         }
     }
 
-    .setting-item:first-child {
-        padding-top: 0;
-    }
-
-    .setting-item:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
+    // (Removed here: the `:first-child`/`:last-child` padding corrections and
+    // the `border-bottom: none` reset. They existed to tidy the ends of a run
+    // of hairline-separated rows — with every row a self-contained plate there
+    // are no ends to tidy.)
 
     @include smallerPhones {
         .info ~ .setting > .setting-item {

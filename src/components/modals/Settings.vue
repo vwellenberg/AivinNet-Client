@@ -6,6 +6,19 @@
         }"
         v-auto-animate
     >
+        <!--
+            The way out. Until now the settings modal could only be left by
+            clicking the backdrop or pressing Back — neither of which the modal
+            shows, so it simply looked like it had no exit.
+
+            It sits on the MODAL, not in the pane header: on a small phone the
+            tab list renders without a header at all, and a close button that
+            only exists next to a group title would be missing in exactly the
+            view a phone opens on.
+        -->
+        <button class="close" type="button" title="Close settings" aria-label="Close settings" @click="emit('hideModal')">
+            <CloseSvg />
+        </button>
         <Sidebar
             :current-group="(currentGroup as SettingGroup)"
             @set-tab="tab => (currentTab = tab)"
@@ -32,6 +45,7 @@
 import settingGroups from '@/settings'
 
 import ArrowSvg from '@/assets/icons/arrow.svg'
+import CloseSvg from '@/assets/icons/close.svg'
 import { SettingGroup } from '@/interfaces/settings'
 import { isSmallPhone } from '@/stores/content-width'
 import { computed, ref } from 'vue'
@@ -40,6 +54,7 @@ import Sidebar from './settings/Sidebar.vue'
 
 const emit = defineEmits<{
     (e: 'setTitle', title: string): void
+    (e: 'hideModal'): void
 }>()
 
 const currentTab = ref<string>('')
@@ -83,11 +98,23 @@ $modalheight: 38rem;
 .settingsmodal {
     display: grid;
     grid-template-columns: 15rem 1fr;
+    position: relative;
     // Fill the modal's height (it is a flex column, see .m-content.settings)
     // and let the single row collapse so the inner panes can scroll instead
     // of overflowing past the modal / viewport.
     grid-template-rows: minmax(0, 1fr);
     min-height: 0;
+
+    // The same plate every secondary header action wears (styling.md: one
+    // anatomy, 44px, ink frame, offset shadow, hatch). Absolutely positioned so
+    // it survives both panes — see the note in the template.
+    > .close {
+        @include btn-action($glyph: 1.5rem);
+        position: absolute;
+        top: 0.625rem;
+        right: 0.625rem;
+        z-index: 2;
+    }
 
     .content {
         display: grid;
@@ -95,20 +122,28 @@ $modalheight: 38rem;
         min-height: 0;
 
         .head {
-            border-bottom: solid 1px $separator;
+            // 3px ink, not a 1px hairline. It was the only line of that weight
+            // in a panel built from 3px frames — the same mismatch #422 found
+            // over the LIBRARY caption, and it read as if it came from another
+            // kit.
+            border-bottom: $candy-border-w solid $mem-line;
             padding: 0 2rem;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            align-items: center;
+            gap: $small;
 
             @include mediumPhones {
-                padding: 0 1.75rem;
+                padding: 0 1.25rem;
             }
 
             .h2 {
                 margin: 0;
                 font-size: 1.15rem;
                 font-weight: bold;
+                // Takes the leftover width so the close button lands in the
+                // far corner without a margin rule of its own.
+                flex: 1;
+                min-width: 0;
 
                 display: flex;
                 align-items: center;
@@ -118,6 +153,12 @@ $modalheight: 38rem;
             .back {
                 @include btn-quiet($size: 2.25rem);
                 margin-left: -1rem;
+            }
+
+            // Room for the absolutely positioned close button above, so a long
+            // group title cannot run underneath it.
+            .h2 {
+                padding-right: 3.5rem;
             }
 
             .desc {
