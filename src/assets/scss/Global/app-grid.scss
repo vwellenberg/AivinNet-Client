@@ -420,8 +420,9 @@ $g-border: solid $candy-border-w $mem-line;
     // container: the colour band belongs to the header block and must scroll
     // away with it, like Spotify. Views provide the gradient via
     // --page-gradient. The decor is absolutely positioned so it spans the
-    // scroller's full padding box — painting the item wrapper instead left
-    // unpainted bands where the scroller has horizontal padding.
+    // scroller's full padding box PLUS both scrollbar gutters (see below) —
+    // painting the item wrapper instead left unpainted bands where the
+    // scroller has horizontal padding.
     // Memphis design: transparent — the grid-paper ground on #acontent shows
     // through (pageGradient() returns 'transparent'; decor kept for a future
     // re-theme).
@@ -430,8 +431,15 @@ $g-border: solid $candy-border-w $mem-line;
     .page-gradient-decor {
         position: absolute;
         top: 0;
-        left: 0;
-        right: 0;
+        // Reaching OVER the scrollbar gutter, not stopping at it. An absolute
+        // child spans its containing block's padding box, and the gutter the
+        // scroller reserves on both edges (`scrollbar-gutter: stable
+        // both-edges`) sits OUTSIDE that box — so `left/right: 0` left a
+        // $scrollbar-w strip of bare grid paper down each side of the veil,
+        // full height of the header band. Measured on the running app: decor
+        // 271…1425 inside a content area of 259…1437.
+        left: -$scrollbar-w;
+        right: -$scrollbar-w;
         // Matches the gradient's settle stop (see pageGradient) — below this
         // the flat page background takes over.
         height: 800px;
@@ -443,6 +451,23 @@ $g-border: solid $candy-border-w $mem-line;
         // Anchor for .page-gradient-decor: absolute children of the scroll
         // container scroll with the content.
         position: relative;
+        // The overhang above must be PAINTED, not scrolled to: anything past
+        // the right padding edge is scrollable overflow, so a plain
+        // `overflow: auto` would answer the wider veil with $scrollbar-w of
+        // sideways scroll. `clip` + a clip margin of exactly the overhang
+        // shows it and scrolls nothing — verified by sampling the painted
+        // pixels 3px inside the content edge (bare paper 244,242,237 before,
+        // veil 86,85,116 after) and by a real sideways wheel, in Chromium AND
+        // Firefox. Reading the decor's rectangle is NOT that proof: a clipped
+        // element still reports its full box.
+        //
+        // Where the platform has overlay scrollbars (macOS, phones, current
+        // Firefox) the gutter is zero and the decor hangs over the scroller
+        // instead — harmless, because `#acontent` clips at the same edge
+        // anyway. The gutter can never be WIDER than $scrollbar-w: it is our
+        // own scrollbar that sets it (Global/scrollbars.scss).
+        overflow-x: clip;
+        overflow-clip-margin: $scrollbar-w;
         padding-right: $padright;
         height: 100%;
         width: 100%;
