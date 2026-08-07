@@ -78,6 +78,18 @@ defineEmits<{
             color: $gray1;
         }
 
+        // Touch cannot hover, so the reveal-on-row-hover in SongItem.vue is
+        // unreachable there (same argument as the card play button in
+        // _mixins.scss). It used to be reachable by accident: `:hover` latches
+        // after a tap, so the last-tapped row showed its heart. Now that the
+        // row hover is pointer-gated (#457) that path is gone, and without this
+        // the toggle would be permanently invisible on a touch TABLET — phones
+        // are unaffected either way, the slot is `display: none` below 460px
+        // and favouriting there belongs to the ⋯ menu.
+        @media (hover: none) {
+            visibility: visible;
+        }
+
         @include mediumPhones {
             display: none;
         }
