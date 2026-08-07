@@ -21,6 +21,9 @@ export default defineStore("lyrics", {
     lyrics: <LyricsLine[]>[],
     currentLine: -1,
     ticking: false,
+    // Handle of the pending "advance to the next line" timer, so that anything
+    // which sets the line itself can cancel it — see setCurrentLine.
+    nextLineTimer: <ReturnType<typeof setTimeout> | null>null,
     currentTrack: "",
     exists: false,
     synced: true,
@@ -37,7 +40,10 @@ export default defineStore("lyrics", {
         return;
       }
 
-      this.currentLine = -1;
+      // Through setCurrentLine, not by hand: a timer armed on the PREVIOUS
+      // track would otherwise survive the change and advance blindly into the
+      // lyrics that are about to be replaced.
+      this.setCurrentLine(-1, false);
       this.copyright = "";
       this.synced = true;
 
@@ -59,7 +65,11 @@ export default defineStore("lyrics", {
           }
         })
         .then(async () => {
+          // Opening the view mid-track has to MARK the line it lands on, not
+          // just scroll to it: the mark used to stay at -1 until the player's
+          // next tick corrected it, so the page appeared with nothing playing.
           const line = this.calculateCurrentLine();
+          this.setCurrentLine(line, false);
 
           if (line == -1) {
             return this.scrollToContainerTop();
@@ -105,17 +115,58 @@ export default defineStore("lyrics", {
         this.exists = data.exists;
       });
     },
+    /**
+     * Advance to the next line WHEN IT STARTS.
+     *
+     * This used to fire 300ms early — a head start for the smooth scroll, paid
+     * for by the mark itself: the highlighted line ran ahead of the music, and
+     * once that line carries a scrubber (#486) the head start reads as a line
+     * that lights up empty before it is sung. Scrolling arrives 300ms later
+     * now; being on the wrong line is the louder error of the two.
+     */
+    /**
+     * ⚠️ Cancels a pending advance FIRST. `ticking` is meant to stop a second
+     * timer from being set, but it is cleared in more places than the timer is
+     * (a seek, a correction, a track change) — so a call can land while one is
+     * still in flight. Overwriting the handle would leave the old one running,
+     * and it advances the line BLIND: one extra `++`, and the highlight is a
+     * whole line ahead of the music for good. Measured: the mark left the line
+     * ~290ms before it was sung, which reads exactly like a timer firing early
+     * — the reason this was first mistaken for the 300ms head start below.
+     */
+    clearNextLineTimer() {
+      // `ticking` means "an advance is pending", so it goes with the timer. It
+      // used to be able to stay true without one — the callback only clears it
+      // while playing, so pausing inside the arming window left it stuck, and
+      // `updateLyricsPosition` never armed another timer for the rest of the
+      // track.
+      this.ticking = false;
+
+      if (this.nextLineTimer === null) return;
+      clearTimeout(this.nextLineTimer);
+      this.nextLineTimer = null;
+    },
     setNextLineTimer(duration: number) {
+      this.clearNextLineTimer();
       this.ticking = true;
-      setTimeout(() => {
+      this.nextLineTimer = setTimeout(() => {
+        this.nextLineTimer = null;
         if (useQueue().playing) {
           this.currentLine++;
           this.ticking = false;
           this.scrollToCurrentLine();
         }
-      }, duration - 300);
+      }, duration);
     },
+    /**
+     * ⚠️ Also cancels a pending advance — this is the deliberate answer to
+     * "which line is it", so a timer that was going to answer it differently
+     * has to go. `setTimeout` only promises "not earlier": one can still be in
+     * flight when the player's own `diff < 0` correction or a seek lands, and
+     * it would then add a second advance on top of the right answer.
+     */
     setCurrentLine(line: number, scroll = true) {
+      this.clearNextLineTimer();
       this.currentLine = line;
       this.ticking = false;
 
@@ -150,22 +201,34 @@ export default defineStore("lyrics", {
         inline: "start",
       });
     },
-    calculateCurrentLine() {
-      if (!this.lyrics.length) return -1;
+    /**
+     * The line being sung right now: the LAST one that has already started.
+     * `-1` while playback is still before the first line.
+     *
+     * It used to look for the line NEAREST to the clock and subtract one, which
+     * is a different question and answers it wrong for half of every interval:
+     * at 34.0s between lines at 33.0s and 36.1s the nearest is the 33s line, so
+     * minus one pointed at the line before the one being sung. Callers papered
+     * over it by adding one back (player.ts) or not (sync) — so the same clock
+     * produced two different answers depending on the path in.
+     */
+    calculateCurrentLine(atMillis?: number) {
+      if (!this.synced || !this.lyrics || !this.lyrics.length) return -1;
 
-      const queue = useQueue();
-      const duration = queue.duration.current;
+      // Rounded, because callers reach this through seconds: `queue.seek` takes
+      // `line.time / 1000` and the trip back lands just BELOW the integer for
+      // about 1 % of centisecond stamps (2010ms and 4020ms among them). Clicking
+      // such a line would then mark the line above it — and while paused nothing
+      // ever corrects that.
+      const millis = Math.round(atMillis ?? useQueue().duration.current * 1000);
 
-      if (!this.synced || !this.lyrics) return -1;
+      let line = -1;
+      for (let i = 0; i < this.lyrics.length; i++) {
+        if (this.lyrics[i].time > millis) break;
+        line = i;
+      }
 
-      const millis = duration * 1000;
-      const closest = this.lyrics.reduce((prev, curr) => {
-        return Math.abs(curr.time - millis) < Math.abs(prev.time - millis)
-          ? curr
-          : prev;
-      });
-
-      return this.lyrics.indexOf(closest) - 1;
+      return line;
     },
     sync() {
       const line = this.calculateCurrentLine();
