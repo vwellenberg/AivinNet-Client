@@ -24,7 +24,7 @@ Dann als Cookie verwenden: `curl -H "Cookie: access_token_cookie=$TOKEN" …`
 Endpoint**, während die Shell weiter rendert: Chrome und Nav sind da, aber null Playlists und
 null Alben. Sieht aus wie ein kaputtes UI, ist ein kaputtes Token.
 
-Beim Prägen mit PyJWT (Secret `serverId` aus `~/.config/swingmusic/settings.json`):
+Beim Prägen mit PyJWT (Secret `serverId` aus `~/.config/aivinnet/settings.json`):
 
 ```python
 pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,

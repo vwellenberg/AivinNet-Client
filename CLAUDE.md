@@ -13,7 +13,7 @@ Repo, Server-Checkout und systemd-Unit wurden umbenannt — wer die alten Namen 
 | **Backend-Repo** | `vwellenberg/AivinNet` |
 | **Stack** | Vue 3, Pinia, TypeScript, SCSS, Vite 3, yarn |
 | **Server** | `192.168.0.4`, Port 1970, systemd-Unit **`aivinnet`** |
-| **Checkout auf dem Server** | `~/AivinNet-Client`, gebaut nach `~/.config/swingmusic/client/` |
+| **Checkout auf dem Server** | `~/AivinNet-Client`, gebaut nach `~/.config/aivinnet/client/` |
 
 ⚠️ **`gh` ohne `--repo` landet im Upstream** (`swingmx/webclient`) — bei `gh issue create` und
 `gh pr create` immer `--repo vwellenberg/AivinNet-Client` setzen.
@@ -257,7 +257,7 @@ Meldung:
 
 ```bash
 cd ~/AivinNet-Client && git log --oneline -1          # enthält der Checkout den Commit?
-grep -oh "<neuer Text>" ~/.config/swingmusic/client/assets/*.js | sort -u
+grep -oh "<neuer Text>" ~/.config/aivinnet/client/assets/*.js | sort -u
 ```
 
 **Zweite Falle:** direkt nach einem Merge kann der Pull den Stand **davor** ziehen — GitHub
@@ -269,7 +269,7 @@ Gegenprobe oben auf; dann einfach nochmal deployen.
 ### Backend
 
 Liegt auf dem Server unter `~/AivinNet` und läuft über **denselben** systemd-Dienst `aivinnet`
-(Port 1970 — er serviert auch das gebaute Frontend aus `~/.config/swingmusic/client`). Ein
+(Port 1970 — er serviert auch das gebaute Frontend aus `~/.config/aivinnet/client`). Ein
 Frontend-Deploy startet also dasselbe Backend neu. Der Deploy-Befehl und die Gotchas dazu
 (`uv` nicht im PATH, Health-Check) stehen in der CLAUDE.md des Backend-Repos.
 
@@ -280,8 +280,8 @@ Client-Repo** → dort mit „For vwellenberg/AivinNet-Client#N" referenzieren, 
 
 ## Learnings / Gotchas (für alle Agents)
 
-- **⚠️ CODE-CURRENCY ZUERST PRÜFEN (vor jeder Analyse/Diagnose/Screenshot):** Immer verifizieren, dass auf dem **aktuellen** Code gearbeitet wird — an BEIDEN Stellen: (1) **Lokal**: `git fetch` + `git rev-list --left-right --count HEAD...origin/master`; bei Rückstand ff-syncen. (2) **Deployt/Live**: Server-Checkout-HEAD (`~/AivinNet-Client`) **und** deployter Build (`~/.config/swingmusic/client`) gegen `origin/master`. **Die Headless-Screenshot-Pipeline trifft die DEPLOYTE App** — die kann viele Commits hinterherhinken, auch wenn `master` aktuell ist (real passiert: Header an 6-Commits-alter App diagnostiziert, Pin noch rechts oben statt inline). Stale → erst syncen (lokal) bzw. aktuellen `master` deployen (mit User-OK), DANN diagnostizieren/screenshotten. Nie Mockups/Befunde von veraltetem Stand als „so ist es" präsentieren. **Und danach noch einmal prüfen** — hier deployen mehrere Sitzungen, der Stand kann sich mitten in einer Messreihe ändern (siehe *Mehrere Agents parallel*).
-- **⚠️ SERVICE WORKER / STALE CACHE (ZUERST LESEN):** Wenn der User sagt „Fix sieht man nicht / UI noch alt", obwohl der Deploy nachweislich korrekt auf dem Server liegt → **fast immer ein Service Worker**, der alte vorgecachte Assets ausliefert. **Strg+Shift+R und „Cache löschen" umgehen einen Service Worker NICHT.** Symptom: Headless-Screenshot (kein SW) zeigt den Fix korrekt, aber der User-Browser nicht. Diagnose: `ls ~/.config/swingmusic/client | grep -iE 'sw|workbox'` + im sw.js auf alte `index.*.js`-Hashes prüfen. **Status quo: PWA/SW ist via `selfDestroying: true` in [vite.config.ts](vite.config.ts) abgeschaltet** — nicht ohne triftigen Grund reaktivieren. Falls ein User noch einen alten SW stecken hat: Chrome DevTools (F12) → Application → Storage → „Clear site data" → Tab neu laden (das entfernt den SW; ein normaler Reload reicht nicht). Dieses Problem trat mehrfach auf — bitte SOFORT daran denken, bevor man stundenlang am CSS sucht.
+- **⚠️ CODE-CURRENCY ZUERST PRÜFEN (vor jeder Analyse/Diagnose/Screenshot):** Immer verifizieren, dass auf dem **aktuellen** Code gearbeitet wird — an BEIDEN Stellen: (1) **Lokal**: `git fetch` + `git rev-list --left-right --count HEAD...origin/master`; bei Rückstand ff-syncen. (2) **Deployt/Live**: Server-Checkout-HEAD (`~/AivinNet-Client`) **und** deployter Build (`~/.config/aivinnet/client`) gegen `origin/master`. **Die Headless-Screenshot-Pipeline trifft die DEPLOYTE App** — die kann viele Commits hinterherhinken, auch wenn `master` aktuell ist (real passiert: Header an 6-Commits-alter App diagnostiziert, Pin noch rechts oben statt inline). Stale → erst syncen (lokal) bzw. aktuellen `master` deployen (mit User-OK), DANN diagnostizieren/screenshotten. Nie Mockups/Befunde von veraltetem Stand als „so ist es" präsentieren. **Und danach noch einmal prüfen** — hier deployen mehrere Sitzungen, der Stand kann sich mitten in einer Messreihe ändern (siehe *Mehrere Agents parallel*).
+- **⚠️ SERVICE WORKER / STALE CACHE (ZUERST LESEN):** Wenn der User sagt „Fix sieht man nicht / UI noch alt", obwohl der Deploy nachweislich korrekt auf dem Server liegt → **fast immer ein Service Worker**, der alte vorgecachte Assets ausliefert. **Strg+Shift+R und „Cache löschen" umgehen einen Service Worker NICHT.** Symptom: Headless-Screenshot (kein SW) zeigt den Fix korrekt, aber der User-Browser nicht. Diagnose: `ls ~/.config/aivinnet/client | grep -iE 'sw|workbox'` + im sw.js auf alte `index.*.js`-Hashes prüfen. **Status quo: PWA/SW ist via `selfDestroying: true` in [vite.config.ts](vite.config.ts) abgeschaltet** — nicht ohne triftigen Grund reaktivieren. Falls ein User noch einen alten SW stecken hat: Chrome DevTools (F12) → Application → Storage → „Clear site data" → Tab neu laden (das entfernt den SW; ein normaler Reload reicht nicht). Dieses Problem trat mehrfach auf — bitte SOFORT daran denken, bevor man stundenlang am CSS sucht.
 - **UI-Änderungen selbst ansehen, nicht behaupten.** Auf dem Server liegt unter `~/uitest` eine
   fertige Playwright-Kiste (Chromium **und** Firefox): Screenshots pro Route × Theme × Gerät,
   Computed-Style-Audits, Regler-Vermessung, E2E für Queue und Group-Sync. **Vor dem Bauen eines

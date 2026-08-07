@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # AivinNet frontend deploy: build and copy into the live serve dir.
-# Client-only changes need no restart — swingmusic serves the directory live.
+# Client-only changes need no restart — the backend serves the directory live.
 #
 # This is the canonical copy. `~/deploy-client.sh` on the server is a thin
 # wrapper that pulls the repo and then execs THIS file, so the deploy procedure
@@ -10,7 +10,18 @@
 set -euo pipefail
 
 REPO="${REPO:-$HOME/AivinNet-Client}"
-SERVE="${SERVE:-$HOME/.config/swingmusic/client}"
+
+# Where the backend serves the client from. The config directory was renamed
+# swingmusic -> aivinnet (AivinNet#98) and the backend moves it on its first
+# start after that release — so which name is real depends on whether that
+# start has happened yet. Deploying into the wrong one is silent: the copy
+# succeeds, and the browser keeps getting the old bundle from the other
+# directory. Resolve it instead of hard-coding, preferring the new name.
+default_serve="$HOME/.config/aivinnet/client"
+if [[ ! -d "$HOME/.config/aivinnet" && -d "$HOME/.config/swingmusic" ]]; then
+	default_serve="$HOME/.config/swingmusic/client"
+fi
+SERVE="${SERVE:-$default_serve}"
 
 # How long an orphaned asset is kept after it stops being part of the build.
 #
@@ -25,8 +36,18 @@ GRACE_DAYS="${GRACE_DAYS:-7}"
 cd "$REPO"
 yarn build
 
+# Fail loudly rather than deploying into a directory the backend does not read.
+# `cp` into a missing target would either error cryptically or, worse, create
+# the wrong path and report success while the browser keeps the old bundle.
+if [[ ! -d "$SERVE" ]]; then
+	echo "SERVE dir does not exist: $SERVE" >&2
+	echo "  The backend serves ~/.config/<aivinnet|swingmusic>/client — start it once so it" >&2
+	echo "  creates (and migrates) that directory, or set SERVE=... explicitly." >&2
+	exit 1
+fi
+
 cp -r "$REPO/dist/"* "$SERVE/"
-echo "DEPLOYED"
+echo "DEPLOYED into $SERVE"
 
 # ---------------------------------------------------------------------------
 # Prune orphans.
@@ -75,8 +96,8 @@ UITEST="${UITEST:-$HOME/uitest}"
 BACKEND="${BACKEND:-$HOME/AivinNet}"
 if [[ -d "$UITEST/node_modules/playwright" ]]; then
     TOKEN=$(cd "$BACKEND" && "$HOME/.local/bin/uv" run python - <<'PY' 2>/dev/null | tail -1
-from swingmusic.app_builder import app, config_jwt
-from swingmusic.db.userdata import UserTable
+from aivinnet.app_builder import app, config_jwt
+from aivinnet.db.userdata import UserTable
 from flask_jwt_extended import create_access_token
 config_jwt(app)
 with app.app_context():
