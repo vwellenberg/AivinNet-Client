@@ -2,10 +2,11 @@
     <div class="aboutswingmusic">
         <div class="version">AivinNet v{{ clientVersion }}</div>
         <div v-if="settings.version" class="server-version">Server v{{ settings.version }}</div>
-        AivinNet is a fork of
-        <a href="https://github.com/swingmx/swingmusic" target="_blank"><u>Swing Music</u></a>
-        — a self-hosted music player for your local library.
-        <br /><br />
+        <p class="blurb">
+            AivinNet is a fork of
+            <a href="https://github.com/swingmx/swingmusic" target="_blank"><u>Swing Music</u></a>
+            — a self-hosted music player for your local library.
+        </p>
         <div class="links">
             <h2>Links</h2>
             <div class="flex">
@@ -41,6 +42,13 @@ const clientVersion = pkg.version
 </script>
 
 <style lang="scss">
+// One step for this pane, so the blocks sit on a rhythm instead of on whatever
+// each one happened to bring. The pills below used to gap by 1rem among
+// themselves while "Reset client" followed at ZERO — measured: rows at y=344 and
+// y=404 (16px apart), the reset pill at y=448 against a row ending at 448, close
+// enough for the pills' offset shadow to touch it.
+$about-step: 1rem;
+
 .aboutswingmusic {
     padding: $small;
 
@@ -58,10 +66,23 @@ const clientVersion = pkg.version
         padding-bottom: 1rem;
     }
 
+    // Was two <br> tags — the same spacing spelled as content, which no rule can
+    // see and no rhythm can include.
+    .blurb {
+        margin: 0 0 $about-step * 2;
+    }
+
     .links .flex {
         flex-wrap: wrap;
         margin-top: $small;
-        gap: 1rem;
+        gap: $about-step;
+    }
+
+    // The reset pill is its own group — a destructive action, not a link — so it
+    // takes TWO steps: the same rhythm, but reading as a separate block rather
+    // than as a fourth entry under the "Links" heading.
+    .clientreset {
+        margin-top: $about-step * 2;
     }
 
     h2 {
