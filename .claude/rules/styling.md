@@ -886,6 +886,36 @@ das zweite ist alles jenseits der rechten Padding-Kante scrollbarer Überlauf �
 säße richtig und die Seite ließe sich dafür seitwärts schieben. Die drei Stellen hängen am Token
 `$scrollbar-w` und werden von `scrollbarGutter.test.ts` zusammengehalten.
 
+## ⚠️ Eine halbe Kante ist keine Kante — und ein sticky Kopf ist eine Platte
+
+Eine einzelne `border-bottom` liest sich nur als Kante, wenn sie an **beiden** Enden in einen
+Rahmen einläuft. Im Scroller tut sie das nie: er trägt `$alt_layout_pad` seitliches Padding, also
+hörte die Linie des Ordner-Kopfbands 44 px vor dem Ink-Rahmen der Content-Karte auf und schwebte —
+3 px über dem eigenen Rahmen der Ordner-Platte, zusammen als 6-px-Doppelstrich. Der Nutzer meldete
+es als „bei /music oben fehlt der Rand" (#489).
+
+**Ein sticky Kopf über einer scrollenden Liste ist Chrome, also eine Platte:** `candy-box` +
+`candy-shadow(3px, 3px)`, opak (`$mem-panel`, siehe die Veil-Regel oben), Rahmen auf **allen vier**
+Seiten. Vorbild ist `LyricsView/Head.vue`. Halbe Kanten gibt es in diesem Design nicht.
+
+Drei Mechanismen, die daran hängen — jeder hat beim Bauen einen Anlauf gekostet:
+
+- **Der Scope muss der Render-Bedingung folgen.** Der Kopf sitzt im Scroller, wenn
+  `is_alt_layout || isMedium || isSmall` (der `#before`-Slot). Auf `.is_alt_layout` allein gescoped
+  hatten die Medium- und Phone-Layouts einen Kopf **ohne jede Fläche** — Text direkt auf dem
+  Doodle-Grund. Bedingung im Template und Selektorliste im Style sind EIN Paar; der Zensus
+  `folderHeadPlate.test.ts` liest die `v-if` und verlangt für jedes Flag eine Regel.
+- **Abstände im Scroller-Slot gehören in die CONTENT-Box.** `vue-virtual-scroller` misst den Slot
+  per ResizeObserver (Content-Box) und setzt die Zeilen direkt dahinter: `padding` am Slot ist für
+  ihn unsichtbar (gemessen: Zeilen starteten 8 px *innerhalb* des Paddings), eine Margin am Kind
+  kollabiert hindurch. `display: flow-root` am Slot + Margin am Kind zählt — und die Margin
+  **wandert mit**, wenn die Platte klebt.
+- **`top` bleibt 0.** Ein Offset schiebt das sticky Element nach unten von seiner Flow-Position,
+  während die Zeilen liegenbleiben — er frisst also genau den Abstand darunter. Luft über einer
+  sticky Platte deshalb **nie** als `padding-top` des Scrollers: Blink zieht dessen Padding von der
+  Klebekante ab, die Spec nennt den Scrollport. Als Margin an der Platte ist es engine-egal
+  (gemessen Chromium **und** Firefox: 8 px oben, im Ruhe- wie im Klebezustand).
+
 ## Weitere Fallen
 
 - **CSS-Spezifität statt `!important`.** `.b-bar .with-time button{background:transparent}` (0,2,1)
