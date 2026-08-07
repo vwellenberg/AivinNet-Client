@@ -266,8 +266,15 @@ function clearAll() {
       }
     }
 
+    // On touch the button is permanently visible, so it is permanently
+    // tappable — and then it answers to the 44px target like every other
+    // control (styling.md). It is full pill height already; this is the
+    // width. On a pointer it stays narrow: it appears only under the cursor,
+    // which is aimed, and a third of the pill standing by to delete is not
+    // what a row of search terms should offer.
     @media (hover: none) {
       .chip-remove {
+        width: 2.75rem;
         opacity: 0.6;
       }
     }

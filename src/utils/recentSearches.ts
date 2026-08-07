@@ -93,18 +93,29 @@ export function recordRecentSearch(query: string) {
     const q = query.trim()
     if (q.length < 2) return
 
-    const lower = q.toLowerCase()
-    const list = getRecentSearches()
-    const rest = list.filter(item => item.toLowerCase() !== lower)
+    // Fold FIRST, against the list as it stands — the head is then still the
+    // entry that was recorded immediately before, which is the one thing this
+    // rule is allowed to look at. Deduping first moves a stranger into that
+    // position, and folding against a stranger deletes it.
+    const folded = foldAgainstPrevious(q, getRecentSearches())
+    const head = folded[0]
+    const lower = head.toLowerCase()
 
-    // A term that is ALREADY stored is a repeat — a tap on its own chip, most
-    // of the time — and a repeat only moves to the front. Folding it as well
-    // would fold it against whatever the removal of its old copy left at the
-    // head, which is an entry it never stood next to: clicking "yesterday" in
-    // ["yes", "bite", "yesterday"] destroyed "yes".
-    const promoted = rest.length === list.length ? foldAgainstPrevious(q, rest) : [q, ...rest]
+    // Only THEN drop an older copy of the surviving term, so a repeat moves to
+    // the front rather than appearing twice.
+    //
+    // Skipping the fold for a term that is already stored (to protect that
+    // stranger) is the other way round, and it is worse: typing out a term
+    // that sits deeper in the list — "yesterday", with ["bite", "yesterday"]
+    // stored — leaves the last half-typed tick, "yesterda", at the head
+    // FOREVER, since the migration runs once and never revisits it. That is
+    // the debris class this module exists to remove. What the order here costs
+    // instead: searching "yes" and then picking the "yesterday" chip drops
+    // "yes" — where "yes" was, by the shape of the interaction, an abandoned
+    // step on the way to the term that was picked.
+    const deduped = folded.slice(1).filter(item => item.toLowerCase() !== lower)
 
-    writeLocalStorage(KEY, promoted.slice(0, MAX))
+    writeLocalStorage(KEY, [head, ...deduped].slice(0, MAX))
 }
 
 export function removeRecentSearch(query: string) {

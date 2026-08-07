@@ -122,16 +122,27 @@ describe('recentSearches', () => {
         expect(getRecentSearches()).toEqual(['yes', 'yesterday'])
     })
 
-    // Clicking a chip re-records the term it carries. Folding that against
-    // whatever the removal of its old copy left at the head folds it against
-    // an entry it never stood next to.
-    it('only promotes a term that is already stored, and folds nothing', () => {
+    // Typing out a term that is already stored deeper in the list: the last
+    // half-typed tick is at the head, and it has to fold away like any other.
+    // Skipping the fold for already-stored terms left it there permanently —
+    // the migration runs once and never revisits it.
+    it('folds the last fragment away when a stored term is typed out again', () => {
+        recordRecentSearch('yesterday')
+        recordRecentSearch('bite')
+        type('yesterday')
+
+        expect(getRecentSearches()).toEqual(['yesterday', 'bite'])
+    })
+
+    // The price of that ordering, stated so a change to it is a decision and
+    // not an accident: the head folds even when it was a search of its own.
+    it('drops the previous term when it is a prefix of the one now searched', () => {
         recordRecentSearch('yesterday')
         recordRecentSearch('bite')
         recordRecentSearch('yes')
 
         recordRecentSearch('yesterday')
-        expect(getRecentSearches()).toEqual(['yesterday', 'yes', 'bite'])
+        expect(getRecentSearches()).toEqual(['yesterday', 'bite'])
     })
 
     it('keeps a re-searched term instead of folding it away', () => {
