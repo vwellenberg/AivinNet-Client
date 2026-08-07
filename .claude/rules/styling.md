@@ -916,6 +916,32 @@ Drei Mechanismen, die daran hängen — jeder hat beim Bauen einen Anlauf gekost
   Klebekante ab, die Spec nennt den Scrollport. Als Margin an der Platte ist es engine-egal
   (gemessen Chromium **und** Firefox: 8 px oben, im Ruhe- wie im Klebezustand).
 
+## ⚠️ Ein zentriertes Fenster mit Tabs braucht EINE Höhe
+
+Ein Dialog, dessen Höhe dem Inhalt folgt, **wandert mit jeder Auswahl** — und weil er zentriert
+sitzt (`place-items: center`), bewegen sich alle vier Kanten, nicht nur die untere. Beim
+Settings-Fenster hieß das (gemessen bei 1440×900, vor #492): Appearance bei `y=32 h=836`, jeder
+andere Bereich bei `y=113 h=674` — der Schließen-Knopf und die ganze Navigationsliste sprangen um
+81 px zwischen zwei Klicks. Der Nutzer meldete es als „das Fenster springt hin und her".
+
+Die Regel: **Höhe aus einem Token (`$settings-modal-h`), gedeckelt vom Fenster**
+(`height: min($token, calc(100% - Xrem))`) — und der Inhalt scrollt in dem stehenden Rahmen. Ein
+`max-height` ist kein Ersatz: es ist genau die inhaltsabhängige Größe, die das Springen erzeugt.
+
+Zwei Stellen hängen dran, beide leicht zu übersehen:
+
+- **Das Kind braucht `flex: 1`.** Sobald der Rahmen eine eigene Höhe hat, hört ein inhaltsgroßes
+  Kind vorher auf — der Rahmen der Seitenliste hängt dann in der Luft.
+- **`100dvh` neben `100vh`** auf dem Modal-Wrapper (Reihenfolge wie bei `body`). Eine feste Höhe ist
+  nur richtig, wenn der Wrapper der **sichtbare** Viewport ist; `100vh` rechnet die Browser-Leiste
+  des Handys nicht ab, und die unteren Zeilen liegen dann darunter — erreichbar per Scroll, aber
+  nie sichtbar. Headless bei 390/360 fällt das **nicht** auf.
+
+Der Zensus `settingsModalHeight.test.ts` hält beide Stellen. ⚠️ Ein Zensus über eine Regel mit
+Breakpoint-Override braucht **beide** Vorkommen: die erste Fassung zählte einen Treffer, und eine
+Mutation der Desktop-Regel auf `max-height` blieb grün, weil der Phone-Override das Muster erfüllte.
+Solche Tests gegen Mutationen prüfen, nicht nur gegen den Ist-Zustand.
+
 ## Weitere Fallen
 
 - **CSS-Spezifität statt `!important`.** `.b-bar .with-time button{background:transparent}` (0,2,1)
