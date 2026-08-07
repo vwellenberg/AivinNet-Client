@@ -38,7 +38,7 @@
                  looking for it. -->
             <Volume v-if="isMobile" class="np-volume" />
         </div>
-        <h3 class="nowplaying_title" v-if="queue.next">Up Next</h3>
+        <h3 v-if="queue.next" class="nowplaying_title">Up Next</h3>
         <SongItem
             v-if="queue.next"
             :track="queue.next"
