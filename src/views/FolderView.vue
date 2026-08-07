@@ -168,21 +168,34 @@ onMounted(() => {
 <style lang="scss">
 .folder-view.is_alt_layout {
     .scroller {
-        padding-top: 0 !important;
+        // Same gap the head keeps below itself, and the head's `top` matches it
+        // so the plate does not jump the moment it starts sticking. It used to
+        // be `0`, because the head was meant to bleed into the card's top edge.
+        padding-top: $small !important;
     }
 
     .scroller > div.vue-recycle-scroller__slot:first-child {
-        padding: 1rem 0;
-        // Opaque sticky breadcrumb band over the grid ground — tracks pass
-        // behind it, so it must be opaque (not transparent, or the grid would
-        // show through). Uses the theme-aware ground colour so it matches the
-        // ground in both themes (paper / indigo). The design is flat: no blur,
-        // a hard ink bottom border marks the edge. (The breadcrumb itself sits
-        // on a blush-soft pill inside this band, so its text stays ink.)
-        background-color: $mem-ground;
-        border-bottom: $candy-border;
+        // The breadcrumb head is CHROME over a scrolling list, so it wears the
+        // plate anatomy every other sticky head wears (see LyricsView/Head.vue):
+        // opaque panel surface, an ink frame on ALL FOUR sides, the shared radius
+        // and the offset shadow. Opaque matters twice over — rows pass behind it,
+        // and the veil would show them through its own text.
+        //
+        // It used to be a bare $mem-ground fill with nothing but a
+        // `border-bottom`. A single line only reads as an edge when it runs into
+        // the card's frame at both ends, and this one never could: the scroller
+        // carries $alt_layout_pad of side padding, so the line stopped 44px short
+        // of the ink frame on each side and floated there. Three pixels below it
+        // the folder plate opened its OWN frame, so the two printed as one 6px
+        // double rule. Hence a closed plate instead of half an edge.
+        padding: 0 $medium;
+        margin-bottom: $small;
+        background-color: $mem-panel;
+        border: $candy-border;
+        border-radius: $candy-radius;
+        @include candy-shadow(3px, 3px);
         position: sticky;
-        top: 0;
+        top: $small;
         z-index: 1;
     }
 }
