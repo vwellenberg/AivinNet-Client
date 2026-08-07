@@ -889,6 +889,10 @@ onBeforeUnmount(teardown);
       }
 
       .folder-count {
+        // The count sits on the plate just like the name does, so it needs the
+        // same cover (#476) — it was the one label on this row without one, and
+        // at 0.7rem with 0.5 opacity the strokes behind it cost the most.
+        @include mem-hatch-clear(4px);
         margin-left: auto;
         flex-shrink: 0;
         font-size: 0.7rem;
