@@ -121,7 +121,23 @@ export default defineStore("lyrics", {
      * that lights up empty before it is sung. Scrolling arrives 300ms later
      * now; being on the wrong line is the louder error of the two.
      */
+    /**
+     * ⚠️ Cancels a pending advance FIRST. `ticking` is meant to stop a second
+     * timer from being set, but it is cleared in more places than the timer is
+     * (a seek, a correction, a track change) — so a call can land while one is
+     * still in flight. Overwriting the handle would leave the old one running,
+     * and it advances the line BLIND: one extra `++`, and the highlight is a
+     * whole line ahead of the music for good. Measured: the mark left the line
+     * ~290ms before it was sung, which reads exactly like a timer firing early
+     * — the reason this was first mistaken for the 300ms head start below.
+     */
+    clearNextLineTimer() {
+      if (this.nextLineTimer === null) return;
+      clearTimeout(this.nextLineTimer);
+      this.nextLineTimer = null;
+    },
     setNextLineTimer(duration: number) {
+      this.clearNextLineTimer();
       this.ticking = true;
       this.nextLineTimer = setTimeout(() => {
         this.nextLineTimer = null;
@@ -133,20 +149,14 @@ export default defineStore("lyrics", {
       }, duration);
     },
     /**
-     * ⚠️ Cancels any pending advance. `setTimeout` only promises "not earlier",
-     * so a timer can still be in flight when something else has already decided
-     * which line it is — the player's own `diff < 0` correction, or a seek. The
-     * stale timer would then add a SECOND advance on top, and with the mark two
-     * lines out `nextLineTime` no longer triggers a correction: the highlight
-     * runs ahead for two full lines. (The old code hid this behind the 300ms
-     * head start, which kept the timer from ever being the late one.)
+     * ⚠️ Also cancels a pending advance — this is the deliberate answer to
+     * "which line is it", so a timer that was going to answer it differently
+     * has to go. `setTimeout` only promises "not earlier": one can still be in
+     * flight when the player's own `diff < 0` correction or a seek lands, and
+     * it would then add a second advance on top of the right answer.
      */
     setCurrentLine(line: number, scroll = true) {
-      if (this.nextLineTimer !== null) {
-        clearTimeout(this.nextLineTimer);
-        this.nextLineTimer = null;
-      }
-
+      this.clearNextLineTimer();
       this.currentLine = line;
       this.ticking = false;
 

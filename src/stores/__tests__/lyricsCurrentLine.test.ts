@@ -118,6 +118,21 @@ describe('lyrics: a pending advance is cancelled by whoever sets the line', () =
         expect(lyrics.currentLine).toBe(3)
     })
 
+    // The one that actually bit: `ticking` is cleared in more places than the
+    // timer is, so a second timer can be armed while the first is in flight.
+    // The orphan advances BLIND — one extra `++` and the mark is a whole line
+    // ahead of the music from then on.
+    it('does not leave an orphan behind when a second timer is armed', () => {
+        const lyrics = useLyrics()
+
+        lyrics.setNextLineTimer(800)
+        lyrics.ticking = false // whatever cleared it: a correction, a seek, a track change
+        lyrics.setNextLineTimer(1500)
+        vi.advanceTimersByTime(3000)
+
+        expect(lyrics.currentLine).toBe(1)
+    })
+
     it('still advances on its own when nothing intervenes', () => {
         const lyrics = useLyrics()
 
