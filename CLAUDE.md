@@ -78,7 +78,7 @@ Pro Aufgabe/Issue:
      vermerken, dass das Review nicht lief.
 4. **CI grün abwarten** (Lint/Tests/Build).
 5. **Autonom (squash) mergen**, sobald Review (Schritt 3) sauber und CI grün: `gh pr merge --repo vwellenberg/AivinNet-Client --squash --delete-branch --auto` — `--auto` merged automatisch, sobald die Required Checks grün sind. Keine Rückfrage beim Nutzer nötig — „kein Review-Zwang" heißt dabei nur, dass **GitHub** keinen Fremd-Reviewer verlangt; das Self-Review aus Schritt 3 ist trotzdem Pflicht.
-6. **Deploy von `master`** + verifizieren (bei UI: Headless-Screenshot), dann **Worktree entfernen** (`git worktree remove`) + lokalen Branch löschen.
+6. **Deploy von `master`** + verifizieren (bei UI: Headless-Screenshot), dann **Worktree entfernen** (`git worktree remove`) + lokalen Branch löschen — und am Rundenende **einmal die Leichen wegkehren** (siehe *Branch-Hygiene* unten).
 7. **Issue-Abgleich — Pflicht, nicht Kür.** Nach **jeder** Implementierung prüfen, ob es dazu ein Issue gibt (`gh issue list --repo vwellenberg/AivinNet-Client --state open`), und es schließen **mit einem Kommentar, der die Lösung beschreibt** — was geändert wurde, in welchem PR, womit belegt.
    - Das gilt auch für Arbeit, die **nebenbei** ein Issue erledigt: Features lösen regelmäßig fremde Issues mit, ohne dass jemand die Verbindung zieht. Real passiert: die Album-Hash-Migration aus #255 hat den halben Punkt B von #31 miterledigt, und die Ordner-Arbeit aus #83 die halbe Akzeptanzliste von #94 — beide Issues standen danach monatelang offen und sahen unangetastet aus.
    - **Nie den Issue-Text als Status wiedergeben.** Er ist hier regelmäßig Monate hinter dem Code. Vor jeder Aussage über ein Issue die genannten Dateien, Funktionen und Endpunkte im Code nachschlagen (real passiert: #2 und #97 wurden als „offen" zusammengefasst, obwohl Backend und Frontend fertig waren).
@@ -99,6 +99,46 @@ git fetch && git show origin/master:<datei> | grep -c "<neues token>"
 
 - Kein `dev`-Branch (Branches gehen direkt von `master` aus).
 - **`master` ändert sich laufend = normal und gewollt:** jeder gemergte PR bewegt `master`. Das ist KEIN Zeichen für Direkt-Commits, sondern der vorgesehene Fluss (Worktree → Branch → PR → Merge).
+
+### Branch-Hygiene — `--delete-branch` räumt nur die HÄLFTE
+
+Am 2026-08-07 lagen **183 tote Branches** herum (Client 139, Backend 51 — nach dem Kehren 3 bzw. 2).
+Das war keine Schlamperei, sondern drei Mechanismen, von denen nur einer Disziplin ist:
+
+- **`gh pr merge --delete-branch` löscht das REMOTE, nicht die lokale Branch.** Die überlebt den
+  Merge; sie zu löschen ist ein zweiter, separater Handgriff — und der fällt aus, sobald die Runde
+  sich fertig anfühlt.
+- **Fremde Merges hinterlassen Leichen bei DIR.** Mergt eine andere Sitzung, wird die Branch in
+  *deinem* Klon zur Leiche, ohne dass du irgendetwas falsch gemacht hättest. Dagegen hilft keine
+  eigene Disziplin — nur ein Sweep.
+- **`git fetch --prune` räumt ausschließlich die Remote-Tracking-Refs.** Es löscht `origin/foo`,
+  nie `foo`. Prunen *erzeugt* also die `[gone]`-Markierung und handelt nie danach — es fühlt sich
+  wie Aufräumen an und ist keins.
+
+**Also am Rundenende kehren, nicht nur beim eigenen Merge:**
+
+```bash
+git fetch --prune
+git branch -vv | grep ': gone]' | awk '{print $1}'      # ERST ansehen
+git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -D
+```
+
+⚠️ **`[gone]` ist KEIN Beleg für einen Merge** — und `git branch -D` fragt nicht nach. Ein PR, der
+**ohne** Merge geschlossen wurde, hinterlässt dieselbe Markierung, und dann ist die lokale Branch
+die einzige verbliebene Kopie. In diesem Repo trifft das 3 von 388 PRs — selten genug, um es zu
+vergessen, oft genug, um Arbeit zu verlieren. Vor einem Massenlauf deshalb einmal gegenprüfen:
+
+```bash
+gh pr list --repo vwellenberg/AivinNet-Client --state closed --limit 1000 \
+  --json headRefName,mergedAt --jq '.[]|select(.mergedAt==null)|.headRefName'
+```
+
+Was dort auftaucht, wird **nicht** gelöscht. `git branch -d` (klein) taugt als Schutz übrigens
+nicht: Bei Squash-Merges kennt Git die Branch nicht als „merged" und verweigert **jede**.
+
+Und: `--delete-branch` beim Merge ist trotzdem Pflicht — es ist das, was die lokale Branch
+überhaupt erst als `[gone]` erkennbar macht. Ohne das bleibt sie mit lebendem Remote stehen und
+fällt durch jeden Sweep (so entstanden 76 der 183).
 
 ### Mehrere Agents parallel
 
