@@ -20,7 +20,7 @@
             seen: index < lyrics.currentLine,
           }"
           :style="index == lyrics.currentLine ? currentLineStyle : undefined"
-          @click="seekToLine(index, line.time)"
+          @click="queue.seek(line.time / 1000)"
         >
           <span class="stamp">{{ formatSeconds(line.time / 1000) }}</span>
           <span class="text">{{ line.text }}</span>
@@ -90,17 +90,6 @@ const lineProgress = computed(() => {
 const currentLineStyle = computed(() => ({
   "--line-progress": `${lineProgress.value * 100}%`,
 }));
-
-/**
- * Clicking a line seeks to it — and MARKS it, rather than waiting for the
- * player to say so. While paused nothing advances `currentLine` at all, so the
- * mark (and with it the scrubber) would otherwise sit on the line playback
- * left, filled to 100 % because the clock has already run past its end.
- */
-function seekToLine(index: number, time: number) {
-  queue.seek(time / 1000);
-  lyrics.setCurrentLine(index, false);
-}
 
 const onScroll = (e: Event) => {
   lyrics.setUserScrolled(true);

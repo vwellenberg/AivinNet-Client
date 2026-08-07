@@ -376,8 +376,10 @@ export const usePlayer = defineStore('player', () => {
         const diff = lyrics.nextLineTime - millis
 
         if (diff < 0) {
-            const line = lyrics.calculateCurrentLine()
-            lyrics.setCurrentLine(line + 1, false)
+            // No `+ 1`: calculateCurrentLine returns the line being sung now,
+            // not the one before it (stores/lyrics.ts). The correction here and
+            // the missing one in `sync()` were two halves of the same bug.
+            lyrics.setCurrentLine(lyrics.calculateCurrentLine(), false)
             return
         }
 

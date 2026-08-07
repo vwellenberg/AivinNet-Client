@@ -59,7 +59,11 @@ export default defineStore("lyrics", {
           }
         })
         .then(async () => {
+          // Opening the view mid-track has to MARK the line it lands on, not
+          // just scroll to it: the mark used to stay at -1 until the player's
+          // next tick corrected it, so the page appeared with nothing playing.
           const line = this.calculateCurrentLine();
+          this.setCurrentLine(line, false);
 
           if (line == -1) {
             return this.scrollToContainerTop();
@@ -105,6 +109,15 @@ export default defineStore("lyrics", {
         this.exists = data.exists;
       });
     },
+    /**
+     * Advance to the next line WHEN IT STARTS.
+     *
+     * This used to fire 300ms early — a head start for the smooth scroll, paid
+     * for by the mark itself: the highlighted line ran ahead of the music, and
+     * once that line carries a scrubber (#486) the head start reads as a line
+     * that lights up empty before it is sung. Scrolling arrives 300ms later
+     * now; being on the wrong line is the louder error of the two.
+     */
     setNextLineTimer(duration: number) {
       this.ticking = true;
       setTimeout(() => {
@@ -113,7 +126,7 @@ export default defineStore("lyrics", {
           this.ticking = false;
           this.scrollToCurrentLine();
         }
-      }, duration - 300);
+      }, duration);
     },
     setCurrentLine(line: number, scroll = true) {
       this.currentLine = line;
@@ -150,22 +163,29 @@ export default defineStore("lyrics", {
         inline: "start",
       });
     },
+    /**
+     * The line being sung right now: the LAST one that has already started.
+     * `-1` while playback is still before the first line.
+     *
+     * It used to look for the line NEAREST to the clock and subtract one, which
+     * is a different question and answers it wrong for half of every interval:
+     * at 34.0s between lines at 33.0s and 36.1s the nearest is the 33s line, so
+     * minus one pointed at the line before the one being sung. Callers papered
+     * over it by adding one back (player.ts) or not (sync) — so the same clock
+     * produced two different answers depending on the path in.
+     */
     calculateCurrentLine() {
-      if (!this.lyrics.length) return -1;
+      if (!this.synced || !this.lyrics || !this.lyrics.length) return -1;
 
-      const queue = useQueue();
-      const duration = queue.duration.current;
+      const millis = useQueue().duration.current * 1000;
 
-      if (!this.synced || !this.lyrics) return -1;
+      let line = -1;
+      for (let i = 0; i < this.lyrics.length; i++) {
+        if (this.lyrics[i].time > millis) break;
+        line = i;
+      }
 
-      const millis = duration * 1000;
-      const closest = this.lyrics.reduce((prev, curr) => {
-        return Math.abs(curr.time - millis) < Math.abs(prev.time - millis)
-          ? curr
-          : prev;
-      });
-
-      return this.lyrics.indexOf(closest) - 1;
+      return line;
     },
     sync() {
       const line = this.calculateCurrentLine();
