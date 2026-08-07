@@ -1,6 +1,7 @@
 <template>
   <button
-    class="pluginfindlyricsbtn circular"
+    type="button"
+    class="pluginfindlyricsbtn"
     :class="{ showError: plugin.error }"
     @click="!plugin.error ? plugin.searchLyrics() : null"
   >
@@ -19,27 +20,25 @@ const plugin = useLyricsPlugin();
 
 <style lang="scss">
 .pluginfindlyricsbtn {
-  padding: 1.5rem 2rem;
-  font-size: 1rem !important;
-  background-color: $white;
-  color: $black;
-  margin-top: 1rem;
+  // The action on the empty state is a primary CTA, so it takes the role
+  // instead of hand-writing a surface ($white/$black are the legacy aliases
+  // this file still carried, and they point at theme vars now — the label was
+  // the same colour as the fill in one of the two themes).
+  @include btn-primary($h: auto);
+  min-height: 2.75rem;
+  margin-top: $medium;
+  padding: $small 1.25rem;
 
-  &:hover {
-    background-color: $white;
-    color: $black;
+  &.showError {
+    // Still a plate, but the failure colour. Ink on coral in both themes.
+    background-color: $mem-coral;
+    cursor: default;
   }
 
   .spinner {
     margin-left: $medium;
     height: 1rem;
     width: 1rem;
-  }
-
-  &.showError {
-    background-color: transparent;
-    color: $white;
-    border: solid 2px;
   }
 }
 </style>

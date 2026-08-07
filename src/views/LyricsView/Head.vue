@@ -8,7 +8,7 @@
         },
       }"
     >
-      <img :src="paths.images.thumb.small + queue.currenttrack.image" class="shadow-sm" />
+      <img :src="paths.images.thumb.small + queue.currenttrack.image" />
     </RouterLink>
 
     <div class="text">
@@ -16,7 +16,9 @@
       <ArtistName :artists="queue.currenttrack.artists" :albumartists="queue.currenttrack.albumartists" />
     </div>
     <div class="right">
-      <div v-if="lyrics.lyrics.length && !lyrics.synced" class="lyricstype">unsynced</div>
+      <div v-if="lyrics.lyrics.length" class="lyricstype" :class="{ synced: lyrics.synced }">
+        {{ lyrics.synced ? "synced" : "unsynced" }}
+      </div>
     </div>
   </div>
 </template>
@@ -35,51 +37,75 @@ const lyrics = useLyrics();
 
 <style lang="scss">
 .lyricsinfo {
-  padding: 2rem 0 1rem 0;
-  font-size: 1rem;
   display: grid;
   grid-template-columns: max-content 1fr max-content;
   gap: $medium;
   align-items: center;
+  max-width: 54rem;
+  margin-bottom: $small;
+  padding: 0.7rem 0.9rem;
   position: sticky;
   top: 0;
   z-index: 1;
-  // Opaque band over the scrolling grid ground (lyrics pass behind it), with a
-  // hard ink bottom edge like the folder breadcrumb band. Uses the theme-aware
-  // ground colour so it matches the ground in both themes (paper / indigo);
-  // its text then follows with the content colour. The .lyricstype chip keeps
-  // its own ink text on the lavender fill.
-  background-color: $mem-ground;
+  // The head is CHROME, so it takes the opaque panel surface while the lyrics
+  // below take the translucent veil: the lines scroll BEHIND this plate, and a
+  // translucent head would show them passing through its own text.
+  background-color: $mem-panel;
   color: $mem-content-text;
-  border-bottom: $candy-border;
+  border: $candy-border;
+  border-radius: $candy-radius;
+  @include candy-shadow(3px, 3px);
 
   @include allPhones {
-    padding: $large 0;
-    margin-bottom: -$small;
+    gap: $small;
+  }
+
+  a {
+    display: block;
+    line-height: 0;
   }
 
   img {
     display: block;
-    height: 2.5rem;
+    width: 3rem;
+    height: 3rem;
     border: $candy-border;
     border-radius: $candy-radius-sm;
+    // Stuck on, like the artwork in a song row: offset shadow and a slight tilt.
+    box-shadow: 3px 3px 0 var(--mem-shadow);
+    transform: rotate(-2.5deg);
+  }
+
+  .text {
+    min-width: 0;
   }
 
   .title {
-    font-size: 0.85rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.2;
   }
 
   .artist {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    color: $mem-content-muted;
   }
 
   .lyricstype {
+    padding: 0.25rem 0.6rem;
+    border: $candy-border-w solid $candy-black;
     border-radius: $candy-radius-pill;
-    border: 1px solid $mem-line;
-    font-size: 12px;
-    padding: $smaller $small;
+    // Static accents in both themes, so the label on them stays static ink.
     background-color: $candy-lavender;
     color: $candy-black;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    &.synced {
+      background-color: $mem-teal;
+    }
   }
 }
 </style>
