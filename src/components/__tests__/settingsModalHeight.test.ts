@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { block, styleBlock } from "./scssBlocks";
+import { block, ownDeclarations, styleBlock } from "./scssBlocks";
 
 // ---------------------------------------------------------------------------
 // The settings modal has ONE height for every pane.
@@ -32,11 +32,18 @@ const VARIABLES = read("src/assets/scss/_variables.scss");
 const MODAL = styleBlock(read("src/components/modal.vue"));
 const SETTINGS = styleBlock(read("src/components/modals/Settings.vue"));
 
-/** A rule body, with a guard so a broken parse fails loudly instead of green. */
+/**
+ * A rule's OWN declarations (breakpoint overrides kept, child blocks dropped),
+ * with a guard so a broken parse fails loudly instead of quietly green.
+ *
+ * Own declarations, not the whole body: `.settingsmodal` contains an `.h2` that
+ * declares `flex: 1` itself, so a body-wide match would keep passing after the
+ * `flex: 1` this test is about was deleted.
+ */
 function rule(css: string, selector: string): string {
   const { body } = block(css, selector);
   expect(body, `${selector} not found`).not.toBe("");
-  return body;
+  return ownDeclarations(body);
 }
 
 describe("the settings modal keeps one height", () => {
@@ -46,12 +53,26 @@ describe("the settings modal keeps one height", () => {
 
   it("sizes the modal from the token, not from its content", () => {
     const settings = rule(MODAL, ".m-content.settings");
-    // A `min()` against the window keeps a short viewport from being overrun;
-    // what must not come back is a height that follows the pane.
-    expect(settings).toMatch(/height:.*\$settings-modal-h/);
+    // `height`, anchored — NOT `max-height`, which is the content sizing this
+    // fixed and which an unanchored pattern would happily accept. A `min()`
+    // against the window is what keeps a short viewport from being overrun.
+    expect(settings).toMatch(/(?:^|[\s;{])height:\s*min\([^;]*\$settings-modal-h/);
+    // Both breakpoints read the token; `ownDeclarations` keeps the phone
+    // override in scope, so a literal there would show up here.
+    expect(settings.match(/\$settings-modal-h/g)?.length).toBe(2);
   });
 
   it("lets the panes fill that height", () => {
     expect(rule(SETTINGS, ".settingsmodal")).toMatch(/flex:\s*1;/);
+  });
+
+  it("measures the viewport the way the phone sees it", () => {
+    // A fixed share of `.modal` is only right if `.modal` itself is the VISIBLE
+    // viewport: `100vh` ignores the browser's chrome, so the modal's bottom rows
+    // would sit under the address bar. `vh` first, `dvh` second (the fallback
+    // order `body` uses).
+    const modal = rule(MODAL, ".modal");
+    expect(modal).toMatch(/height:\s*100vh;/);
+    expect(modal).toMatch(/height:\s*100dvh;/);
   });
 });
