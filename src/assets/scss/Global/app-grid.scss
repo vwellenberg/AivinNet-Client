@@ -197,7 +197,13 @@ $g-border: solid $candy-border-w $mem-line;
     // closes the frame there), while "first" is not always the top of the frame
     // — on the playlist page the caption bar caps it and no row is `.is-first`
     // at all.
-    &.rounded-sm:not(:hover):not(.current):not(.contexton) {
+    //
+    // ⚠️ The hover exclusion is NOT in these selectors — it is a pointer-gated
+    // rule of its own further down. `:not(:hover)` here would fail on a touch
+    // device the moment a tap latches the hover state, and since the hover FILL
+    // is pointer-gated too (SongItem.vue), nothing would paint in their place:
+    // the tapped row would simply lose its band, perforation and stripe (#457).
+    &.rounded-sm:not(.current):not(.contexton) {
         background-image: repeating-linear-gradient(
                 90deg,
                 $mem-line 0 3px,
@@ -216,11 +222,25 @@ $g-border: solid $candy-border-w $mem-line;
 
     // The last row closes the frame with a solid border — a perforation on the
     // same edge would double it.
-    &.is-last.rounded-sm:not(:hover):not(.current):not(.contexton) {
+    &.is-last.rounded-sm:not(.current):not(.contexton) {
         background-image: linear-gradient(var(--band, #{$mem-line}), var(--band, #{$mem-line})),
             linear-gradient($mem-line, $mem-line);
         background-position: left top, right top;
         background-size: $songlist-band-w 100%, $candy-border-w 100%;
+    }
+
+    // The hovered row draws its own full ink frame and contrast fill
+    // (candy-row-hover), so the three stripe layers step aside — a straight
+    // stripe would peek out inside its rounded corners.
+    //
+    // Pointer devices only, and it has to sit AFTER both blocks above: at
+    // (0,5,0) it ties with the `.is-last` variant, so source order is what
+    // decides. Written as an exclusion inside those selectors instead, it would
+    // have fired on every latched tap — see the note above them.
+    @media (hover: hover) {
+        &.rounded-sm:hover:not(.current):not(.contexton) {
+            background-image: none;
+        }
     }
 
     &.is-first.rounded-sm {
