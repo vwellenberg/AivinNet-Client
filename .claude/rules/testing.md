@@ -1,7 +1,10 @@
 ---
 paths:
   - "src/**/__tests__/**"
-  - "vitest.config.*"
+  # Die Testkonfiguration liegt im `test:`-Block von `vite.config.ts` — eine
+  # `vitest.config.*` gibt es in diesem Repo nicht, der Glob hier zeigte also
+  # ins Leere und die Regel lud beim Schrauben an der Konfiguration nie.
+  - "vite.config.ts"
 ---
 
 # Tests

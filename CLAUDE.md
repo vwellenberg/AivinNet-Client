@@ -269,10 +269,21 @@ passende Datei gelesen wird:
 
 | Rule | greift bei | Inhalt |
 |---|---|---|
-| `styling.md` | `*.scss`, `*.vue`, `vite.config.ts` | Rollen, Hard-Shadows, Icon-/viewBox-Fallen, 44-px-Touch-Ziele, Regler-Geometrie, Sass-Interpolation, Bewegung |
-| `stores-and-state.md` | `src/stores/**`, `src/requests/**` | Playlist-Schreibpfade, optimistische Rollbacks, Zufall-im-Getter, virtualisierte Queue |
-| `device-sync.md` | `stores/devicesync.ts`, `utils/deviceSync/**` | Seams, Timing, Auto-Rejoin, Feld-Bugs |
-| `testing.md` | `src/**/__tests__/**` | Vitest-0.34-Fallen, Fixtures |
+| `styling.md` | `src/assets/scss/**`, `src/**/*.scss`, `src/**/*.vue`, `vite.config.ts` | **Schraffur-Policy** (was sie bedeutet, wo sie wegbleibt, nie hinter Text), Zeilen-Platten, Hover-Token, Rollen, Hard-Shadows, Icon-/viewBox-Fallen, 44-px-Touch-Ziele, Regler-Geometrie, Sass-Interpolation, Bewegung |
+| `stores-and-state.md` | `src/stores/**`, `src/utils/playlistMove.ts`, `src/utils/shufflePicker.ts`, `src/requests/**` | Playlist-Schreibpfade, optimistische Rollbacks, Zufall-im-Getter, virtualisierte Queue |
+| `device-sync.md` | `src/stores/devicesync.ts`, `src/utils/deviceSync/**`, `src/components/DeviceSync/**`, `src/components/modals/Devices.vue`, `src/views/PairView.vue` | Seams, Timing, Auto-Rejoin, Feld-Bugs |
+| `testing.md` | `src/**/__tests__/**`, `vite.config.ts` | Vitest-0.34-Fallen, Fixtures |
+
+⚠️ **Die „greift bei"-Spalte ist keine Prosa, sondern das `paths:`-Frontmatter der jeweiligen
+Datei — wortgleich.** Beides von Hand zu pflegen hat nicht funktioniert: Die Spalte nannte für
+`device-sync.md` drei von fünf Globs, und `testing.md` gatete auf `vitest.config.*`, das es hier
+nie gab (die Testkonfiguration steckt im `test:`-Block von `vite.config.ts`) — die Regel lud also
+ausgerechnet beim Schrauben an der Konfiguration nicht, und **auffallen konnte das niemandem**:
+Ein Glob ins Leere wirft keinen Fehler, er sorgt nur dafür, dass die Datei stumm bleibt.
+
+Seitdem hält `src/components/__tests__/contextDocs.test.ts` drei Dinge fest: Jede Rule ist
+gescopet, jeder Glob trifft mindestens eine existierende Datei, und diese Tabelle stimmt mit dem
+Frontmatter überein. Wer einen Glob ergänzt, ergänzt ihn hier — sonst wird die Suite rot.
 
 ## Server deployen
 
