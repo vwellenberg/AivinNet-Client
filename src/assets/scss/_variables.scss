@@ -153,6 +153,21 @@ $navheight: 4.5rem;
 // Global/app-grid.scss. The two are tied together by scrollbarGutter.test.ts.
 $scrollbar-w: 12px;
 
+// The settings modal's height, FIXED rather than grown from its content.
+// The panes differ a lot in length (Profile is a handful of fields, Appearance
+// is nine setting plates), and the modal is centred — so a content-sized box
+// moved all four of its edges on every tab switch: the nav list on the left and
+// the close button in the corner landed somewhere else each time, which reads as
+// the window jumping. With one height the frame stands still and the pane
+// scrolls inside it (`.settingsmodalcontent` already does).
+//
+// Measured before the fix at 1440x900: Appearance stood at y=32 with h=836 (long
+// enough to hit the max-height cap), every other pane at y=113 with h=674 — the
+// close button moved 81px between two clicks. 48rem clears the tallest short pane
+// (the nav list needs 668px, so it does not have to scroll on a normal window)
+// and gives the long panes about 100px more room than the old cap did.
+$settings-modal-h: 48rem;
+
 // Height of the player bar's grid row. `#acontent` spans rows 2–4 on purpose
 // (the memphis ground has to run behind the bar, or the page would end in a
 // seam), so the bar covers the bottom of every scroll container and each of

@@ -93,15 +93,19 @@ function handleGoBack() {
 </script>
 
 <style lang="scss">
-$modalheight: 38rem;
-
+// The modal's height is $settings-modal-h (_variables.scss), read by
+// `.m-content.settings` in modal.vue. A local `$modalheight: 38rem` used to sit
+// here without a single reference.
 .settingsmodal {
     display: grid;
     grid-template-columns: 15rem 1fr;
     position: relative;
     // Fill the modal's height (it is a flex column, see .m-content.settings)
     // and let the single row collapse so the inner panes can scroll instead
-    // of overflowing past the modal / viewport.
+    // of overflowing past the modal / viewport. `flex: 1` is what makes the
+    // "fill" literal: the modal box now has a height of its own, so a
+    // content-sized item would leave the sidebar's frame hanging in mid-air.
+    flex: 1;
     grid-template-rows: minmax(0, 1fr);
     min-height: 0;
 

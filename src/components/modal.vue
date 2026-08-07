@@ -153,7 +153,15 @@ function deletePlaylist() {
     // mobile and hid the last rows of the settings list. Only the bottom bar
     // sits in the 21..60 range, so this re-orders nothing else.
     z-index: 60;
+    // `dvh` after `vh`, the way `body` does it (Global/index.scss): on a phone
+    // `100vh` is the viewport WITHOUT the browser's own chrome subtracted, so it
+    // overshoots the visible area. That was survivable while the settings box
+    // sized itself to its content; now that it takes a fixed share of this
+    // element (see .m-content.settings), the overshoot would push its bottom
+    // rows under the address bar, where they can be scrolled to but not seen.
+    // The `vh` line stays as the fallback for engines without `dvh`.
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
     display: grid;
     place-items: center;
@@ -206,13 +214,23 @@ function deletePlaylist() {
         max-width: 50rem !important;
         padding: 0;
         overflow: hidden;
-        // min-height: 39rem;
+
+        // ONE height for every pane, not the content's. The modal is centred, so
+        // a box that grows with its pane moves all four edges on every tab
+        // switch — the nav list and the close button jump. See $settings-modal-h.
+        // Still yields to a short window.
+        height: min($settings-modal-h, calc(100% - 4rem));
 
         // Flex column so the settings panes get a height bounded by the modal
-        // box itself (capped by max-height) and scroll internally, instead of
-        // relying on fragile `100vh - Xrem` math that overshot the viewport.
+        // box itself and scroll internally, instead of relying on fragile
+        // `100vh - Xrem` math that overshot the viewport.
         display: flex;
         flex-direction: column;
+
+        @include allPhones {
+            // Matches the tighter margin phones give every modal (above).
+            height: min($settings-modal-h, calc(100% - 2rem));
+        }
     }
 
     .m-content.authlogin {
