@@ -80,7 +80,8 @@ with upstream.
   remembered across reloads.
 - 🆕 **Font selection** — switch the UI typeface between Default and a Spotify-style
   font (Figtree); persisted and applied app-wide.
-- 🆕 **Version label** at the bottom of the sidebar (reads from `package.json`).
+- 🆕 **Version label** under Settings → About — client version (from `package.json`)
+  alongside the server's.
 - 🎨 **AivinNet rebrand** — tab title, favicon, PWA manifest name/description, and
   in-app strings.
 
