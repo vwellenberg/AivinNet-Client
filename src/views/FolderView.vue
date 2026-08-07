@@ -174,16 +174,21 @@ onMounted(() => {
         padding-top: $small !important;
     }
 
-    // This wrapper only carries the sticky behaviour and the gap to the rows —
-    // the plate itself is the head inside it (see below). The gap has to be
-    // PADDING, not a margin: the DynamicScroller places its rows from the
-    // measured slot height and never sees a margin, so a margin would leave the
-    // first row flush against the plate's frame, printing a double rule.
+    // This wrapper only carries the sticky behaviour — the plate itself is the
+    // head inside it (see below).
+    //
+    // The gap between plate and first row has to live inside this wrapper's
+    // CONTENT box. vue-virtual-scroller sizes the slot through a ResizeObserver,
+    // whose default box is the content box, and places the rows right after it:
+    // `padding-bottom` here is invisible to it (measured: the rows started 8px
+    // INSIDE that padding), and so is a bottom margin on the plate, which would
+    // collapse straight through this wrapper. `flow-root` opens a block
+    // formatting context, so the plate's margin stays inside and counts.
     .scroller > div.vue-recycle-scroller__slot:first-child {
-        padding-bottom: $small;
+        display: flow-root;
         position: sticky;
-        // Matches the scroller's top padding: the plate keeps the same distance
-        // from the card's frame at rest and while stuck, so it does not jump.
+        // With the scroller's top padding above, the plate rests and sticks at
+        // the same distance from the card's frame, so it does not jump.
         top: $small;
         z-index: 1;
     }
@@ -202,6 +207,7 @@ onMounted(() => {
     // plate opened its OWN frame, so the two printed as one 6px double rule.
     // Hence a closed plate instead of half an edge.
     #folder-nav-title {
+        margin-bottom: $small;
         padding: $small $medium;
         background-color: $mem-panel;
         border: $candy-border;
