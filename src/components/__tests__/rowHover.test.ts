@@ -37,12 +37,18 @@ const ROWS = [
  * therefore not listed here.
  */
 const PLATES = [
-  { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-playlist-item" },
-  { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-folder" },
-  { file: "/src/components/LeftSidebar/NavButtons.vue", selector: ".nav-item" },
+  { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-playlist-item", hatch: true },
+  { file: "/src/components/LeftSidebar/index.vue", selector: ".sidebar-folder", hatch: true },
+  { file: "/src/components/LeftSidebar/NavButtons.vue", selector: ".nav-item", hatch: true },
   // Charts rows are navigating plates too — they keep the veil fill through
   // the plate's own `--row-fill` indirection instead of the panel fill.
-  { file: "/src/components/Stats/ChartItem.vue", selector: ".chartitem" },
+  //
+  // `hatch: false` is the ONE exception and it is deliberate (#468): the
+  // texture marks a control among non-controls, and a full-width content list
+  // where every row is a control has nothing for it to mark. Recorded here so
+  // the exception stays a decision instead of becoming the new default — the
+  // three sidebar plates above must keep it.
+  { file: "/src/components/Stats/ChartItem.vue", selector: ".chartitem", hatch: false },
 ];
 
 /** The static light fills a hovered/marked row is allowed to wear. */
@@ -270,6 +276,44 @@ describe("sidebar plate anatomy", () => {
       .sort();
 
     expect(found).toEqual([...new Set(PLATES.map(plate => plate.file))].sort());
+  });
+
+  // THE HATCH IS A DECISION PER PLATE (#468), and the census records which way
+  // each one went. Two directions to protect:
+  //   · a sidebar plate must not quietly lose the texture — it is what tells
+  //     its rows apart from the headings and dividers they sit among;
+  //   · the charts row must not quietly regain it — at ~1900px the tile ran
+  //     ~50 times across, straight through the title.
+  it.each(PLATES)("$selector states its hatch answer once", ({ file, selector, hatch }) => {
+    const own = rulesFor(SOURCES[file], selector)
+      .map(rule => ownDeclarations(rule.body))
+      .join("\n");
+
+    // Assert the include is in the plate's OWN declarations before reading its
+    // argument. Without this the regex below finds nothing on a plate that
+    // moved its include into a nested rule, reports `optedOut: false`, and
+    // passes for every `hatch: true` entry — green while checking nothing.
+    expect(/@include\s+mem-row-plate\(/.test(own), `${selector} states no mem-row-plate of its own`).toBe(true);
+
+    const optedOut = /@include\s+mem-row-plate\([^)]*\$hatch:\s*false/.test(own);
+    expect(optedOut, `${selector} expected hatch=${hatch}`).toBe(!hatch);
+  });
+
+  // A plate that dropped the texture but hovered with it would GROW one under
+  // the pointer. `mem-row-plate-hover` takes the same `$hatch` argument for
+  // exactly this reason, and the two halves have to agree.
+  //
+  // Scanned over the plate's OWN rule body (nested rules included, which is how
+  // `rulesFor` returns it), so the `&:hover` inside it is the one being read —
+  // not some other plate's hover that happens to live in the same file.
+  it.each(PLATES)("$selector hovers with the same hatch answer", ({ file, selector, hatch }) => {
+    const body = rulesFor(SOURCES[file], selector)
+      .map(rule => rule.body)
+      .join("\n");
+    if (!/@include\s+mem-row-plate-hover\b/.test(body)) return; // hover lives elsewhere
+
+    const optedOut = /mem-row-plate-hover\([^)]*\$hatch:\s*false/.test(body);
+    expect(optedOut, `${selector} hover disagrees with its plate (hatch=${hatch})`).toBe(!hatch);
   });
 
   // The pairing that cannot be seen in the light theme: a hatch whose stroke

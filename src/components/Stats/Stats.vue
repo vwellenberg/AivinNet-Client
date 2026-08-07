@@ -20,8 +20,10 @@
         </div>
     </div>
     <div class="statsdates" v-if="date">
-        <CalendarSvg />
-        {{ date }}
+        <div class="date">
+            <CalendarSvg />
+            {{ date }}
+        </div>
     </div>
 </template>
 
@@ -87,18 +89,24 @@ defineOptions({
 }
 
 .statsdates {
-    display: flex;
-    align-items: center;
-    gap: $small;
-    // Date range caption sits on the page ground -> theme-aware muted.
-    color: $mem-content-muted;
     padding: 1rem;
     text-transform: uppercase;
     font-size: 0.75rem;
     font-weight: 900;
 
-    svg {
-        width: 1.25rem;
+    // The caption rides a STICKER (#468) — same call as the scrobble summary
+    // under the charts. Both were the last captions left bare on the doodled
+    // ground; #404 plated every other one. The inner wrapper exists so the
+    // plate is as wide as the text, not as wide as the page.
+    .date {
+        @include mem-sticker($pad: 0.35rem 0.75rem);
+        display: inline-flex;
+        align-items: center;
+        gap: $small;
+
+        svg {
+            width: 1.25rem;
+        }
     }
 }
 </style>
