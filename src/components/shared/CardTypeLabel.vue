@@ -54,11 +54,10 @@ defineProps<{
     pointer-events: none;
 
     background-color: $mem-panel;
-    // Same statement as the name plate below the artwork: this is part of a
-    // link, so it carries the "pressable" hatch. One size down, because the
-    // tile size follows the size of the surface (28px on a chip, 38px on a
-    // plate — see mem-hatch).
-    @include mem-hatch(28px, $on: surface);
+    // NO hatch (#476). This is a LABEL — it even sets `pointer-events: none`,
+    // so it could never be pressed — and the word ("Album", "Artist") fills it.
+    // Stickers in this design are smooth for exactly that reason; the texture
+    // behind four letters was noise on both counts.
     border: $candy-border;
     border-radius: $candy-radius-sm;
     box-shadow: 3px 3px 0 var(--mem-shadow);

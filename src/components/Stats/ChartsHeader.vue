@@ -61,7 +61,10 @@ const periods = ['week', 'month', 'year', 'alltime']
     .seg {
         display: inline-flex;
         background-color: $mem-panel;
-        @include mem-hatch(28px, $on: surface);
+        // NO hatch (#476). It sat on the CONTAINER and therefore ran behind all
+        // four labels at once — the tabs are nothing but their words, so there
+        // is no area beside the text to hold a texture. Plate, ink frame,
+        // offset, the yellow ON fill and the hover cut carry it (styling.md).
         border: $candy-border;
         border-radius: $candy-radius-sm;
         box-shadow: 3px 3px 0 var(--mem-shadow);
@@ -86,20 +89,17 @@ const periods = ['week', 'month', 'year', 'alltime']
                 border-right: none;
             }
 
-            // The pointer flip is a CUT (styling.md): fill, hatch and text
-            // swap in one frame, --mem-hover-text travels with the fill.
+            // The pointer flip is a CUT (styling.md): fill and text swap in one
+            // frame, --mem-hover-text travels with the fill. No texture in
+            // either state (#476) — it would only reappear behind the label.
             &:hover {
                 background-color: var(--mem-hover);
-                background-image: var(--mem-hatch-hover);
-                background-size: 46px 46px;
                 color: var(--mem-hover-text);
             }
 
             &.active,
             &.active:hover {
                 background-color: $mem-yellow;
-                background-image: var(--mem-hatch-accent);
-                background-size: 46px 46px;
                 color: $mem-ink;
             }
         }

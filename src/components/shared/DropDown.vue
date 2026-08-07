@@ -86,7 +86,8 @@ onClickOutside(dropOptionsRef, e => {
     // frame, the offset shadow and a theme-aware label — plus the 44px touch
     // target the 32px box never had.
     .selected {
-        @include btn-action($width: 100%, $radius: $candy-radius-sm);
+        // A dropdown option is a full-width label -> no hatch (#476).
+        @include btn-action($width: 100%, $radius: $candy-radius-sm, $hatch: false);
         // The role lays out flex; this control is label + fixed arrow column.
         display: grid;
         grid-template-columns: minmax(0, 1fr) 2rem;
