@@ -78,7 +78,11 @@ const defaultBackgroundStyles = computed(() => {
         case 'topalbum':
             return MEMPHIS.yellow
         default:
-            return MEMPHIS.blush
+            // "New favorites" and anything else unclaimed. Coral, not blush:
+            // `streams` already takes blush, so the two sat side by side in
+            // the same pink (#468). Coral is the palette's secondary accent and
+            // the only one free here — teal means playback, yellow means "on".
+            return MEMPHIS.coral
     }
 })
 
@@ -90,6 +94,16 @@ const tileStyle = computed(() => ({
 <style lang="scss">
 .statitem {
     @include candy-box($mem-blush, $candy-radius);
+    // The hard offset every other card in this design carries (#468). It was
+    // missing because `candy-box` is fill + frame + radius ONLY — the shadow
+    // lives in `candy-shadow`, and nobody added the second half, so the tiles
+    // lay flat on the ground while the rows and buttons above them stood up.
+    //
+    // `candy-shadow`, not `candy-raised`: the tile is not a control (only the
+    // cover inside the top-track tile links anywhere), and `candy-raised`'s
+    // `:active` also matches ANCESTORS — pressing that link would push the
+    // whole tile down. 4px is the card offset; rows and buttons take 3px.
+    @include candy-shadow(4px, 4px);
     // Accent-filled tiles (blush/lavender/teal/yellow) → static ink text.
     color: $mem-ink;
     height: 12rem;

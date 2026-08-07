@@ -335,14 +335,35 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // the fill for the static blush and therefore has to swap the hatch to the
 // accent token in the same breath — an ink-on-panel hatch would go blank in the
 // dark theme, and a surface hatch on blush would be nearly invisible in both.
+//
+// ⚠️ `$hatch: false` — WHEN THE TEXTURE HAS TO GO (#468).
+//
+// The hatch means "you can press this", and that only says something where
+// pressable surfaces stand AMONG unpressable ones: the sidebar alternates rows
+// with headings and dividers, so the texture earns its keep there.
+//
+// A full-width CONTENT list is the opposite case. Every row is pressable, so
+// the texture separates nothing — and it is drawn on a surface it was never
+// sized for. The tile is 38px; on the ~1900px chart row that is ~50 tiles
+// across, ten rows deep, with the strokes running straight through the title
+// and the subtitle. (`mem-hatch-clear` is what keeps them off a label, and it
+// assumes the flex content of a sidebar row, not a five-column grid.)
+//
+// So the rule has a second half: the texture belongs to CHROME. On the charts
+// screen the tabs and the pager buttons keep it and the rows drop it, which is
+// what makes the difference readable. Guarded by `rowHover.test.ts` in both
+// directions — a sidebar plate may not silently lose it either, and a plate
+// that drops it has to drop it in its hover as well.
 // ---------------------------------------------------------------------------
-@mixin mem-row-plate($radius: $candy-radius-sm) {
+@mixin mem-row-plate($radius: $candy-radius-sm, $hatch: true) {
   // Fill and cover read the same custom property — see mem-hatch-ring. The
   // texture runs across the WHOLE plate here; what keeps it off the label is
   // `mem-hatch-clear` on the content, not a clip on the row.
   --row-fill: #{$mem-panel};
   background-color: var(--row-fill);
-  @include mem-hatch(38px, $on: surface);
+  @if $hatch {
+    @include mem-hatch(38px, $on: surface);
+  }
   border: $candy-border-w solid $mem-line;
   border-radius: $radius;
   color: $mem-content-text;
@@ -365,14 +386,21 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 //
 // The fill is the only thing that changes; the cover layer follows through
 // `--row-fill`, so the ring can never fall out of sync with the surface.
-@mixin mem-row-plate-hover {
+//
+// `$hatch` has to match the base plate's answer. A row that dropped the texture
+// but hovered with it would GROW a texture under the pointer — the one state
+// nobody looks at while editing CSS, and the same class of miss as the hover
+// that forgot `--mem-hover-text`.
+@mixin mem-row-plate-hover($hatch: true) {
   // Reads the same token as every other hover in the app (#418) — the plate
   // version additionally deepens its offset. `--row-fill` carries the fill to
   // the label's cover layer, so the two cannot fall apart; the hatch switches
   // to the inverted sprite because the surface under it just went dark.
   --row-fill: var(--mem-hover);
   color: var(--mem-hover-text);
-  background-image: var(--mem-hatch-hover);
+  @if $hatch {
+    background-image: var(--mem-hatch-hover);
+  }
   border-color: $mem-line;
   box-shadow: 4px 4px 0 var(--mem-shadow);
 }

@@ -258,7 +258,9 @@ onMounted(async () => {
 
         // A label, not a control: the same veiled plate the chart rows use,
         // so the text never sits on the doodle ground — and no hatch, which
-        // would promise a press.
+        // would promise a press. It DOES take the offset, though (#468): it
+        // sits between two `btn-action` buttons that both cast one, and a flat
+        // rectangle between two raised ones reads as a hole.
         .pageinfo {
             height: 2.75rem;
             display: flex;
@@ -267,6 +269,7 @@ onMounted(async () => {
             background-color: var(--mem-veil);
             border: $candy-border;
             border-radius: $candy-radius-sm;
+            box-shadow: 3px 3px 0 var(--mem-shadow);
             font-size: 0.9rem;
             font-weight: 700;
             color: $mem-content-text;
@@ -285,24 +288,27 @@ onMounted(async () => {
         font-weight: 900;
 
         margin: $medium 1.2rem;
-        // Scrobble summary row renders on the page ground -> theme-aware muted.
-        color: $mem-content-muted;
 
-        .date {
-            display: flex;
+        // Each half is its own STICKER (#468). This caption and the one under
+        // the stat tiles were the last text in the app still standing free on
+        // the doodled ground — "68 playlists played" landed on a zigzag and
+        // stopped being readable. #404 gave every other caption its plate and
+        // missed these two.
+        //
+        // Per GROUP, not one bar across the page: `mem-sticker` is
+        // `width: fit-content` on purpose (a caption is a label), and the row
+        // keeps its `space-between`. No hatch — a caption promises nothing.
+        .date,
+        .scrobbleinfo-trend {
+            @include mem-sticker($pad: 0.35rem 0.75rem);
+            // The mixin's `inline-block` would stack the glyph over the text.
+            display: inline-flex;
             align-items: center;
             gap: $small;
 
             svg {
                 width: 1.25rem;
             }
-        }
-
-        .scrobbleinfo-trend {
-            color: $mem-content-muted;
-            display: flex;
-            align-items: center;
-            gap: $small;
         }
 
         .trend {

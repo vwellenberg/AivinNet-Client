@@ -111,9 +111,15 @@ function getRouterParams() {
 <style lang="scss">
 .chartitem {
     // A chart row is a pressable plate (it navigates), so it wears the shared
-    // plate anatomy — hatch, ink frame, offset shadow, press-into-shadow — and
-    // is registered in the rowHover census (rowHover.test.ts, PLATES).
-    @include mem-row-plate($candy-radius-sm);
+    // plate anatomy — ink frame, offset shadow, press-into-shadow — and is
+    // registered in the rowHover census (rowHover.test.ts, PLATES).
+    //
+    // WITHOUT the hatch (#468). The texture marks a control among non-controls;
+    // in a list where every row is a control it marks nothing, and at ~1900px
+    // wide it ran ~50 tiles across, straight through the title and subtitle.
+    // The screen's CHROME — the tab segments, the pager buttons — keeps it, and
+    // that contrast is now the thing the texture says. See mem-row-plate.
+    @include mem-row-plate($candy-radius-sm, $hatch: false);
     // Charts keep their translucent ground plate: the grid + doodles shimmer
     // through between the rows, which is what sets this screen apart from the
     // song list's cassette inlay. `--row-fill` is the plate's own indirection.
@@ -132,7 +138,9 @@ function getRouterParams() {
     margin-bottom: $medium;
 
     &:hover {
-        @include mem-row-plate-hover;
+        // `$hatch: false` mirrors the base plate: a row that grew a texture
+        // under the pointer would be worse than one that always had it.
+        @include mem-row-plate-hover($hatch: false);
 
         // Children that pin their own (muted/theme) colours flip with the
         // plate — the fill is dark in light mode, so everything on it swaps.
