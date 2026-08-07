@@ -6,7 +6,18 @@
 export function readLocalStorage(key: string) {
   const value = localStorage.getItem(key);
   // JSON.parse(null) also yields null, so returning null here is behavior-identical.
-  return value === null ? null : JSON.parse(value);
+  if (value === null) return null;
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    // A stored value that is not JSON is a corrupt entry, not an exception the
+    // callers can do anything with — and every one of them reads during setup
+    // or inside a watcher, where a throw takes the whole view (or the search
+    // watcher, and with it every result) down with it. Absent is the honest
+    // answer; the next write replaces it.
+    return null;
+  }
 }
 
 /**

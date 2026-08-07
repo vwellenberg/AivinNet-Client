@@ -3,31 +3,39 @@ import { readLocalStorage, writeLocalStorage } from './useLocalStorage'
 const KEY = 'recentSearches'
 const MAX = 8
 
+const isPrefixPair = (a: string, b: string) => a.startsWith(b) || b.startsWith(a)
+
 /**
- * THE INVARIANT of this list: no entry is a prefix of another. Of any two that
- * are, only the LONGER survives, and it takes the earlier (= more recent) of
- * the two positions.
+ * Collapses typing debris: of two ADJACENT entries where one is a prefix of the
+ * other, only the longer survives, at the newer one's position.
  *
  * The store records on every debounce tick, so every pause in typing writes an
- * entry — the half-typed states are candidates too, and folding them away is
- * this module's whole job. Folding used to happen in ONE direction (a query
- * extending an older entry: "war" → "warcraft"), which covers typing forwards
- * and nothing else: BACKSPACING out of "holiday island" left "holiday islan",
- * "holiday isla", … behind, because none of those extend the entry above them.
- * Reported as a recent-search list full of typing debris.
+ * entry and the half-typed states are candidates too. Folding used to happen in
+ * ONE direction (a query extending an older entry: "war" → "warcraft"), which
+ * covers typing forwards and nothing else: BACKSPACING out of "holiday island"
+ * left "holiday islan", "holiday isla", … behind, because none of those extend
+ * the entry above them. Reported as a recent-search list full of debris.
+ *
+ * ADJACENT is the whole precision of this rule, and folding the list globally
+ * instead is what an earlier pass got wrong. Debris is always adjacent — it is
+ * written by the keystroke before or after the term it is a fragment of — while
+ * two entries that merely happen to share a prefix are two real searches. A
+ * global fold makes the band "Yes" permanently unrecordable for anyone with
+ * "yesterday" in their history: it is never stored, and "yesterday" jumps to the
+ * top instead, every time.
  */
-function foldPrefixes(list: string[]): string[] {
+function foldTypingDebris(list: string[]): string[] {
     const kept: string[] = []
 
     for (const item of list) {
-        const lower = item.toLowerCase()
-        const clash = kept.findIndex(other => {
-            const seen = other.toLowerCase()
-            return seen.startsWith(lower) || lower.startsWith(seen)
-        })
+        const previous = kept[kept.length - 1]
 
-        if (clash === -1) kept.push(item)
-        else if (item.length > kept[clash].length) kept[clash] = item
+        if (previous !== undefined && isPrefixPair(previous.toLowerCase(), item.toLowerCase())) {
+            if (item.length > previous.length) kept[kept.length - 1] = item
+            continue
+        }
+
+        kept.push(item)
     }
 
     return kept
@@ -39,43 +47,29 @@ function foldPrefixes(list: string[]): string[] {
  *
  * Folded on READ, not only on write: the lists this fix exists for are already
  * in people's browsers. Folding on write alone would leave every stored
- * fragment ("age", "ae", "holiday islan") on screen until its full term happens
- * to be searched again — which is the reported symptom, not a step towards it.
+ * fragment ("age", "holiday islan") on screen until its full term happened to
+ * be searched again — which is the reported symptom, not a step towards it.
  */
 export function getRecentSearches(): string[] {
     const list = readLocalStorage(KEY)
     if (!Array.isArray(list)) return []
 
-    return foldPrefixes(list.filter((item): item is string => typeof item === 'string'))
+    return foldTypingDebris(list.filter((item): item is string => typeof item === 'string'))
 }
 
 /**
  * Records a search term, newest first, capped at MAX. Terms shorter than 2
- * chars are ignored.
- *
- * A term that only shortens one already stored is not recorded as itself: the
- * longer entry is the one that was meant, and it is promoted instead. That does
- * cost the deliberate case — searching "beatles" after "beatles remastered"
- * promotes the longer term — and there is no way to tell the two apart from the
- * query alone. The debris is what people actually hit, so it is what this side
- * of the trade answers to; separating them would need a signal this function
- * does not get (a dwell timer, or recording on submit rather than on debounce).
+ * chars are ignored. An exact repeat moves back to the front; a term that is
+ * only a keystroke away from the one recorded just before it folds into it.
  */
 export function recordRecentSearch(query: string) {
     const q = query.trim()
     if (q.length < 2) return
 
     const lower = q.toLowerCase()
-    const list = getRecentSearches()
+    const list = getRecentSearches().filter(item => item.toLowerCase() !== lower)
 
-    // The LONGEST match, not the first one: a term can be the prefix of several
-    // entries ("holiday" of both "holiday island" and "holiday inn"), and
-    // folding against the shorter of those would delete the longer one.
-    const longer = list
-        .filter(item => item.toLowerCase().startsWith(lower))
-        .sort((a, b) => b.length - a.length)[0]
-
-    writeLocalStorage(KEY, foldPrefixes([longer ?? q, ...list]).slice(0, MAX))
+    writeLocalStorage(KEY, foldTypingDebris([q, ...list]).slice(0, MAX))
 }
 
 export function removeRecentSearch(query: string) {

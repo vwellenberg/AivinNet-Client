@@ -16,12 +16,22 @@
       </div>
       <div class="recent-plate">
         <div class="recent-chips">
-          <button v-for="term in recents" :key="term" type="button" class="recent-chip" @click="apply(term)">
-            <span class="ellip">{{ term }}</span>
-            <span class="chip-remove" title="Remove" @click.stop="remove(term)">
+          <!-- Two buttons in a plain wrapper, not a button inside a button:
+            the remove control has to be reachable by keyboard, and nesting
+            interactive elements is neither valid HTML nor announced. The
+            wrapper carries the pill so the pair still reads as one chip. -->
+          <div v-for="term in recents" :key="term" class="recent-chip">
+            <button type="button" class="chip-term ellip" @click="apply(term)">{{ term }}</button>
+            <button
+              type="button"
+              class="chip-remove"
+              :title="`Remove ${term}`"
+              :aria-label="`Remove ${term}`"
+              @click="remove(term)"
+            >
               <CancelSvg />
-            </span>
-          </button>
+            </button>
+          </div>
         </div>
       </div>
     </template>
@@ -168,17 +178,38 @@ function clearAll() {
     // The magnifier glyph these chips used to carry is gone: eight copies of
     // the same icon on the SEARCH page say nothing, and they were what made
     // the row read as a strip of controls instead of a row of words.
+    //
+    // The role's own padding moves to the two buttons inside: a chip whose
+    // padding belonged to the wrapper had a dead strip on either end of the
+    // term, which on a control this small is most of the gap between "search
+    // this again" and "nothing happened".
+    padding: 0;
+
+    .chip-term,
+    .chip-remove {
+      height: 100%;
+      background: transparent;
+      border: none;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .chip-term {
+      min-width: 0;
+      padding: 0 $smaller 0 $medium;
+      text-align: left;
+    }
 
     .chip-remove {
       display: grid;
       place-items: center;
-      width: 1.35rem;
-      height: 1.35rem;
+      width: 1.85rem;
       flex-shrink: 0;
+      padding: 0;
+      padding-right: $smaller;
       // Reserved on both sides of the pointer state, so revealing it can never
       // resize the chip under the pointer.
-      margin-right: -0.45rem;
-      border-radius: 50%;
       transition: opacity 0.15s ease;
 
       svg {
@@ -194,14 +225,17 @@ function clearAll() {
     // `pointer-events` travels WITH the opacity, and not as a nicety: this
     // query also matches a touch-capable mouse-primary device (a 2-in-1), and
     // there an invisible-but-live hit area at the chip's trailing edge deletes
-    // the entry the finger meant to search for.
+    // the entry the finger meant to search for. `:focus-within` is the same
+    // question asked for the keyboard — a control that is only reachable by
+    // pointer is not reachable.
     @media (hover: hover) {
       .chip-remove {
         opacity: 0;
         pointer-events: none;
       }
 
-      &:hover .chip-remove {
+      &:hover .chip-remove,
+      &:focus-within .chip-remove {
         opacity: 0.75;
         pointer-events: auto;
       }
@@ -217,10 +251,9 @@ function clearAll() {
   @include allPhones {
     padding-left: 1rem;
     padding-right: 1rem;
-
-    .recent-head {
-      padding: 0 $small;
-    }
+    // No narrower head padding here: it has to stay equal to the plate's, or
+    // the caption sticker and the first chip below it stand on two different
+    // left edges.
   }
 }
 </style>

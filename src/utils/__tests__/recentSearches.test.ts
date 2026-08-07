@@ -51,14 +51,6 @@ describe('recentSearches', () => {
         expect(getRecentSearches()).toEqual(['holiday island'])
     })
 
-    it('promotes the longer term instead of storing the shortened one', () => {
-        recordRecentSearch('age of empires')
-        recordRecentSearch('weezer')
-        recordRecentSearch('age')
-
-        expect(getRecentSearches()).toEqual(['age of empires', 'weezer'])
-    })
-
     // The lists this fix exists for are already stored in people's browsers.
     // Folding only on write would leave every fragment on screen until its
     // full term happened to be searched again.
@@ -78,13 +70,32 @@ describe('recentSearches', () => {
         expect(getRecentSearches()).toEqual(['weezer'])
     })
 
-    // A term can be the prefix of more than one entry; folding against the
-    // shorter of those would delete the longer one.
-    it('promotes the longest match, not the first', () => {
-        localStorage.setItem('recentSearches', JSON.stringify(['holiday inn', 'holiday island']))
-        recordRecentSearch('holiday')
+    // Reading is the first thing the search page does, and it used to be an
+    // unguarded JSON.parse: a corrupt entry threw during setup and took the
+    // whole view — and the store's query watcher — down with it.
+    it('survives a stored value that is not JSON at all', () => {
+        localStorage.setItem('recentSearches', 'not json {')
+        expect(() => getRecentSearches()).not.toThrow()
+        expect(getRecentSearches()).toEqual([])
+    })
 
-        expect(getRecentSearches()).toEqual(['holiday island', 'holiday inn'])
+    it('folds a shortened term into the one recorded just before it', () => {
+        recordRecentSearch('age of empires')
+        recordRecentSearch('age')
+
+        expect(getRecentSearches()).toEqual(['age of empires'])
+    })
+
+    // Debris is written by the keystroke next to the term it is a fragment of.
+    // Two entries that merely share a prefix are two real searches — folding
+    // those made the band "Yes" permanently unrecordable for anyone with
+    // "yesterday" in their history.
+    it('keeps a short term that shares a prefix with a term further down', () => {
+        recordRecentSearch('yesterday')
+        recordRecentSearch('bite')
+        recordRecentSearch('yes')
+
+        expect(getRecentSearches()).toEqual(['yes', 'bite', 'yesterday'])
     })
 
     it('keeps a term that is not a prefix of anything stored', () => {
