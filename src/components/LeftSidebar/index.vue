@@ -727,6 +727,13 @@ onBeforeUnmount(teardown);
     font-weight: 700;
     text-transform: uppercase;
     padding: 0 0 0.6rem;
+    // The same right-hand reserve every other sidebar row has (#397): the
+    // scroll container clips at overflow-x, and this was the one row whose
+    // control sat flush against that edge — measured: the [+]'s right edge at
+    // exactly the clip line, its frame and 3px offset shadow cut off. With the
+    // reserve it also lines up with the plates below instead of overhanging
+    // them by the same 8px.
+    padding-right: $small;
     letter-spacing: 0.05em;
 
     // The heading IS the divider now. The 1px grey hairline that used to sit
