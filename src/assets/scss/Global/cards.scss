@@ -184,27 +184,33 @@ $card-cover-pad: 6px;
     // contrast surface together with its text and hatch, in one frame.
     transition: box-shadow $motion-shadow $motion-curve;
 
-    // THE COVERS. Every caption line across the five card types (album, artist,
-    // track, playlist, folder) — they are listed rather than matched with `*`
-    // because the plate also holds wrappers, and covering a wrapper would paint
-    // the full width and leave no texture at all.
+    // THE COVERS — every direct child, matched STRUCTURALLY rather than by a
+    // list of class names.
+    //
+    // The list was the bug: `.p-count`, `.rtcount`, `.racount` and the artist
+    // line a TrackCard renders through a component were never in it, so those
+    // subtitles kept the strokes behind them while the name above was clean.
+    // Five card types each name their caption lines differently, and a sixth
+    // would have gone missing the same way. A child of the plate IS a caption
+    // line — that is what this container holds — so the selector says so.
     //
     // `width: fit-content` is the load-bearing part, NOT `inline-block`: a
     // block-level `.ellip` always fills its line, so a cover on it would hide
     // the whole plate — but making the lines inline puts the title and the
     // artist on ONE line and breaks long titles across two instead of
     // truncating them. `fit-content` keeps each line a block (own row, ellipsis
-    // intact) while the box shrinks to the words.
+    // intact) while the box shrinks to the words, which is exactly what leaves
+    // texture beside a short one. It also makes a WRAPPER safe to cover: a
+    // `.p-count` holding a `<b>` shrinks to that `<b>`.
     //
     // The negative margin pulls the cover's left padding back over the plate's
     // own, so the text keeps its original left edge and only gains a buffer;
     // `max-width` compensates for it so a long title still truncates instead of
     // overflowing the plate.
-    .title,
-    .artist,
-    .p-name,
-    .artist-name,
-    .ttitle {
+    //
+    // `.rhelp` is the one exception: it is a flex ROW of two spans that must
+    // stay side by side, so its children carry the cover instead (below).
+    > *:not(.rhelp) {
         box-sizing: border-box;
         width: fit-content;
         max-width: calc(100% + #{$card-cover-pad});
