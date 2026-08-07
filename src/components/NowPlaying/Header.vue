@@ -48,7 +48,13 @@
             :source="dropSources.folder"
             @play-this="queue.playNext"
         />
-        <h3 class="nowplaying_title">Queue</h3>
+        <h3 class="nowplaying_title">
+            Queue
+            <!-- The rows under this caption ARE `tracklist` (see the scroller in
+                 views/NowPlaying/main.vue), so its length is the queue's length —
+                 not a separate count that could drift from what is listed. -->
+            <span v-if="tracklist.tracklist.length" class="queue-count">{{ tracklist.tracklist.length }}</span>
+        </h3>
     </div>
 </template>
 
@@ -59,6 +65,7 @@ import favoriteHandler from '@/helpers/favoriteHandler'
 import { Routes } from '@/router'
 import { isMobile, isSmallPhone } from '@/stores/content-width'
 import useQueueStore from '@/stores/queue'
+import useTracklist from '@/stores/queue/tracklist'
 import { formatSeconds } from '@/utils'
 
 import Progress from '@/components/LeftSidebar/NP/Progress.vue'
@@ -69,6 +76,7 @@ import NowPlayingInfo from './NowPlayingInfo.vue'
 import PlayingFrom from './PlayingFrom.vue'
 
 const queue = useQueueStore()
+const tracklist = useTracklist()
 
 function handleFav() {
     favoriteHandler(
@@ -82,8 +90,11 @@ function handleFav() {
 </script>
 
 <style lang="scss">
+// ⚠️ The inset is a MARGIN, not padding — see the sticker note below. This
+// override exists for the narrow Now-Playing column and must move the chip,
+// not fatten it.
 .now-playing-view.isSmall .now-playing-header .nowplaying_title {
-    padding-left: 0.5rem;
+    margin-left: 0.5rem;
 }
 
 .now-playing-header {
@@ -91,23 +102,49 @@ function handleFav() {
     position: relative;
 
     .nowplaying_title {
-        padding-left: 1rem;
-        margin: 1.25rem 0;
+        // "Up Next" and "Queue" were the last captions in the app still standing
+        // free on the doodle ground — the readability failure `mem-sticker`
+        // exists to answer, and which every other section caption (Browse
+        // Library, Top Tracks, the playlist groups, See all) already opted into.
+        // They were simply never added to that list.
+        @include mem-sticker;
+        // The 1rem inset used to be `padding-left`, which is fine on bare text.
+        // On a sticker, padding is the chip's own inner space: left as padding
+        // it would stretch the plate instead of moving it away from the edge.
+        // Same for the `padding-top` the second caption carried — it is folded
+        // into `margin-top` below.
+        margin: 1.25rem 0 1.25rem 1rem;
+        // The caption is a flex line so the count badge can sit on the same
+        // baseline box; identical rendering for the caption that has none.
+        display: inline-flex;
+        align-items: center;
+        gap: $small;
 
         &:last-child {
-            padding-top: $large;
-            margin: 1rem 0;
+            // Was `padding-top: $large` + `margin: 1rem 0` = 2.5rem of air above
+            // the Queue caption. Kept as one margin so the chip stays the same
+            // height as the Up Next chip above it.
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
         }
 
         @media only screen and (max-width: 724px) {
-            padding-left: 0.5rem;
+            margin-left: 0.5rem;
         }
+    }
 
-        /* Somehow has to be replaced by above now
-        @include largePhones {
-            padding-left: 0.5rem;
-        }
-        */
+    // How many tracks are queued. Pastel TRACK yellow, not the saturated
+    // "on"-state yellow: this is an entity count, and the two registers are
+    // what keep the palette's three jobs apart (see mem-entity-tint).
+    .queue-count {
+        @include mem-entity-tint('track');
+        border: 2px solid $mem-line;
+        border-radius: $candy-radius-pill;
+        padding: 0 0.45rem;
+        font-size: $medium;
+        font-weight: 700;
+        // Digits must not re-flow the chip's width as the queue grows.
+        font-variant-numeric: tabular-nums;
     }
 
     .below-progress {
