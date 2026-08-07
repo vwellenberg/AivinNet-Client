@@ -17,7 +17,6 @@ const SearchView = () => import('@/views/SearchView')
 const AlbumList = () => import('@/views/AlbumListView')
 const FolderView = () => import('@/views/FolderView.vue')
 const FavoritesView = () => import('@/views/Favorites.vue')
-const SettingsView = () => import('@/views/SettingsView.vue')
 const AlbumView = () => import('@/views/AlbumView/index.vue')
 const ArtistTracksView = () => import('@/views/ArtistTracks.vue')
 const PlaylistListView = () => import('@/views/PlaylistList.vue')
@@ -129,12 +128,6 @@ const artistDiscography = {
     component: ArtistDiscographyView,
 }
 
-const settings = {
-    path: '/settings/:tab',
-    name: 'SettingsView',
-    component: SettingsView,
-}
-
 const search = {
     path: '/search/:page',
     name: 'SearchView',
@@ -210,7 +203,6 @@ const routes = [
     albumView,
     artistView,
     artistDiscography,
-    settings,
     search,
     notFound,
     ArtistTracks,
@@ -234,7 +226,6 @@ const Routes = {
     album: albumView.name,
     artist: artistView.name,
     artistDiscography: artistDiscography.name,
-    settings: settings.name,
     search: search.name,
     notFound: notFound.name,
     artistTracks: ArtistTracks.name,
