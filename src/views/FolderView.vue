@@ -166,7 +166,14 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-.folder-view.is_alt_layout {
+// Every layout that renders the head INSIDE the scroller, i.e. the same
+// condition as the `#before` slot in the template. Scoping this to
+// `.is_alt_layout` alone (as it was) left the medium and phone layouts with a
+// head that had no surface at all — breadcrumb text straight on the doodled
+// ground, against the veil rule, and not sticky either.
+.folder-view.is_alt_layout,
+.folder-view.isMedium,
+.folder-view.isSmall {
     .scroller {
         // The head is a plate now, so it needs the same air above it that it
         // keeps below. It used to be `0`, because the head was meant to bleed
