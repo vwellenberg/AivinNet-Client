@@ -8,7 +8,9 @@
       <div class="recent-head">
         <h3 class="recent-title">
           <SearchSvg class="title-search" />
-          Recent searches
+          <!-- The label is its own box: `text-overflow` needs a block to
+            work on, and on the flex sticker itself it clipped mid-word. -->
+          <span class="ellip">Recent searches</span>
         </h3>
         <button type="button" class="recent-clear" @click="clearAll">Clear all</button>
       </div>
@@ -98,14 +100,11 @@ function clearAll() {
     // caption instead of wrapping the row (see .recent-head).
     min-width: 0;
     margin: 0;
-    overflow: hidden;
     background-color: $candy-pink;
     // Static blush fill -> static ink, in both themes.
     color: $mem-ink;
     font-size: 0.95rem;
     font-weight: 700;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 
     .title-search {
       width: 1rem;
