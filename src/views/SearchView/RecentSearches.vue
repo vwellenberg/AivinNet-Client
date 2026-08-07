@@ -21,7 +21,9 @@
             interactive elements is neither valid HTML nor announced. The
             wrapper carries the pill so the pair still reads as one chip. -->
           <div v-for="term in recents" :key="term" class="recent-chip">
-            <button type="button" class="chip-term" @click="apply(term)">{{ term }}</button>
+            <button type="button" class="chip-term" @click="apply(term)">
+              <span class="chip-label">{{ term }}</span>
+            </button>
             <button
               type="button"
               class="chip-remove"
@@ -195,17 +197,27 @@ function clearAll() {
       cursor: pointer;
     }
 
-    // NOT the shared `.ellip`: that class clamps by LINE (a -webkit-box with
-    // `-webkit-line-clamp: 1`), and the clamp height loses to the `height:
-    // 100%` this button needs to fill the pill — a long term then paints its
-    // ellipsed first line plus a second one hanging out past the frame. A
-    // single-line control ellipses by `white-space`, which has no height to
-    // be overridden.
+    // The label ellipses in a box of its OWN, and both halves of that are
+    // measured, not assumed:
+    //
+    //   · not the shared `.ellip`, which clamps by LINE (`-webkit-box` +
+    //     `-webkit-line-clamp: 1`). Its clamp height loses to the `height:
+    //     100%` this button needs to fill the pill, and a long term then
+    //     painted its ellipsed first line PLUS a second one past the frame;
+    //   · not on the button itself either. A <button> centres its content
+    //     through the UA stylesheet, `text-align` does not reach it, and
+    //     `text-overflow` on centred text clips BOTH ends with no ellipsis at
+    //     all: measured 212px box against a 318px label, cut open at the front.
     .chip-term {
+      display: flex;
+      align-items: center;
       min-width: 0;
       padding: 0 $smaller 0 $medium;
+    }
+
+    .chip-label {
+      min-width: 0;
       overflow: hidden;
-      text-align: left;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
