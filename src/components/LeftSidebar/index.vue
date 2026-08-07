@@ -649,6 +649,15 @@ onBeforeUnmount(teardown);
     // 14px inside it.
     padding: 1.875rem 0.875rem;
 
+    // ⚠️ Follow the frame's curve. Now that the scrollport reaches the border,
+    // both its contents AND its scrollbar are square against a rounded panel —
+    // and a child paints ABOVE its parent's border, so the thumb cut straight
+    // through the corner arc at top-right and bottom-right. The inner radius
+    // is the panel's minus the border it sits inside. (`overflow: hidden` on
+    // `.l-sidebar` would fix the same thing by clipping, but it would also
+    // swallow `.sidebar-resize-handle`, which hangs 4px outside on purpose.)
+    border-radius: $candy-radius - $candy-border-w;
+
     // Scrollbar is hidden until the sidebar is hovered. The width/`thin` track
     // stays constant so showing the thumb never reflows the list.
     // Firefox + standard-properties path (Chrome 121+): transparent thumb by default.
