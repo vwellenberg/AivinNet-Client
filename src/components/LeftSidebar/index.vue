@@ -683,20 +683,23 @@ onBeforeUnmount(teardown);
   }
 }
 
+// A sticker, like every other caption (#422) — not a hairline, and not the
+// bare floating text it used to be: with nothing marking where the
+// scrollable list ends, the version sat in undifferentiated paper right
+// below the last plate's offset shadow, reading as if something had been
+// cut off there. The chip gives the footer its own edge without adding a
+// divider line — full contrast like every other sticker, no hover: it is a
+// caption, not a control (see the LIBRARY heading above).
 .sidebar-version {
+  @include mem-sticker($pad: 3px 10px);
+  display: block;
+  width: fit-content;
+  margin: 0.75rem auto 0;
   font-size: 0.65rem;
   font-weight: 500;
   letter-spacing: 0.04em;
-  opacity: 0.3;
-  text-align: center;
-  padding: 0.5rem 0 0;
   user-select: none;
   font-feature-settings: 'tnum';
-  transition: opacity 0.2s ease;
-
-  &:hover {
-    opacity: 0.6;
-  }
 }
 
 .sidebar-library {
