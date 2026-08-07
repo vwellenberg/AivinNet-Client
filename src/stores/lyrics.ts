@@ -21,6 +21,9 @@ export default defineStore("lyrics", {
     lyrics: <LyricsLine[]>[],
     currentLine: -1,
     ticking: false,
+    // Handle of the pending "advance to the next line" timer, so that anything
+    // which sets the line itself can cancel it — see setCurrentLine.
+    nextLineTimer: <ReturnType<typeof setTimeout> | null>null,
     currentTrack: "",
     exists: false,
     synced: true,
@@ -120,7 +123,8 @@ export default defineStore("lyrics", {
      */
     setNextLineTimer(duration: number) {
       this.ticking = true;
-      setTimeout(() => {
+      this.nextLineTimer = setTimeout(() => {
+        this.nextLineTimer = null;
         if (useQueue().playing) {
           this.currentLine++;
           this.ticking = false;
@@ -128,7 +132,21 @@ export default defineStore("lyrics", {
         }
       }, duration);
     },
+    /**
+     * ⚠️ Cancels any pending advance. `setTimeout` only promises "not earlier",
+     * so a timer can still be in flight when something else has already decided
+     * which line it is — the player's own `diff < 0` correction, or a seek. The
+     * stale timer would then add a SECOND advance on top, and with the mark two
+     * lines out `nextLineTime` no longer triggers a correction: the highlight
+     * runs ahead for two full lines. (The old code hid this behind the 300ms
+     * head start, which kept the timer from ever being the late one.)
+     */
     setCurrentLine(line: number, scroll = true) {
+      if (this.nextLineTimer !== null) {
+        clearTimeout(this.nextLineTimer);
+        this.nextLineTimer = null;
+      }
+
       this.currentLine = line;
       this.ticking = false;
 

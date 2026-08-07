@@ -78,3 +78,52 @@ describe('lyrics: which line is being sung', () => {
         expect(at(34)).toBe(-1)
     })
 })
+
+// ---------------------------------------------------------------------------
+// The advance timer fires AT the line boundary now (it used to fire 300ms
+// early). `setTimeout` only promises "not earlier", so it can be the late one —
+// and then something else has already moved the line. A stale timer adding a
+// second advance puts the mark two lines out, where `nextLineTime` no longer
+// triggers the player's correction: it stays ahead for two full lines.
+// ---------------------------------------------------------------------------
+describe('lyrics: a pending advance is cancelled by whoever sets the line', () => {
+    beforeEach(() => {
+        vi.useFakeTimers()
+        setActivePinia(createPinia())
+        const lyrics = useLyrics()
+        lyrics.lyrics = LINES as any
+        lyrics.synced = true
+        lyrics.currentLine = 0
+        queueState.playing = true
+    })
+
+    it('does not advance twice when the player corrects first', () => {
+        const lyrics = useLyrics()
+
+        lyrics.setNextLineTimer(800)
+        // The player's `diff < 0` branch lands while the timer is still pending.
+        lyrics.setCurrentLine(1, false)
+        vi.advanceTimersByTime(2000)
+
+        expect(lyrics.currentLine).toBe(1)
+    })
+
+    it('does not step past a seek made while a timer was pending', () => {
+        const lyrics = useLyrics()
+
+        lyrics.setNextLineTimer(800)
+        lyrics.setCurrentLine(3, false) // clicking a later lyric line
+        vi.advanceTimersByTime(2000)
+
+        expect(lyrics.currentLine).toBe(3)
+    })
+
+    it('still advances on its own when nothing intervenes', () => {
+        const lyrics = useLyrics()
+
+        lyrics.setNextLineTimer(800)
+        vi.advanceTimersByTime(800)
+
+        expect(lyrics.currentLine).toBe(1)
+    })
+})
