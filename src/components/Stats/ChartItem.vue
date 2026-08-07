@@ -1,7 +1,11 @@
 <template>
-    <RouterLink :to="getRouterParams()" class="chartitem rounded-sm">
+    <RouterLink
+        :to="getRouterParams()"
+        class="chartitem rounded-sm"
+        :class="rankBadgeClass(rank)"
+    >
         <ArrowSvg class="trend" :class="trend?.trend" />
-        <div class="index">{{ index }}</div>
+        <div class="rank" :class="{ 'tilt-right': rank % 2 === 0 }">{{ rank }}</div>
         <template v-if="isPlaylist">
             <img v-if="asPlaylist.has_image" :src="playlistImageUrl" class="chartimage playlist" />
             <PlaylistImages
@@ -29,6 +33,9 @@
             <div class="artist" v-if="isArtist || isPlaylist">
                 {{ asArtist.extra['playcount'] }} track plays
             </div>
+            <div class="meter" v-if="meter_pct !== null">
+                <i :style="{ width: meter_pct + '%' }"></i>
+            </div>
         </div>
         <div class="helptext">
             {{ item.help_text }}
@@ -47,14 +54,18 @@ import ArtistName from '../shared/ArtistName.vue'
 import PlaylistImages from '../shared/PlaylistImages.vue'
 import { Routes } from '@/router'
 import MasterFlag from '../shared/MasterFlag.vue'
+import { rankBadgeClass } from '@/utils/chartMeter'
 
 type ChartName = 'artist' | 'album' | 'track' | 'playlist'
 type ChartItem = Artist | Album | Track | Playlist
 
 const props = defineProps<{
     item: ChartItem
-    index: number
+    /** Absolute chart position (1-based, across pages) — drives badge + meter accents. */
+    rank: number
     name: ChartName
+    /** Play-duration share relative to the chart's #1, or null to hide the meter. */
+    meter_pct: number | null
 }>()
 
 const isArtist = computed(() => props.name === 'artist')
@@ -99,35 +110,93 @@ function getRouterParams() {
 
 <style lang="scss">
 .chartitem {
+    // A chart row is a pressable plate (it navigates), so it wears the shared
+    // plate anatomy — hatch, ink frame, offset shadow, press-into-shadow — and
+    // is registered in the rowHover census (rowHover.test.ts, PLATES).
+    @include mem-row-plate($candy-radius-sm);
+    // Charts keep their translucent ground plate: the grid + doodles shimmer
+    // through between the rows, which is what sets this screen apart from the
+    // song list's cassette inlay. `--row-fill` is the plate's own indirection.
+    --row-fill: var(--mem-veil);
+
     padding: $small 2rem;
     padding-left: 1.25rem;
 
     display: grid;
-    grid-template-columns: 1rem 1rem max-content 1fr max-content;
+    // Last column `auto`, not `max-content`: under pressure (phones) the
+    // duration may wrap instead of running out of the row's frame.
+    grid-template-columns: 1.5rem 2.9rem max-content 1fr auto;
     gap: 1.5rem;
     align-items: center;
 
     margin-bottom: $medium;
 
-    // Chart rows sit directly on the doodled grid ground, which makes their
-    // text hard to read. Lay the same translucent ground-coloured plate under
-    // each row as the song lists use (var(--mem-veil)); the grid + memphis
-    // shapes still shimmer through the veil and stay full-strength in the gaps
-    // between rows. Each row is a separate rounded card (margin-bottom gap), so
-    // a plain 2px ink frame closes it — the song list's stripe technique is only
-    // needed when rows abut. The number-one card keeps its own lavender box.
-    &:not(.chartitemhashuno) {
-        background-color: var(--mem-veil);
-        border: $candy-border;
+    &:hover {
+        @include mem-row-plate-hover;
+
+        // Children that pin their own (muted/theme) colours flip with the
+        // plate — the fill is dark in light mode, so everything on it swaps.
+        .artist,
+        .helptext,
+        .trend.rising,
+        .trend.falling {
+            color: var(--mem-hover-text);
+        }
+
+        .chartimage,
+        .meter {
+            border-color: var(--mem-hover-text);
+        }
     }
 
-    .index {
-        font-size: 1.25rem;
+    // Rank badge: a crooked sticker. Top 3 wear accent fills (yellow /
+    // lavender / pink); it is a LABEL, so no hatch — the texture means "you
+    // can press this" and the pressable thing here is the row (styling.md).
+    .rank {
+        width: 2.6rem;
+        height: 2.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
         font-weight: 900;
-        // Chart rows render directly on the page ground -> theme-aware.
-        color: $mem-content-muted;
-        text-align: right;
+        background-color: $mem-panel;
+        color: $mem-content-text;
+        border: $candy-border;
+        border-radius: $candy-radius-sm;
+        box-shadow: 2px 2px 0 var(--mem-shadow);
+        transform: rotate(-4deg);
+
+        &.tilt-right {
+            transform: rotate(3deg);
+        }
     }
+
+    &.r1 .rank { background-color: $mem-yellow; color: $mem-ink; }
+    &.r2 .rank { background-color: $mem-lavender; color: $mem-ink; }
+    &.r3 .rank { background-color: $mem-pink; color: $mem-ink; }
+
+    // Play-duration meter: the leaderboard made visible. Lavender by default
+    // (teal means play, yellow means playing); the top 3 take their badge's
+    // colour. The ink frame carries the contrast, the fill the identity.
+    .meter {
+        margin-top: 0.45rem;
+        height: 0.65rem;
+        max-width: 26rem;
+        border: 2px solid $mem-line;
+        border-radius: $candy-radius-pill;
+        overflow: hidden;
+
+        i {
+            display: block;
+            height: 100%;
+            background-color: $mem-lavender;
+        }
+    }
+
+    &.r1 .meter i { background-color: $mem-yellow; }
+    &.r2 .meter i { background-color: $mem-lavender; }
+    &.r3 .meter i { background-color: $mem-pink; }
 
     .chartimage.artist {
         border-radius: 50%;
@@ -149,7 +218,7 @@ function getRouterParams() {
         .title {
             font-size: 1rem;
             font-weight: bold;
-            color: $mem-content-text;
+            color: inherit;
         }
 
         .artist {
@@ -160,6 +229,8 @@ function getRouterParams() {
     }
 
     .chartimage {
+        // Glued-on cover: full ink frame, like the song list's inlay covers.
+        border: 2px solid $mem-line;
         border-radius: 0.25rem;
         height: 48px;
         // Square crop: playlist banner thumbs are 250px HIGH with free
@@ -174,7 +245,7 @@ function getRouterParams() {
 
     .trend.rising {
         transform: rotate(90deg);
-        // Trend arrow over the page ground -> theme-aware.
+        // Trend arrow over the row plate -> theme-aware.
         color: $mem-content-text;
     }
 
@@ -193,6 +264,27 @@ function getRouterParams() {
         text-align: right;
         text-transform: uppercase;
         font-weight: bold;
+    }
+
+    // Narrow phones: the row keeps all five cells, so every fixed width
+    // shrinks a step — measured against 360/390px, where the duration used
+    // to run out of the frame. Sits at the end of the selector on purpose
+    // (styling.md: breakpoint blocks last, or equal-specificity rules above
+    // win by order).
+    @include allPhones {
+        padding: $small 0.9rem $small 0.75rem;
+        grid-template-columns: 1.25rem 2.4rem max-content 1fr auto;
+        gap: 0.75rem;
+
+        .rank {
+            width: 2.2rem;
+            height: 2.2rem;
+            font-size: 1.05rem;
+        }
+
+        .helptext {
+            font-size: 0.7rem;
+        }
     }
 }
 </style>

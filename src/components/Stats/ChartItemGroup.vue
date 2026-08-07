@@ -13,8 +13,9 @@
             v-for="(item, index) in items"
             :key="index"
             :item="item"
-            :index="pageStart + index + 1"
+            :rank="pageStart + index + 1"
             :name="(settings.statsgroup.slice(0, -1) as any)"
+            :meter_pct="meterPercent(chartItemDuration(item), maxPlayduration)"
         />
         <div class="chartpager" v-if="showPager">
             <div class="pagesizes">
@@ -66,6 +67,7 @@ import { getChartItem } from '@/requests/stats'
 import { Artist, Album, Track, Playlist } from '@/interfaces'
 import useSettings from '@/stores/settings'
 import { CHART_PAGE_SIZES, clampPage, pageCount } from '@/utils/chartPager'
+import { chartItemDuration, meterPercent } from '@/utils/chartMeter'
 
 import ChartItem from './ChartItem.vue'
 import ChartsHeader from './ChartsHeader.vue'
@@ -100,6 +102,9 @@ const scrobbleInfo = ref<{
 const page = ref(0)
 const pageSize = ref<number>(CHART_PAGE_SIZES[0])
 const total = ref(0)
+// The period's #1 play duration — reference for the leaderboard meters.
+// 0 = backend doesn't send it (older build) -> meters hide.
+const maxPlayduration = ref(0)
 
 const pages = computed(() => pageCount(total.value, pageSize.value))
 const pageStart = computed(() => page.value * pageSize.value)
@@ -140,6 +145,7 @@ async function getItems() {
 
         items2[settings.statsgroup] = res.data[settings.statsgroup]
         total.value = res.data.total ?? res.data[settings.statsgroup].length
+        maxPlayduration.value = res.data.max_playduration ?? 0
         scrobbleInfo.value = res.data.scrobbles
 
         // The data can shrink underneath a high page (period/group switched
@@ -163,6 +169,7 @@ async function changePeriod(newPeriod: string) {
     settings.setStatsPeriod(newPeriod)
     page.value = 0
     total.value = 0
+    maxPlayduration.value = 0
     await getItems()
 }
 
@@ -170,6 +177,7 @@ async function changeGroup(newGroup: string) {
     settings.setStatsGroup(newGroup)
     page.value = 0
     total.value = 0
+    maxPlayduration.value = 0
     await getItems()
 }
 
