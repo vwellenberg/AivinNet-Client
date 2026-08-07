@@ -62,13 +62,11 @@ $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard";
         .card-type-label,
         .card-plate {
             background-color: $mem-hover;
-            // The fill is the contrast surface (#422), so its two companions
-            // travel with it: the text token, and the inverted hatch sprite —
-            // the resting hatch is drawn in the surface's own contrast and
-            // vanishes on the flipped plate. Only the image swaps; each plate
-            // keeps its own tile size (38px plate, 28px label).
+            // The fill is the contrast surface (#422), so the text token
+            // travels with it. NO hatch here any more (#476): both plates are
+            // smooth at rest, and growing a texture under the pointer is the
+            // failure #470 named.
             color: var(--mem-hover-text);
-            background-image: var(--mem-hatch-hover);
             @include candy-shadow(4px, 4px);
         }
 
@@ -154,11 +152,11 @@ $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard";
     min-width: 0;
     padding: 0.45rem 0.7rem;
     background-color: $mem-panel;
-    // The hatch says "you can press this" (#378) — a tile IS one big link, so
-    // its plates wear it exactly like the sidebar's row plates do. `surface`,
-    // not `accent`: the hover fill is blush in light but a dark tint in dark,
-    // so the strokes have to follow the theme rather than stay ink.
-    @include mem-hatch(38px, $on: surface);
+    // NO hatch (#476). This plate is nothing BUT its caption — title, artist
+    // and the time stamp fill it end to end — so the texture had nowhere to sit
+    // except behind the words. It is also CONTENT rather than chrome, which is
+    // the same call the chart rows made in #468: the tile is a link, and plate,
+    // ink frame, offset and the hover cut say so without a texture.
     border: $candy-border;
     border-radius: $candy-radius;
     box-shadow: 3px 3px 0 var(--mem-shadow);
