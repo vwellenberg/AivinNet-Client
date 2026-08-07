@@ -207,16 +207,24 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // Deliberately sets NO width/height: the caller reserves the footprint in BOTH
 // states, or switching shuffle on grows the button and shoves the whole
 // transport row sideways.
+//
+// `$fill` / `$glyph` are knobs, not an invitation to a new colour per control:
+// the devices button's "joined" state is the app's other persistent on/off,
+// and it wore a hand-written green box with NO texture and NO offset shadow —
+// i.e. the same drift this mixin exists to end, one control further along. Any
+// caller passing a fill states its own glyph colour too, because the pair is
+// what makes the fill legible: the fills here are STATIC (identical in both
+// themes), so the glyph on them is a static colour rather than a theme token.
 // ---------------------------------------------------------------------------
-@mixin mem-transport-aux-on {
-  @include candy-box($mem-yellow, $candy-radius-sm);
+@mixin mem-transport-aux-on($fill: $mem-yellow, $glyph: $mem-ink) {
+  @include candy-box($fill, $candy-radius-sm);
   position: relative;
   overflow: hidden; // clip the sprinkle to the rounded corners
-  // On the yellow accent fill the glyph must be static ink in BOTH themes.
+  // On the accent fill the glyph must be a STATIC colour in BOTH themes.
   // Set through `color`, never `fill`: the transport glyphs are currentColor
   // and the auxiliary ones (shuffle, repeat) are STROKED — a `fill` rule
   // would flood their open shapes solid.
-  color: $mem-ink;
+  color: $glyph;
 
   // Memphis sprinkle over the accent fill, exactly like the play CTA.
   &::before {

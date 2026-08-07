@@ -247,24 +247,10 @@ function handleFav() {
         }
     }
 
-    // Group playback, mobile-only. The button's LOOK is its own (green box
-    // when joined, owned by DevicesButton.vue); its footprint is the player's,
-    // so it reads the same tokens as the bar and the transport.
-    .np-devices button {
-        width: $bar-control;
-        height: $bar-control;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: $candy-radius-sm;
-        cursor: pointer;
-
-        svg {
-            width: $bar-glyph;
-            height: $bar-glyph;
-        }
-    }
+    // (Group playback, mobile-only. The button's box used to be written out
+    // here — 44px, radius, glyph size, but no ROLE, so it rendered as a bare
+    // glyph on this screen too. Footprint and look both come from
+    // DevicesButton.vue now; `.np-devices` only places it.)
 
     .centered {
         margin: 0 auto;

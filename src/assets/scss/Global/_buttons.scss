@@ -581,8 +581,13 @@ $control-dense-glyph: 1rem;
 // fill on these controls: see the pin, where "on" and "hovered" were the same
 // picture until they were split apart.
 // ---------------------------------------------------------------------------
-@mixin btn-toggle-on {
-  @include mem-transport-aux-on;
+// `$fill` / `$glyph` are passed straight through to the mixin below — see the
+// note there. Shuffle and repeat take the default yellow; the devices button's
+// "joined" state is the one other persistent on-state in the app and takes the
+// brand green, so that BOTH of them read as the same kind of signal instead of
+// one being a plated toggle and the other a hand-written box.
+@mixin btn-toggle-on($fill: $mem-yellow, $glyph: $mem-ink) {
+  @include mem-transport-aux-on($fill, $glyph);
   // `mem-transport-aux-on` only PAINTS the box (fill, border, radius,
   // sprinkle). The offset shadow that makes a filled control look raised used
   // to arrive by accident, from the global button base — so switching the
