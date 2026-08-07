@@ -107,17 +107,10 @@ export default defineConfig({
               },
             ],
           },
-          {
-            name: "Settings",
-            description: "Modify settings",
-            url: "/#/settings",
-            icons: [
-              {
-                src: "/icons/settings.svg",
-                type: "image/svg+xml",
-              },
-            ],
-          },
+          // No "Settings" shortcut: settings are a MODAL, so there is no URL to
+          // point one at. It used to target `/#/settings`, which is exactly the
+          // page removed here — long-pressing the installed app's icon would
+          // have opened a 404.
         ],
         start_url: "/",
         display: "standalone",
