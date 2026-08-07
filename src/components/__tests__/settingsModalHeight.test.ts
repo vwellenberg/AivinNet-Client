@@ -53,13 +53,14 @@ describe("the settings modal keeps one height", () => {
 
   it("sizes the modal from the token, not from its content", () => {
     const settings = rule(MODAL, ".m-content.settings");
-    // `height`, anchored — NOT `max-height`, which is the content sizing this
-    // fixed and which an unanchored pattern would happily accept. A `min()`
-    // against the window is what keeps a short viewport from being overrun.
-    expect(settings).toMatch(/(?:^|[\s;{])height:\s*min\([^;]*\$settings-modal-h/);
-    // Both breakpoints read the token; `ownDeclarations` keeps the phone
-    // override in scope, so a literal there would show up here.
-    expect(settings.match(/\$settings-modal-h/g)?.length).toBe(2);
+    // `height`, anchored, and BOTH of them: the desktop rule and the phone
+    // override. Counting one match let a mutation slip through — flipping the
+    // desktop declaration to `max-height` (the content sizing this replaced)
+    // still found the phone one and passed.
+    const heights = settings.match(/(?:^|[\s;{])height:\s*min\([^;]*\$settings-modal-h[^;]*;/g);
+    expect(heights?.length, "both breakpoints state the height from the token").toBe(2);
+    // The other half of the same statement: a cap is not a height.
+    expect(settings).not.toMatch(/max-height:/);
   });
 
   it("lets the panes fill that height", () => {
