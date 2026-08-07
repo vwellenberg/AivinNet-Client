@@ -109,9 +109,6 @@
       </div>
     </div>
 
-    <div class="sidebar-footer">
-      <div class="sidebar-version" :title="`AivinNet ${version}`">v{{ version }}</div>
-    </div>
     <div
       class="sidebar-resize-handle"
       :class="{ active: isResizing }"
@@ -137,7 +134,6 @@ import PushPinSvg from "@/assets/icons/push-pin.svg";
 import FolderSvg from "@/assets/icons/folder.fill.svg";
 import RightArrowSvg from "@/assets/icons/right-arrow.svg";
 import PlusSvg from "@/assets/icons/plus.svg";
-import pkg from "../../../package.json";
 
 import useQueue from "@/stores/queue";
 import useTracklist from "@/stores/queue/tracklist";
@@ -153,8 +149,6 @@ import { getPlaylist } from "@/requests/playlists";
 import { NotifType, useToast } from "@/stores/notification";
 
 const ctxFlag = ref(false);
-
-const version = pkg.version;
 
 const settings = useSettingsStore();
 const playlists = usePStore();
@@ -627,11 +621,18 @@ onBeforeUnmount(teardown);
 .l-sidebar {
   grid-area: l-sidebar;
   display: grid;
-  // Logo now lives in the top bar; sidebar is scrollable list + now-playing card.
-  grid-template-rows: 1fr max-content;
+  // Logo lives in the top bar, the version moved to Settings → About: the
+  // scroll container is the only row left.
+  grid-template-rows: 1fr;
   @include candy-box($candy-white, $candy-radius);
   position: relative;
-  padding: 0.875rem 0.875rem 1rem;
+  // ⚠️ No padding here — it belongs to the scroller below. A padded panel
+  // moves the scrollport's clip edge INWARDS, and a scroll container clips at
+  // its padding box: rows then vanished 14px short of the ink frame, inside a
+  // strip of paper where nothing was ever drawn (measured at 1440×760: clip at
+  // y=97 against the frame's inner edge at y=83, and 599 against 611 at the
+  // bottom). Padding on the SCROLLER scrolls away with the content instead, so
+  // the same resting inset stays but rows are cut at the frame.
   min-height: 0;
   // Small black gap on the far left so the panel floats (Spotify-style).
   margin-left: 8px;
@@ -641,7 +642,21 @@ onBeforeUnmount(teardown);
     overflow: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    padding: 1rem 0;
+    // The panel's inset, moved here from `.l-sidebar` (see above). Vertically
+    // 1.875rem = the 0.875rem the panel used to hold plus the 1rem this
+    // already had, so the resting distance from frame to first row is
+    // unchanged at 30px; the scrollbar now rides the frame instead of floating
+    // 14px inside it.
+    padding: 1.875rem 0.875rem;
+
+    // ⚠️ Follow the frame's curve. Now that the scrollport reaches the border,
+    // both its contents AND its scrollbar are square against a rounded panel —
+    // and a child paints ABOVE its parent's border, so the thumb cut straight
+    // through the corner arc at top-right and bottom-right. The inner radius
+    // is the panel's minus the border it sits inside. (`overflow: hidden` on
+    // `.l-sidebar` would fix the same thing by clipping, but it would also
+    // swallow `.sidebar-resize-handle`, which hangs 4px outside on purpose.)
+    border-radius: $candy-radius - $candy-border-w;
 
     // Scrollbar is hidden until the sidebar is hovered. The width/`thin` track
     // stays constant so showing the thumb never reflows the list.
@@ -685,37 +700,13 @@ onBeforeUnmount(teardown);
   }
 }
 
-// The footer gets the same ink edge the player bar uses to separate itself
-// from the content above it (`.b-bar { border-top: $g-border }` — the token
-// itself lives in app-grid.scss and isn't globally injected, so this spells
-// it out). Without it the boundary between "scrollable list" and "app
-// metadata" was undrawn: just paper, reading as if the last row had been
-// cut off rather than as a footer.
-//
-// ⚠️ The negative horizontal margin is load-bearing, not decoration. Without
-// it the border sits inside .l-sidebar's own 0.875rem padding and stops
-// short of the frame on both sides (measured: 17px short) — a divider that
-// doesn't reach either wall reads as floating, not as a divider. .b-bar
-// gets this for free because it has no side padding of its own to bleed
-// through; here the bleed has to be spelled out to reach the same edge.
-.sidebar-footer {
-  border-top: $candy-border-w solid $mem-line;
-  margin: 0.75rem -0.875rem 0;
-  padding-top: 0.75rem;
-  display: flex;
-  justify-content: center;
-}
-
-// A sticker, like every other caption (#422) — full contrast, no hover: it
-// is a caption, not a control (see the LIBRARY heading above).
-.sidebar-version {
-  @include mem-sticker($pad: 3px 10px);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  user-select: none;
-  font-feature-settings: 'tnum';
-}
+// (The version sticker and its ink-topped footer stood here — including the
+// negative horizontal margin that bled the divider past .l-sidebar's padding
+// to reach the frame. All of it is gone: Settings → About already carried the
+// same number, and more of it (client AND server version, which the sticker
+// never showed), so the sidebar was spending a permanent 40px band and its
+// bottom edge on a duplicate. Removing it also hands the scroller the panel's
+// full height — see the clip-edge note on .l-sidebar.)
 
 .sidebar-library {
   // No border-top any more: the LIBRARY label carries its own surface and is
