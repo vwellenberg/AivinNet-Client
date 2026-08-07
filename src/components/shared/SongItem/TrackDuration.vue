@@ -32,7 +32,6 @@ import HeartSvg from '../HeartSvg.vue'
 defineProps<{
     duration: number
     is_fav: boolean
-    showInlineFavIcon: boolean
     highlightFavoriteTracks: boolean
     showFavIcon?: boolean
     help_text?: string

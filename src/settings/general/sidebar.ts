@@ -11,7 +11,6 @@ const use_sidebar: Setting = {
   type: SettingType.binary,
   state: () => settings().use_sidebar,
   action: () => settings().toggleDisableSidebar(),
-  show_if: () => !settings().is_alt_layout,
 };
 
 const move_played_playlist_to_top: Setting = {

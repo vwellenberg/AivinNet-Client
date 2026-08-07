@@ -40,6 +40,7 @@ import { isMedium, isSmall } from "@/stores/content-width";
 
 import SongItem from "@/components/shared/SongItem.vue";
 import { trackBandFade } from "@/utils/songItemMethods";
+import updatePageTitle from "@/utils/updatePageTitle";
 
 const itemHeight = 64;
 const route = useRoute();
@@ -50,6 +51,7 @@ const tracks: Ref<Track[]> = ref([]);
 
 onMounted(() => {
   const hash = route.params.hash as string;
+  updatePageTitle((route.query.artist as string) || "Artist Tracks");
 
   getArtistTracks(hash).then((t) => {
     tracks.value = t;

@@ -8,10 +8,6 @@
     >
         <div class="left">
             <Logo v-if="!isMobile" class="nav-logo" />
-            <div v-if="settings.is_default_layout && $route.name == Routes.folder" class="info">
-                <Folder />
-            </div>
-            <NavTitles v-else-if="settings.is_default_layout && !isSmall" />
         </div>
         <div v-if="settings.is_alt_layout || !settings.use_sidebar || !xl" class="right">
             <span v-if="isMobile && !onSearchRoute" class="mobile-nav-title">
@@ -49,9 +45,6 @@ import SearchInput from '../RightSideBar/SearchInput.vue'
 import Logo from '@/components/Logo.vue'
 import HomeSvg from '@/assets/icons/home.svg'
 import PlusSvg from '@/assets/icons/plus.svg'
-import NavLinks from './NavLinks.vue'
-import NavTitles from './NavTitles.vue'
-import Folder from './Titles/Folder.vue'
 import AvatarWithDropdown from './AvatarWithDropdown.vue'
 import ThemeToggle from './ThemeToggle.vue'
 import useModal from '@/stores/modal'

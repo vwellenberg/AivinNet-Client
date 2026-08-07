@@ -17,12 +17,6 @@ export const nowPlayingStrings = {
   },
 } as S;
 
-export const appWidthStrings = {
-  settings: {
-    extend: "Full width",
-  },
-} as S;
-
 export const sidebarStrings = <S>{
   settings: {
     use_sidebar: "Show right sidebar",

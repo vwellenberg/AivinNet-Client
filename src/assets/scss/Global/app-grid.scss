@@ -374,11 +374,22 @@ $g-border: solid $candy-border-w $mem-line;
     padding-right: 1.25rem;
 }
 
-#app-grid.extendWidth {
-    padding-right: 0;
-    border-left: none;
-    border-right: none;
-    max-width: 100% !important;
+// The queue panel INSIDE the wide chrome. Both classes are on the grid at the
+// same time, and `.useSidebar` (below) wins on source order — which used to be
+// harmless only because the two could never be true together: the queue panel
+// was reachable exclusively by first switching the layout off, and that switch
+// is gone. Without this block the panel would take its areas from the old grid
+// and pull the top bar back out of the full width.
+#app-grid.is_alt_layout.useSidebar {
+    grid-template-columns: min-content 1fr 28rem;
+    grid-template-areas:
+        'nav nav nav'
+        'l-sidebar content r-sidebar'
+        'bottombar bottombar bottombar';
+
+    @include for-desktop-down {
+        grid-template-columns: min-content 1fr 24rem;
+    }
 }
 
 #app-grid.useSidebar {

@@ -19,29 +19,15 @@ const npLauflicht: Setting = {
     defaultAction: () => settings().cycleNpLauflichtLevel(),
 }
 
-const showNowPlayingOnTabTitle: Setting = {
-    title: 'Show Now Playing track on tab title',
-    desc: 'Replace current page info with Now Playing track info',
-    type: SettingType.binary,
-    state: () => settings().nowPlayingTrackOnTabTitle,
-    action: () => settings().toggleNowPlayingTrackOnTabTitle(),
-}
-
-const showInlineFavIcon: Setting = {
-    title: 'Show inline favorite icon',
-    desc: 'Show the favorite button next to the track duration',
-    type: SettingType.binary,
-    state: () => settings().showInlineFavIcon,
-    action: () => settings().toggleShowInlineFavIcon(),
-}
-
+// The heart next to the duration appears on row hover in any case — that is not
+// a setting, it is how a row offers its actions. This one says whether a track
+// that IS favourited keeps its heart when the pointer leaves.
 const highlightFavoriteTracks: Setting = {
     title: 'Highlight favorite tracks',
-    desc: 'Always show the favorite button for favorited tracks',
+    desc: 'Keep the teal heart visible on favorited tracks instead of only on hover',
     type: SettingType.binary,
     state: () => settings()._highlightFavoriteTracks,
     action: () => settings().toggleHighlightFavoriteTracks(),
-    show_if: () => settings().showInlineFavIcon,
 }
 
-export default [npLauflicht, showNowPlayingOnTabTitle, showInlineFavIcon, highlightFavoriteTracks]
+export default [npLauflicht, highlightFavoriteTracks]

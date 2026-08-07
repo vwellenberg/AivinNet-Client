@@ -1,10 +1,10 @@
 <template>
-  <div
-    class="f-container rounded-sm"
-    :class="{
-      'list-mode': isSmallestPhone ? true : settings.folder_list_mode,
-    }"
-  >
+  <!--
+    Folders are always a list. They used to be a grid of tiles with a setting to
+    switch, but a folder tile carries nothing a row does not — no artwork, just a
+    name — so the grid only made the same information take four times the space.
+  -->
+  <div class="f-container rounded-sm list-mode">
     <div id="f-items" class="rounded">
       <FolderItem v-for="folder in folders" :key="folder.path" :folder="folder" :folder_page="true" />
     </div>
@@ -13,15 +13,11 @@
 
 <script setup lang="ts">
 import { Folder } from "@/interfaces";
-import { isSmallestPhone } from "@/stores/content-width";
-import useSettingsStore from "@/stores/settings";
 import FolderItem from "./FolderItem.vue";
 
 defineProps<{
   folders: Folder[];
 }>();
-
-const settings = useSettingsStore();
 </script>
 
 <style lang="scss">

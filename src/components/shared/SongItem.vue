@@ -26,7 +26,6 @@
             :is_fav="is_fav"
             :is_current="isCurrent()"
             :is_current_playing="isCurrentPlaying()"
-            :show-inline-fav-icon="settings.showInlineFavIcon"
             @add-to-fav="addToFav(track.trackhash)"
         />
 
@@ -55,7 +54,6 @@
             :help_text="showPlaysColumn ? undefined : track.help_text"
             :is_fav="is_fav"
             :showFavIcon="!isFavoritesPage"
-            :showInlineFavIcon="settings.showInlineFavIcon"
             :highlightFavoriteTracks="settings.highlightFavoriteTracks"
             @showMenu="showMenu"
             @toggleFav="addToFav(track.trackhash)"
