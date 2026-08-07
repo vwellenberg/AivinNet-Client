@@ -73,16 +73,31 @@ const mkPoll = (over: Partial<any> = {}): any => ({
     ...over,
 })
 
-async function setup() {
-    const useDeviceSync = (await import('@/stores/devicesync')).default
-    const useTracklist = (await import('@/stores/queue/tracklist')).default
-    const useQueue = (await import('@/stores/queue')).default
-    const useSettings = (await import('@/stores/settings')).default
-    return { useDeviceSync, useTracklist, useQueue, useSettings }
+// Top-level imports, NOT dynamic imports inside setup()/beforeEach (#329):
+// without vi.resetModules() both resolve to the same module instance, but the
+// dynamic form paid the FIRST transform+evaluation of the store's whole module
+// graph inside the first beforeEach — the heaviest import in the suite, billed
+// against the 10s hook budget. Under a starved CI worker that intermittently
+// blew up as "Hook timed out in 10000ms". Static imports move that cost to
+// collection, which has no timeout.
+import useDeviceSyncStore, { __resetDeviceSyncTestState } from '@/stores/devicesync'
+import useQueueStore from '@/stores/queue'
+import useTracklistStore from '@/stores/queue/tracklist'
+import useSettingsStore from '@/stores/settings'
+
+// Still awaited at the call sites — awaiting a plain object is a no-op, and
+// keeping the shape avoids touching all 41 tests.
+function setup() {
+    return {
+        useDeviceSync: useDeviceSyncStore,
+        useTracklist: useTracklistStore,
+        useQueue: useQueueStore,
+        useSettings: useSettingsStore,
+    }
 }
 
 describe('devicesync store', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
         // NO vi.resetModules(): in vitest 0.34 it can hand the re-imported
         // store a different pinia module copy that still resolves to the
         // PREVIOUS test's store state, and module instances end up shared
@@ -95,7 +110,6 @@ describe('devicesync store', () => {
         requestsMock.resolveTracks.mockResolvedValue([])
         playerMock.getCurrentTimeMs.mockReset()
         playerMock.getCurrentTimeMs.mockReturnValue(0)
-        const { __resetDeviceSyncTestState } = await import('@/stores/devicesync')
         __resetDeviceSyncTestState()
         setActivePinia(createPinia())
         localStorage.clear()
