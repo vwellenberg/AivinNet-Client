@@ -168,9 +168,10 @@ onMounted(() => {
 <style lang="scss">
 .folder-view.is_alt_layout {
     .scroller {
-        // Same gap the head keeps below itself, and the head's `top` matches it
-        // so the plate does not jump the moment it starts sticking. It used to
-        // be `0`, because the head was meant to bleed into the card's top edge.
+        // The head is a plate now, so it needs the same air above it that it
+        // keeps below. It used to be `0`, because the head was meant to bleed
+        // into the card's top edge. This padding is also what the sticky head
+        // sticks to — see `top` below.
         padding-top: $small !important;
     }
 
@@ -187,9 +188,12 @@ onMounted(() => {
     .scroller > div.vue-recycle-scroller__slot:first-child {
         display: flow-root;
         position: sticky;
-        // With the scroller's top padding above, the plate rests and sticks at
-        // the same distance from the card's frame, so it does not jump.
-        top: $small;
+        // ZERO, and the air above comes from the scroller's padding instead:
+        // sticky here clamps to the scroller's PADDING edge, not its border box
+        // (measured), so any `top` shifts the plate DOWN off its flow position
+        // while the rows stay where the flow put them — a `top: $small` ate
+        // exactly the 8px gap below the plate that this rule sets up.
+        top: 0;
         z-index: 1;
     }
 
