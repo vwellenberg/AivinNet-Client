@@ -455,9 +455,17 @@ $g-border: solid $candy-border-w $mem-line;
         // the right padding edge is scrollable overflow, so a plain
         // `overflow: auto` would answer the wider veil with $scrollbar-w of
         // sideways scroll. `clip` + a clip margin of exactly the overhang
-        // shows it and scrolls nothing. (Firefox computes `clip` next to an
-        // `auto` axis back to `hidden`; that still clips at the margin and
-        // still refuses user scrolling — only scripts could shift it.)
+        // shows it and scrolls nothing — verified by sampling the painted
+        // pixels 3px inside the content edge (bare paper 244,242,237 before,
+        // veil 86,85,116 after) and by a real sideways wheel, in Chromium AND
+        // Firefox. Reading the decor's rectangle is NOT that proof: a clipped
+        // element still reports its full box.
+        //
+        // Where the platform has overlay scrollbars (macOS, phones, current
+        // Firefox) the gutter is zero and the decor hangs over the scroller
+        // instead — harmless, because `#acontent` clips at the same edge
+        // anyway. The gutter can never be WIDER than $scrollbar-w: it is our
+        // own scrollbar that sets it (Global/scrollbars.scss).
         overflow-x: clip;
         overflow-clip-margin: $scrollbar-w;
         padding-right: $padright;

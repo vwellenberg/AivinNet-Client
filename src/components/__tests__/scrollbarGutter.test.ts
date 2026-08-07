@@ -19,6 +19,11 @@ import { describe, expect, it } from "vitest";
 // The user saw it as "the gradient isn't clean, something's missing left and
 // right" — a strip of bare grid paper down each side of the veil, the full
 // height of the header band.
+//
+// What this census can and cannot do: it keeps the three declarations reading
+// ONE token, which is what drifted. That the overhang is actually PAINTED is a
+// browser question and was answered in a browser — painted pixels 3px inside
+// the content edge, Chromium and Firefox (see the comment on `.scroller`).
 // ---------------------------------------------------------------------------
 
 // `.scss` comes back EMPTY through import.meta.glob (see
@@ -31,7 +36,10 @@ const SCROLLBARS = read("src/assets/scss/Global/scrollbars.scss");
 const APP_GRID = read("src/assets/scss/Global/app-grid.scss");
 
 /** The rule body that follows `selector {`, brace-balanced. */
-function block(source: string, selector: string): string {
+function block(raw: string, selector: string): string {
+  // Comments first: this file's own prose talks about `{` and `}` often
+  // enough that counting them raw would slice the wrong block.
+  const source = raw.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
   const start = source.indexOf(`${selector} {`);
   expect(start, `${selector} not found`).toBeGreaterThan(-1);
   let depth = 0;
