@@ -6,10 +6,10 @@
         plate pulled up under it — not an absolutely positioned overlay — so a
         narrow window wraps the row and the plate simply follows. -->
       <div class="recent-head">
-        <span class="recent-title">
+        <h3 class="recent-title">
           <SearchSvg class="title-search" />
           Recent searches
-        </span>
+        </h3>
         <button type="button" class="recent-clear" @click="clearAll">Clear all</button>
       </div>
       <div class="recent-plate">
@@ -72,7 +72,11 @@ function clearAll() {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
+    // NOT `wrap`: the plate below is lifted by exactly half of this row's
+    // height, so a second line would leave the caption floating above the edge
+    // it is supposed to sit on. The caption ellipses instead (it is the only
+    // element here that can afford to).
+    flex-wrap: nowrap;
     gap: $small;
     // Above the plate, which is pulled up underneath it.
     position: relative;
@@ -90,15 +94,23 @@ function clearAll() {
     display: inline-flex;
     align-items: center;
     gap: $smaller;
+    // The one flexible item in the head, so a narrow window shortens the
+    // caption instead of wrapping the row (see .recent-head).
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
     background-color: $candy-pink;
     // Static blush fill -> static ink, in both themes.
     color: $mem-ink;
     font-size: 0.95rem;
     font-weight: 700;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
     .title-search {
       width: 1rem;
       height: 1rem;
+      flex-shrink: 0;
     }
   }
 
@@ -109,6 +121,9 @@ function clearAll() {
   .recent-clear {
     @include btn-pill($radius: $candy-radius-pill, $fill: $mem-panel);
     color: $mem-content-text;
+    // The head does not wrap, so this button must not be the thing that gives:
+    // a squeezed "Clear all" is how header rows ended up at 16x36 (styling.md).
+    flex-shrink: 0;
   }
 
   // The plate the chips sit on. Content on the ground reads on `--mem-veil`
@@ -176,13 +191,20 @@ function clearAll() {
     // Pointer-gated, and the gate has a touch answer (styling.md): `:hover`
     // latches after the first tap, so hiding a control behind it would leave
     // the phone with a remove button that is either invisible or stuck open.
+    //
+    // `pointer-events` travels WITH the opacity, and not as a nicety: this
+    // query also matches a touch-capable mouse-primary device (a 2-in-1), and
+    // there an invisible-but-live hit area at the chip's trailing edge deletes
+    // the entry the finger meant to search for.
     @media (hover: hover) {
       .chip-remove {
         opacity: 0;
+        pointer-events: none;
       }
 
       &:hover .chip-remove {
         opacity: 0.75;
+        pointer-events: auto;
       }
     }
 

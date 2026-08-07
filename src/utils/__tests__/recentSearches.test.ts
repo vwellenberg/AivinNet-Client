@@ -59,6 +59,34 @@ describe('recentSearches', () => {
         expect(getRecentSearches()).toEqual(['age of empires', 'weezer'])
     })
 
+    // The lists this fix exists for are already stored in people's browsers.
+    // Folding only on write would leave every fragment on screen until its
+    // full term happened to be searched again.
+    it('folds a list that was stored before the fix, on read', () => {
+        localStorage.setItem(
+            'recentSearches',
+            JSON.stringify(['age', 'age of empires', 'holiday islan', 'holiday island', 'bite'])
+        )
+        expect(getRecentSearches()).toEqual(['age of empires', 'holiday island', 'bite'])
+    })
+
+    it('survives a stored list that is not an array of strings', () => {
+        localStorage.setItem('recentSearches', JSON.stringify({ nope: true }))
+        expect(getRecentSearches()).toEqual([])
+
+        localStorage.setItem('recentSearches', JSON.stringify(['weezer', 7, null]))
+        expect(getRecentSearches()).toEqual(['weezer'])
+    })
+
+    // A term can be the prefix of more than one entry; folding against the
+    // shorter of those would delete the longer one.
+    it('promotes the longest match, not the first', () => {
+        localStorage.setItem('recentSearches', JSON.stringify(['holiday inn', 'holiday island']))
+        recordRecentSearch('holiday')
+
+        expect(getRecentSearches()).toEqual(['holiday island', 'holiday inn'])
+    })
+
     it('keeps a term that is not a prefix of anything stored', () => {
         recordRecentSearch('age of empires')
         recordRecentSearch('bite')
