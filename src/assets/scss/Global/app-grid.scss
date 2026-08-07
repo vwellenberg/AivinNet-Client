@@ -453,10 +453,14 @@ $g-border: solid $candy-border-w $mem-line;
         padding-left: $songlist-lead;
         padding-right: $small;
 
-        // disable hover on mobile
-        &:hover {
-            background-color: unset;
-        }
+        // (A `&:hover { background-color: unset }` "disable hover on mobile"
+        // stood here — a half-measure keyed on WIDTH instead of pointer
+        // capability. It stripped every fill a latched tap left behind —
+        // including the playing row's yellow, which it outranked — while the
+        // hover TEXT flip in SongItem.vue kept applying: white artist on the
+        // light ground (#457). The row hover is pointer-gated at its source
+        // now — `@media (hover: hover)` in SongItem.vue — so narrow desktop
+        // windows keep their full hover again and touch gets none at all.)
 
         @include mediumPhones {
             grid-template-columns: 2fr 2.5rem !important;
