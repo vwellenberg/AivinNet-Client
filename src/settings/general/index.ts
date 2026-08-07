@@ -5,12 +5,8 @@ import { SettingCategory } from '@/interfaces/settings'
 import * as strings from '../strings'
 import albums from './albums'
 import restore from './backup'
-import circularArtistImg from './circular-artist-img'
 import contextChildrenShowMode from './context-children-show-mode'
-import extendWidth from './extend-width'
 import font from './font'
-import folderlistmode from './folderlistmode'
-import layout from './layout'
 import musicbrainz from './musicbrainz'
 import nowPlaying from './now-playing-group'
 import pageGradient from './page-gradient'
@@ -39,13 +35,9 @@ export const general = {
             settings: [
                 ...theme,
                 ...pageGradient,
-                ...layout,
                 ...font,
-                ...extendWidth,
                 ...sidebarSettings,
-                circularArtistImg,
                 ...contextChildrenShowMode,
-                ...folderlistmode,
                 ...nowPlaying,
             ],
         },

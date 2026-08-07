@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 
-import { xxl } from '@/composables/useBreakpoints'
 import { DBSettings, contextChildrenShowMode } from '@/enums'
 import { pluginSetActive, updatePluginSettings } from '@/requests/plugins'
 
@@ -17,7 +16,6 @@ import { themeForNow } from '@/utils/autoTheme'
 export default defineStore('settings', {
     state: () => ({
         version: '',
-        extend_width: false,
         contextChildrenShowMode: contextChildrenShowMode.hover,
         artist_top_tracks_count: 5,
         // repeat_all: true,
@@ -41,7 +39,6 @@ export default defineStore('settings', {
         periodicInterval: 0,
         enableWatchDog: false,
 
-        folder_list_mode: true,
         volume: 1.0,
         mute: false,
         // The volume to come back to when the speaker button turns sound back
@@ -59,8 +56,6 @@ export default defineStore('settings', {
         show_playlists_in_folders: false,
 
         // client
-        useCircularArtistImg: true,
-        nowPlayingTrackOnTabTitle: true,
         streaming_quality: 'original',
         streaming_container: 'mp3',
         font: <'default' | 'spotify'>'default',
@@ -98,8 +93,6 @@ export default defineStore('settings', {
          * utils/colortools/pageGradient.ts.
          */
         use_page_gradient: true,
-        // INFO: Default to alternate layout from v2.0.0
-        layout: 'alternate',
         // Now Playing Lauflicht intensity. Defaults to the subtler level.
         np_lauflicht_level: <'off' | 'subtle' | 'normal'>'subtle',
         use_sidebar: false,
@@ -192,9 +185,6 @@ export default defineStore('settings', {
 
             this.use_sidebar = !this.use_sidebar
         },
-        toggleExtendWidth() {
-            this.extend_width = !this.extend_width
-        },
         toggleMovePlayedPlaylistToTop() {
             this.move_played_playlist_to_top = !this.move_played_playlist_to_top
         },
@@ -235,10 +225,6 @@ export default defineStore('settings', {
         },
         setRootDirs(dirs: string[]) {
             this.root_dirs = dirs
-        },
-        // folders 👇
-        toggleFolderListMode() {
-            this.folder_list_mode = !this.folder_list_mode
         },
         setFont(value: 'default' | 'spotify') {
             this.font = value
@@ -318,9 +304,6 @@ export default defineStore('settings', {
             setVolume(this.volume)
             setMute(this.mute)
         },
-        toggleUseCircularArtistImg() {
-            this.useCircularArtistImg = !this.useCircularArtistImg
-        },
         toggleLyricsPlugin() {
             pluginSetActive('lyrics_finder', !this.use_lyrics_plugin).then(() => {
                 this.use_lyrics_plugin = !this.use_lyrics_plugin
@@ -359,21 +342,6 @@ export default defineStore('settings', {
 
         toggleUseLegacyStreamingEndpoint() {
             this.use_legacy_streaming_endpoint = !this.use_legacy_streaming_endpoint
-        },
-
-        // layout 👇
-        toggleLayout() {
-            if (this.layout == '') {
-                this.layout = 'alternate'
-                this.use_sidebar = false
-                return
-            }
-
-            this.layout = ''
-        },
-
-        toggleNowPlayingTrackOnTabTitle() {
-            this.nowPlayingTrackOnTabTitle = !this.nowPlayingTrackOnTabTitle
         },
 
         async genericToggleSetting(key: string, value: any, prop: string) {
@@ -508,9 +476,6 @@ export default defineStore('settings', {
         },
     },
     getters: {
-        can_extend_width(): boolean {
-            return this.is_default_layout && xxl.value
-        },
         crossfade_duration_seconds(): number {
             return this.crossfade_duration / 1000
         },
@@ -524,8 +489,16 @@ export default defineStore('settings', {
          * reads this one getter instead of restating the pair.
          */
         is_silent: state => state.mute || state.volume === 0,
-        is_default_layout: state => state.layout === '',
-        is_alt_layout: state => state.layout === 'alternate' && content_width.value > 900,
+        /**
+         * The wide chrome: the top bar spans the full width and the left
+         * sidebar sits underneath it. It used to be a choice ("Use no sidebar
+         * layout"); the other grid — sidebar spanning the full height — was
+         * only ever reachable by turning that option off, and it is what
+         * phones get anyway. So the layout is no longer a setting, and this
+         * getter is just the width guard: 900px is `ALL_MOBILE_WIDTH`, below
+         * which App.vue drops the left sidebar entirely.
+         */
+        is_alt_layout: () => content_width.value > 900,
         highlightFavoriteTracks(): boolean {
             return (
                 !router.currentRoute.value.name?.toString().toLowerCase().startsWith('favorite') &&

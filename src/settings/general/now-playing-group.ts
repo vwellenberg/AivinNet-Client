@@ -19,14 +19,6 @@ const npLauflicht: Setting = {
     defaultAction: () => settings().cycleNpLauflichtLevel(),
 }
 
-const showNowPlayingOnTabTitle: Setting = {
-    title: 'Show Now Playing track on tab title',
-    desc: 'Replace current page info with Now Playing track info',
-    type: SettingType.binary,
-    state: () => settings().nowPlayingTrackOnTabTitle,
-    action: () => settings().toggleNowPlayingTrackOnTabTitle(),
-}
-
 const showInlineFavIcon: Setting = {
     title: 'Show inline favorite icon',
     desc: 'Show the favorite button next to the track duration',
@@ -44,4 +36,4 @@ const highlightFavoriteTracks: Setting = {
     show_if: () => settings().showInlineFavIcon,
 }
 
-export default [npLauflicht, showNowPlayingOnTabTitle, showInlineFavIcon, highlightFavoriteTracks]
+export default [npLauflicht, showInlineFavIcon, highlightFavoriteTracks]

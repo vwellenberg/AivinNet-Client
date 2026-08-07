@@ -72,15 +72,20 @@ describe("search filter chips", () => {
     // the chips sat in the chrome even in the empty state, where there is
     // nothing to filter.
     it("renders no search tabs in the top bar", () => {
-      const nav = read("src/components/nav/NavTitles.vue");
-      expect(nav, "NavTitles.vue could not be read").toContain("<template>");
+      // The per-route title block the switcher used to live in is gone too: it
+      // only ever rendered in the layout the "Use no sidebar layout" setting
+      // turned off, and that setting no longer exists.
+      const nav = read("src/components/nav/NavBar.vue");
+      expect(nav, "NavBar.vue could not be read").toContain("<template>");
       expect(nav, "the top bar imports the search-tab switcher again").not.toContain(
         "SearchTitle"
       );
-      expect(
-        existsSync("src/components/nav/Titles/SearchTitle.vue"),
-        "the top-bar copy of the search tabs is back"
-      ).toBe(false);
+      for (const gone of [
+        "src/components/nav/Titles/SearchTitle.vue",
+        "src/components/nav/NavTitles.vue",
+      ]) {
+        expect(existsSync(gone), `${gone}: the top-bar title block is back`).toBe(false);
+      }
     });
 
     it("gates the in-page chip row on a non-empty query", () => {

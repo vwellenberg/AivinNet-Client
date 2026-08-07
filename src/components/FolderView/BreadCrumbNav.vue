@@ -14,10 +14,10 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, onUpdated, ref, watch } from 'vue'
+import { Ref, onMounted, ref, watch } from 'vue'
 
 import { subPath } from '@/interfaces'
-import { createSubPaths, focusElemByClass } from '@/utils'
+import { createSubPaths } from '@/utils'
 
 import useSettings from '@/stores/settings'
 import useFolder from '@/stores/pages/folder'
@@ -53,12 +53,6 @@ if (!(props.subPaths && props.subPaths.length)) {
 defineEmits<{
     (e: 'navigate', path: string): void
 }>()
-
-onUpdated(() => {
-    if (settings.is_default_layout) {
-        focusElemByClass('inthisfolder')
-    }
-})
 
 onMounted(() => {
     if (props.subPaths != undefined) {

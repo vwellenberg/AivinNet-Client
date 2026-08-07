@@ -97,5 +97,3 @@ export const menus: NavItem[] = [
     tint: "tint-yellow",
   },
 ];
-
-export const topnavitems: NavItem[] = [home, folder, favorites, playlists];

@@ -77,7 +77,7 @@ const { width } = useElementSize(artistheader)
 // itself no longer changes shape with the width — Global/detail-head.scss owns
 // the small-screen sizes for all four heads.
 const isSmallPhone = computed(() => width.value <= 660)
-const useCircularImage = computed(() => !isSmallPhone.value && settings.useCircularArtistImg)
+const useCircularImage = computed(() => !isSmallPhone.value)
 </script>
 
 <style lang="scss">

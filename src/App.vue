@@ -8,11 +8,7 @@
         :class="{
             useSidebar: settings.use_sidebar && xl,
             NoSideBorders: settings.is_alt_layout || !xxl,
-            extendWidth: settings.extend_width && settings.can_extend_width,
             is_alt_layout: settings.is_alt_layout,
-        }"
-        :style="{
-            maxWidth: `${settings.is_default_layout ? (content_height > 1080 ? '2220px' : '1760px') : ''}`,
         }"
     >
         <LeftSidebar v-if="!isMobile" />

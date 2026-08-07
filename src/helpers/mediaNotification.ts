@@ -1,7 +1,5 @@
 import { paths } from '../config'
-import useSettings from '../stores/settings'
 import useQueueStore from '../stores/queue'
-import updatePageTitle from '@/utils/updatePageTitle'
 
 export default () => {
     if ('mediaSession' in navigator) {
@@ -10,12 +8,6 @@ export default () => {
 
         if (track === undefined) {
             return
-        }
-
-        const settings = useSettings()
-
-        if (settings.nowPlayingTrackOnTabTitle) {
-            updatePageTitle(`${track.title} - ${track.artists[0].name}`, true)
         }
 
         const url = paths.images.thumb
