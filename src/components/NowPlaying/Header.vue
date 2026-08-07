@@ -52,8 +52,16 @@
             Queue
             <!-- The rows under this caption ARE `tracklist` (see the scroller in
                  views/NowPlaying/main.vue), so its length is the queue's length —
-                 not a separate count that could drift from what is listed. -->
-            <span v-if="tracklist.tracklist.length" class="queue-count">{{ tracklist.tracklist.length }}</span>
+                 not a separate count that could drift from what is listed.
+
+                 `aria-hidden`: inside the <h3> the number would become part of
+                 the heading's accessible name ("Queue 43") and change on every
+                 queue mutation, so heading navigation would announce a moving
+                 target. The count is a visual shorthand for the numbered rows
+                 right below it — which a screen reader reads anyway. -->
+            <span v-if="tracklist.tracklist.length" class="queue-count" aria-hidden="true">{{
+                tracklist.tracklist.length
+            }}</span>
         </h3>
     </div>
 </template>
