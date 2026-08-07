@@ -232,7 +232,7 @@ Die frühere Lesart („primär/aktiv" — Play-CTA und eingeschaltete Toggles) 
 war vom Bildschirm aus nicht lernbar: Die Hierarchie steckt ohnehin in der **Füllung** (teal =
 Wiedergabe, gelb = an, blush = ausgewählt), die Textur konnte sie nur wiederholen.
 
-Zwei Bedingungen, beide tragend:
+Drei Bedingungen, alle tragend:
 
 1. **Es braucht eine Fläche.** `btn-quiet` ist im Ruhezustand transparent und bleibt deshalb blank;
    die Textur darf mit seiner Hover-Platte kommen. Ein Offset-Schatten unter nichts ist ein
@@ -242,6 +242,23 @@ Zwei Bedingungen, beide tragend:
    statische `--mem-hatch-accent` (immer Ink — blush, teal und gelb sind in beiden Themes
    dieselbe Farbe). **Die Verwechslung ist im Light-Theme unsichtbar** und im Dark-Theme eine
    leere Fläche; der Zensus in `rowHover.test.ts` prüft deshalb genau dieses Paar.
+3. ⚠️ **Die Schraffur läuft NIE hinter Text.** Striche zwischen Buchstaben kosten genau die
+   Lesbarkeit, für die der Rest des Designs Platten und Veils einführt — bei 2× berühren sie die
+   Glyphen sichtbar. Welche der beiden Umsetzungen gilt, entscheidet die **Fläche**:
+
+   - **Breites Element, dessen Text nur einen Teil einnimmt** (Sidebar-Zeile, Navigations-Zeile,
+     Browse-Kachel) → `mem-hatch-clear` auf dem **Label**, nicht auf dem Container. Es legt eine
+     Deckfläche in `--row-fill` hinter genau die Textbreite (`flex: 0 1 auto`); rundherum bleibt
+     die Textur stehen. Der Puffer im Mixin ist kein Zierrat — ohne ihn endet die Schrift genau
+     dort, wo die Striche anfangen, und wirkt gequetscht.
+   - **Kleines Element, das im Wesentlichen aus seinem Label besteht** (Tab, Chip, Text-Button)
+     → **gar keine Schraffur.** Ein Cover ließe hier nur einen 4-px-Rand übrig: Rauschen ohne
+     Aussage. Platte, Offset-Schatten und der Hover-Schnitt tragen „drückbar" allein — dieselbe
+     Antwort wie bei den Inhaltszeilen weiter oben.
+
+   Die Textur braucht also **Fläche neben dem Text**, sonst hat sie keinen Platz, an dem sie
+   etwas sagen könnte. Icon-Buttons sind davon unberührt: Ein Glyph ist eine Strichzeichnung mit
+   eigenem Kontrast, kein Fließtext.
 
 **Gemalt wird als Hintergrund-Ebene, nicht als `::before`-Overlay.** Die Sidebar-Zeilen verbrauchen
 beide Pseudo-Elemente für ihre Drag-Marken, die laufende Track-Zeile für Textur und Marke (siehe
