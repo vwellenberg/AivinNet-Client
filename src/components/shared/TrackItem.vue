@@ -284,24 +284,38 @@ onBeforeUnmount(() => {
       }
     }
 
-    &:hover {
-      opacity: 1 !important;
+    @media (hover: hover) {
+      &:hover {
+        opacity: 1 !important;
+      }
+    }
+
+    // Touch cannot hover, so the reveal affordance above is unreachable there —
+    // the controls stay visible instead (same pattern as the card play button
+    // in _mixins.scss). Without this, gating the row hover below would have
+    // taken away the accidental way in that the latch used to provide.
+    @media (hover: none) {
+      opacity: 1;
     }
   }
 
-  &:hover {
-    .float-buttons {
-      opacity: 1;
+  // Pointer devices only: on touch, `:hover` latches after a tap (styling.md)
+  // and would pin the tapped row pink until the next tap elsewhere (#457).
+  @media (hover: hover) {
+    &:hover {
+      .float-buttons {
+        opacity: 1;
+      }
+
+      // (`.remove-track { transform: translateY(0) rotate(45deg) }` stood here —
+      // a row-hover rule re-asserting a rotation that nothing was taking away,
+      // and the `translateY(0)` had no counterpart anywhere. Both would now fight
+      // the role's pointer feedback for the same property; the rotation lives on
+      // the glyph instead.)
+
+      background-color: $candy-pink-soft;
+      border-radius: $candy-radius-sm;
     }
-
-    // (`.remove-track { transform: translateY(0) rotate(45deg) }` stood here —
-    // a row-hover rule re-asserting a rotation that nothing was taking away,
-    // and the `translateY(0)` had no counterpart anywhere. Both would now fight
-    // the role's pointer feedback for the same property; the rotation lives on
-    // the glyph instead.)
-
-    background-color: $candy-pink-soft;
-    border-radius: $candy-radius-sm;
   }
 
   hr {

@@ -83,8 +83,15 @@ defineEmits<{
 
     // Straightens under the pointer: the tilt says "stuck on", the snap-to-square
     // says "and you can pick it up".
-    &:hover .album-art {
-      transform: rotate(0deg);
+    //
+    // Pointer devices only. `:hover` latches on touch (styling.md), so ungated
+    // this said "you can pick it up" permanently on whichever row was tapped
+    // last — the tilt is the row's resting state, and a phone had one row
+    // stuck out of it with no way back (#457).
+    @media (hover: hover) {
+      &:hover .album-art {
+        transform: rotate(0deg);
+      }
     }
 
     .thumb-play-overlay {

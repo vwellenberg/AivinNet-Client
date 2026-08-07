@@ -278,29 +278,44 @@ const isFavoritesPage = route.path.startsWith('/favorites')
         grid-template-columns: $songlist-columns-with-date;
     }
 
-    &:hover {
-        // The app-wide row hover (see candy-row-hover): soft blush inside the
-        // ink frame, static so the pinned ink text below stays readable in dark.
-        @include candy-row-hover;
+    // Pointer devices only: on touch, `:hover` LATCHES after a tap (styling.md)
+    // and stays until the next tap elsewhere. Ungated, these rules turned the
+    // tapped row into desktop pointer chrome — most visibly on the playing row,
+    // which lost its yellow fill to the old mobile half-measure in app-grid.scss
+    // while this block's text flip stayed: white artist on the light ground,
+    // dimmed cover (#457).
+    @media (hover: hover) {
+        &:hover {
+            // The app-wide row hover (see candy-row-hover): the contrast
+            // surface inside the ink frame. The playing/marked rows keep their
+            // own fill — their state blocks sit later in this file and win the
+            // tie.
+            @include candy-row-hover;
 
-        .song-duration.has_help_text {
-            opacity: 0;
+            .song-duration.has_help_text {
+                opacity: 0;
+            }
+
+            .song-duration.help-text {
+                opacity: 1;
+            }
+
+            .options-and-duration .heart-icon {
+                visibility: visible;
+            }
         }
 
-        .song-duration.help-text {
-            opacity: 1;
-        }
+        // The dim exists to reveal the play overlay, and the playing row has
+        // none (TrackTitle renders it only when not current) — so its cover
+        // stays undimmed.
+        &:hover:not(.current) {
+            .thumbnail .album-art {
+                filter: brightness(0.55);
+            }
 
-        .options-and-duration .heart-icon {
-            visibility: visible;
-        }
-
-        .thumbnail .album-art {
-            filter: brightness(0.55);
-        }
-
-        .thumb-play-overlay {
-            opacity: 1 !important;
+            .thumb-play-overlay {
+                opacity: 1 !important;
+            }
         }
     }
 
@@ -376,30 +391,38 @@ const isFavoritesPage = route.path.startsWith('/favorites')
 // ink. Same children, same reasons — the muted ones carry explicit tokens the
 // row `color` cannot reach, so they are named again.
 //
-// The selectors sit at the same depth as the light-fill block so the two never
-// fight; only one of them can match a given row at a time.
-.songlist-item:hover {
-    color: var(--mem-hover-text);
-
-    .song-album,
-    .song-duration {
+// Pointer devices only (see the gate on the base hover block): latched on
+// touch, this block was what painted the tapped row's text white (#457).
+//
+// `:not(.current):not(.contexton)` because those two rows KEEP their light
+// fill under the pointer (their fills win the background tie below), so the
+// mirrored text on them would be white-on-yellow (1.66:1) and white-on-blush.
+// The exclusion keeps this block paired with the fill it mirrors: it applies
+// exactly where `candy-row-hover`'s contrast surface actually paints.
+@media (hover: hover) {
+    .songlist-item:hover:not(.current):not(.contexton) {
         color: var(--mem-hover-text);
-        opacity: 0.75;
-    }
 
-    .options-and-duration {
-        .heart-icon.is_fav svg {
-            // Teal keeps its meaning; it measures 3.9:1 on the ink surface.
-            color: $mem-teal;
+        .song-album,
+        .song-duration {
+            color: var(--mem-hover-text);
+            opacity: 0.75;
         }
 
-        .options-icon svg {
-            stroke: var(--mem-hover-text);
-        }
-    }
+        .options-and-duration {
+            .heart-icon.is_fav svg {
+                // Teal keeps its meaning; it measures 3.9:1 on the ink surface.
+                color: $mem-teal;
+            }
 
-    .heart-button:not(.is-fav) {
-        color: var(--mem-hover-text);
+            .options-icon svg {
+                stroke: var(--mem-hover-text);
+            }
+        }
+
+        .heart-button:not(.is-fav) {
+            color: var(--mem-hover-text);
+        }
     }
 }
 

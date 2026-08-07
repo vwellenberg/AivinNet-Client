@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { describe, expect, it } from "vitest";
 
 // ---------------------------------------------------------------------------
@@ -300,5 +301,112 @@ describe("sidebar plate anatomy", () => {
     }
 
     expect(offenders).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// TRACK ROW HOVER IS POINTER-ONLY (#457).
+//
+// `:hover` LATCHES on touch: after a tap it stays applied until the next tap
+// lands elsewhere. The track rows' hover treatment is desktop pointer chrome —
+// contrast fill, mirrored text, dimmed cover — so latched on a phone it turned
+// the tapped row into a broken hybrid. Worst on the playing row: a width-keyed
+// half-measure in app-grid.scss (`background-color: unset`) stripped its
+// yellow fill while SongItem's hover text flip kept applying — white artist on
+// the light memphis ground, measured rgb(255,255,255) over rgba(0,0,0,0).
+//
+// The rule this pins: in the track-row components, EVERY `:hover` rule lives
+// inside `@media (hover: hover)`. A hover rule outside the gate is the
+// regression, whatever it paints.
+//
+// The list is enumerated over the COMMON FEATURE — "a component that styles a
+// track row on hover" — not over the broken spelling, because the instance that
+// slips through is always the half-conforming one (CLAUDE.md, "die letzte
+// Stelle"). That is how `TrackTitle.vue` got in: it paints no fill at all, it
+// only straightens the tilted cover, so it was invisible to a search for the
+// symptom — and latched on touch it left one row permanently out of its resting
+// tilt.
+// ---------------------------------------------------------------------------
+const POINTER_GATED = [
+  "/src/components/shared/SongItem.vue",
+  "/src/components/shared/SongItem/TrackTitle.vue",
+  "/src/components/shared/TrackItem.vue",
+];
+
+/** The source with every `@media (hover: hover) { … }` block removed. */
+function stripPointerGates(clean: string): string {
+  const opener = /@media\s*\(\s*hover\s*:\s*hover\s*\)\s*\{/;
+  let out = clean;
+  for (let match = opener.exec(out); match; match = opener.exec(out)) {
+    let depth = 0;
+    let end = -1;
+    for (let i = match.index + match[0].length - 1; i < out.length; i++) {
+      if (out[i] === "{") depth++;
+      else if (out[i] === "}" && --depth === 0) {
+        end = i;
+        break;
+      }
+    }
+    // An unclosed block means the brace matcher is broken — bail out and let
+    // the leak check below fail loudly rather than silently stripping to EOF.
+    if (end < 0) return out;
+    out = out.slice(0, match.index) + out.slice(end + 1);
+  }
+  return out;
+}
+
+describe("track row hover is pointer-gated", () => {
+  // Guards over the scan's own inputs first (.claude/rules/testing.md): a
+  // parser that breaks must not go silently green.
+  it("finds the gates and hover rules it claims to check", () => {
+    for (const file of POINTER_GATED) {
+      expect(SOURCES[file], `${file} not readable`).toBeTruthy();
+      const clean = styleSource(SOURCES[file]);
+      expect(/@media\s*\(\s*hover\s*:\s*hover\s*\)/.test(clean), `${file} has no pointer gate`).toBe(true);
+      expect(/:hover/.test(clean), `${file} has no hover rules at all`).toBe(true);
+      expect(stripPointerGates(clean).length, `${file}: stripping removed nothing`).toBeLessThan(clean.length);
+    }
+
+    // The gated SongItem block still carries the shared row treatment — the
+    // gate must not have detached the census above from what it checks.
+    expect(/@include\s+candy-row-hover/.test(styleSource(SOURCES[POINTER_GATED[0]]))).toBe(true);
+  });
+
+  it.each(POINTER_GATED)("%s declares no hover outside the gate", file => {
+    const leaks = stripPointerGates(styleSource(SOURCES[file]))
+      .split("\n")
+      .filter(line => /:hover/.test(line))
+      .map(line => line.trim());
+
+    expect(leaks).toEqual([]);
+  });
+
+  // The half-measure the gate replaces: a width-keyed `:hover { background:
+  // unset }` in app-grid.scss. It outranked the playing row's own fill and
+  // suppressed only the fill, never the text flip — the broken hybrid above.
+  //
+  // The second clause is the trap the FIX itself walked into. The row's inlay
+  // layers (guide band, perforation, ink stripe) were painted by selectors
+  // carrying `:not(:hover)`, which is an ungated hover test: once the fill
+  // above was pointer-gated, a latched tap would have failed that `:not` and
+  // stripped the row's anatomy with nothing painting in its place. The
+  // exclusion is a pointer-gated rule of its own now.
+  it("keeps ungated hover tests out of the app-grid row layers", () => {
+    const grid = readFileSync("src/assets/scss/Global/app-grid.scss", "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/(^|[^:])\/\/.*$/gm, "$1");
+
+    // Input guards: the file still styles the rows, and still paints the
+    // layers this rule is about.
+    expect(grid).toMatch(/\.songlist-item/);
+    expect(grid).toMatch(/\$songlist-band-w/);
+
+    expect(grid).not.toMatch(/:hover[^{}]*\{[^{}]*background(-color)?\s*:\s*unset/);
+
+    const ungated = stripPointerGates(grid)
+      .split("\n")
+      .filter(line => /:not\(\s*:hover\s*\)/.test(line))
+      .map(line => line.trim());
+    expect(ungated).toEqual([]);
   });
 });
