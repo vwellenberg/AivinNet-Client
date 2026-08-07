@@ -296,6 +296,25 @@ es keine passende Kachel mehr, weil die Fläche nicht mehr als *ein Ding* gelese
 Tapete. Wenn die Frage lautet „welche Kachelgröße passt hier noch?", ist die Antwort meistens
 **gar keine** — siehe die Chrome-Regel oben.
 
+## ⚠️ Text auf dem Grund braucht eine Platte — `--mem-veil`
+
+Der Seitengrund ist Rasterpapier **mit** den Memphis-Doodles. Jede Textfläche, die direkt darauf
+liegt, ist genau dort unlesbar, wo eine Form darunter durchläuft — und das ist nicht die Ausnahme,
+sondern der Normalfall, weil die Doodle-Kachel 3840×1600 groß ist und jeden Bildschirm füllt.
+
+Deshalb liegt Inhaltstext auf `--mem-veil` (Ordner-Liste, Chart-Zeilen, die Now-Playing-Quelle,
+seit #486 die Lyrics). Die Regel gilt für **Fließtext und Listen**, nicht für einzelne
+Bedienelemente: die tragen ihre eigene Fläche ohnehin.
+
+Zwei Dinge, die dazugehören:
+
+- **Chrome nimmt `$mem-panel`, Inhalt nimmt `--mem-veil`.** Der Veil ist zu 92 % deckend, also
+  scheint durch ihn hindurch, was darunter durchscrollt. Ein **sticky** Kopf über einer scrollenden
+  Liste muss deshalb die opake Panel-Fläche nehmen, sonst laufen die Zeilen sichtbar durch seine
+  eigene Schrift. Der Unterschied liest sich zusätzlich als Rollenunterschied.
+- **Die Breite wird gedeckelt.** Eine Textplatte, die ein 1440er-Fenster ausfüllt, ist ein
+  Leseproblem — Lyrics und ähnlicher Fließtext stehen bei `max-width: 54rem`.
+
 ## ⚠️ Die Sidebar-Zeile IST ein Button (#378)
 
 Navigation und Bibliothek tragen dieselbe **Platte**: `mem-row-plate` / `-hover` / `-active` in
