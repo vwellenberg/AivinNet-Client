@@ -264,7 +264,7 @@ grep -oh "<neuer Text>" ~/.config/swingmusic/client/assets/*.js | sort -u
 braucht einen Moment, bis der neue `master` überall sichtbar ist. Auch das fällt nur über die
 Gegenprobe oben auf; dann einfach nochmal deployen.
 
-**Wichtig:** Server hat IPv6-Problem — git/yarn brauchen `NODE_OPTIONS='--dns-result-order=ipv4first'`. Nach jedem sichtbaren Deploy `package.json` version bumpen (wird unten in der Sidebar angezeigt).
+**Wichtig:** Server hat IPv6-Problem — git/yarn brauchen `NODE_OPTIONS='--dns-result-order=ipv4first'`. Nach jedem sichtbaren Deploy `package.json` version bumpen (angezeigt unter **Settings → About**, zusammen mit der Server-Version — der Sticker unten in der Sidebar ist weg).
 
 ### Backend
 
