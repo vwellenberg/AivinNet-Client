@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
+import { block, styleBlock } from "./scssBlocks";
+
 // ---------------------------------------------------------------------------
 // The folder view's breadcrumb head is a PLATE, and the three rules that make it
 // one are each breakable in a way nothing else in the app notices.
@@ -36,24 +38,19 @@ import { describe, expect, it } from "vitest";
 // .claude/rules/testing.md), so the file is read off disk, relative to the
 // runner's cwd (the project root).
 const SFC = readFileSync("src/views/FolderView.vue", "utf-8");
-const STYLE = SFC.slice(SFC.indexOf("<style"));
-
-/** The rule body that follows `selector {`, brace-balanced. */
-function block(raw: string, selector: string): string {
-  // Comments first: the prose around these rules is long enough that a stray
-  // brace in it would slice the wrong block.
-  const source = raw.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
-  const start = source.indexOf(`${selector} {`);
-  expect(start, `${selector} not found`).toBeGreaterThan(-1);
-  let depth = 0;
-  for (let i = source.indexOf("{", start); i < source.length; i++) {
-    if (source[i] === "{") depth++;
-    if (source[i] === "}" && --depth === 0) return source.slice(start, i);
-  }
-  throw new Error(`unbalanced braces after ${selector}`);
-}
+// Comments stripped: the prose around these rules names the very selectors and
+// declarations asserted below, so matching raw source would stay green after the
+// rule itself was deleted (see .claude/rules/testing.md).
+const STYLE = styleBlock(SFC);
 
 const WRAPPER = ".scroller > div.vue-recycle-scroller__slot:first-child";
+
+/** A rule body, with a guard so a broken parse fails loudly instead of green. */
+function rule(selector: string): string {
+  const { body } = block(STYLE, selector);
+  expect(body, `${selector} not found`).not.toBe("");
+  return body;
+}
 
 describe("the folder head is a plate wherever the scroller renders it", () => {
   it("styles every layout the template renders the head in", () => {
@@ -71,25 +68,27 @@ describe("the folder head is a plate wherever the scroller renders it", () => {
   });
 
   it("frames the head on all four sides, over an opaque surface", () => {
-    const plate = block(STYLE, "#folder-nav-title");
-    expect(plate).toMatch(/border:\s*\$candy-border;/);
-    expect(plate).toMatch(/border-radius:\s*\$candy-radius;/);
-    // Chrome over a scrolling list takes the panel surface, not the veil: rows
-    // pass behind it and would otherwise show through its own text.
-    expect(plate).toMatch(/background-color:\s*\$mem-panel;/);
+    const plate = rule("#folder-nav-title");
+    // `candy-box` IS surface + ink frame + radius, and chrome over a scrolling
+    // list takes its default $mem-panel rather than the veil: rows pass behind
+    // this plate and would otherwise show through its own text.
+    expect(plate).toMatch(/@include candy-box;/);
+    expect(plate).toMatch(/@include candy-shadow\(/);
     // Half an edge is what this fixed — a lone bottom border must not come back.
     expect(plate).not.toMatch(/border-bottom:/);
   });
 
-  it("keeps the gap to the first row where the scroller can measure it", () => {
-    expect(block(STYLE, "#folder-nav-title")).toMatch(/margin-bottom:\s*\$small;/);
-    // Without a block formatting context that margin collapses through the
-    // wrapper and the scroller never sees it.
-    expect(block(STYLE, WRAPPER)).toMatch(/display:\s*flow-root;/);
+  it("gives the plate the air on both sides, so it keeps it while stuck", () => {
+    expect(rule("#folder-nav-title")).toMatch(/margin:\s*\$small 0;/);
+    // Without a block formatting context those margins collapse through the
+    // wrapper and the scroller never sees them.
+    expect(rule(WRAPPER)).toMatch(/display:\s*flow-root;/);
+    // Air on the scroller instead would be engine-dependent (see the comment).
+    expect(rule(".scroller")).toMatch(/padding-top:\s*0\s*!important;/);
   });
 
   it("sticks without an offset", () => {
-    const wrapper = block(STYLE, WRAPPER);
+    const wrapper = rule(WRAPPER);
     expect(wrapper).toMatch(/position:\s*sticky;/);
     expect(wrapper).toMatch(/top:\s*0;/);
   });

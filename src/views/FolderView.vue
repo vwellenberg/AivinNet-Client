@@ -61,7 +61,6 @@ import FolderList from '@/components/FolderView/FolderList.vue'
 import Folder from '@/components/nav/Titles/Folder.vue'
 import NoItems from '@/components/shared/NoItems.vue'
 import SongItem from '@/components/shared/SongItem.vue'
-import { xl } from '@/composables/useBreakpoints'
 import AlbumsFetcher from '@/components/ArtistView/AlbumsFetcher.vue'
 import { getFiles } from '@/requests/folders'
 import { trackBandFade } from '@/utils/songItemMethods'
@@ -71,7 +70,12 @@ const folder = useFolder()
 const settings = useSettings()
 const tracklist = useTracklist()
 
-const is_alt_layout = computed(() => settings.is_alt_layout || !xl)
+// `settings.is_alt_layout` is not a setting, it is `content_width > 900`. The
+// `|| !xl` this used to carry could never contribute: `xl` is a ComputedRef, so
+// `!xl` is constantly false — and it was never needed either, because
+// `isMedium`/`isSmall` cover everything up to 950 and this covers everything
+// above 900, so the head always has a home (see the `#before` slot).
+const is_alt_layout = computed(() => settings.is_alt_layout)
 
 interface ScrollerItem {
     id: any
@@ -175,31 +179,32 @@ onMounted(() => {
 .folder-view.isMedium,
 .folder-view.isSmall {
     .scroller {
-        // The head is a plate now, so it needs the same air above it that it
-        // keeps below. It used to be `0`, because the head was meant to bleed
-        // into the card's top edge. This padding is also what the sticky head
-        // sticks to — see `top` below.
-        padding-top: $small !important;
+        // The head used to bleed into the card's top edge. It is a plate now and
+        // owns the air on both of its sides itself (`margin` below) — putting
+        // that air here instead would make the resting gap depend on how the
+        // engine clamps a sticky element: Blink contracts the constraint rect by
+        // the scroller's padding, the spec says the scrollport, and the plate
+        // would sit tight against the card's frame in one of the two.
+        padding-top: 0 !important;
     }
 
     // This wrapper only carries the sticky behaviour — the plate itself is the
     // head inside it (see below).
     //
-    // The gap between plate and first row has to live inside this wrapper's
-    // CONTENT box. vue-virtual-scroller sizes the slot through a ResizeObserver,
-    // whose default box is the content box, and places the rows right after it:
-    // `padding-bottom` here is invisible to it (measured: the rows started 8px
-    // INSIDE that padding), and so is a bottom margin on the plate, which would
-    // collapse straight through this wrapper. `flow-root` opens a block
-    // formatting context, so the plate's margin stays inside and counts.
+    // The plate's own margins have to live inside this wrapper's CONTENT box.
+    // vue-virtual-scroller sizes the slot through a ResizeObserver, whose box is
+    // the content box, and places the rows right after it: `padding` here is
+    // invisible to it (measured: the rows started 8px INSIDE that padding), and
+    // a plain margin on the plate would collapse straight through this wrapper.
+    // `flow-root` opens a block formatting context, so both margins stay inside
+    // and count — and they travel WITH the plate when it sticks, which is what
+    // keeps the gaps identical at rest and while stuck in any engine.
     .scroller > div.vue-recycle-scroller__slot:first-child {
         display: flow-root;
         position: sticky;
-        // ZERO, and the air above comes from the scroller's padding instead:
-        // sticky here clamps to the scroller's PADDING edge, not its border box
-        // (measured), so any `top` shifts the plate DOWN off its flow position
-        // while the rows stay where the flow put them — a `top: $small` ate
-        // exactly the 8px gap below the plate that this rule sets up.
+        // Zero, deliberately: a `top` offset shifts this wrapper DOWN off its
+        // flow position while the rows stay where the flow put them, so it eats
+        // exactly the gap the plate's bottom margin sets up.
         top: 0;
         z-index: 1;
     }
@@ -218,11 +223,11 @@ onMounted(() => {
     // plate opened its OWN frame, so the two printed as one 6px double rule.
     // Hence a closed plate instead of half an edge.
     #folder-nav-title {
-        margin-bottom: $small;
+        // Air on both sides belongs to the plate, not to the scroller around it:
+        // the plate keeps it when it sticks.
+        margin: $small 0;
         padding: $small $medium;
-        background-color: $mem-panel;
-        border: $candy-border;
-        border-radius: $candy-radius;
+        @include candy-box;
         @include candy-shadow(3px, 3px);
     }
 }
