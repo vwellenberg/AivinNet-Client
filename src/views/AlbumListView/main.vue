@@ -42,9 +42,13 @@ import Fetcher from "@/components/ArtistView/AlbumsFetcher.vue";
 import CardRow from "@/components/shared/CardRow.vue";
 import Header from "./Header.vue";
 import SortBanner from "@/components/CardListView/SortBanner.vue";
+import updatePageTitle from "@/utils/updatePageTitle";
 
 const route = useRoute();
 const store = route.name == Routes.AlbumList ? useAlbumList() : useArtistList();
+
+// One component, two routes — the tab has to say which one it is.
+updatePageTitle(route.name == Routes.AlbumList ? "Albums" : "Artists");
 
 const { items: storeitems, total } = storeToRefs(store);
 

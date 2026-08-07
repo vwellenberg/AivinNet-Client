@@ -31,6 +31,7 @@ import GenericHeader from '@/components/shared/GenericHeader.vue'
 import GenericTrackPagination from '@/components/shared/GenericTrackPagination.vue'
 import BookmarkSvg from '@/assets/icons/bookmark.svg'
 import { track_limit } from '@/stores/content-width'
+import updatePageTitle from '@/utils/updatePageTitle'
 
 const trackCount = ref(0)
 let waitingForMore = false
@@ -65,6 +66,7 @@ async function loadMore() {
 }
 
 onMounted(async () => {
+    updatePageTitle('Favorites')
     await loadMore()
 })
 

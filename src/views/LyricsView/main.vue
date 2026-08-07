@@ -53,6 +53,7 @@ import useSettings from "@/stores/settings";
 
 import LyricsHead from "./Head.vue";
 import PluginFind from "./Plugins/Find.vue";
+import updatePageTitle from "@/utils/updatePageTitle";
 
 const queue = useQueue();
 const lyrics = useLyrics();
@@ -67,6 +68,7 @@ function fetchLyrics() {
 }
 
 onMounted(() => {
+  updatePageTitle("Lyrics");
   if (!queue.currenttrack) return;
   fetchLyrics();
   lyrics.scrollToCurrentLine();

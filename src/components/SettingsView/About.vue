@@ -20,12 +20,21 @@
                 </a>
             </div>
         </div>
+        <!--
+            The recovery path for a corrupt persisted store. It used to hang off
+            the top-bar title block, which only rendered in the layout the "Use
+            no sidebar layout" setting switched to — i.e. it had been
+            unreachable for every default user long before that setting was
+            removed. About is where a user looks for it.
+        -->
+        <ClientReset />
     </div>
 </template>
 
 <script setup lang="ts">
 import useSettings from '@/stores/settings'
 import pkg from '../../../package.json'
+import ClientReset from './ClientReset.vue'
 
 const settings = useSettings()
 const clientVersion = pkg.version

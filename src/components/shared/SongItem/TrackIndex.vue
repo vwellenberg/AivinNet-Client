@@ -18,7 +18,6 @@ import PlayingMeter from '@/components/shared/PlayingMeter.vue';
 defineProps<{
   index: number | string;
   is_fav: boolean | undefined;
-  showInlineFavIcon: boolean;
   is_current?: boolean;
   is_current_playing?: boolean;
 }>();

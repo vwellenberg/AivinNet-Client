@@ -15,4 +15,7 @@ import Charts from '@/components/Stats/Charts.vue'
 import GenericHeader from '@/components/shared/GenericHeader.vue'
 import Stats from '@/components/Stats/Stats.vue'
 import { brandGradient, BRAND_RED } from '@/utils/colortools/pageGradient'
+import updatePageTitle from '@/utils/updatePageTitle'
+
+updatePageTitle('Stats')
 </script>

@@ -104,7 +104,6 @@ export default defineStore('settings', {
         // stats
         statsgroup: 'artists',
         statsperiod: 'week',
-        showInlineFavIcon: false,
         _highlightFavoriteTracks: false,
     }),
     actions: {
@@ -170,19 +169,16 @@ export default defineStore('settings', {
             const next = (order.indexOf(this.np_lauflicht_level) + 1) % order.length
             this.np_lauflicht_level = order[next]
         },
-        toggleShowInlineFavIcon() {
-            this.showInlineFavIcon = !this.showInlineFavIcon
-        },
         toggleHighlightFavoriteTracks() {
             this._highlightFavoriteTracks = !this._highlightFavoriteTracks
         },
         // sidebar 👇
+        // No layout guard any more. It read "the alternate layout has no room
+        // for the queue panel", which made CTRL+B a one-way switch as soon as
+        // that layout became the only one — press it once and the panel was
+        // gone for good. The wide chrome now has its own three-column grid for
+        // the panel (app-grid.scss), so the toggle is simply a toggle.
         toggleDisableSidebar() {
-            if (this.is_alt_layout) {
-                this.use_sidebar = false
-                return
-            }
-
             this.use_sidebar = !this.use_sidebar
         },
         toggleMovePlayedPlaylistToTop() {

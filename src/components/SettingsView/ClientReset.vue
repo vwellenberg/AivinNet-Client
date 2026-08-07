@@ -1,5 +1,5 @@
 <template>
-  <div class="settingsnav">
+  <div class="clientreset">
     <button class="btn-pill" @click="resetClient">
       &nbsp;&nbsp; Reset client &nbsp;&nbsp;
     </button>

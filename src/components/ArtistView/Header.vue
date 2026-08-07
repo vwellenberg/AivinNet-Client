@@ -30,7 +30,6 @@
 </template>
 
 <script setup lang="ts">
-import useSettingsStore from '@/stores/settings'
 import { useElementSize } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { Ref, computed, onMounted, ref } from 'vue'
@@ -44,7 +43,6 @@ import ArtistSvg from '@/assets/icons/artist.svg'
 import Info from './HeaderComponents/Info.vue'
 
 const store = useArtistStore()
-const settings = useSettingsStore()
 
 // `@error` only fires for an image that was actually requested, so an artist
 // with an empty `image` (nothing to request) has to be caught up front.
