@@ -94,9 +94,17 @@ export function recordRecentSearch(query: string) {
     if (q.length < 2) return
 
     const lower = q.toLowerCase()
-    const list = getRecentSearches().filter(item => item.toLowerCase() !== lower)
+    const list = getRecentSearches()
+    const rest = list.filter(item => item.toLowerCase() !== lower)
 
-    writeLocalStorage(KEY, foldAgainstPrevious(q, list).slice(0, MAX))
+    // A term that is ALREADY stored is a repeat — a tap on its own chip, most
+    // of the time — and a repeat only moves to the front. Folding it as well
+    // would fold it against whatever the removal of its old copy left at the
+    // head, which is an entry it never stood next to: clicking "yesterday" in
+    // ["yes", "bite", "yesterday"] destroyed "yes".
+    const promoted = rest.length === list.length ? foldAgainstPrevious(q, rest) : [q, ...rest]
+
+    writeLocalStorage(KEY, promoted.slice(0, MAX))
 }
 
 export function removeRecentSearch(query: string) {

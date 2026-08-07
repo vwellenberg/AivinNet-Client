@@ -167,7 +167,11 @@ function clearAll() {
     // The soft fill is theme-aware (dark in the dark theme), so the label has
     // to be too — the role's static ink is only legal on a static accent.
     color: $candy-text;
-    gap: $small;
+    // The two buttons meet edge to edge and their own padding does the
+    // spacing: the whole pill lights up on hover, so every pixel of it has to
+    // belong to one of them. A gap here would be a dead strip in the middle of
+    // a control that says it is pressable.
+    gap: 0;
     max-width: 16rem;
     // Lighter than the role, and that is the one difference worth keeping:
     // a filter chip is a label, this one carries back a phrase the user typed.

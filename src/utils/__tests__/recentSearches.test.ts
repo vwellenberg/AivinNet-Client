@@ -122,6 +122,27 @@ describe('recentSearches', () => {
         expect(getRecentSearches()).toEqual(['yes', 'yesterday'])
     })
 
+    // Clicking a chip re-records the term it carries. Folding that against
+    // whatever the removal of its old copy left at the head folds it against
+    // an entry it never stood next to.
+    it('only promotes a term that is already stored, and folds nothing', () => {
+        recordRecentSearch('yesterday')
+        recordRecentSearch('bite')
+        recordRecentSearch('yes')
+
+        recordRecentSearch('yesterday')
+        expect(getRecentSearches()).toEqual(['yesterday', 'yes', 'bite'])
+    })
+
+    it('keeps a re-searched term instead of folding it away', () => {
+        recordRecentSearch('yesterday')
+        recordRecentSearch('bite')
+        recordRecentSearch('yes')
+
+        recordRecentSearch('yes')
+        expect(getRecentSearches()).toEqual(['yes', 'bite', 'yesterday'])
+    })
+
     it('does not collapse the survivors when an unrelated term is re-searched', () => {
         recordRecentSearch('yesterday')
         recordRecentSearch('bite')
