@@ -109,7 +109,9 @@
       </div>
     </div>
 
-    <div class="sidebar-version" :title="`AivinNet ${version}`">v{{ version }}</div>
+    <div class="sidebar-footer">
+      <div class="sidebar-version" :title="`AivinNet ${version}`">v{{ version }}</div>
+    </div>
     <div
       class="sidebar-resize-handle"
       :class="{ active: isResizing }"
@@ -683,18 +685,24 @@ onBeforeUnmount(teardown);
   }
 }
 
-// A sticker, like every other caption (#422) — not a hairline, and not the
-// bare floating text it used to be: with nothing marking where the
-// scrollable list ends, the version sat in undifferentiated paper right
-// below the last plate's offset shadow, reading as if something had been
-// cut off there. The chip gives the footer its own edge without adding a
-// divider line — full contrast like every other sticker, no hover: it is a
-// caption, not a control (see the LIBRARY heading above).
+// The footer gets the same ink edge the player bar uses to separate itself
+// from the content above it (`.b-bar { border-top: $g-border }` — the token
+// itself lives in app-grid.scss and isn't globally injected, so this spells
+// it out). Without it the boundary between "scrollable list" and "app
+// metadata" was undrawn: just paper, reading as if the last row had been
+// cut off rather than as a footer.
+.sidebar-footer {
+  border-top: $candy-border-w solid $mem-line;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  display: flex;
+  justify-content: center;
+}
+
+// A sticker, like every other caption (#422) — full contrast, no hover: it
+// is a caption, not a control (see the LIBRARY heading above).
 .sidebar-version {
   @include mem-sticker($pad: 3px 10px);
-  display: block;
-  width: fit-content;
-  margin: 0.75rem auto 0;
   font-size: 0.65rem;
   font-weight: 500;
   letter-spacing: 0.04em;
