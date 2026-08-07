@@ -11,11 +11,14 @@ Alles liegt auf dem Server unter `~/uitest` (Playwright mit **Chromium und Firef
 Ohne Token rendert nur die App-Shell. In `~/AivinNet`:
 
 ```bash
-~/.local/bin/uv run python -c "from swingmusic.app_builder import app, config_jwt; \
-from swingmusic.db.userdata import UserTable; from flask_jwt_extended import create_access_token; \
+~/.local/bin/uv run python -c "from aivinnet.app_builder import app, config_jwt; \
+from aivinnet.db.userdata import UserTable; from flask_jwt_extended import create_access_token; \
 config_jwt(app); app.app_context().push(); \
 print(create_access_token(identity=list(UserTable.get_all())[0].todict()))"
 ```
+
+⚠️ Das Paket heißt **`aivinnet`**, nicht mehr `swingmusic` — mit dem alten Namen antwortet der
+Befehl `ModuleNotFoundError` und man hat ein leeres Token, das erst beim Messen auffällt.
 
 Dann als Cookie verwenden: `curl -H "Cookie: access_token_cookie=$TOKEN" …`
 
