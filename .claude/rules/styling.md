@@ -848,6 +848,25 @@ Allgemeiner: Eine Medienzelle kann ihre Form von einer Utility-Klasse bekommen, 
 nicht setzt. Wer eine Kante auf so eine Zelle legt, prüft **jede** Quelle einzeln — Element-
 Screenshot pro Variante, nicht nur die, die man gerade offen hat.
 
+## ⚠️ Ein Kind im Scroller deckt den Scrollbar-Gutter NICHT
+
+Ein absolut positioniertes Kind spannt die **Padding-Box** seines Containing Blocks. Der Gutter,
+den die Content-Scroller auf beiden Seiten reservieren (`scrollbar-gutter: stable both-edges`,
+dort für die zentrierte Spalte), liegt **außerhalb** davon. `left: 0; right: 0` heißt in einem
+Scroller also **nicht** „volle Breite" — es fehlt je `$scrollbar-w` links und rechts.
+
+So verlor der Seiten-Verlauf auf Playlist, Album und Artist einen 12-px-Streifen nacktes
+Rasterpapier an jeder Kante, über die volle Höhe des Kopfbands (#483). Sichtbar für den Nutzer,
+unsichtbar in jeder einzelnen Datei: das Decor sagte `0` und meinte „ganz", der Gutter stand drei
+Regeln weiter oben aus einem anderen Grund, und die 12 px selbst lebten als Literal in einer
+dritten Datei.
+
+Wer die volle Fläche braucht, greift um `$scrollbar-w` zurück **und** lässt den Scroller den
+Überstand malen statt scrollen: `overflow-x: clip` + `overflow-clip-margin: $scrollbar-w`. Ohne
+das zweite ist alles jenseits der rechten Padding-Kante scrollbarer Überlauf — der Schleier
+säße richtig und die Seite ließe sich dafür seitwärts schieben. Die drei Stellen hängen am Token
+`$scrollbar-w` und werden von `scrollbarGutter.test.ts` zusammengehalten.
+
 ## Weitere Fallen
 
 - **CSS-Spezifität statt `!important`.** `.b-bar .with-time button{background:transparent}` (0,2,1)

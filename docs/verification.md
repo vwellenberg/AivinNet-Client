@@ -52,6 +52,7 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 | `clipfind.js` | **wer schneidet den Schatten ab?** Läuft die Vorfahren-Kette eines Elements hoch und listet je Ebene Box, `overflow` und `padding`. `SEL=`, `ROUTE=`, `BASE=` |
 | `tokencensus.js` | **Design-Token-Zensus**: gruppiert Rahmenbreite, Radius, Schriftgröße und Schatten-Versatz über 12 Routen × hell/dunkel — siehe unten |
 | `scripts/overflow-check.js` (**im Repo**, nicht in `~/uitest`) | **Mobile-Overflow-Gate**: rendert `/` und die Suche über 320/360/390/412/430 px und schlägt fehl, sobald der Layout-Viewport breiter wird als der Bildschirm. Läuft automatisch am Ende von `scripts/deploy-client.sh`; für Branch-Builds von Hand mit `BASE=<proxy>` |
+| `pixelprobe.js` | **welche Farbe steht wirklich an dieser Stelle?** Tastet eine waagerechte Linie im Bild ab (Clip → Canvas), statt Element-Rechtecken zu glauben. `ROUTE=`, `BASE=`, `ENGINE=` |
 | `previewproxy.js` + `run*.sh` | Branch-`dist` über einen Proxy servieren und messen |
 | `queueseams.js`, `verify3.js` | E2E für Queue-Seams und Group-Sync |
 | `shuffleverify.js`, `endlessverify.js`, `groupshuffle.js` | E2E für die Zufallswiedergabe: wiederholt sie einen Song, stoppt sie auf der letzten Zeile, würfelt die Gruppe? |
@@ -104,6 +105,13 @@ ohne Tab ist dagegen ehrlich und zeigt „404! Page Not Found!".
   Ende jedes Deploys.
 - **Gegen `master` kontrollieren, immer.** Eine Null beweist ohne Kontrolllauf nur, dass man
   nicht misst.
+- **⚠️ Ein Element-Rechteck ist kein Beweis, dass etwas GEMALT wird.** `getBoundingClientRect()`
+  meldet die volle Box auch dann, wenn ein Vorfahre sie wegclippt — bei allem, was über eine
+  Kante hinausreicht (`overflow`, `clip-path`, Scroller-Ränder), misst man damit die Absicht,
+  nicht das Ergebnis. Dann die **Farbe an der fraglichen Stelle** abtasten: schmalen Clip
+  screenshotten und per Canvas auslesen (`~/uitest/pixelprobe.js`). Bei #483 war genau das der
+  Unterschied zwischen „das Decor spannt 259…1437" und „an x+3 steht Papier `244,242,237` statt
+  Schleier `86,85,116`".
 - **⚠️ Das Queue-Panel rendert in der Standard-Umgebung GAR NICHT.** `RightSideBar/Main.vue`
   hängt an `settings.use_sidebar && xl` (`xl` = **> 1280 px**, `composables/useBreakpoints.ts`),
   und ein frischer Playwright-Kontext hat weder das Setting noch zwangsläufig die Breite. Ein
