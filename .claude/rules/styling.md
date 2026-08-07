@@ -394,6 +394,34 @@ verschiebt — man misst dann eine Zeile, die gar nicht die letzte ist. Und eine
 beweist nichts ohne Gegenprobe: den alten Wert im laufenden Browser zurücksetzen und zeigen, dass
 er verdeckt wird (gemessen: 836 gegen Bar-Oberkante 818, mit Fix 754).
 
+### ⚠️ Wer den Einzug besitzt, entscheidet, WO abgeschnitten wird (#473)
+
+Ein Scroll-Container clippt an seiner **Padding-Box**. Ein Panel, das seinen Einzug als eigenes
+`padding` trägt, schiebt damit die Schnittkante seines Scrollers nach **innen** — und Zeilen
+lösen sich in einem Streifen auf, in dem nie etwas gezeichnet wird. Die Sidebar hatte genau das:
+`.l-sidebar { padding: 0.875rem }`, also endete der Scrollport 14 px innerhalb des Ink-Rahmens
+(gemessen bei 1440×760: Clip bei y=97 gegen Rahmen-Innenkante y=83; unten 599 gegen 611).
+
+**Padding auf dem SCROLLER verhält sich umgekehrt:** es scrollt mit dem Inhalt weg, die Kante
+bleibt am Container. Also gehört der Einzug dorthin — gleicher Ruheabstand, aber der Schnitt
+sitzt am Rahmen (danach beide Lücken 0, erste Zeile unverändert 30 px unter der Kante).
+
+Zwei Dinge, die daran hängen:
+
+- **Ein Kind malt ÜBER den Rahmen seines Elternteils.** Sobald der Scrollport die Kante erreicht,
+  ist er eckig gegen ein rundes Panel, und der Scrollbalken schneidet durch die Rundung. Der
+  Scroller braucht deshalb den **Innenradius** (`$candy-radius - $candy-border-w`), nicht der
+  Wirt ein `overflow: hidden` — das schluckt sonst absichtlich außen hängende Geschwister wie
+  `.sidebar-resize-handle` (`right: -4px`).
+- **Der seitliche Einzug bleibt nur gleich, wenn man den Scrollbalken mitrechnet.** Er liegt
+  innerhalb der Padding-Box: vorher 14 px Panel-Padding + 6 px Balken, nachher 6 px Balken +
+  14 px Scroller-Padding — beides 20 px bis zur Zeile.
+
+⚠️ **Headless beweist das nur zur Hälfte.** Chromium malt hier Overlay-Scrollbalken im Standbild
+nicht, und `scrollbar-width: thin` schaltet die `::-webkit-scrollbar`-Gestaltung ab — der Thumb
+über der Rundung ist im Screenshot **nicht** reproduzierbar. Belastbar sind der Computed Style
+(`border-radius` 0px → 11px) und die Inhaltskante, die der Rundung sichtbar folgt.
+
 ## ⚠️ SVG-Icons abgeschnitten beim Verkleinern (viewBox)
 
 `vite-svg-loader` nutzt SVGO, und `removeViewBox` aus `preset-default` **strippte den viewBox**.
