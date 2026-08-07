@@ -205,10 +205,28 @@ laufenden Zeile kollidiert.
 ## ⚠️ Die Schraffierung bedeutet „das kann man drücken" (#378)
 
 `mem-hatch` in [_candy.scss](../../src/assets/scss/_candy.scss) malt die Terrazzo-Striche, und
-sie sind **keine Dekoration, sondern eine Aussage**: **jede drückbare Fläche trägt sie** — Buttons,
-die Platten der Sidebar-Zeilen, Karten. Was nur *aussieht* wie eine Platte (Überschriften-Sticker,
-die Etiketten des Sortier-Banners), bleibt **glatt**, und genau dieser Unterschied unterscheidet
-die beiden.
+sie sind **keine Dekoration, sondern eine Aussage**: Buttons, die Platten der Sidebar-Zeilen und
+Karten tragen sie. Was nur *aussieht* wie eine Platte (Überschriften-Sticker, die Etiketten des
+Sortier-Banners), bleibt **glatt**, und genau dieser Unterschied unterscheidet die beiden.
+
+**Präziser seit #468: Die Schraffur markiert einen Bedienpunkt _zwischen_ Nicht-Bedienpunkten.**
+Der Satz hieß hier vorher „jede drückbare Fläche trägt sie", und in dieser Form stimmt er nicht —
+er wurde an der Sidebar gefunden, wo Zeilen mit Überschriften und Trennern abwechseln. Dort trennt
+die Textur wirklich etwas.
+
+Eine **Inhaltsliste über die volle Breite** ist der umgekehrte Fall: Dort ist *jede* Zeile
+drückbar, die Textur trennt also nichts mehr — sie kostet nur Lesbarkeit. Bei den Chart-Zeilen
+(~1900 px breit) liefen die 38-px-Kacheln rund fünfzigmal nebeneinander, zehn Zeilen untereinander,
+quer durch Titel und Untertitel. `mem-row-plate` nimmt deshalb ein **`$hatch`-Flag**.
+
+**Die Textur gehört dem Chrome.** Auf dem Charts-Schirm behalten die Tabs und die Seiten-Knöpfe
+sie, die Zeilen geben sie ab — und *dieser Kontrast* ist ab jetzt das, was sie aussagt.
+
+⚠️ **`mem-row-plate-hover` nimmt dasselbe Flag, und beide Hälften müssen übereinstimmen.** Eine
+Zeile, die die Schraffur abgibt, aber mit ihr hovert, ließe unter dem Zeiger eine Textur
+*wachsen* — dieselbe Klasse Fehler wie ein Hover, der `--mem-hover-text` vergisst. Der Zensus in
+`rowHover.test.ts` hält die Antwort pro Platte fest und prüft **beide Richtungen**: Die Sidebar
+darf sie nicht still verlieren, die Chart-Zeile nicht still zurückbekommen.
 
 Die frühere Lesart („primär/aktiv" — Play-CTA und eingeschaltete Toggles) ist damit abgelöst. Sie
 war vom Bildschirm aus nicht lernbar: Die Hierarchie steckt ohnehin in der **Füllung** (teal =
@@ -235,6 +253,11 @@ wischt die Bild-Ebene weg).
 **Die Kachelgröße folgt der Fläche:** 28 px auf einem 44-px-Button, 38 px auf einer Zeile, die
 sechsmal so breit ist. Die Button-Kachel auf einer Zeile liest sich als Textildruck — gemessen an
 der 260×44-Zeile in der Mockup-Runde zu #378.
+
+Diese Skala hat aber eine **Obergrenze**, und #468 hat sie gefunden: Ab einer gewissen Breite gibt
+es keine passende Kachel mehr, weil die Fläche nicht mehr als *ein Ding* gelesen wird, sondern als
+Tapete. Wenn die Frage lautet „welche Kachelgröße passt hier noch?", ist die Antwort meistens
+**gar keine** — siehe die Chrome-Regel oben.
 
 ## ⚠️ Die Sidebar-Zeile IST ein Button (#378)
 
