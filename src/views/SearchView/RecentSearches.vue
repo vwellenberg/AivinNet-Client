@@ -21,7 +21,7 @@
             interactive elements is neither valid HTML nor announced. The
             wrapper carries the pill so the pair still reads as one chip. -->
           <div v-for="term in recents" :key="term" class="recent-chip">
-            <button type="button" class="chip-term ellip" @click="apply(term)">{{ term }}</button>
+            <button type="button" class="chip-term" @click="apply(term)">{{ term }}</button>
             <button
               type="button"
               class="chip-remove"
@@ -195,10 +195,19 @@ function clearAll() {
       cursor: pointer;
     }
 
+    // NOT the shared `.ellip`: that class clamps by LINE (a -webkit-box with
+    // `-webkit-line-clamp: 1`), and the clamp height loses to the `height:
+    // 100%` this button needs to fill the pill — a long term then paints its
+    // ellipsed first line plus a second one hanging out past the frame. A
+    // single-line control ellipses by `white-space`, which has no height to
+    // be overridden.
     .chip-term {
       min-width: 0;
       padding: 0 $smaller 0 $medium;
+      overflow: hidden;
       text-align: left;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
     .chip-remove {

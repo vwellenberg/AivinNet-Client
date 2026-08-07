@@ -62,6 +62,16 @@ describe('recentSearches', () => {
         expect(getRecentSearches()).toEqual(['age of empires', 'holiday island', 'bite'])
     })
 
+    it('normalises the stored list once, not on every read', () => {
+        localStorage.setItem('recentSearches', JSON.stringify(['age', 'age of empires']))
+        expect(getRecentSearches()).toEqual(['age of empires'])
+        // The migration persists, so nothing re-folds afterwards.
+        expect(localStorage.getItem('recentSearches')).toBe(JSON.stringify(['age of empires']))
+
+        localStorage.setItem('recentSearches', JSON.stringify(['yes', 'yesterday']))
+        expect(getRecentSearches()).toEqual(['yes', 'yesterday'])
+    })
+
     it('survives a stored list that is not an array of strings', () => {
         localStorage.setItem('recentSearches', JSON.stringify({ nope: true }))
         expect(getRecentSearches()).toEqual([])
@@ -96,6 +106,29 @@ describe('recentSearches', () => {
         recordRecentSearch('yes')
 
         expect(getRecentSearches()).toEqual(['yes', 'bite', 'yesterday'])
+    })
+
+    // Folding on every read instead of once: deleting the entry between two
+    // prefix-related terms makes them adjacent, and the next render collapses
+    // them. One click on an X, two chips gone.
+    it('does not collapse the survivors when an entry between them is removed', () => {
+        recordRecentSearch('yesterday')
+        recordRecentSearch('bite')
+        recordRecentSearch('yes')
+
+        removeRecentSearch('bite')
+        expect(getRecentSearches()).toEqual(['yes', 'yesterday'])
+        // …and still there on the read after that.
+        expect(getRecentSearches()).toEqual(['yes', 'yesterday'])
+    })
+
+    it('does not collapse the survivors when an unrelated term is re-searched', () => {
+        recordRecentSearch('yesterday')
+        recordRecentSearch('bite')
+        recordRecentSearch('yes')
+
+        recordRecentSearch('bite')
+        expect(getRecentSearches()).toEqual(['bite', 'yes', 'yesterday'])
     })
 
     it('keeps a term that is not a prefix of anything stored', () => {
