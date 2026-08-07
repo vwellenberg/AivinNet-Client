@@ -1,7 +1,7 @@
 /* Total width */
 .designatedOS ::-webkit-scrollbar {
     background-color: transparent;
-    width: 12px;
+    width: $scrollbar-w;
 }
 
 /* Background of the scrollbar except button or resizer */
