@@ -356,7 +356,20 @@ $control-dense-glyph: 1rem;
 // 1.5rem glyph would be a 24px icon in a 22px opening. Without the parameter
 // every small plate overrode `svg { width/height }` at its call site — which is
 // the outside-patch shape this file exists to remove.
-@mixin btn-action($size: 2.75rem, $width: $size, $rest: surface, $radius: $candy-radius-sm, $glyph: $bar-glyph) {
+// `$hatch: false` — for the variants that carry a LABEL instead of a glyph
+// (#476). The texture never runs behind text (styling.md), and on a chip that
+// is essentially its own label a cover would leave a ~4px rim: noise without a
+// statement. So those drop it and let plate, offset and hover carry "pressable"
+// — the same answer the chart rows give. Icon buttons keep it: a glyph is a
+// line drawing with its own contrast, not running text.
+@mixin btn-action(
+  $size: 2.75rem,
+  $width: $size,
+  $rest: surface,
+  $radius: $candy-radius-sm,
+  $glyph: $bar-glyph,
+  $hatch: true
+) {
   @include btn-pop;
   width: $width;
   height: $size;
@@ -376,7 +389,7 @@ $control-dense-glyph: 1rem;
   // The hatch means "you can press this" (styling.md). It needs a SURFACE, so
   // only the plated variant gets it at rest — `$rest: bare` is transparent
   // until hover and takes the texture together with its plate, below.
-  @if $rest == surface {
+  @if $rest == surface and $hatch {
     @include mem-hatch(28px, $on: surface);
   }
   // Theme-aware, because the fill under it is. See the token note at the top.
@@ -408,8 +421,13 @@ $control-dense-glyph: 1rem;
     // The surface just went dark (light theme) or light (dark theme), so the
     // texture takes the inverted sprite. This is also where `$rest: bare` gets
     // its texture at all, together with the plate it only grows on hover.
-    background-image: var(--mem-hatch-hover);
-    background-size: 28px 28px;
+    //
+    // A label variant stays smooth here too: a chip that GREW a texture under
+    // the pointer would be worse than one that always had it (#470).
+    @if $hatch {
+      background-image: var(--mem-hatch-hover);
+      background-size: 28px 28px;
+    }
     box-shadow: if($rest == surface, 4px 4px, 3px 3px) 0 var(--mem-shadow);
     transform: scale(1.06);
   }
@@ -501,9 +519,12 @@ $control-dense-glyph: 1rem;
   justify-content: center;
   gap: 0.4rem;
   background-color: $fill;
-  // The pill fills are static accents, so the hatch takes the accent token —
-  // same reason the ink glyph colour below is correct here.
-  @include mem-hatch(28px, $on: accent);
+  // NO hatch (#476). A pill is a LABEL button by definition — every call site
+  // in the app is a word: Save, Login, Cancel, Delete, Load More, New Playlist,
+  // the search tabs. The texture never runs behind text (styling.md), and here
+  // there is no room beside the text to put it instead, so it goes entirely.
+  // The static accent fill, the ink frame, the offset and the hover already
+  // say "pressable" — this role loses nothing.
   border: $candy-border;
   border-radius: $radius;
   color: $mem-ink;
@@ -529,8 +550,8 @@ $control-dense-glyph: 1rem;
     // in hoverToken.test.ts the moment it existed.
     background-color: var(--mem-hover);
     color: var(--mem-hover-text);
-    background-image: var(--mem-hatch-hover);
-    background-size: 28px 28px;
+    // Smooth here too — a pill that grew a texture under the pointer would be
+    // worse than one that always had it (#470).
     transform: scale(1.04);
   }
 

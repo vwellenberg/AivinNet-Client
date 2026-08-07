@@ -91,7 +91,9 @@ const artistitems = [
     // labels sat directly on the doodle ground and were barely readable.
     // ($gray4/$gray5 are aliases onto blush; they predate the token system.)
     .select {
-        @include btn-action($size: 2.75rem, $width: auto);
+        // A sort chip is essentially its own label -> no hatch (#476,
+        // styling.md: the texture never runs behind text).
+        @include btn-action($size: 2.75rem, $width: auto, $hatch: false);
         font-size: inherit;
         font-weight: inherit;
     }
