@@ -691,9 +691,16 @@ onBeforeUnmount(teardown);
 // it out). Without it the boundary between "scrollable list" and "app
 // metadata" was undrawn: just paper, reading as if the last row had been
 // cut off rather than as a footer.
+//
+// ⚠️ The negative horizontal margin is load-bearing, not decoration. Without
+// it the border sits inside .l-sidebar's own 0.875rem padding and stops
+// short of the frame on both sides (measured: 17px short) — a divider that
+// doesn't reach either wall reads as floating, not as a divider. .b-bar
+// gets this for free because it has no side padding of its own to bleed
+// through; here the bleed has to be spelled out to reach the same edge.
 .sidebar-footer {
   border-top: $candy-border-w solid $mem-line;
-  margin-top: 0.75rem;
+  margin: 0.75rem -0.875rem 0;
   padding-top: 0.75rem;
   display: flex;
   justify-content: center;
@@ -719,7 +726,16 @@ onBeforeUnmount(teardown);
   // The rows are plates now (#378), so the list needs the same air and the same
   // reserved room for the offset shadow as the navigation above it — the two
   // lists sit directly on top of each other and any difference shows.
-  .sidebar-toplevel {
+  //
+  // ⚠️ .sidebar-bottom-zone (alphabetical, un-pinned playlists) had NONE of
+  // this — no rule for it existed anywhere in this file. Rows sat flush
+  // against each other (0px gap, measured) with their right-hand offset
+  // shadow clipped at the scroll container's edge (no padding-right
+  // reserve): exactly the "same fix as the row above it, minus one row" gap
+  // this comment already warns about, just in the sibling zone instead of a
+  // sibling row.
+  .sidebar-toplevel,
+  .sidebar-bottom-zone {
     display: flex;
     flex-direction: column;
     gap: $small;
@@ -728,6 +744,13 @@ onBeforeUnmount(teardown);
     // loses its shadow the way Stats did.
     padding-right: $small;
     padding-bottom: $smaller;
+  }
+
+  // Air between the pinned/grouped zone and the alphabetical remainder below
+  // it — without it the two zones' rows sat exactly as flush as the rows
+  // inside .sidebar-bottom-zone did before the fix above.
+  .sidebar-bottom-zone {
+    margin-top: $small;
   }
 
   .sidebar-library-title {
