@@ -206,13 +206,24 @@ function deletePlaylist() {
         max-width: 50rem !important;
         padding: 0;
         overflow: hidden;
-        // min-height: 39rem;
+
+        // ONE height for every pane, not the content's. The modal is centred, so
+        // a box that grows with its pane moves all four edges on every tab
+        // switch — the nav list and the close button jump. See $settings-modal-h.
+        // It still yields to a short window, and `min()` is CSS's, not Sass's:
+        // the interpolation keeps Sass from trying to resolve it against a calc.
+        height: #{min($settings-modal-h, calc(100% - 4rem))};
 
         // Flex column so the settings panes get a height bounded by the modal
-        // box itself (capped by max-height) and scroll internally, instead of
-        // relying on fragile `100vh - Xrem` math that overshot the viewport.
+        // box itself and scroll internally, instead of relying on fragile
+        // `100vh - Xrem` math that overshot the viewport.
         display: flex;
         flex-direction: column;
+
+        @include allPhones {
+            // Matches the tighter margin phones give every modal (above).
+            height: #{min($settings-modal-h, calc(100% - 2rem))};
+        }
     }
 
     .m-content.authlogin {
