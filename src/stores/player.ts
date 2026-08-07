@@ -379,7 +379,12 @@ export const usePlayer = defineStore('player', () => {
             // No `+ 1`: calculateCurrentLine returns the line being sung now,
             // not the one before it (stores/lyrics.ts). The correction here and
             // the missing one in `sync()` were two halves of the same bug.
-            lyrics.setCurrentLine(lyrics.calculateCurrentLine(), false)
+            //
+            // It gets THIS clock, not the store's: `queue.setCurrentDuration`
+            // runs after this function (see onAudioTimeUpdateHandler), so the
+            // store is a tick behind — and correcting to a stale clock right at
+            // a boundary would put the mark back on the line just left.
+            lyrics.setCurrentLine(lyrics.calculateCurrentLine(millis), false)
             return
         }
 

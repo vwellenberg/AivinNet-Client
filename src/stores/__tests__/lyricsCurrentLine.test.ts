@@ -67,6 +67,27 @@ describe('lyrics: which line is being sung', () => {
         expect(at(199)).toBe(3)
     })
 
+    // Clicking a lyric goes `queue.seek(line.time / 1000)`, and the trip back
+    // through seconds lands just BELOW the integer for about 1 % of centisecond
+    // stamps. Unrounded, those lines mark the line ABOVE them — and while paused
+    // nothing ever corrects it.
+    it('survives the seconds round-trip of a click', () => {
+        const lyrics = useLyrics()
+        lyrics.lyrics = [{ time: 2010 }, { time: 2030 }, { time: 4020 }] as any
+
+        for (const [index, line] of lyrics.lyrics.entries()) {
+            queueState.duration.current = line.time / 1000
+            expect(lyrics.calculateCurrentLine()).toBe(index)
+        }
+    })
+
+    it('can be asked about a clock other than the store’s', () => {
+        // The player's timeupdate runs BEFORE the store's duration is refreshed,
+        // so it passes its own reading rather than correcting to a stale one.
+        queueState.duration.current = 33
+        expect(useLyrics().calculateCurrentLine(36075)).toBe(2)
+    })
+
     it('is -1 for unsynced lyrics and for no lyrics at all', () => {
         const lyrics = useLyrics()
 
@@ -140,5 +161,20 @@ describe('lyrics: a pending advance is cancelled by whoever sets the line', () =
         vi.advanceTimersByTime(800)
 
         expect(lyrics.currentLine).toBe(1)
+    })
+
+    // The timer counts wall-clock time; the boundary lives on the media clock.
+    // Pausing stops one and not the other, so a pending advance is void.
+    it('drops a pending advance when playback is paused', () => {
+        const lyrics = useLyrics()
+
+        lyrics.setNextLineTimer(800)
+        lyrics.clearNextLineTimer()
+        vi.advanceTimersByTime(2000)
+
+        expect(lyrics.currentLine).toBe(0)
+        // …and leaves the door open for the next one: `ticking` is what stops
+        // updateLyricsPosition from arming another, and it used to stay stuck.
+        expect(lyrics.ticking).toBe(false)
     })
 })

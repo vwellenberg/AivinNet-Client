@@ -161,6 +161,12 @@ export default defineStore('Queue', {
 
             audioSource.pausePlayingSource()
             this.playing = false
+
+            // The lyrics advance is a wall-clock timer against a boundary on the
+            // media clock. Pausing stops the media clock but not the timer, so a
+            // pending one has to go — resuming arms a new one from the position
+            // that is then current.
+            useLyrics().clearNextLineTimer()
         },
         autoPlayNext() {
             // Group mode: the scrobble leader plans a server-scheduled

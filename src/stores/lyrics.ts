@@ -40,7 +40,10 @@ export default defineStore("lyrics", {
         return;
       }
 
-      this.currentLine = -1;
+      // Through setCurrentLine, not by hand: a timer armed on the PREVIOUS
+      // track would otherwise survive the change and advance blindly into the
+      // lyrics that are about to be replaced.
+      this.setCurrentLine(-1, false);
       this.copyright = "";
       this.synced = true;
 
@@ -132,6 +135,13 @@ export default defineStore("lyrics", {
      * — the reason this was first mistaken for the 300ms head start below.
      */
     clearNextLineTimer() {
+      // `ticking` means "an advance is pending", so it goes with the timer. It
+      // used to be able to stay true without one — the callback only clears it
+      // while playing, so pausing inside the arming window left it stuck, and
+      // `updateLyricsPosition` never armed another timer for the rest of the
+      // track.
+      this.ticking = false;
+
       if (this.nextLineTimer === null) return;
       clearTimeout(this.nextLineTimer);
       this.nextLineTimer = null;
@@ -202,10 +212,15 @@ export default defineStore("lyrics", {
      * over it by adding one back (player.ts) or not (sync) — so the same clock
      * produced two different answers depending on the path in.
      */
-    calculateCurrentLine() {
+    calculateCurrentLine(atMillis?: number) {
       if (!this.synced || !this.lyrics || !this.lyrics.length) return -1;
 
-      const millis = useQueue().duration.current * 1000;
+      // Rounded, because callers reach this through seconds: `queue.seek` takes
+      // `line.time / 1000` and the trip back lands just BELOW the integer for
+      // about 1 % of centisecond stamps (2010ms and 4020ms among them). Clicking
+      // such a line would then mark the line above it — and while paused nothing
+      // ever corrects that.
+      const millis = Math.round(atMillis ?? useQueue().duration.current * 1000);
 
       let line = -1;
       for (let i = 0; i < this.lyrics.length; i++) {
