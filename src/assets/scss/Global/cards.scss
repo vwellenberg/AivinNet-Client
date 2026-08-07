@@ -30,6 +30,12 @@
 // by the census test — a second copy is how the drift above started.
 $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard";
 
+/// The buffer between a caption line and the hatch strokes around it (#486).
+/// It is both the cover's padding and the negative margin that pulls the cover
+/// back over the plate's own padding, so the text keeps its original left edge
+/// — the two must stay one number or the captions shift sideways.
+$card-cover-pad: 6px;
+
 #{$card-types} {
     display: grid;
     // label · artwork · plate. The rows size to their content everywhere except
@@ -183,24 +189,39 @@ $card-types: ".p-card, .trackcard, .artist-card, .album-card, .foldercard";
     // because the plate also holds wrappers, and covering a wrapper would paint
     // the full width and leave no texture at all.
     //
-    // `inline-block` + `max-width: 100%` is what makes the cover as wide as the
-    // WORD instead of as wide as the row: a block-level `.ellip` always fills
-    // its line, so a cover on it would hide the whole plate. Ellipsis still
-    // works — `text-overflow` needs `overflow: hidden`, not `display: block`.
+    // `width: fit-content` is the load-bearing part, NOT `inline-block`: a
+    // block-level `.ellip` always fills its line, so a cover on it would hide
+    // the whole plate — but making the lines inline puts the title and the
+    // artist on ONE line and breaks long titles across two instead of
+    // truncating them. `fit-content` keeps each line a block (own row, ellipsis
+    // intact) while the box shrinks to the words.
+    //
+    // The negative margin pulls the cover's left padding back over the plate's
+    // own, so the text keeps its original left edge and only gains a buffer;
+    // `max-width` compensates for it so a long title still truncates instead of
+    // overflowing the plate.
     .title,
     .artist,
     .p-name,
     .artist-name,
-    .ttitle,
-    .rhelp .help,
-    .rhelp .time {
+    .ttitle {
+        box-sizing: border-box;
+        width: fit-content;
+        max-width: calc(100% + #{$card-cover-pad});
+        margin-left: -$card-cover-pad;
+        padding: 1px $card-cover-pad;
         background-color: var(--row-fill);
         border-radius: 6px;
-        padding: 1px 5px;
-        margin-left: -5px;
-        max-width: 100%;
-        display: inline-block;
-        vertical-align: bottom;
+    }
+
+    // The help row is a flex line of two spans; they cover themselves and stay
+    // side by side.
+    .rhelp .help,
+    .rhelp .time {
+        padding: 1px $card-cover-pad;
+        margin-left: -$card-cover-pad;
+        background-color: var(--row-fill);
+        border-radius: 6px;
     }
 }
 
