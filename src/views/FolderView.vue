@@ -174,29 +174,39 @@ onMounted(() => {
         padding-top: $small !important;
     }
 
+    // This wrapper only carries the sticky behaviour and the gap to the rows —
+    // the plate itself is the head inside it (see below). The gap has to be
+    // PADDING, not a margin: the DynamicScroller places its rows from the
+    // measured slot height and never sees a margin, so a margin would leave the
+    // first row flush against the plate's frame, printing a double rule.
     .scroller > div.vue-recycle-scroller__slot:first-child {
-        // The breadcrumb head is CHROME over a scrolling list, so it wears the
-        // plate anatomy every other sticky head wears (see LyricsView/Head.vue):
-        // opaque panel surface, an ink frame on ALL FOUR sides, the shared radius
-        // and the offset shadow. Opaque matters twice over — rows pass behind it,
-        // and the veil would show them through its own text.
-        //
-        // It used to be a bare $mem-ground fill with nothing but a
-        // `border-bottom`. A single line only reads as an edge when it runs into
-        // the card's frame at both ends, and this one never could: the scroller
-        // carries $alt_layout_pad of side padding, so the line stopped 44px short
-        // of the ink frame on each side and floated there. Three pixels below it
-        // the folder plate opened its OWN frame, so the two printed as one 6px
-        // double rule. Hence a closed plate instead of half an edge.
-        padding: 0 $medium;
-        margin-bottom: $small;
+        padding-bottom: $small;
+        position: sticky;
+        // Matches the scroller's top padding: the plate keeps the same distance
+        // from the card's frame at rest and while stuck, so it does not jump.
+        top: $small;
+        z-index: 1;
+    }
+
+    // The breadcrumb head is CHROME over a scrolling list, so it wears the plate
+    // anatomy every other sticky head wears (see LyricsView/Head.vue): opaque
+    // panel surface, an ink frame on ALL FOUR sides, the shared radius and the
+    // offset shadow. Opaque matters twice over — rows pass behind it, and the
+    // veil would show them through its own text.
+    //
+    // It used to be a bare $mem-ground fill on the wrapper with nothing but a
+    // `border-bottom`. A single line only reads as an edge when it runs into the
+    // card's frame at both ends, and this one never could: the scroller carries
+    // $alt_layout_pad of side padding, so the line stopped 44px short of the ink
+    // frame on each side and floated there. Three pixels below it the folder
+    // plate opened its OWN frame, so the two printed as one 6px double rule.
+    // Hence a closed plate instead of half an edge.
+    #folder-nav-title {
+        padding: $small $medium;
         background-color: $mem-panel;
         border: $candy-border;
         border-radius: $candy-radius;
         @include candy-shadow(3px, 3px);
-        position: sticky;
-        top: $small;
-        z-index: 1;
     }
 }
 </style>
