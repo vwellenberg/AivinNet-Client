@@ -88,7 +88,6 @@ const mobileTitle = computed(() => {
         [Routes.Stats]: 'Stats',
         [Routes.AlbumList]: 'Albums',
         [Routes.ArtistList]: 'Artists',
-        [Routes.settings]: 'Settings',
         [Routes.nowPlaying]: 'Now Playing',
         [Routes.album]: 'Album',
         [Routes.artist]: 'Artist',
