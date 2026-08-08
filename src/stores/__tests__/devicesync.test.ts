@@ -865,7 +865,7 @@ describe('devicesync store', () => {
         )
     })
 
-    it('removing the CURRENT track keeps the index (next slides in) and restarts at 0', async () => {
+    it('removing the CURRENT track hands over to its successor and restarts at 0', async () => {
         const { useDeviceSync, useTracklist, useQueue } = await setup()
         localStorage.setItem('aivinnet.device_id', 'devA')
         const ds = useDeviceSync()
