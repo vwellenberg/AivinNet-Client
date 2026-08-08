@@ -39,8 +39,11 @@ describe('playingFrom', () => {
         setActivePinia(createPinia())
     })
 
+    // `toBeTruthy`, not `not.toBe('')`: the latter also passes for `undefined`,
+    // which is exactly the shape a source that forgot the field would have —
+    // and `PlayingFrom.vue` would then drop that caption in silence.
     it.each(sources)('$label names its kind', ({ from }) => {
-        expect(playingFrom(from).type).not.toBe('')
+        expect(playingFrom(from).type).toBeTruthy()
     })
 
     // The caption exists to say something the name does not. Written as
