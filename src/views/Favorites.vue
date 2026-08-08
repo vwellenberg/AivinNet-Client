@@ -114,12 +114,6 @@ function handlePlay(index: number) {
         h3 {
             margin-top: 0;
         }
-
-        .artist-top-tracks {
-            h3 {
-                padding-right: $small;
-            }
-        }
     }
 }
 </style>

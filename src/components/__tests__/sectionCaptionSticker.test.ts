@@ -45,6 +45,17 @@ const NOT_ON_THE_GROUND: Record<string, string> = {
   "views/PairView.vue": "on the pairing plate",
 };
 
+/** Every `.scss` under the given root, relative to `src/`. */
+function scssFiles(root: string, prefix = ""): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(join("src", root, prefix), { withFileTypes: true })) {
+    const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) out.push(...scssFiles(root, rel));
+    else if (entry.name.endsWith(".scss")) out.push(`${root}/${rel}`);
+  }
+  return out;
+}
+
 /** Every `.vue` under the given roots, relative to `src/`. */
 function vueFiles(root: string, prefix = ""): string[] {
   const out: string[] = [];
@@ -143,6 +154,13 @@ describe("section captions on the page ground are stickers", () => {
 //                  for zero — a caption is free to be a bigger chip.
 //
 // The vertical margins are the air between sections and no business of this.
+//
+// ⚠️ Known blind spot, stated rather than left to be discovered: a FOREIGN file
+// reaching a caption through an ELEMENT selector (`.fav-tracks h3 { … }`) is not
+// covered. Class selectors are — a caption's class is app-wide, so those are
+// enumerable — but `h3` app-wide would flag every card title in the app. The
+// two foreign insets found here were removed and the rule in styling.md says
+// where a caption's rules belong; this census cannot prove the next one.
 // ---------------------------------------------------------------------------
 
 /** The left value of a box shorthand: 1→all, 2/3→2nd, 4→4th. */
@@ -188,6 +206,41 @@ function allCaptionRules(style: string, tag: string): string[] {
   return selectorsFor(tag)
     .flatMap(selector => blocks(style, selector))
     .map(ownDeclarations);
+}
+
+/**
+ * Every stylesheet in the app: the components' own <style> blocks and the
+ * global partials.
+ *
+ * Needed because a caption's inset does not have to live in the caption's own
+ * file, and the two that survived the first pass here did not: the artist page
+ * wrote `.artist-page .section-title { padding-left: 1rem }` and the favorites
+ * page `.fav-tracks .artist-top-tracks h3 { padding-right: $small }`, each
+ * reaching a caption defined one component away. A per-file census reads green
+ * on both — measured on the built app, the chip was still 16px/11.2px.
+ */
+const STYLESHEETS: { path: string; css: string }[] = [
+  ...[...vueFiles("views"), ...vueFiles("components")].map(path => ({
+    path,
+    css: styleBlock(readFileSync(join("src", path), "utf-8")),
+  })),
+  ...scssFiles("assets/scss").map(path => ({
+    path,
+    css: readFileSync(join("src", path), "utf-8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/[^\n]*/g, ""),
+  })),
+];
+
+/** Every rule anywhere that targets one of these class selectors. */
+function rulesTargeting(classSelectors: string[]): { path: string; declarations: string }[] {
+  const out: { path: string; declarations: string }[] = [];
+  for (const { path, css } of STYLESHEETS) {
+    for (const selector of classSelectors) {
+      for (const body of blocks(css, selector)) out.push({ path, declarations: ownDeclarations(body) });
+    }
+  }
+  return out;
 }
 
 /** The rules that style a heading, resolved the way the cascade resolves them. */
@@ -243,28 +296,48 @@ describe("a caption sticker keeps the page's leading edge", () => {
         }
       }
 
+      // A caption's class is app-wide, so a page one directory over can reach
+      // it — and both remaining insets did. Each of those rules answers for
+      // itself: it may not move the plate either.
+      const foreign = rulesTargeting(selectorsFor(tag).filter(selector => selector.startsWith(".")));
+      for (const { path: from, declarations } of foreign) {
+        for (const left of sides(declarations, "margin").left) {
+          expect(
+            isZero(left),
+            `${from} insets ${tag} (of ${path}) by ${left} — a caption keeps the page's leading edge`
+          ).toBe(true);
+        }
+      }
+
       // Padding is read across EVERY rule that can reach the heading, class and
-      // element alike — not cascade-resolved like the margin above. The lopsided
-      // one is exactly the case that resolution would hide: `mem-sticker` sets
-      // the chip in the CLASS rule and `padding-left: 1rem !important` on the
-      // bare `h3` beats it. Nothing about "the class rule exists" makes the
-      // element rule stop applying.
-      const padding = allCaptionRules(style, tag).reduce(
+      // element alike, in this file and in the others — not cascade-resolved
+      // like the margin above. The lopsided one is exactly the case that
+      // resolution would hide: `mem-sticker` sets the chip in the CLASS rule
+      // and `padding-left: 1rem` from another page's stylesheet beats it.
+      // Nothing about "the class rule exists" makes those stop applying.
+      const padding = [
+        ...allCaptionRules(style, tag).map(declarations => ({ path, declarations })),
+        ...foreign,
+      ].reduce(
         (all, rule) => {
-          const own = sides(rule, "padding");
-          return { left: [...all.left, ...own.left], right: [...all.right, ...own.right] };
+          const own = sides(rule.declarations, "padding");
+          const stamp = (values: string[]) => values.map(value => ({ value, from: rule.path }));
+          return { left: [...all.left, ...stamp(own.left)], right: [...all.right, ...stamp(own.right)] };
         },
-        { left: [] as string[], right: [] as string[] }
+        { left: [] as { value: string; from: string }[], right: [] as { value: string; from: string }[] }
       );
       // The side a rule leaves alone reads as "from the mixin", which is a
       // DIFFERENT value than the one being written — that is the lopsidedness.
-      const last = (values: string[]) => values[values.length - 1] ?? "from mem-sticker";
+      const last = (values: { value: string; from: string }[]) =>
+        values[values.length - 1] ?? { value: "from mem-sticker", from: "-" };
       if (padding.left.length || padding.right.length) {
+        const [left, right] = [last(padding.left), last(padding.right)];
         expect(
-          last(padding.left),
-          `${path} pads ${tag} unevenly (left ${last(padding.left)}, right ${last(padding.right)}) — ` +
-            "mem-sticker sets both sides of the chip; overriding one alone makes it lopsided"
-        ).toBe(last(padding.right));
+          left.value,
+          `${path}: ${tag} is padded unevenly — left ${left.value} (${left.from}), ` +
+            `right ${right.value} (${right.from}). mem-sticker sets both sides of the chip; ` +
+            "overriding one alone makes it lopsided"
+        ).toBe(right.value);
       }
     }
   });
