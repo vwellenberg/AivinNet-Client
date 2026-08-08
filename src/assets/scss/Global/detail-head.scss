@@ -49,14 +49,29 @@ $detail-heads: ".a-header, .artist-page-header, .p-header";
     color: $candy-text;
 }
 
-// The media cell. Square at rest (`min-height` = its width), but it STRETCHES
-// with the plate: a two-line title makes the text side taller than 11rem, and a
-// cell pinned to `align-self: flex-start` then left a slab of empty panel under
-// the artwork (measured: 289px plate against a 176px cell on "Monkey Island 2 -
+// The media cell. Square at rest, but it STRETCHES with the plate: a two-line
+// title makes the text side taller than 11rem, and a cell pinned to
+// `align-self: flex-start` then left a slab of empty panel under the artwork
+// (measured: 289px plate against a 176px cell on "Monkey Island 2 -
 // LeChuck's Revenge"). Stretching keeps the plate closed at any title length.
+//
+// ⚠️ `aspect-ratio` is what makes the cell square — `min-height` cannot, and the
+// `height: 100%` on the image below only works because of it. Without a
+// resolvable height on this box, `height: 100%` falls back to `auto` and the
+// IMAGE sizes the cell: a portrait cover (512×735) rendered 176×253 instead of
+// 176×176, the plate grew 49px, and `.dh-body`'s `space-between` spent every one
+// of them on a gap between the title and the meta line (#512). Non-square art is
+// routine here — CD case scans and Windows Media Player leftovers — so this is
+// the normal case, not an edge one.
+//
+// Consequence worth knowing: the album head overrides the `cover` below with
+// `object-fit: contain` on purpose (a scan should sit inside the cell rather
+// than be cropped), so a portrait cover now shows its pink ground left and
+// right instead of stretching the plate. That is the trade — a letterboxed
+// cover in a steady plate beats a full-bleed one in a plate that jumps.
 .dh-art {
     width: 11rem;
-    min-height: 11rem;
+    aspect-ratio: 1;
     flex-shrink: 0;
     align-self: stretch;
     overflow: hidden;
