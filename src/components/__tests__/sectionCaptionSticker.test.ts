@@ -256,7 +256,9 @@ describe("a caption sticker keeps the page's leading edge", () => {
         },
         { left: [] as string[], right: [] as string[] }
       );
-      const last = (values: string[]) => values[values.length - 1];
+      // The side a rule leaves alone reads as "from the mixin", which is a
+      // DIFFERENT value than the one being written — that is the lopsidedness.
+      const last = (values: string[]) => values[values.length - 1] ?? "from mem-sticker";
       if (padding.left.length || padding.right.length) {
         expect(
           last(padding.left),
