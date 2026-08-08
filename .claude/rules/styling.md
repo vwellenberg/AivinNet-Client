@@ -331,11 +331,20 @@ Zwei Dinge, die dabei jedes Mal auffallen:
 - **Der Sticker fluchtet links mit dem, was er beschriftet — ein Rest-Inset ist ein Bug.**
   Ein linkes `padding`/`margin` an einer Überschrift stammt fast immer aus ihrer Zeit als
   nackter Text: Abstand zur Kante, damit das Wort nicht klebt. Ein Sticker trägt diesen
-  Abstand **in sich** (das Padding des Chips), also schiebt derselbe Wert danach nur noch
-  die Platte aus der Reihe. Auf jeder Seite starten Überschrift, Karten, Kacheln und
-  Zeilen an **einer** Kante (gemessen: Home 303 px durchgehend); „Up Next"/„Queue" waren mit
-  ihren 16 px bzw. 8 px die letzten daneben (#521). Vertikale Margins sind davon nicht
-  betroffen — die sind die Luft zwischen den Abschnitten.
+  Abstand **in sich** (das Padding des Chips), also wirkt derselbe Wert danach anders — und
+  zwar je nach Kasten unterschiedlich, weshalb beide Hälften in den Zensus gehören:
+  - **`margin-left` verschiebt die Platte.** Auf jeder Seite starten Überschrift, Karten,
+    Kacheln und Zeilen an **einer** Kante (gemessen: Home 303 px durchgehend). Muss 0 sein.
+  - **`padding-left` lässt die Platte stehen und verschiebt den Text** — der Chip wächst nach
+    innen. Es ist das Padding des Chips, und `mem-sticker` setzt **beide** Seiten; wer eine
+    einzeln überschreibt, macht ihn schief. Also **symmetrisch**, nicht null: eine Überschrift
+    darf ein größerer Chip sein.
+
+  Gefunden in dieser Reihenfolge, und die Reihenfolge ist die Lehre: „Up Next"/„Queue" fielen
+  im Screenshot auf (16 px, schmal 8 px), der daraufhin geschriebene Zensus fand „Pinned"/
+  „Other Playlists" (12 px), und das Review fand die zweite Form — „Top Tracks" auf
+  Artist/Favoriten mit 16 px innen links gegen 8 px rechts (#521). Vertikale Margins sind
+  davon nicht betroffen — die sind die Luft zwischen den Abschnitten.
 - **Ein Zensus über „die Datei erwähnt `mem-sticker`" ist keiner.** Eine Komponente, die
   ihre erste Überschrift plattiert und daneben eine zweite blank stehen lässt, bleibt damit
   grün — und das ist exakt die Form dieses Bugs. `sectionCaptionSticker.test.ts` sammelt
