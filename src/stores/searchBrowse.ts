@@ -67,6 +67,15 @@ export default defineStore('searchBrowse', () => {
     /** Guards against a second fetch while the first is still in flight. */
     const loaded = ref(false)
     const failed = ref(false)
+    /**
+     * When the list arrived. It goes stale after a while rather than latching
+     * for the session: a scan or a tag edit adds and renames artists, and a
+     * band whose counts are from before that is a list of promises it cannot
+     * keep. Ten minutes is longer than any visit to this page and shorter than
+     * the gap between two sessions of tagging.
+     */
+    let fetchedAt = 0
+    const TTL = 10 * 60 * 1000
 
     /** How many artists sit under each band key. Keys with none are absent. */
     const counts = computed(() => {
@@ -93,7 +102,8 @@ export default defineStore('searchBrowse', () => {
     )
 
     async function fetchArtists() {
-        if (loaded.value || loading.value) return
+        if (loading.value) return
+        if (loaded.value && Date.now() - fetchedAt < TTL) return
 
         loading.value = true
         // `failed` is NOT cleared here: clearing it synchronously unmounted the
@@ -133,14 +143,22 @@ export default defineStore('searchBrowse', () => {
             artists.value = all
             loaded.value = true
             failed.value = false
+            fetchedAt = Date.now()
 
             // Open on the first LETTER that has anyone — "A" in any real
             // library. "#" is skipped here even though it sorts first: it is
             // the catch-all for digits and non-latin names, which is the one
             // group nobody opens the page hoping to see.
+            //
+            // Read off `counts`, which is one pass over the list; asking
+            // `initialOf` per key per artist is 26 more of them, on the list
+            // this store exists to keep whole.
             if (letter.value === null) {
-                const has = (key: string) => all.some(a => initialOf(a.name) === key)
-                letter.value = LETTERS.filter(key => key !== OTHER).find(has) ?? LETTERS.find(has) ?? null
+                const tally = counts.value
+                letter.value =
+                    LETTERS.filter(key => key !== OTHER).find(key => tally[key]) ??
+                    LETTERS.find(key => tally[key]) ??
+                    null
             }
         } catch {
             // Belt and braces: `useAxios` swallows network errors, but a
@@ -168,6 +186,7 @@ export default defineStore('searchBrowse', () => {
         loading.value = false
         loaded.value = false
         failed.value = false
+        fetchedAt = 0
     }
 
     return { artists, letter, loading, loaded, failed, counts, shown, fetchArtists, selectLetter, $reset }

@@ -41,19 +41,13 @@
       so this is a way out of the row, not a way to the rest of the letter. The
       label is left at the role's default; passing text replaces the whole
       label rather than adding to it. -->
-    <CardScroller
-      :title="rowTitle"
-      :items="items"
-      :route="artistListRoute"
-      :play-source="playSources.artist"
-    />
+    <CardScroller :title="rowTitle" :items="items" :route="artistListRoute" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted } from "vue";
 
-import { playSources } from "@/enums";
 import useBrowseStore, { LETTERS } from "@/stores/searchBrowse";
 
 import CardScroller from "@/components/shared/CardScroller.vue";

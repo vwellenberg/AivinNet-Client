@@ -38,13 +38,12 @@
       </div>
     </template>
 
-    <NoItems
-      v-else
-      :icon="SearchSvg"
-      :flag="true"
-      :title="'Search your library'"
-      :description="'Find songs, albums, artists, playlists and folders.'"
-    />
+    <!-- With no recent searches this block renders NOTHING. It used to fill the
+      page with a "Search your library / nothing here" prompt, which was the
+      right answer while the idle page was otherwise empty. It is the wrong one
+      now: the prompt would sit on top of a working artist browser and the
+      library's numbers, telling someone there is nothing here while the rest
+      of the screen shows them what there is. -->
   </div>
 </template>
 
@@ -61,7 +60,6 @@ import {
 
 import SearchSvg from "@/assets/icons/search.svg";
 import CancelSvg from "@/assets/icons/a.svg";
-import NoItems from "@/components/shared/NoItems.vue";
 
 const search = useSearchStore();
 const recents = ref<string[]>(getRecentSearches());

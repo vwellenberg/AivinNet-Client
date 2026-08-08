@@ -482,18 +482,12 @@ $g-border: solid $candy-border-w $mem-line;
         // bottom ~18px of the last row covered — the reported "last track of a
         // playlist is hidden by the bottom bar". The `.content-page` pages next
         // door had reserved the bar's height all along; these never did.
-        padding-bottom: calc($padbottom + $bottombarheight);
+        @include player-bar-reserve;
         -webkit-overflow-scrolling: touch;
 
         @include allPhones {
             padding-left: 1rem;
             padding-right: 1rem;
-            padding-bottom: calc($padbottom + $bottombarheight-phone);
-        }
-
-        // See the note on the same override in `.content-page`.
-        @include shortViewport {
-            padding-bottom: calc($padbottom + $bottombarheight-short);
         }
     }
 }

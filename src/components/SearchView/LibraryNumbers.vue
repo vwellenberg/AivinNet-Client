@@ -43,14 +43,26 @@ const WANTED = ["trackcount", "streams", "playtime", "favorites"];
  * The numbers move once a day at most; a session's first answer is good enough
  * for the rest of it.
  */
-// The PROMISE is cached, not its result: caching the result only starts
-// helping once the first response has landed, and two mounts inside that first
-// round trip would each fire the aggregation anyway. A failure clears it, so
-// the next mount tries again.
+/**
+ * The PROMISE is cached, not its result: caching the result only starts
+ * helping once the first response has landed, and two mounts inside that first
+ * round trip would each fire the aggregation anyway.
+ *
+ * And it is cached for a MINUTE, not for the session. This block is destroyed
+ * and rebuilt on every search and every clearing of the field, so an uncached
+ * call would run a whole-history aggregation per pause in typing — but three
+ * of the four tiles are "this week" values that move while you listen, and the
+ * stats screen refetches on every mount. A session-long cache makes the two
+ * screens contradict each other; a minute covers the typing and nothing else.
+ */
+const TTL = 60_000;
 let pending: Promise<StatItemData[]> | null = null;
+let fetchedAt = 0;
 
 function loadStats(): Promise<StatItemData[]> {
-  if (pending) return pending;
+  if (pending && Date.now() - fetchedAt < TTL) return pending;
+
+  fetchedAt = Date.now();
 
   pending = getStats()
     .then(res => {
