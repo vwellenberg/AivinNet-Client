@@ -147,7 +147,23 @@ export default defineStore('tracklist', {
             const Toast = useToast()
             Toast.showNotification(`Added ${tracks.length} tracks to queue`, NotifType.Success)
         },
-        insertAt(tracks: Track[], index: number) {
+        /**
+         * `aimNext` marks this insert as a "play next": under shuffle the
+         * pre-rolled target is moved ONTO the inserted rows instead of being
+         * carried past them.
+         *
+         * It is a parameter rather than a call the caller makes afterwards, and
+         * both reasons are bugs that were caught in review:
+         *
+         * - It has to happen BEFORE the preload check below. Aiming afterwards
+         *   left `tracklist[nextindex]` looking unchanged, so the audio already
+         *   preloaded for the old target survived and played instead of the row
+         *   the user had just queued.
+         * - It has to sit behind the group seam. Aiming from the outside also
+         *   fired on the intercepted path, where nothing was spliced locally —
+         *   moving this device's idea of "next" out of step with the group.
+         */
+        insertAt(tracks: Track[], index: number, aimNext = false) {
             // Group mode: local queue edits ("play next" / "add to queue" funnel
             // through here) must go through the server, or this device's list
             // silently diverges from the authoritative group queue.
@@ -157,12 +173,37 @@ export default defineStore('tracklist', {
                 return
             }
 
-            this.tracklist.splice(index, 0, ...tracks)
-
             const player = usePlayer()
             const queue = useQueue()
 
-            if (index == queue.nextindex) {
+            // Which track was queued up as "next" BEFORE the splice? Comparing
+            // the TRACK is the only check that holds in both play orders. The
+            // old test compared the insert POSITION against `nextindex`, which
+            // is only ever true in sequential order — there `nextindex` is
+            // `currentindex + 1`, exactly where "play next" inserts. Under
+            // shuffle `nextindex` is a pre-rolled random index somewhere else
+            // in the list, so the same insert displaced the preloaded row
+            // without the condition ever firing.
+            const nextBefore = this.tracklist[queue.nextindex]
+
+            this.tracklist.splice(index, 0, ...tracks)
+
+            // The shuffle bookkeeping is ABSOLUTE indexes: everything from
+            // `index` on just moved back by `tracks.length`, so the pre-rolled
+            // target and the history have to travel with them or they silently
+            // start naming different tracks.
+            //
+            // ⚠️ `currentindex` is deliberately NOT shifted here, and that only
+            // holds because no caller inserts at or below the playing row:
+            // `addTracks` appends, `insertAfterCurrent` and `playTrackNext` use
+            // `currentindex + 1`. A future caller passing a lower index has to
+            // move it too — otherwise the playing track slides down while the
+            // index stays put, and the UI names a different song than the audio.
+            queue.shiftShuffleIndexes(index, tracks.length)
+
+            if (aimNext) queue.aimShuffleNext(index)
+
+            if (this.tracklist[queue.nextindex] !== nextBefore) {
                 player.clearNextAudio()
             }
         },
@@ -196,6 +237,10 @@ export default defineStore('tracklist', {
             // it just sits at a different index now.
             queue.setCurrentIndex(move.currentindex)
 
+            // The shuffle bookkeeping needs the same treatment as currentindex,
+            // and for the same reason — the dragged row may have passed over it.
+            queue.remapShuffleIndexes(from, move.finalIndex)
+
             // Whatever was preloaded as "next" may be a different track now.
             usePlayer().clearNextAudio()
         },
@@ -221,6 +266,22 @@ export default defineStore('tracklist', {
             }
 
             this.tracklist = shuffled
+
+            // Every row has a new number now, so both shuffle indexes name
+            // arbitrary tracks — the same situation setNewList resets for, and
+            // the reason it does. Without this, Previous jumped to a track that
+            // never played and the next roll avoided the wrong ones.
+            //
+            // ⚠️ Clear, do NOT roll. `rollShuffleNext` starts by pushing
+            // `currentindex` into the history, and at this point that is still
+            // the PRE-shuffle index — it would put a stale number straight back
+            // into the array just emptied. The caller (`queue.shuffleQueue`)
+            // sets `currentindex = 0` and calls `play()` right after, and
+            // `play` rolls with the corrected index.
+            const queue = useQueue()
+            queue.shuffleRecent = []
+            queue.shuffleNextIndex = null
+            usePlayer().clearNextAudio()
         },
         removeByIndex(index: number) {
             // Group mode: same seam as insertAt. A local splice would leave the
@@ -233,12 +294,17 @@ export default defineStore('tracklist', {
                 return
             }
 
-            const { currentindex, nextindex, playing, playNext, moveForward, setCurrentIndex } = useQueue()
+            const queue = useQueue()
+            const { currentindex, playing, playNext, moveForward, setCurrentIndex } = queue
             const player = usePlayer()
 
             if (this.tracklist.length == 1) {
                 return this.clearList()
             }
+
+            // Same reasoning as insertAt: read the track, not the index. Taken
+            // before anything below can move the queue on.
+            const nextBefore = this.tracklist[queue.nextindex]
 
             if (index == currentindex) {
                 if (playing) {
@@ -256,7 +322,12 @@ export default defineStore('tracklist', {
 
             this.tracklist.splice(index, 1)
 
-            if (index == nextindex) {
+            // The removed row renumbers everything behind it, and it may BE the
+            // pre-rolled shuffle target — in which case there is nothing to
+            // re-point to and the store rolls again.
+            queue.dropShuffleIndex(index)
+
+            if (this.tracklist[queue.nextindex] !== nextBefore) {
                 player.clearNextAudio()
             }
         },
@@ -293,7 +364,10 @@ export default defineStore('tracklist', {
         insertAfterCurrent(tracks: Track[]) {
             const { currentindex } = useQueue()
 
-            this.insertAt(tracks, currentindex + 1)
+            // `aimNext`: under shuffle the pre-rolled target points elsewhere
+            // and travels with the splice, so it would sail right past these
+            // rows. "Play next" has to mean next in both play orders.
+            this.insertAt(tracks, currentindex + 1, true)
 
             // Shown in the group case too (same as addTracks): the insert was
             // accepted, it just travels via the server.
