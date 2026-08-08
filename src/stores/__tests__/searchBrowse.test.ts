@@ -8,6 +8,7 @@ vi.mock('@/requests/useAxios', () => ({ default: (...args: unknown[]) => get(...
 
 /** A page of the /getall/artists shape. */
 const page = (names: string[], total = names.length) => ({
+    status: 200,
     data: { items: names.map(name => ({ name })), total },
 })
 
@@ -20,6 +21,11 @@ describe('initialOf', () => {
         ['...Und Null Sekunden', OTHER],
         ['響', OTHER],
         ['', OTHER],
+        // Accents fold, or a third of a european library sits under "#" with
+        // the digits — and the count on the O and E keys would have lied.
+        ['Ólafur Arnalds', 'O'],
+        ['Édith Piaf', 'E'],
+        ['Ängie', 'A'],
     ])('%s belongs under %s', (name, expected) => {
         expect(initialOf(name)).toBe(expected)
     })
@@ -83,8 +89,11 @@ describe('searchBrowse store', () => {
         expect(get).toHaveBeenCalledTimes(1)
     })
 
-    it('keeps the page usable when the request fails', async () => {
-        get.mockRejectedValueOnce(new Error('offline'))
+    // `useAxios` does NOT throw — it resolves with the status and whatever body
+    // came back. Read as an empty page, a 500 would leave the band absent for
+    // the rest of the session AND marked loaded, so it never retried.
+    it('treats a non-200 as a failure, not as an empty library', async () => {
+        get.mockResolvedValueOnce({ status: 500, error: 'boom', data: undefined })
 
         const store = useBrowseStore()
         await store.fetchArtists()
@@ -93,6 +102,29 @@ describe('searchBrowse store', () => {
         expect(store.loading).toBe(false)
         expect(store.artists).toEqual([])
         // Not marked loaded, so opening the page again retries.
+        expect(store.loaded).toBe(false)
+    })
+
+    it('retries after a failure', async () => {
+        get.mockResolvedValueOnce({ status: 500, data: undefined })
+        const store = useBrowseStore()
+        await store.fetchArtists()
+
+        get.mockResolvedValueOnce(page(['Bite']))
+        await store.fetchArtists()
+
+        expect(store.failed).toBe(false)
+        expect(store.artists).toHaveLength(1)
+    })
+
+    it('keeps what it had when a LATER page fails', async () => {
+        const first = Array.from({ length: 500 }, (_, i) => `A${i}`)
+        get.mockResolvedValueOnce(page(first, 900)).mockResolvedValueOnce({ status: 500, data: undefined })
+
+        const store = useBrowseStore()
+        await store.fetchArtists()
+
+        expect(store.failed).toBe(true)
         expect(store.loaded).toBe(false)
     })
 
