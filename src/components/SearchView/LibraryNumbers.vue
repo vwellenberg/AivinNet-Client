@@ -1,13 +1,17 @@
 <template>
-  <!-- Not a second implementation of a stat card: this is the SAME `Stats`
-    component the charts screen renders, handed a filtered list. It already
-    owns the tile, the icon per kind and the horizontal scroll.
-    The wrapper is not decoration: `Stats` declares `inheritAttrs: false`, so a
-    class put on the component itself never reaches an element — measured, the
-    padding reset below simply did not apply and the row stood 1rem right of
-    the two blocks above it. -->
+  <!-- The tiles are the shared `StatItem` — same anatomy, same icon per kind
+    as the charts screen. What is NOT reused is `Stats.vue` around them: it
+    splits its list into "all but the last" and "the last", which is how the
+    charts screen sets the top track apart. Four equal numbers have nothing to
+    set apart, and the split showed up as a gap in the middle of the row. -->
   <div v-if="items.length" class="library-numbers">
-    <Stats :items="items" />
+    <StatItem
+      v-for="item in items"
+      :key="item.cssclass"
+      :value="item.value"
+      :text="item.text"
+      :icon="item.cssclass"
+    />
   </div>
 </template>
 
@@ -16,13 +20,12 @@ import { onMounted, ref } from "vue";
 
 import { getStats } from "@/requests/stats";
 
-import Stats from "@/components/Stats/Stats.vue";
+import StatItem from "@/components/Stats/StatItem.vue";
 
 interface StatItemData {
   cssclass: string;
   value: string;
   text: string;
-  image?: string;
 }
 
 /**
@@ -48,10 +51,17 @@ onMounted(async () => {
 </script>
 
 <style lang="scss">
-// `Stats` pads its own tiles; the page indent belongs to the idle column, so
-// all three blocks stand on one left edge.
-.library-numbers .statshead {
-  padding-left: 0;
-  padding-right: 0;
+.library-numbers {
+  display: flex;
+  gap: $medium;
+  // The tiles scroll sideways on a narrow window rather than shrinking below
+  // what their numbers need — the same answer the charts row gives, minus its
+  // scrollbar (it would sit on top of the tiles).
+  overflow-x: auto;
+  @include hideScrollbars;
+
+  .statitem {
+    flex-shrink: 0;
+  }
 }
 </style>
