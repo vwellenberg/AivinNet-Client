@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { blocks, styleBlock } from "./scssBlocks";
+import { blocks, ownDeclarations, styleBlock } from "./scssBlocks";
 
 // ---------------------------------------------------------------------------
 // A section caption on the page ground is a STICKER (`mem-sticker`), never bare
@@ -117,6 +117,73 @@ describe("section captions on the page ground are stickers", () => {
         `${path} renders ${tag} on the page ground with no mem-sticker rule for it — ` +
           "give it the mixin, or add the file to NOT_ON_THE_GROUND with the surface it sits on"
       ).toBe(true);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ...and a sticker sits FLUSH with what it labels.
+//
+// The same captions that were bare text once carried a left inset for the
+// reason bare text needs one: keeping the word off the page edge. A sticker
+// carries that gap inside itself (the chip's padding), so the leftover margin
+// only moves the plate out of the line its own rows keep — measured on the
+// deployed app, "Up Next"/"Queue" stood 16px (8px in the narrow column) right
+// of the tracks they label, while every caption on Home sits flush at 303.
+//
+// Left inset only. The vertical margins are the air between sections, and the
+// horizontal PADDING is the chip itself.
+// ---------------------------------------------------------------------------
+
+/** The left value of a `margin` shorthand: 1→all, 2/3→2nd, 4→4th. */
+function marginShorthandLeft(value: string): string | null {
+  const parts = value.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2 || parts.length === 3) return parts[1];
+  if (parts.length === 4) return parts[3];
+  return null;
+}
+
+/** Every left margin a rule sets, in source order (shorthand included). */
+function leftMargins(declarations: string): string[] {
+  const out: string[] = [];
+  for (const [, property, value] of declarations.matchAll(/(margin(?:-left)?)\s*:\s*([^;{}]+)/g)) {
+    const left = property === "margin-left" ? value.trim() : marginShorthandLeft(value);
+    if (left !== null) out.push(left);
+  }
+  return out;
+}
+
+const isZero = (value: string) => /^0[a-z%]*$/.test(value);
+
+describe("a caption sticker keeps the page's leading edge", () => {
+  // Same guard as above: a parser that stops matching would make this silent.
+  it("reads the captions' own rules", () => {
+    const upNext = HOSTS.find(h => h.path === "components/NowPlaying/Header.vue");
+    expect(upNext, "the Now Playing head no longer renders a heading").toBeTruthy();
+    expect(blocks(styleBlock(upNext!.source), ".nowplaying_title").length).toBeGreaterThan(0);
+  });
+
+  it.each(HOSTS)("$path leaves its caption on the leading edge", ({ path, source }) => {
+    if (NOT_ON_THE_GROUND[path]) return;
+
+    const style = styleBlock(source);
+    for (const tag of headings(source)) {
+      for (const selector of selectorsFor(tag)) {
+        // Every rule for the caption, not only the one holding the sticker: the
+        // inset that started this lived in a SEPARATE block outside the
+        // component's own nesting (`.now-playing-view.isSmall … {}`), which is
+        // where a narrow-layout override naturally goes.
+        for (const body of blocks(style, selector)) {
+          for (const left of leftMargins(ownDeclarations(body))) {
+            expect(
+              isZero(left),
+              `${path} insets ${tag} by ${left} — a sticker's own padding is the gap to its ` +
+                "text, so a left margin only pushes the chip out of line with the rows below it"
+            ).toBe(true);
+          }
+        }
+      }
     }
   });
 });

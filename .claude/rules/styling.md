@@ -328,6 +328,14 @@ Zwei Dinge, die dabei jedes Mal auffallen:
 - **Der Sticker gehört an eine KLASSE, nicht an den `h3`-Elementselektor.** Auf einer
   Suchseite trifft `h3` auch den Titel *in* der Top-Result-Karte — der sitzt auf Panel und
   wird durch einen Sticker zur Platte auf der Platte. Dafür gibt es `.section-title`.
+- **Der Sticker fluchtet links mit dem, was er beschriftet — ein Rest-Inset ist ein Bug.**
+  Ein linkes `padding`/`margin` an einer Überschrift stammt fast immer aus ihrer Zeit als
+  nackter Text: Abstand zur Kante, damit das Wort nicht klebt. Ein Sticker trägt diesen
+  Abstand **in sich** (das Padding des Chips), also schiebt derselbe Wert danach nur noch
+  die Platte aus der Reihe. Auf jeder Seite starten Überschrift, Karten, Kacheln und
+  Zeilen an **einer** Kante (gemessen: Home 303 px durchgehend); „Up Next"/„Queue" waren mit
+  ihren 16 px bzw. 8 px die letzten daneben (#521). Vertikale Margins sind davon nicht
+  betroffen — die sind die Luft zwischen den Abschnitten.
 - **Ein Zensus über „die Datei erwähnt `mem-sticker`" ist keiner.** Eine Komponente, die
   ihre erste Überschrift plattiert und daneben eine zweite blank stehen lässt, bleibt damit
   grün — und das ist exakt die Form dieses Bugs. `sectionCaptionSticker.test.ts` sammelt
