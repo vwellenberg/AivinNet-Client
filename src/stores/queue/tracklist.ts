@@ -157,12 +157,27 @@ export default defineStore('tracklist', {
                 return
             }
 
-            this.tracklist.splice(index, 0, ...tracks)
-
             const player = usePlayer()
             const queue = useQueue()
 
-            if (index == queue.nextindex) {
+            // Which track was queued up as "next" BEFORE the splice? Comparing
+            // the TRACK is the only check that holds in both play orders. The
+            // old test compared the insert POSITION against `nextindex`, which
+            // is only ever true in sequential order — there `nextindex` is
+            // `currentindex + 1`, exactly where "play next" inserts. Under
+            // shuffle `nextindex` is a pre-rolled random index somewhere else
+            // in the list, so the same insert displaced the preloaded row
+            // without the condition ever firing.
+            const nextBefore = this.tracklist[queue.nextindex]
+
+            this.tracklist.splice(index, 0, ...tracks)
+
+            // The pre-rolled shuffle target is an ABSOLUTE index: everything
+            // from `index` on just moved back by `tracks.length`, so it has to
+            // travel with them or it silently starts naming a different track.
+            queue.shiftShuffleNext(index, tracks.length)
+
+            if (this.tracklist[queue.nextindex] !== nextBefore) {
                 player.clearNextAudio()
             }
         },

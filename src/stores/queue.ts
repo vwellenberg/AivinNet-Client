@@ -127,6 +127,22 @@ export default defineStore('Queue', {
             this.shuffleNextIndex = pickShuffleIndex(tracklist.length, this.currentindex, this.shuffleRecent)
         },
         /**
+         * Keep the pre-rolled shuffle target pointing at the SAME track after
+         * rows were inserted into the queue.
+         *
+         * `shuffleNextIndex` is an absolute index, so a splice at or before it
+         * shifts the row it names without touching the number. Re-rolling here
+         * would be wrong twice over: it would throw away a target the user is
+         * already hearing the preload of, and it would make the "next" track
+         * change every time someone queues something — the one thing
+         * `rollShuffleNext` exists to avoid (see the getter's note on why
+         * randomness never happens on read).
+         */
+        shiftShuffleNext(from: number, count: number) {
+            if (this.shuffleNextIndex === null || count <= 0) return
+            if (from <= this.shuffleNextIndex) this.shuffleNextIndex += count
+        },
+        /**
          * Flip permanent shuffle ("random track") mode. Separate from
          * `shuffleQueue()`, which reorders the visible queue once.
          */
