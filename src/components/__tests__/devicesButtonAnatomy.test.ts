@@ -31,11 +31,16 @@ const SOURCES = import.meta.glob("/src/**/*.vue", { as: "raw", eager: true }) as
 
 const COMPONENT = "/src/components/DeviceSync/DevicesButton.vue";
 
-/** Every file that renders the button, and the selector it places it with. */
-const HOSTS: [file: string, what: string][] = [
-  ["/src/components/BottomBar/Left.vue", "the phone player bar"],
-  ["/src/components/BottomBar/Right.vue", "the desktop player bar"],
-  ["/src/components/NowPlaying/Header.vue", "the Now Playing header"],
+/**
+ * The hosts are SWEPT, not listed: a hardcoded list passes silently the moment
+ * a fourth screen starts patching the button from outside, which is exactly the
+ * failure mode this file exists for. The three below are only the guard that
+ * the sweep is looking at something real.
+ */
+const KNOWN_HOSTS = [
+  "/src/components/BottomBar/Left.vue",
+  "/src/components/BottomBar/Right.vue",
+  "/src/components/NowPlaying/Header.vue",
 ];
 
 /**
@@ -67,26 +72,40 @@ describe("devices button anatomy", () => {
     expect(joined, "the joined fill is the brand green, not a fresh literal").toContain("$brand-green");
   });
 
-  it.each(HOSTS)("%s (%s) styles no part of it", file => {
-    const source = SOURCES[file];
-    expect(source, `${file} not found — did it move?`).toBeTruthy();
+  it("is hosted by the three screens this census knows about", () => {
+    const hosts = Object.keys(SOURCES).filter(path => path !== COMPONENT && SOURCES[path].includes("DevicesButton"));
+    // Not an exact-match assertion — a fourth host is allowed, it just has to
+    // pass the sweep below like the others. What this rules out is the sweep
+    // running over an empty or mis-globbed set.
+    expect(hosts).toEqual(expect.arrayContaining(KNOWN_HOSTS));
+  });
 
-    const css = styleBlock(source);
-    // Guard: every host renders the component, so the import must be there. If
-    // this file stopped hosting the button, it belongs out of HOSTS rather than
-    // passing vacuously.
-    expect(source, `${file} no longer imports DevicesButton — update HOSTS`).toContain("DevicesButton");
+  it("is styled by no host at all", () => {
+    const offenders: string[] = [];
 
-    for (const selector of OWNING_SELECTORS) {
-      // `:not(.devices-btn)` is an EXCLUSION, not a rule about the button — it
-      // is how the desktop bar plates its other controls while leaving this one
-      // to its own role. Only a selector that opens a block counts.
-      expect(
-        block(css, selector).body,
-        `${file} styles \`${selector}\` — the devices button owns its whole anatomy ` +
-          "in DevicesButton.vue, and a host patching it from outside is how the same " +
-          "component became three different buttons."
-      ).toBe("");
+    for (const [path, source] of Object.entries(SOURCES)) {
+      if (path === COMPONENT) continue;
+
+      // ⚠️ `styleBlock` slices from `<style>`, so a component WITHOUT one hands
+      // back the file's last character and every check below would pass on an
+      // empty string. That is the silent green this file's header warns about,
+      // so a styleless component is skipped explicitly rather than "passing".
+      if (!source.includes("<style")) continue;
+
+      const css = styleBlock(source);
+      for (const selector of OWNING_SELECTORS) {
+        // `:not(.devices-btn)` is an EXCLUSION, not a rule about the button —
+        // it is how the desktop bar plates its other controls while leaving
+        // this one to its own role. Only a selector that OPENS a block counts.
+        if (block(css, selector).body !== "") offenders.push(`${path}: ${selector}`);
+      }
     }
+
+    expect(
+      offenders,
+      "the devices button owns its whole anatomy in DevicesButton.vue. A host patching it " +
+        "from outside is how the same component became three different buttons — plated on " +
+        "desktop, bare on the phone bar, and a role-less 44px box in the Now Playing header."
+    ).toEqual([]);
   });
 });

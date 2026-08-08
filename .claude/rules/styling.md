@@ -663,6 +663,38 @@ Hand, also wiederholten Album- und Artist-Header wortgleich denselben Patch. Jet
 Komponente eine Prop `btn_role` (`quiet` = blanker Glyph, `action` = Header-Platte). Neue
 Varianten also als **Rollen-Prop an der Komponente**, nicht als Regel in der aufrufenden View.
 
+### ⚠️ Drei Wirte, drei Buttons — und keiner sah für sich falsch aus (#498)
+
+Dieselbe Falle beim **Devices-Button**, nur eine Stufe schlimmer: seine Anatomie lag in den drei
+Wirten, und die hatten sich auseinandergelebt — `BottomBar/Right.vue` plattierte ihn über die
+Wirt-Regel mit `btn-action`, `BottomBar/Left.vue` strippte ihn per
+`border: none; background: transparent` zum blanken Glyph, und `NowPlaying/Header.vue` setzte eine
+44-px-Box **ohne jede Rolle**. Auf dem Handy — dem einen Gerät, für das Gruppen-Wiedergabe gedacht
+ist — stand er damit als einziger Knopf ohne Fläche in einer Reihe aus lauter Platten (prev, play,
+next). Gemeldet als „ist noch nicht als Button dargestellt (kein Schatten etc.)".
+
+**Die Form des Fehlers ist der Punkt:** Keine der drei Dateien las sich für sich falsch. Jede war
+in sich stimmig, und sichtbar wurde die Drift erst, wenn man zwei Bildschirme nebeneinander legt.
+Ein Zensus muss deshalb „**kein** Wirt gestaltet diesen Button" prüfen, nicht „der Handy-Balken ist
+plattiert" — und die Wirte **aufsammeln statt auflisten**
+(`devicesButtonAnatomy.test.ts`: über alle `.vue` streichen, die die Komponente importieren; eine
+feste Dreierliste ließe den vierten Wirt still durch).
+
+Zwei Dinge, die dabei mit hochkamen:
+
+- **`candy-box()` malt Fläche und Rahmen — keinen Schatten.** Der beigetretene Zustand (grün) war
+  damit der einzige *gefüllte* Knopf der App, der flach auf der Bar lag. Der Offset kam vor #244
+  zufällig aus der globalen Button-Basis, also sah der Aufruf vollständig aus. Ein „An"-Zustand
+  nimmt deshalb `btn-toggle-on` — dieselbe Box wie Shuffle/Repeat, nur mit `$fill: $brand-green`
+  statt Gelb (Gelb heißt „läuft").
+- **Der eigene Hover-Block gehört zum An-Zustand dazu.** `.ds-joined` steht später und mit gleicher
+  Spezifität wie der `:hover` der Rolle — ohne eigenen Block wäre ausgerechnet der eingeschaltete
+  Knopf der eine, auf dem der Zeiger nichts sagt. Dieselbe Lücke hat #422 bei `btn-toggle-on`
+  geschlossen; sie kommt bei jedem neuen Zustands-Selektor zurück.
+- ⚠️ **`$glyph` heißt in diesem Repo Glyph-GRÖSSE** (`btn-action`, `btn-quiet`, `btn-primary`).
+  Ein Parameter für die Glyph-*Farbe* heißt `$glyph-color`, sonst emittiert der nächste Aufrufer
+  `color: 1rem` — vom Browser wortlos verworfen.
+
 ## ⚠️ `aspect-ratio` braucht eine Dimension zum Auflösen
 
 `aspect-ratio: 1.5` allein ergibt nichts — es braucht Höhe **oder** Breite. Früher kam die Höhe

@@ -34,6 +34,14 @@ const title = computed(() => (ds.joined ? 'Devices — group playback active' : 
     // `$bar-control`, because every host is chrome: the player bar on both
     // desktop and phone, and the Now Playing header, which sizes to the player.
     @include btn-action($size: $bar-control);
+    // The bar's glyph colour, like every control standing next to it (the
+    // transport row and the aux group both restate this). It is NOT the role's
+    // default `$mem-content-text`: the two agree in the light theme and differ
+    // in the dark one — #ffffff against the row's #f4f2ed — so inheriting the
+    // default would leave this one glyph brighter than its neighbours. The
+    // phone bar used to state it here as `.bar-devices:not(.ds-joined)`, and
+    // that line goes away with the rest of the host patch.
+    color: $candy-text;
 
     // Joined = the app's other persistent on-state, so it wears the same box
     // shuffle and repeat do — accent fill, sprinkle, ink frame, offset shadow,

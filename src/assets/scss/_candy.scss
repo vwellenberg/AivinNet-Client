@@ -216,7 +216,7 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // what makes the fill legible: the fills here are STATIC (identical in both
 // themes), so the glyph on them is a static colour rather than a theme token.
 // ---------------------------------------------------------------------------
-@mixin mem-transport-aux-on($fill: $mem-yellow, $glyph: $mem-ink) {
+@mixin mem-transport-aux-on($fill: $mem-yellow, $glyph-color: $mem-ink) {
   @include candy-box($fill, $candy-radius-sm);
   position: relative;
   overflow: hidden; // clip the sprinkle to the rounded corners
@@ -224,7 +224,7 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
   // Set through `color`, never `fill`: the transport glyphs are currentColor
   // and the auxiliary ones (shuffle, repeat) are STROKED — a `fill` rule
   // would flood their open shapes solid.
-  color: $glyph;
+  color: $glyph-color;
 
   // Memphis sprinkle over the accent fill, exactly like the play CTA.
   &::before {
