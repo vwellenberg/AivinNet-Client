@@ -253,11 +253,9 @@ defineEmits<{
 
         @include largePhones {
             flex-shrink: 0;
-            margin-right: $medium;
-        }
-
-        @include smallerPhones {
-            margin-right: $small;
+            // (The `margin-right` that used to stand here — $medium, dropping to
+            // $small on the narrowest phones — was the cover's private half of a
+            // spacing rule the row now owns as a `gap`. See the note there.)
         }
     }
 
@@ -322,7 +320,22 @@ defineEmits<{
 
     @include largePhones {
         display: flex;
-        gap: 0;
+        // NOT 0, and this is what the plated devices button exposed: measured
+        // at 390 and 360, `next` and `devices` sat at a gap of exactly 0 — two
+        // 3px ink frames touching, reading as one welded 91px block.
+        //
+        // It was invisible for as long as the trailing controls were bare
+        // glyphs: a 24px icon in a 44px box carries 10px of padding of its own,
+        // so the row looked evenly spaced at any gap. Give them a fill and the
+        // spacing has to be real. Same observation `_buttons.scss` records for
+        // the desktop bar's 2px right-hand group, one breakpoint down.
+        //
+        // $small rather than the chrome's $bar-gap because the space genuinely
+        // is not there: at 360px the row is cover 48 + transport 156 + devices
+        // 44 out of 328, and while the player is silent an unmute button joins
+        // them. The cover's own `margin-right` is gone with this — it was this
+        // rule's other half, written on one child.
+        gap: $small;
         max-width: calc(100% - 8px);
     }
 }
