@@ -927,6 +927,11 @@ describe('devicesync store', () => {
         )
     })
 
+    // Green against the old code too — `repeat: 'one'` was the one case where
+    // "keep the slot" happened to give the right answer. Kept as a guard: the
+    // new successor logic reads `nextindex`, which returns the row being
+    // deleted here, so this is the branch that would break silently if the
+    // fall-through were ever dropped.
     it('moves on instead of repeating a deleted row under repeat: one', async () => {
         const { useDeviceSync, useTracklist, useQueue, useSettings } = await setup()
         localStorage.setItem('aivinnet.device_id', 'devA')
