@@ -49,6 +49,18 @@ import { Track } from '@/interfaces'
 
 const track = (i: number) => ({ trackhash: `h${i}`, filepath: `${i}.mp3` }) as Track
 
+// `dsState` is hoisted and therefore SHARED across every describe in this
+// file. One test joins a group session, and the seam it exercises returns
+// before anything is spliced — so a suite that inherits `joined: true` runs
+// entirely down the early-return path and stays green while asserting
+// nothing. Resetting per describe worked only by the order they happen to
+// run in; resetting here means a new describe cannot forget.
+beforeEach(() => {
+    dsState.joined = false
+    dsState.applying = false
+    dsState.intercept = vi.fn()
+})
+
 describe('tracklist.insertAt: the preloaded next track', () => {
     beforeEach(() => {
         setActivePinia(createPinia())
@@ -187,8 +199,6 @@ describe('"Play next" means next in both play orders', () => {
     beforeEach(() => {
         setActivePinia(createPinia())
         clearNextAudio.mockClear()
-        dsState.joined = false
-        dsState.intercept = vi.fn()
         useTracklist().tracklist = Array.from({ length: 10 }, (_, i) => track(i))
     })
 
@@ -276,7 +286,6 @@ describe('tracklist.shuffleList: the bookkeeping cannot survive a reshuffle', ()
     beforeEach(() => {
         setActivePinia(createPinia())
         clearNextAudio.mockClear()
-        dsState.joined = false
         useTracklist().tracklist = Array.from({ length: 10 }, (_, i) => track(i))
     })
 
