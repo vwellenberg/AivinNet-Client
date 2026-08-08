@@ -423,7 +423,7 @@ describe('tracklist.removeByIndex: removing the playing row', () => {
         expect(tracklist.tracklist[queue.currentindex]).toBe(started)
     })
 
-    it('advances the pointer to the same row when paused (shuffle)', () => {
+    it('advances the pointer AND the loaded audio when paused (shuffle)', () => {
         const queue = useQueue()
         const tracklist = useTracklist()
 
@@ -436,6 +436,11 @@ describe('tracklist.removeByIndex: removing the playing row', () => {
         tracklist.removeByIndex(3)
 
         expect(tracklist.tracklist[queue.currentindex]).toBe(successor)
+        // Moving the pointer alone left the DELETED row loaded: `playPause`
+        // only reloads at `currentTime === 0`, so resuming after a mid-track
+        // pause played a track that is no longer in the queue.
+        expect(started).toBe(successor)
+        expect(queue.playing).toBe(false)
     })
 
     it('does not keep playing the row it just deleted under repeat: one', () => {

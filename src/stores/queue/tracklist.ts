@@ -332,6 +332,15 @@ export default defineStore('tracklist', {
                     // `moveForward` rolls, and for the same reason: the current
                     // track changed, so the pre-rolled target is stale.
                     queue.rollShuffleNext()
+
+                    // ...and the loaded audio is still the row being deleted.
+                    // `moveForward` moved the pointer only, so resuming after a
+                    // pause played the DELETED track: `playPause` reloads solely
+                    // when `currentTime === 0`, and a pause mid-track is exactly
+                    // when it is not. `playCurrent` swaps the source and leaves
+                    // it paused — `onAudioCanPlay` pauses again unless
+                    // `queue.playing`, which is false in this branch.
+                    player.playCurrent()
                 }
 
                 // The successor's index is a PRE-splice number, and the splice
