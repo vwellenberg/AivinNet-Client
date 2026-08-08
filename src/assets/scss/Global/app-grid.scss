@@ -303,9 +303,18 @@ $g-border: solid $candy-border-w $mem-line;
         padding-right: $alt_layout_pad;
     }
 
-    .b-bar,
-    .search-page-top-results {
+    .b-bar {
         padding: 0 $alt_layout_pad;
+    }
+
+    // The SIDES only. As a `padding` shorthand this also zeroed the bottom,
+    // and a second rule further down handed back $padbottom (4rem) against a
+    // 5.125rem bar — the exact 18px shortfall styling.md records for #307,
+    // measured again at the foot of the search page's idle column. The
+    // reserve belongs to `.content-page` and is left alone here.
+    .search-page-top-results {
+        padding-left: $alt_layout_pad;
+        padding-right: $alt_layout_pad;
     }
 
     #contentresizer {
@@ -319,10 +328,6 @@ $g-border: solid $candy-border-w $mem-line;
     .vue-recycle-scroller,
     .content-page {
         padding-top: 2rem;
-    }
-
-    .search-page-top-results {
-        padding-bottom: $padbottom;
     }
 
     .search-view .buttons-area {
