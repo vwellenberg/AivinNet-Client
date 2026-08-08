@@ -42,7 +42,8 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 | Skript | wofür |
 |---|---|
 | `shot.js` | Screenshot: `TOKEN=… CLIP=x,y,w,h OUT=…png node shot.js` |
-| `shot2.js` | die flexible Variante: `ROUTE=/playlist/3 MOBILE=1 THEME=dark W=390 H=844 OUT=… node shot2.js`; kennt `BASE`, läuft also auch hinter dem Preview-Proxy |
+| `shot2.js` | die flexible Variante: `ROUTE=/playlist/3 MOBILE=1 W=390 H=844 OUT=… node shot2.js`; kennt `BASE`, läuft also auch hinter dem Preview-Proxy. **`THEME=` wirkt nicht mehr — für Dark `darkshot.js` nehmen**, siehe unten |
+| `darkshot.js` | Dark-Mode-Screenshots über den **echten** Toggle: `ROUTES="name=/route\|name2=/route2" node darkshot.js`. Klickt `button.theme-toggle` und bricht ab, wenn `body.theme-dark` fehlt |
 | `debug.js` | computed styles auslesen — für „warum greift mein CSS nicht" |
 | `rangeshot.js` + `rangemeasure.py` | Regler-Geometrie in **Pixeln**, Chromium und Firefox |
 | `wavecheck.js` | welches Element beim Klick eine `v-wave`-Welle wirft, mit Farbe und Dauer |
@@ -106,6 +107,15 @@ ohne Tab ist dagegen ehrlich und zeigt „404! Page Not Found!".
   wieder über. Mobile-Layout-Befunde deshalb immer über das Spektrum fahren —
   `scripts/overflow-check.js` (320/360/390/412/430) tut genau das und läuft seitdem als Gate am
   Ende jedes Deploys.
+- **⚠️ `THEME=dark` in `shot2.js` schaltet das Theme NICHT mehr — und meldet das nicht.** Das
+  Skript schreibt `theme`/`auto_theme` in das persistierte `settings`-Objekt im localStorage und
+  lädt neu; die App kommt trotzdem hell zurück. Der Lauf endet mit `SHOT_DONE`, die Datei ist da,
+  sie zeigt nur das falsche Theme — real passiert: ein erstes Paar „Dark"-Aufnahmen war
+  **pixelgleich** mit den hellen und wäre so in die README gewandert.
+  `darkshot.js` geht deshalb den echten Weg: es klickt `button.theme-toggle` (den Mond in der
+  Topbar) und **prüft vor jeder Aufnahme `document.body.classList.contains("theme-dark")**, mit
+  Abbruch bei fehlender Klasse. Die Assertion ist der Punkt — sie unterscheidet „sieht dunkel
+  aus" von geprüft. Wer ein Theme misst, prüft die Klasse, nicht den localStorage.
 - **Gegen `master` kontrollieren, immer.** Eine Null beweist ohne Kontrolllauf nur, dass man
   nicht misst.
 - **⚠️ Ein Element-Rechteck ist kein Beweis, dass etwas GEMALT wird.** `getBoundingClientRect()`
