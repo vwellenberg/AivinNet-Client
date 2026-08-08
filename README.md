@@ -11,8 +11,8 @@ A Spotify-style music player frontend, branded as **AivinNet**. This is a fork o
 
 |                                                     |                                                        |
 | --------------------------------------------------- | ------------------------------------------------------ |
-| **Home** — browse your library                      | **Now Playing** — cover plate, up next, transport      |
-| ![Home](docs/screenshots/home.png)                  | ![Now Playing](docs/screenshots/nowplaying.png)        |
+| **Home** — browse your library                      | **Lyrics** — synced, with a per-line progress bar      |
+| ![Home](docs/screenshots/home.png)                  | ![Synced lyrics](docs/screenshots/lyrics.png)          |
 | **Playlist** — track list with ambient gradient     | **Artists** — library grid                             |
 | ![Playlist view](docs/screenshots/playlist.png)     | ![Artists](docs/screenshots/artists.png)               |
 
@@ -34,6 +34,7 @@ switches itself: dark from 20:00, light from 08:00, always in Berlin time so eve
 - Color-matched **ambient gradient** that tints album, artist, and playlist pages from the cover artwork.
 - **Playlist power tools** — drag-and-drop track reordering, pin playlists to the sidebar, and play/pin/delete from a right-click menu.
 - **MusicBrainz cover fetching** — grab a missing album cover with one click, or batch-fetch every missing cover from Settings with live progress.
+- **Synced lyrics** — timestamped lines with a per-line progress bar; click a line to seek there.
 
 See [FEATURES.md](FEATURES.md) for the full list, including how each item compares to upstream.
 
