@@ -141,6 +141,22 @@ const dragOverClass = computed(() => {
 })
 
 function onDragStart(e: DragEvent) {
+    // The same guard as the `draggable` binding, and it has to be here too:
+    // `draggable="false"` on the row does NOT stop a drag that starts on a
+    // natively draggable child. The cover is marked (TrackTitle.vue), but the
+    // artist links are `<a>` and draggable by nature as well.
+    //
+    // ⚠️ `preventDefault`, not just `return`. Returning suppresses the payload
+    // and lets the native drag run: every playlist row it crosses paints its
+    // insertion line, and the drop is then silently discarded — a dead
+    // affordance rather than a mistake, but one nobody can tell from a working
+    // one. Cancelling the event is what makes this guard cover whatever
+    // draggable element lands in this row next.
+    if (!props.droppable) {
+        e.preventDefault()
+        return
+    }
+
     showDragStart(e, props.track, props.track.index, props.source)
 }
 
