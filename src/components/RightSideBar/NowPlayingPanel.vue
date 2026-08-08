@@ -163,8 +163,11 @@ const infoRows = computed(() => {
     const t = track.value
     if (!t?.trackhash) return []
 
+    // No year here: `Track` carries none (that lives on `Album`), and asking
+    // the album route for it would trade a whole extra request for one number.
     const rows: { k: string; v: string }[] = []
-    if (t.album) rows.push({ k: 'Album', v: t.date ? `${t.album} · ${t.date}` : t.album })
+    if (t.album) rows.push({ k: 'Album', v: t.album })
+    if (t.genre) rows.push({ k: 'Genre', v: t.genre })
     if (t.bitrate) rows.push({ k: 'Format', v: `${t.filetype?.toUpperCase() || ''} ${t.bitrate} kbps`.trim() })
     if (t.duration) rows.push({ k: 'Length', v: formatSeconds(t.duration) as string })
     return rows
