@@ -315,6 +315,32 @@ Zwei Dinge, die dazugehören:
 - **Die Breite wird gedeckelt.** Eine Textplatte, die ein 1440er-Fenster ausfüllt, ist ein
   Leseproblem — Lyrics und ähnlicher Fließtext stehen bei `max-width: 54rem`.
 
+### ⚠️ Eine Abschnitts-Überschrift ist ein STICKER — und der Zensus zählt pro Überschrift (#509)
+
+Die Platte ist die Antwort für Listen und Fließtext; für eine **Überschrift** heißt sie
+`mem-sticker` (Karten-Zeilen, „Top Tracks", „Browse Library", „Up Next"/„Queue", die
+Chart-Gruppen, die Seitentitel, der Recent-Searches-Kopf). Die beiden Überschriften des
+Such-Tabs „Top" waren die letzten ohne — sie trugen ein theme-abhängiges `color`, und
+genau das ist der Fehler in Reinform: **eine Farbe beantwortet keine Form darunter.**
+
+Zwei Dinge, die dabei jedes Mal auffallen:
+
+- **Der Sticker gehört an eine KLASSE, nicht an den `h3`-Elementselektor.** Auf einer
+  Suchseite trifft `h3` auch den Titel *in* der Top-Result-Karte — der sitzt auf Panel und
+  wird durch einen Sticker zur Platte auf der Platte. Dafür gibt es `.section-title`.
+- **Ein Zensus über „die Datei erwähnt `mem-sticker`" ist keiner.** Eine Komponente, die
+  ihre erste Überschrift plattiert und daneben eine zweite blank stehen lässt, bleibt damit
+  grün — und das ist exakt die Form dieses Bugs. `sectionCaptionSticker.test.ts` sammelt
+  deshalb **jede** `<h2>/<h3>` aller Views und Komponenten ein und löst pro Überschrift ihre
+  eigenen Selektoren auf (Klassen, dann das Element); wer keinen Sticker hat, trägt seine
+  Datei mit der Fläche ein, auf der sie stattdessen sitzt (`NOT_ON_THE_GROUND`).
+
+⚠️ **Und eine Platte macht sichtbar, was ohne sie nichts kostete.** Eine leere Liste unter
+einem Rahmen ist ein leeres Rechteck (die Guard `v-if="…tracks.length"` stand nur im
+Sidebar-Zwilling), und ein `margin-top` auf *jeder* Zeile addiert sich an der Oberkante auf
+das Platten-Padding (8 px oben gegen 4 px unten). Beides war auf dem nackten Grund
+unsichtbar — wer eine Fläche einzieht, liest die Innenabstände und die Leerzustände neu.
+
 ## ⚠️ Die Sidebar-Zeile IST ein Button (#378)
 
 Navigation und Bibliothek tragen dieselbe **Platte**: `mem-row-plate` / `-hover` / `-active` in
@@ -917,6 +943,16 @@ wenn wirklich etwas davorsteht — bei leerer Queue rendert `playingFrom()` wede
 Allgemeiner: Eine Medienzelle kann ihre Form von einer Utility-Klasse bekommen, die die View gar
 nicht setzt. Wer eine Kante auf so eine Zelle legt, prüft **jede** Quelle einzeln — Element-
 Screenshot pro Variante, nicht nur die, die man gerade offen hat.
+
+⚠️ **Die Beschriftung dieser Platte kommt aus `playingFrom()`, nicht aus dem Enum** (#508). Sie
+stand als `tracklist.from.type` im Template, also druckte `text-transform: uppercase` bei zwei
+von acht Quellen dasselbe zweimal (`SEARCH` über `Search for: …`) und bei einer den Bezeichner
+(`PLAYLISTFOLDER`). Bei der Suche kostet das mehr als ein Wort: Beschriftung + `Search for:` +
+Lupe sind zusammen die Anatomie des **Suchfelds** (`RightSideBar/SearchInput.vue`), und auf dem
+Handy ist diese Platte das oberste Element des Now-Playing-Schirms — ohne Top-Bar daneben, an der
+man den Unterschied ablesen könnte. Gemeldet als „warum ist beim Song oben ne Suche?". Beschriftung
+und Name stehen jetzt nebeneinander in derselben Funktion und lassen sich gegeneinander lesen;
+`playingFrom.test.ts` verbietet, dass die eine in der anderen vorkommt.
 
 ## ⚠️ Ein Kind im Scroller deckt den Scrollbar-Gutter NICHT
 
