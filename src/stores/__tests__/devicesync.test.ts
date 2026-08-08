@@ -883,13 +883,70 @@ describe('devicesync store', () => {
             expect.objectContaining({ trackhashes: ['h1', 'h3'], currentindex: 1, position_ms: 0 })
         )
 
-        // ...and removing the LAST track clamps into the shortened queue.
+        // ...and removing the LAST track wraps to the top, exactly like the
+        // solo path does. It used to clamp onto the new last row instead — a
+        // different track than the one the group would have played next.
         requestsMock.setQueue.mockClear()
         useQueue().currentindex = 2
         tl.removeByIndex(2)
 
         expect(requestsMock.setQueue).toHaveBeenCalledWith(
-            expect.objectContaining({ trackhashes: ['h1', 'h2'], currentindex: 1, position_ms: 0 })
+            expect.objectContaining({ trackhashes: ['h1', 'h2'], currentindex: 0, position_ms: 0 })
+        )
+    })
+
+    // -----------------------------------------------------------------------
+    // #518: the group path asked "which slot falls away", the solo path asks
+    // "who takes over". Under shuffle those are different rows, and the
+    // leader's auto-advance (`track_change` with `queue.nextindex`) already
+    // followed the solo answer — so removing the playing row moved the whole
+    // group onto a track nobody was heading for. Synchronously, without an
+    // error anywhere.
+    // -----------------------------------------------------------------------
+    it('broadcasts the pre-rolled shuffle successor when the playing row goes', async () => {
+        const { useDeviceSync, useTracklist, useQueue, useSettings } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('h1'), mkTrack('h2'), mkTrack('h3'), mkTrack('h4')]
+        const queue = useQueue()
+        useSettings().shuffle = true
+        queue.currentindex = 1
+        queue.shuffleNextIndex = 3
+        queue.playing = true
+
+        tl.removeByIndex(1)
+
+        // h4 was the pre-rolled target and sits at 2 once h2 is gone. The old
+        // code sent 1 — which is h3, the row that merely slid into the gap.
+        expect(requestsMock.setQueue).toHaveBeenCalledWith(
+            expect.objectContaining({ trackhashes: ['h1', 'h3', 'h4'], currentindex: 2, position_ms: 0 })
+        )
+    })
+
+    it('moves on instead of repeating a deleted row under repeat: one', async () => {
+        const { useDeviceSync, useTracklist, useQueue, useSettings } = await setup()
+        localStorage.setItem('aivinnet.device_id', 'devA')
+        const ds = useDeviceSync()
+        await ds.register()
+        ds.joined = true
+
+        const tl = useTracklist()
+        tl.tracklist = [mkTrack('h1'), mkTrack('h2'), mkTrack('h3')]
+        const queue = useQueue()
+        useSettings().repeat = 'one'
+        queue.currentindex = 1
+        queue.playing = true
+
+        tl.removeByIndex(1)
+
+        // `nextindex` returns the current row here, so "who takes over" has to
+        // fall through to the row below — h3, which lands on 1.
+        expect(requestsMock.setQueue).toHaveBeenCalledWith(
+            expect.objectContaining({ trackhashes: ['h1', 'h3'], currentindex: 1 })
         )
     })
 

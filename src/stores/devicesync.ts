@@ -21,6 +21,7 @@ import { ClockOffsetEstimator } from '@/utils/deviceSync/clockSync'
 import { detectDeviceName, detectDeviceType, getOrCreateDeviceId } from '@/utils/deviceSync/deviceId'
 import { expectedPositionMs } from '@/utils/deviceSync/expectedPosition'
 import { resolveQueueMove } from '@/utils/queueMove'
+import { shiftAfterRemove } from '@/utils/shuffleIndexes'
 import type {
     DeviceSummary,
     PollResponse,
@@ -1050,15 +1051,33 @@ export default defineStore('devicesync', {
                     const at = args[0] as number
                     const hashes = tracklist.tracklist.map(t => t.trackhash)
                     if (!Number.isInteger(at) || at < 0 || at >= hashes.length) break
+
+                    const removedCurrent = at === queue.currentindex
+
+                    // Who takes over — asked BEFORE the splice, while
+                    // `nextindex` still numbers the list it was computed from.
+                    // The same question the solo path answers (#506), and it has
+                    // to be the same answer: keeping `at` assumes the successor
+                    // is the row below, which is only true in sequential order.
+                    // Under shuffle it is a pre-rolled row somewhere else — and
+                    // the leader's own auto-advance already honours exactly that
+                    // row (`track_change` with `queue.nextindex`), so the two
+                    // halves contradicted each other and every device landed on
+                    // the wrong track together (#518).
+                    //
+                    // `nextindex === at` only under `repeat: 'one'`, where it
+                    // hands back the row that is going away.
+                    const successor =
+                        queue.nextindex === at ? (at === hashes.length - 1 ? 0 : at + 1) : queue.nextindex
+
                     hashes.splice(at, 1)
 
-                    // Below the current track → everything shifts up by one.
-                    // On it → keep the index: the next track slides into the
-                    // slot and starts from the top (clamped when the removed
-                    // track was the last one).
-                    const removedCurrent = at === queue.currentindex
-                    const shifted = at < queue.currentindex ? queue.currentindex - 1 : queue.currentindex
-                    const index = Math.max(0, Math.min(shifted, hashes.length - 1))
+                    // The successor is a PRE-splice number; the splice renumbers
+                    // everything after `at`. Never null — `successor` differs
+                    // from `at` by construction, and the one case where it
+                    // cannot (a queue of one) leaves no list to index into.
+                    const target = removedCurrent ? successor : queue.currentindex
+                    const index = hashes.length === 0 ? 0 : (shiftAfterRemove(target, at) as number)
 
                     void this.sendQueueSet({
                         trackhashes: hashes,
