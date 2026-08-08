@@ -6,8 +6,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // mocking either one would mock away the thing under test. Everything else
 // the two pull in (player, device sync, router, notifications, playlists) is
 // irrelevant to insert maths and gets stubbed.
-const { clearNextAudio, dsState } = vi.hoisted(() => ({
+const { clearNextAudio, playCurrent, dsState } = vi.hoisted(() => ({
     clearNextAudio: vi.fn(),
+    // Hoisted so a test can watch WHICH row's audio actually started —
+    // `queue.play` sets `currentindex` and then calls this, so reading the
+    // index from inside it is the only honest answer to "what is playing".
+    playCurrent: vi.fn(),
     // Mutable so a test can put this device into a group session — the seam
     // there returns before anything is spliced locally.
     dsState: { joined: false, applying: false, intercept: vi.fn() },
@@ -21,7 +25,7 @@ vi.mock('@/stores/player', () => ({
     },
     getUrl: () => '',
     usePlayer: () => ({
-        playCurrent: vi.fn(),
+        playCurrent,
         clearNextAudio,
         clearMovingNextTimeout: vi.fn(),
     }),
@@ -369,6 +373,134 @@ describe('tracklist.removeByIndex: the shuffle bookkeeping follows', () => {
         useTracklist().removeByIndex(5)
 
         expect(queue.shuffleRecent).toEqual([2, 7])
+    })
+})
+
+// ---------------------------------------------------------------------------
+// Removing the row that is PLAYING (#506).
+//
+// The old code handed over with `playNext()` / `moveForward()` — which land on
+// `nextindex` — and then wrote `index` back into `currentindex`. That is only
+// right in sequential order, where `nextindex` is `index + 1` and the splice
+// slides exactly that row onto `index`. Under shuffle the successor is a random
+// row somewhere else, so the store named whatever slid into the gap while a
+// different track was audible: the bar, the highlighted row, `previndex`,
+// `nextindex` and the group broadcast all pointed at the wrong track, and
+// nothing anywhere raised an error.
+//
+// Every assertion here is on the TRACK, never on the number — an index is only
+// as true as the list it indexes into, and the list changes in the middle.
+// ---------------------------------------------------------------------------
+describe('tracklist.removeByIndex: removing the playing row', () => {
+    /** The track whose audio `queue.play` actually started. */
+    let started: Track | undefined
+
+    beforeEach(() => {
+        setActivePinia(createPinia())
+        clearNextAudio.mockClear()
+        useTracklist().tracklist = Array.from({ length: 10 }, (_, i) => track(i))
+
+        started = undefined
+        playCurrent.mockReset()
+        playCurrent.mockImplementation(() => {
+            started = useTracklist().tracklist[useQueue().currentindex]
+        })
+    })
+
+    it('points the store at the track that is actually playing (shuffle)', () => {
+        const queue = useQueue()
+        const tracklist = useTracklist()
+
+        useSettings().shuffle = true
+        queue.currentindex = 3
+        queue.shuffleNextIndex = 7
+        queue.playing = true
+        const successor = tracklist.tracklist[7]
+
+        tracklist.removeByIndex(3)
+
+        expect(started).toBe(successor)
+        expect(tracklist.tracklist[queue.currentindex]).toBe(started)
+    })
+
+    it('advances the pointer AND the loaded audio when paused (shuffle)', () => {
+        const queue = useQueue()
+        const tracklist = useTracklist()
+
+        useSettings().shuffle = true
+        queue.currentindex = 3
+        queue.shuffleNextIndex = 7
+        queue.playing = false
+        const successor = tracklist.tracklist[7]
+        // A stale clock to overwrite — 0 against 0 would prove nothing.
+        successor.duration = 200
+        queue.duration = { current: 42, full: 999 }
+
+        tracklist.removeByIndex(3)
+
+        expect(tracklist.tracklist[queue.currentindex]).toBe(successor)
+        // Moving the pointer alone left the DELETED row loaded: `playPause`
+        // only reloads at `currentTime === 0`, so resuming after a mid-track
+        // pause played a track that is no longer in the queue.
+        expect(started).toBe(successor)
+        expect(queue.playing).toBe(false)
+        // The clock follows the source. While paused nothing else resets it —
+        // `onAudioCanPlay` bails before `setDurationFromFile` — so the bar kept
+        // the deleted track's length, and the ±10s hotkeys seek relative to it.
+        expect(queue.duration.current).toBe(0)
+        expect(queue.duration.full).toBe(200)
+    })
+
+    it('does not keep playing the row it just deleted under repeat: one', () => {
+        const queue = useQueue()
+        const tracklist = useTracklist()
+
+        useSettings().repeat = 'one'
+        queue.currentindex = 3
+        queue.playing = true
+        const removed = tracklist.tracklist[3]
+        const below = tracklist.tracklist[4]
+
+        tracklist.removeByIndex(3)
+
+        // `nextindex` hands back the current row here, so the handover had
+        // nothing to hand over to — the row below takes it.
+        expect(started).not.toBe(removed)
+        expect(started).toBe(below)
+        expect(tracklist.tracklist).not.toContain(removed)
+        expect(tracklist.tracklist[queue.currentindex]).toBe(started)
+    })
+
+    it('wraps to the top when the last row was playing', () => {
+        const queue = useQueue()
+        const tracklist = useTracklist()
+
+        queue.currentindex = 9
+        queue.playing = true
+        const first = tracklist.tracklist[0]
+
+        tracklist.removeByIndex(9)
+
+        // The old write-back put `currentindex` at 9 — one past the end of the
+        // now nine-row list, so the store named nothing at all.
+        expect(queue.currentindex).toBeLessThan(tracklist.tracklist.length)
+        expect(tracklist.tracklist[queue.currentindex]).toBe(first)
+    })
+
+    it('still lands right in sequential order', () => {
+        const queue = useQueue()
+        const tracklist = useTracklist()
+
+        queue.currentindex = 3
+        queue.playing = true
+        const successor = tracklist.tracklist[4]
+
+        tracklist.removeByIndex(3)
+
+        // This is the case that was accidentally correct, and the reason the
+        // bug survived: here the successor really does land on `index`.
+        expect(queue.currentindex).toBe(3)
+        expect(tracklist.tracklist[queue.currentindex]).toBe(successor)
     })
 })
 
