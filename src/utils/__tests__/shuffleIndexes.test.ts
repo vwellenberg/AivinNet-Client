@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { resolveQueueMove } from '@/utils/queueMove'
 import { remapAfterMove, shiftAfterInsert, shiftAfterRemove } from '@/utils/shuffleIndexes'
 
 describe('shiftAfterInsert', () => {
@@ -59,23 +60,23 @@ describe('remapAfterMove', () => {
         expect(remapAfterMove(5, 1, 3)).toBe(5)
     })
 
-    // The playing track goes through exactly these cases in resolveQueueMove;
-    // shuffle's indexes have no reason to disagree with it.
+    // The playing track goes through exactly these cases in resolveQueueMove,
+    // and shuffle's indexes have no reason to disagree with it. This calls the
+    // real function rather than restating its branches — a hand-copied clone
+    // would compare remapAfterMove to itself and could never catch a drift
+    // between the two.
     it('agrees with the currentindex arithmetic in resolveQueueMove', () => {
-        const cases = [
-            [3, 3, 7],
-            [5, 2, 5],
-            [5, 8, 5],
-            [5, 7, 8],
-        ]
+        const LENGTH = 10
 
-        for (const [index, from, finalIndex] of cases) {
-            let expected = index
-            if (from === index) expected = finalIndex
-            else if (from < index && finalIndex >= index) expected = index - 1
-            else if (from > index && finalIndex <= index) expected = index + 1
+        for (let from = 0; from < LENGTH; from++) {
+            for (let to = 0; to <= LENGTH; to++) {
+                for (let tracked = 0; tracked < LENGTH; tracked++) {
+                    const move = resolveQueueMove(LENGTH, from, to, tracked)
+                    if (!move) continue
 
-            expect(remapAfterMove(index, from, finalIndex)).toBe(expected)
+                    expect(remapAfterMove(tracked, from, move.finalIndex)).toBe(move.currentindex)
+                }
+            }
         }
     })
 })

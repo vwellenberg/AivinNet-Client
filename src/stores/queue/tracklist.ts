@@ -192,6 +192,13 @@ export default defineStore('tracklist', {
             // `index` on just moved back by `tracks.length`, so the pre-rolled
             // target and the history have to travel with them or they silently
             // start naming different tracks.
+            //
+            // ⚠️ `currentindex` is deliberately NOT shifted here, and that only
+            // holds because no caller inserts at or below the playing row:
+            // `addTracks` appends, `insertAfterCurrent` and `playTrackNext` use
+            // `currentindex + 1`. A future caller passing a lower index has to
+            // move it too — otherwise the playing track slides down while the
+            // index stays put, and the UI names a different song than the audio.
             queue.shiftShuffleIndexes(index, tracks.length)
 
             if (aimNext) queue.aimShuffleNext(index)
