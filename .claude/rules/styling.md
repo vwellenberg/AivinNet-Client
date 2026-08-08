@@ -663,7 +663,7 @@ Hand, also wiederholten Album- und Artist-Header wortgleich denselben Patch. Jet
 Komponente eine Prop `btn_role` (`quiet` = blanker Glyph, `action` = Header-Platte). Neue
 Varianten also als **Rollen-Prop an der Komponente**, nicht als Regel in der aufrufenden View.
 
-### ⚠️ Drei Wirte, drei Buttons — und keiner sah für sich falsch aus (#498)
+### ⚠️ Drei Wirte, drei Buttons — und keiner sah für sich falsch aus (#499)
 
 Dieselbe Falle beim **Devices-Button**, nur eine Stufe schlimmer: seine Anatomie lag in den drei
 Wirten, und die hatten sich auseinandergelebt — `BottomBar/Right.vue` plattierte ihn über die
