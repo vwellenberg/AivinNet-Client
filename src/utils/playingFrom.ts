@@ -15,6 +15,21 @@ import SearchSvg from '@/assets/icons/search.svg'
 import RadioSvg from '@/assets/icons/radio.svg'
 
 interface PlayingFrom {
+    /**
+     * The caption above the name — what KIND of place this is.
+     *
+     * It used to be `tracklist.from.type` read straight out of the enum, and
+     * that made the plate lie twice: `playlistFolder` rendered as
+     * "PLAYLISTFOLDER", and the two sources whose name is not an entity name
+     * repeated their own caption ("SEARCH" over `Search for: "…"`, "FAVORITE"
+     * over "Favorite tracks"). A caption that echoes the line below it carries
+     * nothing, and on the search source it cost more than that: caption plus a
+     * `Search for:` phrase plus the magnifier glyph is the anatomy of the app's
+     * search FIELD (`RightSideBar/SearchInput.vue`) — on the phone Now-Playing
+     * screen this plate is the topmost element, with no top bar in sight to
+     * compare it against, and it was read as one.
+     */
+    type: string
     name: string
     icon: string
     location: RouteLocationRaw
@@ -25,6 +40,7 @@ export default (source: From): PlayingFrom => {
     switch (source.type) {
         case FromOptions.album:
             return {
+                type: 'Album',
                 name: source.name,
                 icon: AlbumSvg,
                 location: {
@@ -38,6 +54,7 @@ export default (source: From): PlayingFrom => {
 
         case FromOptions.folder:
             return {
+                type: 'Folder',
                 name: source.name,
                 icon: FolderSvg,
                 location: {
@@ -51,6 +68,7 @@ export default (source: From): PlayingFrom => {
 
         case FromOptions.playlist:
             return {
+                type: 'Playlist',
                 name: source.name,
                 icon: PlaylistSvg,
                 location: {
@@ -66,6 +84,7 @@ export default (source: From): PlayingFrom => {
             // Playlist folders live in the sidebar; the playlists page is the
             // closest navigable surface.
             return {
+                type: 'Playlist folder',
                 name: source.name,
                 icon: FolderSvg,
                 location: {
@@ -76,7 +95,11 @@ export default (source: From): PlayingFrom => {
 
         case FromOptions.search:
             return {
-                name: `Search for: "${source.query}"`,
+                // The caption already says where this leads, so the name is the
+                // words the user typed — quoted, so they read as a quotation
+                // rather than as a value sitting in a field.
+                type: 'Search results',
+                name: `"${source.query}"`,
                 icon: SearchSvg,
                 location: {
                     name: Routes.search,
@@ -92,6 +115,7 @@ export default (source: From): PlayingFrom => {
 
         case FromOptions.artist:
             return {
+                type: 'Artist',
                 name: source.artistname,
                 icon: ArtistSvg,
                 location: {
@@ -105,6 +129,7 @@ export default (source: From): PlayingFrom => {
 
         case FromOptions.favorite:
             return {
+                type: 'Library',
                 name: 'Favorite tracks',
                 icon: BookmarkSvg,
                 location: {
@@ -114,6 +139,6 @@ export default (source: From): PlayingFrom => {
             }
 
         default:
-            return { name: '👻 No source', location: {}, icon: '' }
+            return { type: '', name: '👻 No source', location: {}, icon: '' }
     }
 }

@@ -17,7 +17,12 @@
                     <component :is="data.icon"></component>
                 </div>
                 <div class="from-text">
-                    <div class="type">{{ tracklist.from.type }}</div>
+                    <!-- The caption comes from playingFrom(), not from
+                         `tracklist.from.type`: the raw enum printed
+                         "PLAYLISTFOLDER" and repeated the line below it on the
+                         two sources whose name is not an entity name. Guarded,
+                         because an empty queue has no source to caption. -->
+                    <div v-if="data.type" class="type">{{ data.type }}</div>
                     <div class="name">{{ data.name }}</div>
                 </div>
             </div>
@@ -45,8 +50,8 @@ const tracklist = useTracklist()
 const context_showing = ref(false)
 
 const data = computed(() => {
-    const { name, location, icon, image } = playingFrom(tracklist.from)
-    return { name, location, icon, image }
+    const { type, name, location, icon, image } = playingFrom(tracklist.from)
+    return { type, name, location, icon, image }
 })
 
 function showContextMenu(e: MouseEvent) {
