@@ -212,6 +212,10 @@ export default defineStore('tracklist', {
             // it just sits at a different index now.
             queue.setCurrentIndex(move.currentindex)
 
+            // The shuffle bookkeeping needs the same treatment as currentindex,
+            // and for the same reason — the dragged row may have passed over it.
+            queue.remapShuffleIndexes(from, move.finalIndex)
+
             // Whatever was preloaded as "next" may be a different track now.
             usePlayer().clearNextAudio()
         },
@@ -249,12 +253,17 @@ export default defineStore('tracklist', {
                 return
             }
 
-            const { currentindex, nextindex, playing, playNext, moveForward, setCurrentIndex } = useQueue()
+            const queue = useQueue()
+            const { currentindex, playing, playNext, moveForward, setCurrentIndex } = queue
             const player = usePlayer()
 
             if (this.tracklist.length == 1) {
                 return this.clearList()
             }
+
+            // Same reasoning as insertAt: read the track, not the index. Taken
+            // before anything below can move the queue on.
+            const nextBefore = this.tracklist[queue.nextindex]
 
             if (index == currentindex) {
                 if (playing) {
@@ -272,7 +281,12 @@ export default defineStore('tracklist', {
 
             this.tracklist.splice(index, 1)
 
-            if (index == nextindex) {
+            // The removed row renumbers everything behind it, and it may BE the
+            // pre-rolled shuffle target — in which case there is nothing to
+            // re-point to and the store rolls again.
+            queue.dropShuffleIndex(index)
+
+            if (this.tracklist[queue.nextindex] !== nextBefore) {
                 player.clearNextAudio()
             }
         },
@@ -307,9 +321,15 @@ export default defineStore('tracklist', {
          * audio was the track this insert just displaced.
          */
         insertAfterCurrent(tracks: Track[]) {
-            const { currentindex } = useQueue()
+            const queue = useQueue()
+            const at = queue.currentindex + 1
 
-            this.insertAt(tracks, currentindex + 1)
+            this.insertAt(tracks, at)
+
+            // Under shuffle the pre-rolled target points elsewhere and now
+            // travels with the splice, so it would sail right past these rows.
+            // "Play next" has to mean next in both play orders.
+            queue.aimShuffleNext(at)
 
             // Shown in the group case too (same as addTracks): the insert was
             // accepted, it just travels via the server.

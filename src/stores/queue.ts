@@ -13,6 +13,7 @@ import useLyrics from './lyrics'
 import { NotifType, useToast } from './notification'
 import useTracklist from './queue/tracklist'
 import useSettings from './settings'
+import { remapAfterMove, shiftAfterInsert, shiftAfterRemove } from '@/utils/shuffleIndexes'
 import { pickShuffleIndex, pushRecent } from '@/utils/shufflePicker'
 
 /**
@@ -127,32 +128,64 @@ export default defineStore('Queue', {
             this.shuffleNextIndex = pickShuffleIndex(tracklist.length, this.currentindex, this.shuffleRecent)
         },
         /**
-         * Keep the shuffle bookkeeping pointing at the SAME tracks after rows
-         * were inserted into the queue.
-         *
-         * BOTH pieces of shuffle state are absolute indexes, so a splice at or
-         * before them shifts the row they name without touching the number:
-         *
-         * - `shuffleNextIndex` — the pre-rolled target, read by `nextindex`
-         *   and therefore by the audio preload and the group broadcast.
-         * - `shuffleRecent` — the history, read by `previndex` and handed to
-         *   `pickShuffleIndex` as the avoid-list. Leaving it behind sends
-         *   Previous to whatever slid into the old slot, and makes the next
-         *   roll avoid the wrong tracks.
-         *
-         * Shifting, not re-rolling. A re-roll would throw away a target whose
-         * audio is already preloaded and change what plays next every time
-         * someone queues something — exactly what `rollShuffleNext` exists to
-         * keep from happening on every read (see the note in `nextindex`).
+         * Rows were INSERTED at `from`: re-point the shuffle bookkeeping so it
+         * keeps naming the same tracks. Arithmetic and the reasoning behind
+         * re-pointing instead of re-rolling: `utils/shuffleIndexes.ts`.
          */
         shiftShuffleIndexes(from: number, count: number) {
             if (count <= 0) return
 
-            if (this.shuffleNextIndex !== null && from <= this.shuffleNextIndex) {
-                this.shuffleNextIndex += count
+            if (this.shuffleNextIndex !== null) {
+                this.shuffleNextIndex = shiftAfterInsert(this.shuffleNextIndex, from, count)
             }
 
-            this.shuffleRecent = this.shuffleRecent.map(i => (from <= i ? i + count : i))
+            this.shuffleRecent = this.shuffleRecent.map(i => shiftAfterInsert(i, from, count))
+        },
+        /**
+         * "Play next" means next — in every play order.
+         *
+         * Sequential order gets this for free (`nextindex` is `currentindex + 1`,
+         * which is where the insert landed). Under shuffle it does not: the
+         * pre-rolled target points somewhere else entirely and, now that it
+         * travels with the splice, it stays there. Without this the whole
+         * "Play next" family would be a silent no-op while shuffle is on.
+         */
+        aimShuffleNext(index: number) {
+            const { shuffle } = useSettings()
+            if (!shuffle) return
+
+            this.shuffleNextIndex = index
+        },
+        /**
+         * The row at `index` was REMOVED. A tracked index pointing at it no
+         * longer names anything: the target is re-rolled, history entries are
+         * dropped. Everything behind it moves up by one.
+         */
+        dropShuffleIndex(index: number) {
+            this.shuffleRecent = this.shuffleRecent
+                .map(i => shiftAfterRemove(i, index))
+                .filter((i): i is number => i !== null)
+
+            if (this.shuffleNextIndex === null) return
+
+            const shifted = shiftAfterRemove(this.shuffleNextIndex, index)
+            if (shifted === null) {
+                this.rollShuffleNext()
+                return
+            }
+
+            this.shuffleNextIndex = shifted
+        },
+        /**
+         * A row was MOVED (queue drag). `finalIndex` is the post-splice index
+         * from `resolveQueueMove`, not the drop gap.
+         */
+        remapShuffleIndexes(from: number, finalIndex: number) {
+            if (this.shuffleNextIndex !== null) {
+                this.shuffleNextIndex = remapAfterMove(this.shuffleNextIndex, from, finalIndex)
+            }
+
+            this.shuffleRecent = this.shuffleRecent.map(i => remapAfterMove(i, from, finalIndex))
         },
         /**
          * Flip permanent shuffle ("random track") mode. Separate from
@@ -306,6 +339,8 @@ export default defineStore('Queue', {
 
             const nextindex = this.currentindex + 1
             insertAt([track], nextindex)
+            // Same as insertAfterCurrent: "next" has to mean next under shuffle too.
+            this.aimShuffleNext(nextindex)
             Toast.showNotification(`Added 1 track to queue`, NotifType.Success)
         },
         clearQueue() {

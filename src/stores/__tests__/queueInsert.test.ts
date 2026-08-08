@@ -177,3 +177,148 @@ describe('tracklist.insertAt: the preloaded next track', () => {
         expect(queue.shuffleNextIndex).toBeNull()
     })
 })
+
+describe('"Play next" means next in both play orders', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia())
+        clearNextAudio.mockClear()
+        useTracklist().tracklist = Array.from({ length: 10 }, (_, i) => track(i))
+    })
+
+    it('plays the inserted track next in sequential order', () => {
+        const queue = useQueue()
+        const tracklist = useTracklist()
+        queue.currentindex = 3
+
+        tracklist.insertAfterCurrent([track(99)])
+
+        expect(tracklist.tracklist[queue.nextindex].trackhash).toBe('h99')
+    })
+
+    // Without `aimShuffleNext` the pre-rolled target simply shifts past the new
+    // row and the insert is never heard — the feature would be a silent no-op
+    // for anyone with shuffle on.
+    it('plays the inserted track next under shuffle too', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+        const tracklist = useTracklist()
+
+        settings.shuffle = true
+        queue.currentindex = 3
+        queue.shuffleNextIndex = 7
+
+        tracklist.insertAfterCurrent([track(99)])
+
+        expect(queue.shuffleNextIndex).toBe(4)
+        expect(tracklist.tracklist[queue.nextindex].trackhash).toBe('h99')
+    })
+
+    it('does the same through queue.playTrackNext', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+        const tracklist = useTracklist()
+
+        settings.shuffle = true
+        queue.currentindex = 3
+        queue.shuffleNextIndex = 7
+
+        queue.playTrackNext(track(99))
+
+        expect(tracklist.tracklist[queue.nextindex].trackhash).toBe('h99')
+    })
+})
+
+describe('tracklist.removeByIndex: the shuffle bookkeeping follows', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia())
+        clearNextAudio.mockClear()
+        useTracklist().tracklist = Array.from({ length: 10 }, (_, i) => track(i))
+    })
+
+    it('keeps the target on its track when a row in front of it goes', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+        const tracklist = useTracklist()
+
+        settings.shuffle = true
+        queue.currentindex = 0
+        queue.shuffleNextIndex = 7
+        const targetBefore = tracklist.tracklist[7]
+
+        tracklist.removeByIndex(2)
+
+        expect(queue.shuffleNextIndex).toBe(6)
+        expect(tracklist.tracklist[queue.nextindex]).toBe(targetBefore)
+        expect(clearNextAudio).not.toHaveBeenCalled()
+    })
+
+    it('rolls again when the removed row WAS the target', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+        const tracklist = useTracklist()
+
+        settings.shuffle = true
+        queue.currentindex = 0
+        queue.shuffleNextIndex = 7
+
+        tracklist.removeByIndex(7)
+
+        // Something else was chosen, and it is never the removed slot's stale
+        // number pointing at whatever slid into it.
+        expect(queue.shuffleNextIndex).not.toBe(7)
+        expect(clearNextAudio).toHaveBeenCalled()
+    })
+
+    it('forgets the removed row in the history and shifts the rest', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+
+        settings.shuffle = true
+        queue.currentindex = 0
+        queue.shuffleRecent = [2, 5, 8]
+
+        useTracklist().removeByIndex(5)
+
+        expect(queue.shuffleRecent).toEqual([2, 7])
+    })
+})
+
+describe('tracklist.moveTrack: the shuffle bookkeeping follows', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia())
+        clearNextAudio.mockClear()
+        useTracklist().tracklist = Array.from({ length: 10 }, (_, i) => track(i))
+    })
+
+    it('carries the target along when the dragged row passes over it', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+        const tracklist = useTracklist()
+
+        settings.shuffle = true
+        queue.currentindex = 0
+        queue.shuffleNextIndex = 5
+        const targetBefore = tracklist.tracklist[5]
+
+        // Drag row 2 down into the gap at 8 -> it lands at 7, passing over 5.
+        tracklist.moveTrack(2, 8)
+
+        expect(queue.shuffleNextIndex).toBe(4)
+        expect(tracklist.tracklist[queue.nextindex]).toBe(targetBefore)
+    })
+
+    it('travels with the dragged row when that row IS the target', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+        const tracklist = useTracklist()
+
+        settings.shuffle = true
+        queue.currentindex = 0
+        queue.shuffleNextIndex = 3
+        const targetBefore = tracklist.tracklist[3]
+
+        tracklist.moveTrack(3, 8)
+
+        expect(tracklist.tracklist[queue.nextindex]).toBe(targetBefore)
+    })
+})
