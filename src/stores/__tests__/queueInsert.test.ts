@@ -333,13 +333,19 @@ describe('tracklist.removeByIndex: the shuffle bookkeeping follows', () => {
 
         settings.shuffle = true
         queue.currentindex = 0
+        queue.shuffleRecent = []
         queue.shuffleNextIndex = 7
 
         tracklist.removeByIndex(7)
 
-        // Something else was chosen, and it is never the removed slot's stale
-        // number pointing at whatever slid into it.
-        expect(queue.shuffleNextIndex).not.toBe(7)
+        // Asserting `!== 7` would be flaky: a fresh roll may legitimately land
+        // on 7 again. What is deterministic is that a roll HAPPENED —
+        // `rollShuffleNext` pushes the current index into the history — and
+        // that the result is a valid row of the now shorter list rather than a
+        // stale number.
+        expect(queue.shuffleRecent).toEqual([0])
+        expect(queue.shuffleNextIndex).not.toBeNull()
+        expect(queue.shuffleNextIndex as number).toBeLessThan(tracklist.tracklist.length)
         expect(clearNextAudio).toHaveBeenCalled()
     })
 
