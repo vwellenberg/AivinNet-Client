@@ -246,6 +246,10 @@ function clearAll() {
     .chip-label {
       min-width: 0;
       overflow: hidden;
+      // Stated rather than inherited: a <button> centres its text through the
+      // UA stylesheet, and centred text is what clipped the term at BOTH ends
+      // before it had a box of its own.
+      text-align: left;
       white-space: nowrap;
       text-overflow: ellipsis;
     }

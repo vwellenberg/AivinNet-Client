@@ -128,9 +128,15 @@ export function promoteRecentSearch(term: string) {
 
 /**
  * Records a search term, newest first, capped at MAX. Terms shorter than 2
- * chars are ignored. An exact repeat moves back to the front; a term that is
- * one keystroke away from the entry recorded just before it folds into that
- * entry rather than joining it.
+ * chars are ignored. A term that is one keystroke away from the entry recorded
+ * just before it folds into that entry rather than joining it; anything else
+ * goes to the front, an exact repeat included.
+ *
+ * "An exact repeat goes to the front" has the fold as its exception, and the
+ * two meet in one place: typing a term that the head folds away leaves an older
+ * copy of it stranded further down, where it eventually falls off the cap. The
+ * chip path does not reach this — it promotes first — and a typed one is the
+ * same trade the fold makes everywhere else.
  */
 export function recordRecentSearch(query: string) {
     const q = query.trim()
