@@ -37,8 +37,8 @@ import { blocks, styleBlock } from "./scssBlocks";
  */
 const NOT_ON_THE_GROUND: Record<string, string> = {
   "components/DeviceSync/GestureOverlay.vue": "the join prompt paints its own veil sheet",
-  "components/RightSideBar/Queue/QueueActions.vue": "inside the right sidebar panel",
-  "components/RightSideBar/Search/TopResults.vue": "inside the right sidebar panel",
+  // The two sidebar entries that used to sit here (QueueActions, the sidebar's
+  // own TopResults) went with the panel rewrite — see #416.
   "components/RightSideBar/Search/Top/TopItem.vue": "the top-result card's own title, on the card",
   "components/SettingsView/About.vue": "inside the settings modal",
   "components/modals/RootDirsPrompt.vue": "inside a modal",
@@ -142,6 +142,19 @@ describe("the search page's Top tab", () => {
   });
 
   it("plates the track results on the content veil", () => {
-    expect(STYLE).toMatch(/\.right-search-top-tracks\s*\{[^}]*--mem-veil/);
+    // The claim is unchanged — search results are content and must not sit on
+    // the bare doodle tile — but the mechanism moved. The page used to paint a
+    // veil plate around the rows because they were `TrackItem`, which brings no
+    // surface. They are `SongItem` now (#416), which carries the translucent
+    // list plate itself and closes its ink frame via is_first/is_last.
+    //
+    // So the assertion is: the rows are SongItem, and the page does NOT draw a
+    // second plate around them (that would double the frame).
+    const rows = readFileSync("src/components/RightSideBar/Search/Top/TopTracks.vue", "utf-8");
+
+    expect(rows).toMatch(/<SongItem/);
+    expect(rows).toMatch(/:is_first=/);
+    expect(rows).toMatch(/:is_last=/);
+    expect(STYLE).not.toMatch(/\.right-search-top-tracks\s*\{[^}]*--mem-veil/);
   });
 });

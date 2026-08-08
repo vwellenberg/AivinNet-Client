@@ -31,7 +31,9 @@ const TOKEN_FILE = "src/assets/scss/Global/_buttons.scss";
 
 const HEART = "/src/components/shared/HeartSvg.vue";
 const TRACK_DURATION = "/src/components/shared/SongItem/TrackDuration.vue";
-const TRACK_ITEM = "/src/components/shared/TrackItem.vue";
+// TrackItem.vue is gone (#416) — the queue panel it belonged to became the Now
+// Playing panel, and the search Top tab it also fed now renders SongItem like
+// the Tracks tab beside it. Its two entries below went with it.
 
 /** Box geometry. A shared component owns these; a call site never restates them. */
 const BOX = /(?:^|[\s;{])(?:width|height|min-width|min-height|padding|border|background|aspect-ratio|transform)\s*:/;
@@ -39,7 +41,6 @@ const BOX = /(?:^|[\s;{])(?:width|height|min-width|min-height|padding|border|bac
 /** In-row controls that have to read the compact token rather than a literal. */
 const COMPACT_CONTROLS: [file: string, selector: string, what: string][] = [
   [TRACK_DURATION, ".options-icon", "the track row's overflow button"],
-  [TRACK_ITEM, ".remove-track", "the queue row's remove button"],
 ];
 
 const SIDEBAR = "/src/components/LeftSidebar/index.vue";
@@ -164,7 +165,6 @@ describe("control scale", () => {
   // no focus ring (the app's ring is on the `button` selector).
   it.each([
     [TRACK_DURATION, "options-icon", "the track row's overflow control"],
-    [TRACK_ITEM, "remove-track", "the queue row's remove control"],
   ])("%s › .%s (%s) is a real button", (file, cls, what) => {
     const template = SOURCES[file].slice(0, SOURCES[file].indexOf("</template>"));
     const tag = new RegExp(`<(\\w+)[^>]*class="[^"]*\\b${cls}\\b`).exec(template);

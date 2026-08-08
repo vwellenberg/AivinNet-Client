@@ -26,11 +26,16 @@ const SOURCES = import.meta.glob("/src/**/*.vue", { as: "raw", eager: true }) as
 const CANDY_FILE = "src/assets/scss/_candy.scss";
 const MIXIN = "mem-now-playing-row";
 
-/** Both rows that mark the currently-playing track, with the selector that owns each. */
-const ROWS = [
-  { file: "/src/components/shared/SongItem.vue", selector: ".songlist-item.current" },
-  { file: "/src/components/shared/TrackItem.vue", selector: ".track-item.currentInQueue" },
-];
+/**
+ * Every row that marks the currently-playing track, with the selector that
+ * owns it.
+ *
+ * One entry since #416 — `TrackItem.vue` was the second, and it is gone along
+ * with the queue panel it belonged to. The rule it existed to enforce stands:
+ * a row that marks the playing state reads the mixin, it never writes the
+ * ornament out. A future second row gets added HERE.
+ */
+const ROWS = [{ file: "/src/components/shared/SongItem.vue", selector: ".songlist-item.current" }];
 
 /** The `<style>` blocks of an SFC, with comments removed. */
 function styleSource(source: string): string {
@@ -126,27 +131,7 @@ describe("now-playing row", () => {
     expect(mixin).toMatch(/>\s*\*\s*\{[^}]*z-index/);
   });
 
-  it("pins ink on the queue's playing row", () => {
-    // Regression: the row inherited the theme's `color`, so in dark its title
-    // and artist rendered paper on $mem-yellow — measured 1.66:1 in the running
-    // browser, against 9.6:1 for ink. SongItem.vue has pinned ink for its
-    // filled states all along; the queue row was the one that never did.
-    const block = blockFor(styleSource(SOURCES["/src/components/shared/TrackItem.vue"]), ".track-item.currentInQueue") ?? "";
-
-    expect(block).toMatch(/color:\s*\$mem-ink/);
-    // ...except the favourite marker, whose disc stays teal (its contrast edge
-    // is baked into the asset). Ink there would meet an ink tick: a blob.
-    expect(block).toMatch(/\.heart-button\.is-fav[\s\S]*\$mem-teal/);
-  });
-
-  it("leaves the queue's drop marker a mechanism of its own", () => {
-    // Both pseudo-elements belong to the playing state now, so the drop marker
-    // cannot use one — it would collide on exactly the row that is playing.
-    const source = styleSource(SOURCES["/src/components/shared/TrackItem.vue"]);
-    const marker = blockFor(source, ".track-item.drag-over-top");
-
-    expect(marker, ".track-item.drag-over-top not found").toBeTruthy();
-    expect(marker).toContain("box-shadow");
-    expect(source).not.toMatch(/\.track-item\.drag-over-(top|bottom)::before/);
-  });
+  // Two tests lived here for the queue row's own copy of this state — pinned
+  // ink on the yellow fill, and a drop marker that used `box-shadow` because
+  // both pseudo-elements were taken. They went with `TrackItem.vue` (#416).
 });

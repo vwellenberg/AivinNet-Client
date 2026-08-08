@@ -644,11 +644,13 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 }
 
 // ---------------------------------------------------------------------------
-// The "this row is playing" state — ONE decision for BOTH track rows:
-// `.songlist-item.current` (SongItem.vue, every song list) and
-// `.track-item.currentInQueue` (TrackItem.vue, the queue panel). They carried
-// two hand-written copies of it before, which is how the same ornament had to
-// be edited twice.
+// The "this row is playing" state — ONE decision, read by
+// `.songlist-item.current` (SongItem.vue, every song list).
+//
+// It became a mixin because there used to be a SECOND row with a word-for-word
+// copy of it (`.track-item.currentInQueue`, the queue panel), so the same
+// ornament had to be edited twice. That row is gone (#416); the rule stays,
+// and `nowPlayingRow.test.ts` holds any future row to it.
 //
 // The mark is the design's bunting zigzag, but on the LEADING edge instead of
 // the bottom one. The bottom strip sat INSIDE the row (`overflow: hidden`), so
@@ -675,8 +677,9 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // first. Texture at the edges, text in a clean band.
 //
 // Both pseudo-elements belong to this state (texture + marker) — a host that
-// needs its own decoration has to find another mechanism (TrackItem's drop
-// marker is an inset box-shadow for exactly this reason).
+// needs its own decoration has to find another mechanism. The now-removed
+// queue row drew its drop marker as an inset box-shadow for exactly this
+// reason; that is the pattern to copy, not `::before`.
 // ---------------------------------------------------------------------------
 @mixin mem-now-playing-row($radius: $candy-radius-sm) {
   position: relative;

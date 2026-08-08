@@ -118,20 +118,15 @@ const noResults = computed(
     font-weight: 700;
   }
 
-  // Search results are content, so they read on `--mem-veil` like the folder
-  // list and the song lists — the rows themselves are transparent, so without
-  // it the titles sat straight on the doodle tile (styling.md). Scoped to this
-  // page rather than written into TopTracks.vue: the same component also
-  // renders inside the right sidebar, which is already a panel and needs no
-  // plate of its own.
-  .right-search-top-tracks {
-    background-color: var(--mem-veil);
-    border: $candy-border;
-    border-radius: $candy-radius-sm;
-    // Keeps a row's own hover frame from doubling up with this one — same
-    // reasoning as the folder list.
-    padding: $smaller;
-  }
+  // The rows are `SongItem` now, and it brings its own translucent list plate:
+  // `is_first`/`is_last` close the ink frame around it, the same anatomy the
+  // Tracks tab and every song list use. So no plate here — a second one around
+  // it would double the frame.
+  //
+  // (The plate this page used to draw was scoped here because TopTracks also
+  // rendered inside the right sidebar, which had its own panel. That stopped
+  // being true with #515: the sidebar IS the Now Playing panel, and the search
+  // tabs that lived there are gone.)
 
   h3 {
     margin: $small;
@@ -156,18 +151,6 @@ const noResults = computed(
       min-width: unset;
       max-width: 100%;
     }
-  }
-
-  .track-item {
-    border-radius: $small;
-    padding-left: $small;
-  }
-
-  // BETWEEN rows, not above every one: on the plate the first row's margin
-  // adds to the plate's padding, so the list sat 8px from the top edge and
-  // 4px from the bottom. On the bare ground the same rule was invisible.
-  .track-item + .track-item {
-    margin-top: $smaller;
   }
 
   .right-search-top-albums-or-artists {

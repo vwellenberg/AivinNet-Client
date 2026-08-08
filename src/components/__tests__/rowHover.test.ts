@@ -384,7 +384,6 @@ describe("sidebar plate anatomy", () => {
 const POINTER_GATED = [
   "/src/components/shared/SongItem.vue",
   "/src/components/shared/SongItem/TrackTitle.vue",
-  "/src/components/shared/TrackItem.vue",
 ];
 
 /** The source with every `@media (hover: hover) { … }` block removed. */

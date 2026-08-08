@@ -121,11 +121,14 @@ der Renderreihenfolge.
 
 ## Die Queue umsortieren: `tracklist.moveTrack` ist die einzige Operation (#309, #312, #315)
 
-Es gibt **zwei** Queue-Ansichten, und beide müssen bedient werden: das Panel der rechten Sidebar
-(`RightSideBar/Queue.vue`, rendert `TrackItem` — und existiert nur bei `use_sidebar && xl`) und
-die ganzseitige Liste unter `/nowplaying/home` (`views/NowPlaying/main.vue`, rendert `SongItem`).
-#309 hat nur die erste erwischt; für die meisten Fenstergrößen war die zweite die einzige
-sichtbare Queue.
+Die Queue ist die ganzseitige Liste unter `/nowplaying/home` (`views/NowPlaying/main.vue`,
+rendert `SongItem`).
+
+⚠️ **Es waren einmal zwei**, und das ist die eigentliche Lehre: Daneben stand das Queue-Panel der
+rechten Sidebar (`RightSideBar/Queue.vue` mit `TrackItem`). #309 hat nur dieses erwischt — und für
+die meisten Fenstergrößen war die ganzseitige die einzige sichtbare. Beide sind seit #416 weg
+(die Sidebar ist das Now-Playing-Panel), aber wer eine **neue** Queue-Ansicht baut, zählt die
+Instanzen wieder auf, bevor er eine Mutation für erledigt hält.
 
 Drei Dinge, die man dabei falsch machen kann:
 
@@ -135,9 +138,9 @@ Drei Dinge, die man dabei falsch machen kann:
   werden.** Der DeviceSync-Seam (`intercept('moveTrack')`) trägt denselben Index mit.
 - **Der Drag muss einen Index dieser Liste tragen.** `SongItem` verschickt `track.index`; in der
   Now-Playing-Liste wird der vorher auf die Queue-Position überschrieben, in einer Playlist ist es
-  der refIndex in `allTracks`. `TrackItem` nimmt dagegen die `index`-Prop. Wer eine dritte Liste
-  ziehbar macht, prüft zuerst, welcher Index dort eigentlich drin steht — und lehnt fremde Drops
-  (`source !== dropSources.queue`) ab, deren Index in eine ganz andere Liste zeigt.
+  der refIndex in `allTracks`. Wer eine weitere Liste ziehbar macht, prüft zuerst, welcher Index
+  dort eigentlich drin steht — und lehnt fremde Drops (`source !== dropSources.queue`) ab, deren
+  Index in eine ganz andere Liste zeigt.
 - **Eine Zeile mit `<img>` ist immer ziehbar.** Bilder sind nativ draggable, ein Drag auf dem Cover
   feuert also `dragstart` auf der Zeile — auch auf Zeilen, die kein Drag angemeldet haben.
   `onDragStart` gehört deshalb hinter denselben Guard wie `draggable`, und das Cover auf

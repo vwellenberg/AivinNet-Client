@@ -145,8 +145,7 @@ $g-border: solid $candy-border-w $mem-line;
 // ground-coloured plate on each row keeps titles readable while the shapes
 // stay full-strength around the list (header, margins). Rows stack without
 // gaps, so the plates read as one continuous surface. Filled states
-// (hover/current/contexton) override with their own opaque fills; the queue
-// panel uses TrackItem and is untouched.
+// (hover/current/contexton) override with their own opaque fills.
 //
 // The plate carries an ink frame for the memphis panel look: every row colours
 // the (already reserved, transparent) side borders, and the .is-first/.is-last
