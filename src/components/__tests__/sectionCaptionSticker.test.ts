@@ -169,20 +169,34 @@ describe("a caption sticker keeps the page's leading edge", () => {
 
     const style = styleBlock(source);
     for (const tag of headings(source)) {
-      for (const selector of selectorsFor(tag)) {
-        // Every rule for the caption, not only the one holding the sticker: the
-        // inset that started this lived in a SEPARATE block outside the
-        // component's own nesting (`.now-playing-view.isSmall … {}`), which is
-        // where a narrow-layout override naturally goes.
-        for (const body of blocks(style, selector)) {
-          for (const left of leftMargins(ownDeclarations(body))) {
-            expect(
-              isZero(left),
-              `${path} insets ${tag} by ${left} — a sticker's own padding is the gap to its ` +
-                "text, so a left margin only pushes the chip out of line with the rows below it"
-            ).toBe(true);
-          }
-        }
+      // Class rules before the element rule, and the element rule only when no
+      // class rule sets a margin at all — which is how the cascade resolves it.
+      // The search page writes `h3 { margin: $small }` for the title INSIDE the
+      // top-result card and `.section-title { margin: 0 0 $small }` for the two
+      // captions on the ground; reading both as the caption's own would fail a
+      // heading whose rendered inset is 0.
+      //
+      // Every rule the winning selector has, though, not just the one holding
+      // the sticker: the inset that started this lived in a SEPARATE block
+      // outside the component's own nesting (`.now-playing-view.isSmall … {}`),
+      // which is where a narrow-layout override naturally goes.
+      const selectors = selectorsFor(tag);
+      const byClass = selectors.filter(selector => selector.startsWith("."));
+      const fromClasses = byClass.flatMap(selector =>
+        blocks(style, selector).flatMap(body => leftMargins(ownDeclarations(body)))
+      );
+      const margins = fromClasses.length
+        ? fromClasses
+        : selectors
+            .filter(selector => !selector.startsWith("."))
+            .flatMap(selector => blocks(style, selector).flatMap(body => leftMargins(ownDeclarations(body))));
+
+      for (const left of margins) {
+        expect(
+          isZero(left),
+          `${path} insets ${tag} by ${left} — a sticker's own padding is the gap to its ` +
+            "text, so a left margin only pushes the chip out of line with the rows below it"
+        ).toBe(true);
       }
     }
   });

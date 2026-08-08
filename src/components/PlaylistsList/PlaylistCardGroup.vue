@@ -25,7 +25,12 @@ defineProps<{
   // they are stickers like every other one.
   h3 {
     @include mem-sticker;
-    margin: 0 0 $small $medium;
+    // No left inset — the chip starts where the cards under it start (measured:
+    // caption 315 against cards 303 before this). Same leftover as the Now
+    // Playing captions: the gap a bare word needed to the page edge is the
+    // sticker's own padding now. Found by the census in
+    // sectionCaptionSticker.test.ts.
+    margin: 0 0 $small;
     font-size: 1.15rem;
   }
 }
