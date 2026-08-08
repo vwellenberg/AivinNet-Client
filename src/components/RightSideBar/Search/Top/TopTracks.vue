@@ -1,25 +1,41 @@
 <template>
     <div class="right-search-top-tracks">
-        <TrackItem
+        <SongItem
             v-for="(track, index) in search.top_results.tracks"
             :key="track.id"
             :track="track"
-            :index="index"
-            :is-current="false"
-            :is-current-playing="false"
+            :index="index + 1"
+            :is_first="index === 0"
+            :is_last="index === search.top_results.tracks.length - 1"
+            :source="dropSources.search"
+            :band_fade="trackBandFade(index + 1, search.top_results.tracks.length)"
             @play-this="handlePlay(track)"
         />
     </div>
 </template>
 
 <script setup lang="ts">
+/**
+ * The Top tab's track rows.
+ *
+ * These were the last `TrackItem` rows in the app — the pre-Inlay row style,
+ * still standing while the Tracks tab right next to them (`SearchView/
+ * tracks.vue`) already rendered `SongItem`. Same page, same kind of result,
+ * two different rows.
+ *
+ * `index + 1` rather than `index`: SongItem shows the number, and a list
+ * starting at 0 is not one anybody counts. `band_fade` comes from the RENDERED
+ * position, never from an array index that a filter could have shifted.
+ */
 import { Track } from '@/interfaces'
+import { dropSources } from '@/enums'
 
 import useQueueStore from '@/stores/queue'
 import useTracklist from '@/stores/queue/tracklist'
 import useSearchStore from '@/stores/search'
 
-import TrackItem from '@/components/shared/TrackItem.vue'
+import SongItem from '@/components/shared/SongItem.vue'
+import { trackBandFade } from '@/utils/songItemMethods'
 
 const search = useSearchStore()
 const queue = useQueueStore()
@@ -36,9 +52,5 @@ function handlePlay(track: Track) {
 <style lang="scss">
 .right-search-top-tracks {
     margin-bottom: 2rem;
-
-    .track-item {
-        padding: $small 1rem;
-    }
 }
 </style>
