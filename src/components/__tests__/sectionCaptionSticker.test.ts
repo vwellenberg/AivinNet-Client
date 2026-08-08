@@ -183,6 +183,13 @@ function sides(declarations: string, box: "margin" | "padding"): { left: string[
 // captions are it resolves to 0 anyway.
 const isZero = (value: string) => /^(0[a-z%]*|auto)$/.test(value);
 
+/** Every rule in the file that can reach a heading — class rules and element ones. */
+function allCaptionRules(style: string, tag: string): string[] {
+  return selectorsFor(tag)
+    .flatMap(selector => blocks(style, selector))
+    .map(ownDeclarations);
+}
+
 /** The rules that style a heading, resolved the way the cascade resolves them. */
 function captionRules(style: string, tag: string): string[] {
   // Class rules before the element rule, and the element rule only when no
@@ -236,10 +243,13 @@ describe("a caption sticker keeps the page's leading edge", () => {
         }
       }
 
-      // Padding is the chip, so it is read across ALL of the caption's rules
-      // together: the lopsided one had `padding-left` on the element and took
-      // its right side from the mixin.
-      const padding = captionRules(style, tag).reduce(
+      // Padding is read across EVERY rule that can reach the heading, class and
+      // element alike — not cascade-resolved like the margin above. The lopsided
+      // one is exactly the case that resolution would hide: `mem-sticker` sets
+      // the chip in the CLASS rule and `padding-left: 1rem !important` on the
+      // bare `h3` beats it. Nothing about "the class rule exists" makes the
+      // element rule stop applying.
+      const padding = allCaptionRules(style, tag).reduce(
         (all, rule) => {
           const own = sides(rule, "padding");
           return { left: [...all.left, ...own.left], right: [...all.right, ...own.right] };
