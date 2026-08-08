@@ -33,6 +33,46 @@ export const getArtistData = async (hash: string, limit: number = 15, albumlimit
     return data as ArtistData
 }
 
+/**
+ * The counts and genres for an artist, without its tracks or albums.
+ *
+ * ⚠️ Deliberately NOT `getArtistData`. That route loads every track of the
+ * artist, sorts them by playcount and fetches the albums — work the server does
+ * on its only thread, so asking it on every track change would stall playback
+ * for everyone. The backend added this route for exactly this caller
+ * (AivinNet#100).
+ *
+ * `trackcount` counts the hashes the store INDEXED, while the artist page
+ * counts the ones it could resolve. After a tag edit the two can differ until
+ * the next index, so this number may run slightly high — resolving them here
+ * would mean loading every track, which is the thing the route exists to avoid.
+ */
+export const getArtistSummary = async (hash: string) => {
+    interface ArtistSummary {
+        artist: Artist & {
+            playcount: number
+            lastplayed: number
+            trackcount: number
+            albumcount: number
+            genres: Genre[]
+        }
+    }
+
+    const { data, error } = await useAxios({
+        method: 'GET',
+        url: paths.api.artist + `/${hash}/summary`,
+    })
+
+    // A missing artist is a normal outcome here — a track whose artist the
+    // store has not indexed. The panel just leaves the card out, so this stays
+    // quiet rather than raising the toast the full artist route raises.
+    if (error) {
+        return null
+    }
+
+    return (data as ArtistSummary)?.artist ?? null
+}
+
 export const getArtistAlbums = async (hash: string, limit = 6, all = false) => {
     interface ArtistAlbums {
         artistname: string

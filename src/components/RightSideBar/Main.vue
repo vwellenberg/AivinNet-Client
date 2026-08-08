@@ -1,33 +1,28 @@
 <template>
     <div class="r-sidebar">
         <div class="rtopbar">
-            <SearchInput />
             <AvatarWithDropdown />
         </div>
-        <div v-auto-animate class="r-content no-scroll">
-            <div v-if="tabs.current === tabs.tabs.home" class="r-dash">
-                <DashBoard />
-            </div>
-            <div v-if="tabs.current === tabs.tabs.search" class="r-search">
-                <Search />
-            </div>
-            <div v-if="tabs.current === tabs.tabs.queue" class="r-queue">
-                <Queue />
-            </div>
-        </div>
+        <NowPlayingPanel />
     </div>
 </template>
 
 <script setup lang="ts">
-import useTabStore from '@/stores/tabs'
-
+/**
+ * The right sidebar IS the Now Playing panel (#424).
+ *
+ * It used to be three tabs — a dashboard, a search view and the queue — behind
+ * a setting that is off by default and needs more than 1280px. What it showed
+ * was a search field, a shuffle button and one queue row in the pre-Inlay
+ * style, while the same information had better homes everywhere else in the
+ * app. The panel replaces all of it with the one thing this space is good for:
+ * what is playing, who made it, and what comes next.
+ *
+ * The search field moved out rather than moving along. Search has its own page
+ * and sits in the top bar; a second entry point here only ever duplicated it.
+ */
 import AvatarWithDropdown from '@/components/nav/AvatarWithDropdown.vue'
-import DashBoard from './Home/Main.vue'
-import Queue from './Queue.vue'
-import Search from './Search/Main.vue'
-import SearchInput from './SearchInput.vue'
-
-const tabs = useTabStore()
+import NowPlayingPanel from './NowPlayingPanel.vue'
 </script>
 
 <style lang="scss">
