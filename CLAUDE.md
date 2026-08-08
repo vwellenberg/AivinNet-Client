@@ -12,7 +12,7 @@ Repo, Server-Checkout und systemd-Unit wurden umbenannt — wer die alten Namen 
 | **Repo** | `vwellenberg/AivinNet-Client` (Fork von [swingmx/webclient](https://github.com/swingmx/webclient)) |
 | **Backend-Repo** | `vwellenberg/AivinNet` |
 | **Stack** | Vue 3, Pinia, TypeScript, SCSS, Vite 3, yarn |
-| **Server** | `192.168.0.4`, Port 1970, systemd-Unit **`aivinnet`** |
+| **Server** | Homeserver im LAN, Port 1970, systemd-Unit **`aivinnet`** — Host, Account und Key stehen in der globalen `~/.claude/CLAUDE.md` (nicht im Repo) |
 | **Checkout auf dem Server** | `~/AivinNet-Client`, gebaut nach `~/.config/aivinnet/client/` |
 
 ⚠️ **`gh` ohne `--repo` landet im Upstream** (`swingmx/webclient`) — bei `gh issue create` und
@@ -290,9 +290,10 @@ Frontmatter überein. Wer einen Glob ergänzt, ergänzt ihn hier — sonst wird 
 ### Frontend (dieser Client)
 
 ```bash
-# Server 192.168.0.4. Lokaler Ordner heisst noch SubspaceRadio-Client,
-# auf Server + GitHub aber AivinNet-Client; systemd-Service heisst aivinnet.
-ssh -i /c/Users/vwell/.ssh/id_ed25519 vwellenberg@192.168.0.4 "bash ~/deploy-client.sh"
+# Host, Account und Key stehen in der globalen ~/.claude/CLAUDE.md (nicht im Repo).
+# Lokaler Ordner heisst noch SubspaceRadio-Client, auf Server + GitHub aber
+# AivinNet-Client; systemd-Service heisst aivinnet.
+ssh -i <key> <account>@<homeserver> "bash ~/deploy-client.sh"
 ```
 
 ⚠️ **Es gibt ZWEI Skripte mit diesem Namen, und nur eines holt den neuen Code.**
