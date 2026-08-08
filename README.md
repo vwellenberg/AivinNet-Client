@@ -9,12 +9,12 @@ A Spotify-style music player frontend, branded as **AivinNet**. This is a fork o
 
 ## Screenshots
 
-|                                                  |                                                      |
-| ------------------------------------------------ | ---------------------------------------------------- |
-| **Home** — browse your library                   | **Album** — color-matched ambient background         |
-| ![Home](docs/screenshots/home.png)               | ![Album view](docs/screenshots/album.png)            |
-| **Playlist** — track list with ambient gradient  | **Artists** — library grid                           |
-| ![Playlist view](docs/screenshots/playlist.png)  | ![Artists](docs/screenshots/artists.png)             |
+|                                                     |                                                        |
+| --------------------------------------------------- | ------------------------------------------------------ |
+| **Home** — browse your library                      | **Now Playing** — cover plate, up next, transport      |
+| ![Home](docs/screenshots/home.png)                  | ![Now Playing](docs/screenshots/nowplaying.png)        |
+| **Playlist** — track list with ambient gradient     | **Artists** — library grid                             |
+| ![Playlist view](docs/screenshots/playlist.png)     | ![Artists](docs/screenshots/artists.png)               |
 
 ---
 
