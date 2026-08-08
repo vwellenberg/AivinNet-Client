@@ -78,7 +78,11 @@ const artistitems = [
         @include btn-pop-stagger;
     }
 
-    padding: 1rem $medium 2rem $medium;
+    // No left inset — the chip row starts where the head and the cards start.
+    // It was the head's twin: both sat 12px in, so the two lined up with each
+    // other and neither lined up with the grid (chips measured at 315 against
+    // cards at 303). With the head flush, this is the last seam on these pages.
+    padding: 1rem $medium 2rem 0;
     position: relative;
     font-size: 14px;
     font-weight: 500;
