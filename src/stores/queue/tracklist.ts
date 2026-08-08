@@ -147,7 +147,23 @@ export default defineStore('tracklist', {
             const Toast = useToast()
             Toast.showNotification(`Added ${tracks.length} tracks to queue`, NotifType.Success)
         },
-        insertAt(tracks: Track[], index: number) {
+        /**
+         * `aimNext` marks this insert as a "play next": under shuffle the
+         * pre-rolled target is moved ONTO the inserted rows instead of being
+         * carried past them.
+         *
+         * It is a parameter rather than a call the caller makes afterwards, and
+         * both reasons are bugs that were caught in review:
+         *
+         * - It has to happen BEFORE the preload check below. Aiming afterwards
+         *   left `tracklist[nextindex]` looking unchanged, so the audio already
+         *   preloaded for the old target survived and played instead of the row
+         *   the user had just queued.
+         * - It has to sit behind the group seam. Aiming from the outside also
+         *   fired on the intercepted path, where nothing was spliced locally —
+         *   moving this device's idea of "next" out of step with the group.
+         */
+        insertAt(tracks: Track[], index: number, aimNext = false) {
             // Group mode: local queue edits ("play next" / "add to queue" funnel
             // through here) must go through the server, or this device's list
             // silently diverges from the authoritative group queue.
@@ -177,6 +193,8 @@ export default defineStore('tracklist', {
             // target and the history have to travel with them or they silently
             // start naming different tracks.
             queue.shiftShuffleIndexes(index, tracks.length)
+
+            if (aimNext) queue.aimShuffleNext(index)
 
             if (this.tracklist[queue.nextindex] !== nextBefore) {
                 player.clearNextAudio()
@@ -241,6 +259,15 @@ export default defineStore('tracklist', {
             }
 
             this.tracklist = shuffled
+
+            // Every row has a new number now, so both shuffle indexes name
+            // arbitrary tracks — the same situation setNewList resets for, and
+            // the reason it does. Without this, Previous jumped to a track that
+            // never played and the next roll avoided the wrong ones.
+            const queue = useQueue()
+            queue.shuffleRecent = []
+            queue.rollShuffleNext()
+            usePlayer().clearNextAudio()
         },
         removeByIndex(index: number) {
             // Group mode: same seam as insertAt. A local splice would leave the
@@ -321,15 +348,12 @@ export default defineStore('tracklist', {
          * audio was the track this insert just displaced.
          */
         insertAfterCurrent(tracks: Track[]) {
-            const queue = useQueue()
-            const at = queue.currentindex + 1
+            const { currentindex } = useQueue()
 
-            this.insertAt(tracks, at)
-
-            // Under shuffle the pre-rolled target points elsewhere and now
-            // travels with the splice, so it would sail right past these rows.
-            // "Play next" has to mean next in both play orders.
-            queue.aimShuffleNext(at)
+            // `aimNext`: under shuffle the pre-rolled target points elsewhere
+            // and travels with the splice, so it would sail right past these
+            // rows. "Play next" has to mean next in both play orders.
+            this.insertAt(tracks, currentindex + 1, true)
 
             // Shown in the group case too (same as addTracks): the insert was
             // accepted, it just travels via the server.

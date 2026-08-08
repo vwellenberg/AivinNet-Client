@@ -338,9 +338,9 @@ export default defineStore('Queue', {
             const { insertAt } = useTracklist()
 
             const nextindex = this.currentindex + 1
-            insertAt([track], nextindex)
-            // Same as insertAfterCurrent: "next" has to mean next under shuffle too.
-            this.aimShuffleNext(nextindex)
+            // `aimNext` as in insertAfterCurrent: "next" means next under
+            // shuffle too, and it has to happen inside insertAt.
+            insertAt([track], nextindex, true)
             Toast.showNotification(`Added 1 track to queue`, NotifType.Success)
         },
         clearQueue() {

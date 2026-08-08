@@ -6,7 +6,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // mocking either one would mock away the thing under test. Everything else
 // the two pull in (player, device sync, router, notifications, playlists) is
 // irrelevant to insert maths and gets stubbed.
-const { clearNextAudio } = vi.hoisted(() => ({ clearNextAudio: vi.fn() }))
+const { clearNextAudio, dsState } = vi.hoisted(() => ({
+    clearNextAudio: vi.fn(),
+    // Mutable so a test can put this device into a group session — the seam
+    // there returns before anything is spliced locally.
+    dsState: { joined: false, applying: false, intercept: vi.fn() },
+}))
 
 vi.mock('@/stores/player', () => ({
     audioSource: {
@@ -21,7 +26,7 @@ vi.mock('@/stores/player', () => ({
         clearMovingNextTimeout: vi.fn(),
     }),
 }))
-vi.mock('@/stores/devicesync', () => ({ default: () => ({ joined: false, applying: false, intercept: vi.fn() }) }))
+vi.mock('@/stores/devicesync', () => ({ default: () => dsState }))
 vi.mock('@/stores/interface', () => ({ default: () => ({ focusCurrentInSidebar: vi.fn() }) }))
 vi.mock('@/stores/lyrics', () => ({ default: () => ({ setCurrentLine: vi.fn(), calculateCurrentLine: () => 0 }) }))
 vi.mock('@/stores/notification', () => ({
@@ -182,6 +187,8 @@ describe('"Play next" means next in both play orders', () => {
     beforeEach(() => {
         setActivePinia(createPinia())
         clearNextAudio.mockClear()
+        dsState.joined = false
+        dsState.intercept = vi.fn()
         useTracklist().tracklist = Array.from({ length: 10 }, (_, i) => track(i))
     })
 
@@ -213,6 +220,23 @@ describe('"Play next" means next in both play orders', () => {
         expect(tracklist.tracklist[queue.nextindex].trackhash).toBe('h99')
     })
 
+    // Aiming has to happen INSIDE insertAt, before the preload check. Done
+    // afterwards, `tracklist[nextindex]` still looked unchanged, so audio
+    // already preloaded for the old target survived and played instead of the
+    // row the user just queued.
+    it('drops the preload it just invalidated by aiming', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+
+        settings.shuffle = true
+        queue.currentindex = 3
+        queue.shuffleNextIndex = 7
+
+        useTracklist().insertAfterCurrent([track(99)])
+
+        expect(clearNextAudio).toHaveBeenCalled()
+    })
+
     it('does the same through queue.playTrackNext', () => {
         const queue = useQueue()
         const settings = useSettings()
@@ -225,6 +249,51 @@ describe('"Play next" means next in both play orders', () => {
         queue.playTrackNext(track(99))
 
         expect(tracklist.tracklist[queue.nextindex].trackhash).toBe('h99')
+        expect(clearNextAudio).toHaveBeenCalled()
+    })
+
+    // In a group session insertAt hands off to the server and returns before
+    // splicing. Aiming from outside also fired here, moving this device's idea
+    // of "next" out of step with the group.
+    it('does not touch the target when the insert went to the group instead', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+
+        settings.shuffle = true
+        queue.currentindex = 3
+        queue.shuffleNextIndex = 7
+        dsState.joined = true
+
+        useTracklist().insertAfterCurrent([track(99)])
+
+        expect(dsState.intercept).toHaveBeenCalled()
+        expect(queue.shuffleNextIndex).toBe(7)
+        expect(clearNextAudio).not.toHaveBeenCalled()
+    })
+})
+
+describe('tracklist.shuffleList: the bookkeeping cannot survive a reshuffle', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia())
+        clearNextAudio.mockClear()
+        dsState.joined = false
+        useTracklist().tracklist = Array.from({ length: 10 }, (_, i) => track(i))
+    })
+
+    it('forgets the history and rolls again', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+
+        settings.shuffle = true
+        queue.currentindex = 0
+        queue.shuffleRecent = [2, 5, 8]
+        queue.shuffleNextIndex = 7
+
+        useTracklist().shuffleList(0)
+
+        // Every row has a new number, so the old ones name arbitrary tracks.
+        expect(queue.shuffleRecent).toEqual([0])
+        expect(clearNextAudio).toHaveBeenCalled()
     })
 })
 
