@@ -345,6 +345,17 @@ Zwei Dinge, die dabei jedes Mal auffallen:
   „Other Playlists" (12 px), und das Review fand die zweite Form — „Top Tracks" auf
   Artist/Favoriten mit 16 px innen links gegen 8 px rechts (#521). Vertikale Margins sind
   davon nicht betroffen — die sind die Luft zwischen den Abschnitten.
+- **⚠️ Eine kompensierte Einrückung ist ein Bug mit angehängtem Workaround.** `.generichead`
+  rückte sich um `$medium` ein und gab die Einrückung über `.after { margin-left: -$medium }`
+  wieder zurück. Netto null für den Inhalts-Slot — und 12 px Versatz für alles im Kopf, das
+  **nicht** kompensieren kann: Seitentitel und Beschreibung, gleichzeitig auf Albums, Artists,
+  Playlists, Favorites, Stats und Charts (#527). Die Konstruktion versteckt ihren eigenen
+  Schaden: wer die Gegen-Marge schreibt, prüft das Element, das er ansieht — und das **ist**
+  bündig. Bezahlt wird eine Komponente weiter. Also **beide Hälften löschen, nie eine dritte
+  Kompensation**. Zensus: `compensatedIndent.test.ts` (negative linke Marge exakt in Höhe des
+  eigenen `padding-left`). Legitim bleibt eine negative Marge, deren Betrag **nicht** die
+  eigene Einrückung ist — z. B. die Textfläche der Kartenzeilen, die genau deshalb eine
+  begründete Ausnahme im Zensus hat.
 - **Ein Zensus über „die Datei erwähnt `mem-sticker`" ist keiner.** Eine Komponente, die
   ihre erste Überschrift plattiert und daneben eine zweite blank stehen lässt, bleibt damit
   grün — und das ist exakt die Form dieses Bugs. `sectionCaptionSticker.test.ts` sammelt

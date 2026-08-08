@@ -21,7 +21,21 @@
 .generichead {
     // Top padding: without it the page title (Playlists / Favorites /
     // Charts …) sits flush against the top bar.
-    padding: 1.25rem 0 1rem $medium;
+    //
+    // No LEFT padding, and that is the point: the head shares its leading edge
+    // with the page under it. It used to inset $medium and hand the indent back
+    // to the content through a negative margin on `.after` — which left the one
+    // thing that could not compensate, the title sticker, standing 12px right
+    // of everything else on Albums, Artists, Playlists, Favorites, Stats and
+    // Charts. Measured: titles at 315 against content at 303. A compensated
+    // indent is a bug with a workaround attached; both halves are gone (#526
+    // has the same story for the section captions).
+    //
+    // The description sticker is in the same box and would have drifted with
+    // it — except it is not painted at all (see the `.desc { display: none }`
+    // further down, which sits outside the phone block and so hides it on every
+    // viewport). That is a separate bug and not touched here.
+    padding: 1.25rem 0 1rem;
     height: max-content;
     align-items: center;
     // NOT `overflow: hidden` any more: the title is a sticker now, and its
@@ -43,7 +57,6 @@
 
     .after {
         margin-top: 2rem;
-        margin-left: -$medium;
     }
 
     .left {
@@ -101,6 +114,13 @@
         }
     }
 
+    // ⚠️ These two are NOT inside the phone block above — it closes on the line
+    // before them, so they apply on every viewport: the description is hidden
+    // app-wide (including the "Search playlists" form that lives in that slot),
+    // and this font-size silently replaces the 3.25rem one further up. Left as
+    // found on purpose: un-hiding a description sticker on six pages and
+    // surfacing a search field is a product change, not an edge fix. Noted so
+    // the next reader does not have to re-derive it.
     h1 {
         font-size: 1.75rem;
     }
