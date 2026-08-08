@@ -16,20 +16,37 @@ export const OTHER = '#'
 export const LETTERS = [OTHER, ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')]
 
 /**
- * The band key a name belongs under.
- *
- * Accents are folded first, the same way the search store folds them: without
- * that, "Ólafur Arnalds", "Édith Piaf" and "Ørsted" land under "#" next to the
- * digits, which is neither where anyone looks for them nor what the count on
- * the O and E keys would have promised.
+ * Letters that carry their mark INSIDE the glyph rather than as a combining
+ * accent. NFD decomposes "Ó" into O + ◌́ and the accent strips away, but "Ø"
+ * has no canonical decomposition at all — it would stay under "#" with the
+ * digits, and the count on the O key would have been a lie about it.
+ */
+const FOLDED: Record<string, string> = {
+    Ø: 'O',
+    Ł: 'L',
+    Đ: 'D',
+    Ð: 'D',
+    Æ: 'A',
+    Œ: 'O',
+    Ħ: 'H',
+    Ŧ: 'T',
+}
+
+/**
+ * The band key a name belongs under. Accents fold first, the same way the
+ * search store folds them: without that, "Ólafur Arnalds" and "Édith Piaf"
+ * land under "#" next to the digits, which is neither where anyone looks for
+ * them nor what the count on the O and E keys promised.
  */
 export function initialOf(name: string): string {
-    const first = (name || '')
+    const raw = (name || '')
         .trim()
         .charAt(0)
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '')
         .toUpperCase()
+
+    const first = FOLDED[raw] ?? raw
 
     return /^[A-Z]$/.test(first) ? first : OTHER
 }

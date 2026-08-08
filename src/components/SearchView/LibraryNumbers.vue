@@ -43,23 +43,38 @@ const WANTED = ["trackcount", "streams", "playtime", "favorites"];
  * The numbers move once a day at most; a session's first answer is good enough
  * for the rest of it.
  */
-let cached: StatItemData[] | null = null;
+// The PROMISE is cached, not its result: caching the result only starts
+// helping once the first response has landed, and two mounts inside that first
+// round trip would each fire the aggregation anyway. A failure clears it, so
+// the next mount tries again.
+let pending: Promise<StatItemData[]> | null = null;
 
-const items = ref<StatItemData[]>(cached || []);
+function loadStats(): Promise<StatItemData[]> {
+  if (pending) return pending;
+
+  pending = getStats()
+    .then(res => {
+      if (res.status !== 200) throw new Error(`stats: ${res.status}`);
+
+      const stats: StatItemData[] = res.data?.stats || [];
+      // Ordered by WANTED rather than by the response, so the row reads the
+      // same whatever order the backend happens to send.
+      return WANTED.map(kind => stats.find(s => s.cssclass === kind)).filter(
+        (s): s is StatItemData => Boolean(s)
+      );
+    })
+    .catch(() => {
+      pending = null;
+      return [];
+    });
+
+  return pending;
+}
+
+const items = ref<StatItemData[]>([]);
 
 onMounted(async () => {
-  if (cached) return;
-
-  const res = await getStats();
-  if (res.status !== 200) return;
-
-  const stats: StatItemData[] = res.data?.stats || [];
-  // Ordered by WANTED rather than by the response, so the row reads the same
-  // whatever order the backend happens to send.
-  cached = WANTED.map(kind => stats.find(s => s.cssclass === kind)).filter(
-    (s): s is StatItemData => Boolean(s)
-  );
-  items.value = cached;
+  items.value = await loadStats();
 });
 </script>
 
@@ -71,6 +86,11 @@ onMounted(async () => {
   // what their numbers need — the same answer the charts row gives, minus its
   // scrollbar (it would sit on top of the tiles).
   overflow-x: auto;
+  // `overflow-x` makes overflow-y compute to `auto` as well, so the tiles'
+  // 4px offset shadow is cut off flush along the bottom without this — the
+  // trap styling.md records for the chip scroller in #399. The charts row
+  // pays for it with its own 1rem padding.
+  padding-bottom: $small;
   @include hideScrollbars;
 
   .statitem {

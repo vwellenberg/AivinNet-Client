@@ -1,5 +1,15 @@
 <template>
-  <div v-if="browse.artists.length" class="browse-artists">
+  <!-- A failed load says so and offers the retry, rather than leaving the
+    block silently absent: the store already knew, and nobody read it. The
+    band is an extra, so the notice is one quiet line, not an alarm. -->
+  <div v-if="browse.failed" class="browse-failed">
+    <span>Could not load the artist list.</span>
+    <button type="button" class="retry" :disabled="browse.loading" @click="browse.fetchArtists()">
+      Try again
+    </button>
+  </div>
+
+  <div v-else-if="browse.artists.length" class="browse-artists">
     <!-- The band sits on a plate: it is a row of small controls on the doodled
       ground, and the ground is exactly what makes a 2.4rem key unreadable
       (styling.md). The card row below brings its own plates per tile. -->
@@ -26,15 +36,15 @@
       </div>
     </div>
 
-    <!-- `route` is what makes CardScroller show its SEE ALL link, and without
-      it a letter with 62 artists offered the six the row happens to fit and no
-      way to the other 56. The link lands on the full artist list — the band
-      narrows, the list is where the whole library lives. -->
+    <!-- `route` is what makes CardScroller show its SEE ALL link. It lands on
+      the full artist list, NOT on this letter — the list has no letter filter,
+      so this is a way out of the row, not a way to the rest of the letter. The
+      label is left at the role's default; passing text replaces the whole
+      label rather than adding to it. -->
     <CardScroller
       :title="rowTitle"
       :items="items"
       :route="artistListRoute"
-      :see-all-text="'artists'"
       :play-source="playSources.artist"
     />
   </div>
@@ -68,6 +78,27 @@ onMounted(browse.fetchArtists);
 </script>
 
 <style lang="scss">
+// Text on the doodled ground needs a plate like any other (styling.md).
+.browse-failed {
+  display: flex;
+  align-items: center;
+  gap: $small;
+  width: fit-content;
+  padding: $small $medium;
+  background-color: var(--mem-veil);
+  border: $candy-border;
+  border-radius: $candy-radius;
+  @include candy-shadow;
+  color: $mem-content-text;
+  font-size: 0.9rem;
+
+  .retry {
+    @include btn-pill($radius: $candy-radius-pill, $fill: $mem-panel);
+    color: $mem-content-text;
+    flex-shrink: 0;
+  }
+}
+
 .browse-artists {
   // No horizontal padding of its own: the idle column owns the page indent,
   // so all three blocks stand on ONE left edge. Measured, not assumed — the

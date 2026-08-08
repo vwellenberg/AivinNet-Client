@@ -13,8 +13,14 @@ vi.mock("@/requests/useAxios", () => ({ default: vi.fn() }));
 
 const artist = (name: string) => ({ name, artisthash: name, image: `${name}.webp` });
 
+/**
+ * Mounting calls `fetchArtists` — with `useAxios` mocked to nothing that would
+ * fail and flip the store into its error state, which is a different branch of
+ * the template. The state under test is set here directly.
+ */
 function mountBand(names: string[], letter = "A") {
   const store = useBrowseStore();
+  vi.spyOn(store, "fetchArtists").mockResolvedValue(undefined);
   store.artists = names.map(artist) as never;
   store.letter = letter;
   // The row itself is CardScroller's business and pulls the router with it;
@@ -69,9 +75,25 @@ describe("the letter band", () => {
   });
 
   it("renders nothing at all while the library has not arrived", () => {
-    setActivePinia(createPinia());
-    const w = mount(BrowseArtists, { global: { stubs: { CardScroller: true } } });
+    const w = mountBand([]);
     expect(w.find(".browse-artists").exists()).toBe(false);
+    expect(w.find(".browse-failed").exists()).toBe(false);
+  });
+
+  // The store knew it had failed and nobody read it, so the block was simply
+  // absent — with nothing on screen to try again with.
+  it("says so and offers a retry when the load failed", async () => {
+    const store = useBrowseStore();
+    const fetch = vi.spyOn(store, "fetchArtists").mockResolvedValue(undefined);
+    store.failed = true;
+
+    const w = mount(BrowseArtists, { global: { stubs: { CardScroller: true } } });
+    expect(w.find(".browse-failed").exists()).toBe(true);
+    expect(w.find(".browse-artists").exists()).toBe(false);
+
+    fetch.mockClear(); // the mount's own call
+    await w.find(".retry").trigger("click");
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 });
 
