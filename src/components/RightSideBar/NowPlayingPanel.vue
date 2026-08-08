@@ -62,7 +62,14 @@
         <section class="np-sec">
             <div class="np-sec-head">
                 <span class="np-sticker">Up next</span>
-                <RouterLink :to="{ name: Routes.nowPlaying }" class="np-queue-link">Queue &rarr;</RouterLink>
+                <!-- The route is `/nowplaying/:tab` — without the param
+                     `router-link` throws "Missing required param" on render and
+                     the link silently points nowhere. -->
+                <RouterLink
+                    :to="{ name: Routes.nowPlaying, params: { tab: 'home' } }"
+                    class="np-queue-link"
+                    >Queue &rarr;</RouterLink
+                >
             </div>
             <SongItem
                 v-if="nextTrack"
@@ -193,6 +200,11 @@ function handleFav() {
 .np-panel {
     height: 100%;
     min-width: 0;
+    // Stated, not inherited: the wrapper still carries the pre-Memphis
+    // `$candy-white`, so leaving this transparent measured as rgba(0,0,0,0) and
+    // would have quietly followed whatever that token becomes next.
+    background-color: $mem-panel;
+    color: $mem-content-text;
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
