@@ -47,7 +47,15 @@ describe("a drag cannot start where it was never allowed", () => {
         expect(handler, "onDragStart was not found").toBeTruthy();
         // Anything draggable that lands in this row later is covered by the
         // guard on the emitter, not by remembering to mark it.
-        expect(handler).toMatch(/if\s*\(!props\.droppable\)\s*return/);
+        expect(handler).toMatch(/if\s*\(!props\.droppable\)\s*\{/);
+
+        // ⚠️ And it CANCELS the event. A bare `return` withholds the payload
+        // while the native drag runs on: rows paint their insertion line and
+        // the drop is discarded — indistinguishable from a working drag until
+        // you let go.
+        const guard = /if\s*\(!props\.droppable\)\s*\{([\s\S]*?)\}/.exec(handler!)?.[1];
+        expect(guard, "the droppable guard is not a block").toBeTruthy();
+        expect(guard).toMatch(/e\.preventDefault\(\)/);
     });
 });
 
