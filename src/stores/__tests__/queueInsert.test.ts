@@ -280,19 +280,24 @@ describe('tracklist.shuffleList: the bookkeeping cannot survive a reshuffle', ()
         useTracklist().tracklist = Array.from({ length: 10 }, (_, i) => track(i))
     })
 
-    it('forgets the history and rolls again', () => {
+    // `currentindex` is deliberately NOT 0 here. Rolling inside shuffleList
+    // would push this pre-shuffle index straight back into the history it just
+    // emptied, and `previndex` would then point into the reshuffled list at a
+    // track that never played. A test that reshuffles from index 0 cannot see
+    // that — the polluted entry looks exactly like a clean reset.
+    it('clears the bookkeeping without putting the pre-shuffle index back', () => {
         const queue = useQueue()
         const settings = useSettings()
 
         settings.shuffle = true
-        queue.currentindex = 0
+        queue.currentindex = 4
         queue.shuffleRecent = [2, 5, 8]
         queue.shuffleNextIndex = 7
 
-        useTracklist().shuffleList(0)
+        useTracklist().shuffleList(4)
 
-        // Every row has a new number, so the old ones name arbitrary tracks.
-        expect(queue.shuffleRecent).toEqual([0])
+        expect(queue.shuffleRecent).toEqual([])
+        expect(queue.shuffleNextIndex).toBeNull()
         expect(clearNextAudio).toHaveBeenCalled()
     })
 })

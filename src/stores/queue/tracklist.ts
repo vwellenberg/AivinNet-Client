@@ -264,9 +264,16 @@ export default defineStore('tracklist', {
             // arbitrary tracks — the same situation setNewList resets for, and
             // the reason it does. Without this, Previous jumped to a track that
             // never played and the next roll avoided the wrong ones.
+            //
+            // ⚠️ Clear, do NOT roll. `rollShuffleNext` starts by pushing
+            // `currentindex` into the history, and at this point that is still
+            // the PRE-shuffle index — it would put a stale number straight back
+            // into the array just emptied. The caller (`queue.shuffleQueue`)
+            // sets `currentindex = 0` and calls `play()` right after, and
+            // `play` rolls with the corrected index.
             const queue = useQueue()
             queue.shuffleRecent = []
-            queue.rollShuffleNext()
+            queue.shuffleNextIndex = null
             usePlayer().clearNextAudio()
         },
         removeByIndex(index: number) {
