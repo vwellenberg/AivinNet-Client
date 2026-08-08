@@ -95,7 +95,10 @@ describe('tracklist.insertAt: the preloaded next track', () => {
         expect(clearNextAudio).not.toHaveBeenCalled()
     })
 
-    it('drops the preload when an insert takes over the shuffle target slot', () => {
+    // The boundary of that shift: an insert landing exactly ON the target
+    // pushes it down too, because the new row takes its slot. `from <= target`
+    // rather than `from < target` is what makes this case come out right.
+    it('shifts the target when the insert lands exactly on it', () => {
         const queue = useQueue()
         const settings = useSettings()
         const tracklist = useTracklist()
@@ -103,15 +106,38 @@ describe('tracklist.insertAt: the preloaded next track', () => {
         queue.currentindex = 3
         settings.shuffle = true
         queue.shuffleNextIndex = 7
-
-        // Force the index to stay put so the row underneath really changes:
-        // an insert AFTER the target leaves its index alone.
         const targetBefore = tracklist.tracklist[7]
+
         tracklist.insertAt([track(99)], 7)
 
         expect(queue.shuffleNextIndex).toBe(8)
         expect(tracklist.tracklist[8]).toBe(targetBefore)
         expect(clearNextAudio).not.toHaveBeenCalled()
+    })
+
+    // `shuffleRecent` is absolute too, and it feeds `previndex` plus the
+    // avoid-list of the next roll. Left behind, Previous plays whatever slid
+    // into the old slot.
+    it('carries the shuffle history along, so Previous keeps its track', () => {
+        const queue = useQueue()
+        const settings = useSettings()
+        const tracklist = useTracklist()
+
+        settings.shuffle = true
+        queue.currentindex = 3
+        // Newest entry last, and it is the current track — `previndex` reads
+        // the one before it, so this history means "previous is row 7".
+        queue.shuffleRecent = [2, 7, 3]
+        expect(queue.previndex).toBe(7)
+        const prevBefore = tracklist.tracklist[7]
+
+        tracklist.insertAt([track(99)], 4)
+
+        // Only 7 sits at or behind the insert; 2 and 3 are in front and stay
+        // put — the same reason `currentindex` (3) needs no shift here.
+        expect(queue.shuffleRecent).toEqual([2, 8, 3])
+        expect(queue.previndex).toBe(8)
+        expect(tracklist.tracklist[8]).toBe(prevBefore)
     })
 
     it('leaves the shuffle target alone when the insert lands behind it', () => {

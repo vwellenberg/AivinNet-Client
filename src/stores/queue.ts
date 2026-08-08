@@ -127,20 +127,32 @@ export default defineStore('Queue', {
             this.shuffleNextIndex = pickShuffleIndex(tracklist.length, this.currentindex, this.shuffleRecent)
         },
         /**
-         * Keep the pre-rolled shuffle target pointing at the SAME track after
-         * rows were inserted into the queue.
+         * Keep the shuffle bookkeeping pointing at the SAME tracks after rows
+         * were inserted into the queue.
          *
-         * `shuffleNextIndex` is an absolute index, so a splice at or before it
-         * shifts the row it names without touching the number. Re-rolling here
-         * would be wrong twice over: it would throw away a target the user is
-         * already hearing the preload of, and it would make the "next" track
-         * change every time someone queues something — the one thing
-         * `rollShuffleNext` exists to avoid (see the getter's note on why
-         * randomness never happens on read).
+         * BOTH pieces of shuffle state are absolute indexes, so a splice at or
+         * before them shifts the row they name without touching the number:
+         *
+         * - `shuffleNextIndex` — the pre-rolled target, read by `nextindex`
+         *   and therefore by the audio preload and the group broadcast.
+         * - `shuffleRecent` — the history, read by `previndex` and handed to
+         *   `pickShuffleIndex` as the avoid-list. Leaving it behind sends
+         *   Previous to whatever slid into the old slot, and makes the next
+         *   roll avoid the wrong tracks.
+         *
+         * Shifting, not re-rolling. A re-roll would throw away a target whose
+         * audio is already preloaded and change what plays next every time
+         * someone queues something — exactly what `rollShuffleNext` exists to
+         * keep from happening on every read (see the note in `nextindex`).
          */
-        shiftShuffleNext(from: number, count: number) {
-            if (this.shuffleNextIndex === null || count <= 0) return
-            if (from <= this.shuffleNextIndex) this.shuffleNextIndex += count
+        shiftShuffleIndexes(from: number, count: number) {
+            if (count <= 0) return
+
+            if (this.shuffleNextIndex !== null && from <= this.shuffleNextIndex) {
+                this.shuffleNextIndex += count
+            }
+
+            this.shuffleRecent = this.shuffleRecent.map(i => (from <= i ? i + count : i))
         },
         /**
          * Flip permanent shuffle ("random track") mode. Separate from

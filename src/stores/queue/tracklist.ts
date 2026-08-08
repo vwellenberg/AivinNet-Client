@@ -172,10 +172,11 @@ export default defineStore('tracklist', {
 
             this.tracklist.splice(index, 0, ...tracks)
 
-            // The pre-rolled shuffle target is an ABSOLUTE index: everything
-            // from `index` on just moved back by `tracks.length`, so it has to
-            // travel with them or it silently starts naming a different track.
-            queue.shiftShuffleNext(index, tracks.length)
+            // The shuffle bookkeeping is ABSOLUTE indexes: everything from
+            // `index` on just moved back by `tracks.length`, so the pre-rolled
+            // target and the history have to travel with them or they silently
+            // start naming different tracks.
+            queue.shiftShuffleIndexes(index, tracks.length)
 
             if (this.tracklist[queue.nextindex] !== nextBefore) {
                 player.clearNextAudio()
