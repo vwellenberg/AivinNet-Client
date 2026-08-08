@@ -39,8 +39,10 @@ import NowPlayingPanel from './NowPlayingPanel.vue'
     .rtopbar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding-right: 1rem;
+      // The avatar is the only child now that the search field moved out —
+      // `space-between` would have parked it on the left.
+      justify-content: flex-end;
+      padding: $small $small 0;
     }
 
     .gsearch-input {

@@ -71,13 +71,20 @@
                     >Queue &rarr;</RouterLink
                 >
             </div>
+            <!-- Same row as the Now Playing header renders, prop for prop.
+                 Three of them carry meaning that is easy to get wrong alone:
+                 `index` is the QUEUE position (a literal 1 would label every
+                 row as the first and make `isCurrent` true whenever the first
+                 track plays), `source` is required, and without `play-this`
+                 the row looks pressable and does nothing. -->
             <SongItem
-                v-if="nextTrack"
-                :track="nextTrack"
-                :index="1"
-                is_first
-                is_last
-                :is_queue_track="true"
+                v-if="queue.next?.trackhash"
+                :track="queue.next"
+                :index="queue.nextindex + 1"
+                :is_first="true"
+                :is_last="true"
+                :source="dropSources.folder"
+                @play-this="queue.playNext"
             />
             <div v-else class="np-empty">Nothing queued after this one.</div>
         </section>
@@ -88,12 +95,11 @@
 import { computed, ref, watch } from 'vue'
 
 import { paths } from '@/config'
-import { favType } from '@/enums'
+import { dropSources, favType } from '@/enums'
 import { Routes } from '@/router'
 import favoriteHandler from '@/helpers/favoriteHandler'
 import { getArtistSummary } from '@/requests/artists'
 import useQueue from '@/stores/queue'
-import useTracklist from '@/stores/queue/tracklist'
 import formatSeconds from '@/utils/useFormatSeconds'
 
 import ArtistName from '@/components/shared/ArtistName.vue'
@@ -102,23 +108,9 @@ import PlayingFrom from '@/components/NowPlaying/PlayingFrom.vue'
 import SongItem from '@/components/shared/SongItem.vue'
 
 const queue = useQueue()
-const tracklist = useTracklist()
 
 const track = computed(() => queue.currenttrack)
 const title = computed(() => track.value?.title || 'Nothing playing')
-
-/**
- * The row after the playing one — ONE track, plus a link to the full queue.
- * That is the shape Spotify's panel uses, and the reason is the same here: a
- * panel that lists the whole queue has no room left for anything else.
- *
- * It reads `nextindex` rather than `currentindex + 1` so shuffle gets the track
- * that will actually play next (see the shuffle bookkeeping in the queue store).
- */
-const nextTrack = computed(() => {
-    if (tracklist.tracklist.length < 2) return null
-    return tracklist.tracklist[queue.nextindex] ?? null
-})
 
 const albumRoute = computed(() =>
     track.value?.albumhash ? { name: Routes.album, params: { albumhash: track.value.albumhash } } : null
