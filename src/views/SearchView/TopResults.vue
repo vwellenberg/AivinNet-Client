@@ -25,7 +25,12 @@
           <h3 class="section-title">Top Result</h3>
           <TopItem />
         </div>
-        <div class="tracks">
+        <!-- Guarded on the results, like the sidebar twin does: the top result
+          can be an album or an artist while no track title matched, and an
+          empty list under a plate is a framed empty rectangle. Before the
+          plate it was invisible, which is why only one of the two hosts
+          carried the guard. -->
+        <div v-if="search.top_results.tracks.length" class="tracks">
           <h3 class="section-title">Tracks</h3>
           <TopTracks />
         </div>
@@ -156,6 +161,12 @@ const noResults = computed(
   .track-item {
     border-radius: $small;
     padding-left: $small;
+  }
+
+  // BETWEEN rows, not above every one: on the plate the first row's margin
+  // adds to the plate's padding, so the list sat 8px from the top edge and
+  // 4px from the bottom. On the bare ground the same rule was invisible.
+  .track-item + .track-item {
     margin-top: $smaller;
   }
 

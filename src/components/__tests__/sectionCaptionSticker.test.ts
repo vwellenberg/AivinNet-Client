@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { styleBlock } from "./scssBlocks";
+import { blocks, styleBlock } from "./scssBlocks";
 
 // ---------------------------------------------------------------------------
 // A section caption on the page ground is a STICKER (`mem-sticker`), never bare
@@ -56,9 +56,33 @@ function vueFiles(root: string, prefix = ""): string[] {
   return out;
 }
 
+/** A component's template, with HTML comments removed. */
+function template(source: string): string {
+  const end = source.indexOf("<style");
+  return (end === -1 ? source : source.slice(0, end)).replace(/<!--[\s\S]*?-->/g, "");
+}
+
+/** The opening tags of every <h2>/<h3> a template renders. */
+function headings(source: string): string[] {
+  return template(source).match(/<h[23](?:\s[^>]*)?>/g) ?? [];
+}
+
+/**
+ * The selectors a heading's own rule could be written as: each of its classes,
+ * plus the element name. A `:class` binding is deliberately ignored — a caption
+ * whose sticker hangs off a conditional class is not stickered in every state.
+ */
+function selectorsFor(tag: string): string[] {
+  const classes = (/\sclass="([^"]*)"/.exec(tag)?.[1] ?? "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(name => `.${name}`);
+  return [...classes, tag.slice(1, 3)];
+}
+
 const HOSTS = [...vueFiles("views"), ...vueFiles("components")]
   .map(path => ({ path, source: readFileSync(join("src", path), "utf-8") }))
-  .filter(({ source }) => /<h[23][\s>]/.test(source));
+  .filter(({ source }) => headings(source).length > 0);
 
 describe("section captions on the page ground are stickers", () => {
   // A source-scanning test goes quietly green when its parser breaks, so the
@@ -78,11 +102,22 @@ describe("section captions on the page ground are stickers", () => {
 
     // Comments stripped: the prose above these rules names the mixin, so raw
     // source would stay green after the rule itself was deleted.
-    expect(
-      styleBlock(source),
-      `${path} renders a heading on the page ground without mem-sticker — ` +
-        "give it the mixin, or add it to NOT_ON_THE_GROUND with the surface it sits on"
-    ).toContain("mem-sticker");
+    const style = styleBlock(source);
+
+    // Per HEADING, not per file. "the file mentions mem-sticker somewhere" was
+    // the first cut and it is not a census: it lets a second, bare caption into
+    // a component that already stickers its first one — which is precisely the
+    // shape this test exists for.
+    for (const tag of headings(source)) {
+      const stickered = selectorsFor(tag).some(selector =>
+        blocks(style, selector).some(body => body.includes("mem-sticker"))
+      );
+      expect(
+        stickered,
+        `${path} renders ${tag} on the page ground with no mem-sticker rule for it — ` +
+          "give it the mixin, or add the file to NOT_ON_THE_GROUND with the surface it sits on"
+      ).toBe(true);
+    }
   });
 });
 
