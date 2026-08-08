@@ -364,9 +364,16 @@ $g-border: solid $candy-border-w $mem-line;
             padding-left: $alt_layout_pad;
         }
 
-        .b-bar,
-        .search-page-top-results {
+        .b-bar {
             padding: 0 $alt_layout_pad;
+        }
+
+        // Sides only — same reason as the copy above: the shorthand also zeroed
+        // the player-bar reserve, and this second copy would have kept doing it
+        // on any window past 1980px.
+        .search-page-top-results {
+            padding-left: $alt_layout_pad;
+            padding-right: $alt_layout_pad;
         }
     }
 }

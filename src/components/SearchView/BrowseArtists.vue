@@ -26,7 +26,17 @@
       </div>
     </div>
 
-    <CardScroller :title="rowTitle" :items="items" :play-source="playSources.artist" />
+    <!-- `route` is what makes CardScroller show its SEE ALL link, and without
+      it a letter with 62 artists offered the six the row happens to fit and no
+      way to the other 56. The link lands on the full artist list — the band
+      narrows, the list is where the whole library lives. -->
+    <CardScroller
+      :title="rowTitle"
+      :items="items"
+      :route="artistListRoute"
+      :see-all-text="'artists'"
+      :play-source="playSources.artist"
+    />
   </div>
 </template>
 
@@ -42,9 +52,11 @@ const browse = useBrowseStore();
 
 const items = computed(() => browse.shown.map(item => ({ type: "artist", item })));
 
-// The caption names the library first and the selection second, so the row
-// keeps saying what it is once a letter has been pressed a few times.
+// The caption names the kind first and the selection second, so the row keeps
+// saying what it is once a letter has been pressed a few times.
 const rowTitle = computed(() => `Artists · ${browse.letter} · ${browse.shown.length}`);
+
+const artistListRoute = "/artists";
 
 function bandTitle(key: string) {
   const count = browse.counts[key];

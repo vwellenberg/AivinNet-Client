@@ -35,18 +35,31 @@ interface StatItemData {
  */
 const WANTED = ["trackcount", "streams", "playtime", "favorites"];
 
-const items = ref<StatItemData[]>([]);
+/**
+ * Module-level, so it survives the component. This block mounts behind
+ * `v-if="!hasQuery"`, which means it is destroyed and rebuilt on every search
+ * and every clearing of the field — and `/logger/stats` aggregates the whole
+ * play history, so re-issuing it per keystroke-pause is not a rounding error.
+ * The numbers move once a day at most; a session's first answer is good enough
+ * for the rest of it.
+ */
+let cached: StatItemData[] | null = null;
+
+const items = ref<StatItemData[]>(cached || []);
 
 onMounted(async () => {
+  if (cached) return;
+
   const res = await getStats();
   if (res.status !== 200) return;
 
   const stats: StatItemData[] = res.data?.stats || [];
   // Ordered by WANTED rather than by the response, so the row reads the same
   // whatever order the backend happens to send.
-  items.value = WANTED.map(kind => stats.find(s => s.cssclass === kind)).filter(
+  cached = WANTED.map(kind => stats.find(s => s.cssclass === kind)).filter(
     (s): s is StatItemData => Boolean(s)
   );
+  items.value = cached;
 });
 </script>
 

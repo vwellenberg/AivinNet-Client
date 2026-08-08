@@ -15,9 +15,22 @@ export const OTHER = '#'
 
 export const LETTERS = [OTHER, ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')]
 
-/** The band key a name belongs under. */
+/**
+ * The band key a name belongs under.
+ *
+ * Accents are folded first, the same way the search store folds them: without
+ * that, "Ólafur Arnalds", "Édith Piaf" and "Ørsted" land under "#" next to the
+ * digits, which is neither where anyone looks for them nor what the count on
+ * the O and E keys would have promised.
+ */
 export function initialOf(name: string): string {
-    const first = (name || '').trim().charAt(0).toUpperCase()
+    const first = (name || '')
+        .trim()
+        .charAt(0)
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .toUpperCase()
+
     return /^[A-Z]$/.test(first) ? first : OTHER
 }
 
@@ -71,18 +84,27 @@ export default defineStore('searchBrowse', () => {
             let total = Infinity
 
             while (all.length < total) {
-                const { data } = await useAxios({
+                const { status, data } = await useAxios({
                     url:
                         paths.api.getall.artists +
                         `?start=${all.length}&limit=${PAGE}&sortby=name&reverse=0`,
                     method: 'GET',
                 })
 
-                total = data?.total ?? 0
+                // `useAxios` does not throw — it resolves with the status and
+                // whatever body came back. A 500 read as "an empty page" would
+                // have left the band permanently absent AND marked loaded, so
+                // the failure has to be read off the status here.
+                if (status !== 200 || !Array.isArray(data?.items)) {
+                    failed.value = true
+                    return
+                }
+
+                total = data.total ?? 0
                 // A page that comes back empty ends the loop even if `total`
                 // disagrees — otherwise a mismatch between the two spins here
                 // forever.
-                if (!data?.items?.length) break
+                if (!data.items.length) break
 
                 all.push(...data.items)
             }
@@ -99,6 +121,8 @@ export default defineStore('searchBrowse', () => {
                 letter.value = LETTERS.filter(key => key !== OTHER).find(has) ?? LETTERS.find(has) ?? null
             }
         } catch {
+            // Belt and braces: `useAxios` swallows network errors, but a
+            // malformed body could still throw somewhere in here.
             failed.value = true
         } finally {
             loading.value = false
