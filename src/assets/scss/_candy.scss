@@ -218,6 +218,15 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // ---------------------------------------------------------------------------
 @mixin mem-transport-aux-on($fill: $mem-yellow, $glyph-color: $mem-ink) {
   @include candy-box($fill, $candy-radius-sm);
+  // The on-state paints a COMPLETE surface, texture included — so whatever the
+  // rest state used has to be cleared, not left to show through. `candy-box`
+  // only sets `background-color`, so a rest state with a hatch (anything on
+  // `btn-action`) would keep it UNDER the sprinkle below: two textures at once,
+  // and the wrong one — the surviving hatch is the theme-aware `$on: surface`
+  // sprite, while a static accent fill wants `$on: accent`. It went unnoticed
+  // for as long as every caller happened to pair with `btn-quiet`, which has no
+  // rest texture to leak.
+  background-image: none;
   position: relative;
   overflow: hidden; // clip the sprinkle to the rounded corners
   // On the accent fill the glyph must be a STATIC colour in BOTH themes.

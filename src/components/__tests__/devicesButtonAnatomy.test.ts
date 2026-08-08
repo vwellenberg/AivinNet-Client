@@ -70,6 +70,15 @@ describe("devices button anatomy", () => {
     expect(joined, "no `&.ds-joined` block inside `.devices-btn`").not.toBe("");
     expect(joined).toMatch(/@include\s+btn-toggle-on\(/);
     expect(joined, "the joined fill is the brand green, not a fresh literal").toContain("$brand-green");
+    // ⚠️ The argument NAMES, not just the include. This test matches raw text,
+    // so it stayed green on `$glyph:` — which Dart Sass rejects outright
+    // ("No argument named $glyph"), i.e. the census passed a build-breaking
+    // call site. `$glyph` is a glyph SIZE everywhere else in _buttons.scss, so
+    // it is the mistake a reader of that file makes first.
+    expect(joined, "the glyph colour argument is `$glyph-color` — `$glyph` is a SIZE elsewhere").toContain(
+      "$glyph-color:"
+    );
+    expect(joined).not.toMatch(/\$glyph\s*:/);
   });
 
   it("is hosted by the three screens this census knows about", () => {

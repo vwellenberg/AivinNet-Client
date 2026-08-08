@@ -691,6 +691,17 @@ Zwei Dinge, die dabei mit hochkamen:
   Spezifität wie der `:hover` der Rolle — ohne eigenen Block wäre ausgerechnet der eingeschaltete
   Knopf der eine, auf dem der Zeiger nichts sagt. Dieselbe Lücke hat #422 bei `btn-toggle-on`
   geschlossen; sie kommt bei jedem neuen Zustands-Selektor zurück.
+- ⚠️ **Ein An-Zustand muss die Textur des RUHE-Zustands löschen, nicht nur die Füllung tauschen.**
+  `candy-box()` setzt ausschließlich `background-color` — die Schraffur von `btn-action` lebt im
+  `background-image` und lag damit **unter** dem Sprinkle weiter: zwei Texturen gleichzeitig, und
+  die überlebende ist die theme-abhängige (`$on: surface`), während eine statische Akzentfläche
+  `$on: accent` verlangt. Unsichtbar geblieben ist das nur, solange jeder Aufrufer zufällig mit
+  `btn-quiet` paarte, das gar keine Ruhe-Textur hat. `mem-transport-aux-on` setzt jetzt selbst
+  `background-image: none`.
+- ⚠️ **Ein Quelltext-Zensus fängt keinen Sass-Fehler.** Der Aufruf stand eine Runde lang mit
+  `$glyph:` da — Dart Sass bricht damit ab („No argument named $glyph"), der Test war trotzdem
+  grün, weil er nur `@include btn-toggle-on(` als Text suchte. Wer Aufrufe prüft, prüft die
+  **Argumentnamen** mit; sonst bezeugt der Zensus eine Datei, die nicht kompiliert.
 - ⚠️ **`$glyph` heißt in diesem Repo Glyph-GRÖSSE** (`btn-action`, `btn-quiet`, `btn-primary`).
   Ein Parameter für die Glyph-*Farbe* heißt `$glyph-color`, sonst emittiert der nächste Aufrufer
   `color: 1rem` — vom Browser wortlos verworfen.

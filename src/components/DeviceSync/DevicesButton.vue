@@ -44,9 +44,17 @@ const title = computed(() => (ds.joined ? 'Devices — group playback active' : 
     color: $candy-text;
 
     // Joined = the app's other persistent on-state, so it wears the same box
-    // shuffle and repeat do — accent fill, sprinkle, ink frame, offset shadow,
-    // pop on switching on — in the brand green rather than yellow. Yellow is
-    // taken: it means "playing" (see styling.md).
+    // shuffle and repeat do — accent fill, sprinkle, ink frame, offset shadow —
+    // in the brand green rather than yellow. Yellow is taken: it means
+    // "playing" (see styling.md).
+    //
+    // Unlike shuffle and repeat this does NOT pop on switching on, and that is
+    // a property of the pairing rather than something to fix here: those sit on
+    // `btn-quiet`, which carries no `btn-pop`, so the toggle's animation is the
+    // element's first. Here the rest state is `btn-action`, which already
+    // declares the identical `animation` shorthand — re-declaring the same
+    // value does not restart an animation. Joining is a deliberate act with a
+    // modal in front of it, so the fill switching is feedback enough.
     //
     // The offset shadow is the part that was missing. It arrived by accident
     // from the global button base until #244, so `candy-box()` alone LOOKED
@@ -58,7 +66,7 @@ const title = computed(() => (ds.joined ? 'Devices — group playback active' : 
     // (0,2,0, declared later) would beat the rest state's `:hover` and the
     // pointer would say nothing on the one control that is switched ON.
     &.ds-joined {
-        @include btn-toggle-on($fill: $brand-green, $glyph: $mem-panel-static);
+        @include btn-toggle-on($fill: $brand-green, $glyph-color: $mem-panel-static);
     }
 }
 </style>
