@@ -1,6 +1,8 @@
 <template>
-  <div class="recent-searches">
-    <template v-if="recents.length">
+  <!-- The ROOT is gated, not just its contents: as an always-rendered empty
+    div it still took a row and the 2rem gap of the idle column, which is a
+    blank strip above the letter band for anyone with no recent searches. -->
+  <div v-if="recents.length" class="recent-searches">
       <!-- The head sits ON the plate's top edge: a caption sticker plus the
         clear button, both half over the frame. It is one flow row with the
         plate pulled up under it — not an absolutely positioned overlay — so a
@@ -36,15 +38,6 @@
           </div>
         </div>
       </div>
-    </template>
-
-    <NoItems
-      v-else
-      :icon="SearchSvg"
-      :flag="true"
-      :title="'Search your library'"
-      :description="'Find songs, albums, artists, playlists and folders.'"
-    />
   </div>
 </template>
 
@@ -61,7 +54,6 @@ import {
 
 import SearchSvg from "@/assets/icons/search.svg";
 import CancelSvg from "@/assets/icons/a.svg";
-import NoItems from "@/components/shared/NoItems.vue";
 
 const search = useSearchStore();
 const recents = ref<string[]>(getRecentSearches());
@@ -90,8 +82,10 @@ function clearAll() {
 
 <style lang="scss">
 .recent-searches {
-  height: 100%;
-  padding: 0 $padright $padbottom $padleft;
+  // Neither the page indent nor the full height belong here any more: this
+  // block is the first of three in the idle column (TopResults), the host
+  // already states the indent, and a block that claims 100% height pushes the
+  // letter band and the numbers off the first screen.
 
   .recent-head {
     display: flex;
@@ -336,12 +330,5 @@ function clearAll() {
     }
   }
 
-  @include allPhones {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    // No narrower head padding here: it has to stay equal to the plate's, or
-    // the caption sticker and the first chip below it stand on two different
-    // left edges.
-  }
 }
 </style>

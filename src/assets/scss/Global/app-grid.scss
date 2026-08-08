@@ -119,21 +119,14 @@ $g-border: solid $candy-border-w $mem-line;
     padding-left: $padleft;
     padding-right: $padright;
     // Reserve the player bar's row — see $bottombarheight for why the content
-    // area runs underneath it in the first place.
-    padding-bottom: calc($padbottom + $bottombarheight);
+    // area runs underneath it in the first place. The three breakpoints live in
+    // `player-bar-reserve` so a second caller cannot get one of them wrong.
+    @include player-bar-reserve;
     -webkit-overflow-scrolling: touch;
 
     @include allPhones {
         padding-left: 1rem;
         padding-right: 1rem;
-        padding-bottom: calc($padbottom + $bottombarheight-phone);
-    }
-
-    // The reserve follows the bar. Keeping the phone value here would hand back
-    // 92px of the little height a landscape phone has, in the one viewport
-    // where it is scarce.
-    @include shortViewport {
-        padding-bottom: calc($padbottom + $bottombarheight-short);
     }
 }
 
@@ -303,9 +296,19 @@ $g-border: solid $candy-border-w $mem-line;
         padding-right: $alt_layout_pad;
     }
 
-    .b-bar,
-    .search-page-top-results {
+    .b-bar {
         padding: 0 $alt_layout_pad;
+    }
+
+    // The SIDES only. As a `padding` shorthand this also zeroed the bottom,
+    // and a second rule further down handed back $padbottom (4rem) against a
+    // 5.125rem bar — the exact 18px shortfall styling.md records for #307,
+    // measured again at the foot of the search page's idle column. The reserve
+    // is this scroller's own `@include player-bar-reserve` (TopResults.vue)
+    // and is left alone here.
+    .search-page-top-results {
+        padding-left: $alt_layout_pad;
+        padding-right: $alt_layout_pad;
     }
 
     #contentresizer {
@@ -319,10 +322,6 @@ $g-border: solid $candy-border-w $mem-line;
     .vue-recycle-scroller,
     .content-page {
         padding-top: 2rem;
-    }
-
-    .search-page-top-results {
-        padding-bottom: $padbottom;
     }
 
     .search-view .buttons-area {
@@ -359,9 +358,16 @@ $g-border: solid $candy-border-w $mem-line;
             padding-left: $alt_layout_pad;
         }
 
-        .b-bar,
-        .search-page-top-results {
+        .b-bar {
             padding: 0 $alt_layout_pad;
+        }
+
+        // Sides only — same reason as the copy above: the shorthand also zeroed
+        // the player-bar reserve, and this second copy would have kept doing it
+        // on any window past 1980px.
+        .search-page-top-results {
+            padding-left: $alt_layout_pad;
+            padding-right: $alt_layout_pad;
         }
     }
 }
@@ -477,18 +483,12 @@ $g-border: solid $candy-border-w $mem-line;
         // bottom ~18px of the last row covered — the reported "last track of a
         // playlist is hidden by the bottom bar". The `.content-page` pages next
         // door had reserved the bar's height all along; these never did.
-        padding-bottom: calc($padbottom + $bottombarheight);
+        @include player-bar-reserve;
         -webkit-overflow-scrolling: touch;
 
         @include allPhones {
             padding-left: 1rem;
             padding-right: 1rem;
-            padding-bottom: calc($padbottom + $bottombarheight-phone);
-        }
-
-        // See the note on the same override in `.content-page`.
-        @include shortViewport {
-            padding-bottom: calc($padbottom + $bottombarheight-short);
         }
     }
 }
