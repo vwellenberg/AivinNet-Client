@@ -92,15 +92,19 @@ The production output is placed in the `dist/` folder.
 
 ---
 
-## Deploy to Server
+## Deploy
 
-The following command pulls the latest code, builds the project, deploys it to the server, and restarts the service:
+The client is a static bundle. Build it, put `dist/` where the AivinNet backend looks for its
+client, and restart the backend:
 
 ```bash
-ssh -i ~/.ssh/id_ed25519 vwellenberg@192.168.0.4 "cd ~/AivinNet-Client && git pull && NODE_OPTIONS='--dns-result-order=ipv4first' yarn install --ignore-engines --network-timeout 120000 2>&1 | tail -2 && NODE_OPTIONS='--dns-result-order=ipv4first' yarn build 2>&1 | tail -5 && rm -rf ~/.config/swingmusic/client && cp -r dist ~/.config/swingmusic/client && sudo -n systemctl restart aivinnet && echo deployed"
+yarn build
+rm -rf ~/.config/aivinnet/client
+cp -r dist ~/.config/aivinnet/client
+systemctl restart aivinnet
 ```
 
-> **Note:** The server runs Node 18, so `--ignore-engines` is required for `yarn install`.
+> **Note:** On Node 18, `yarn install` needs `--ignore-engines`.
 
 ---
 
