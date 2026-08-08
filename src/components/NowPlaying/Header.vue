@@ -16,7 +16,12 @@
             </RouterLink>
             <NowPlayingInfo @handle-fav="handleFav" />
             <Progress v-if="isMobile" />
-            <div class="below-progress">
+            <!-- Every child here is gated on isMobile/isSmallPhone, so on a
+                 desktop this was an empty 0px div still contributing its
+                 `margin-top: 1rem`. Invisible on the bare ground, but the veil
+                 plate below makes it 16px of dead air inside the card. Safe
+                 gate: isSmallPhone (<=660) is a subset of isMobile (<=900). -->
+            <div v-if="isMobile" class="below-progress">
                 <div v-if="isMobile" class="time">
                     {{ formatSeconds(queue.duration.current) }}
                 </div>
@@ -256,6 +261,27 @@ function handleFav() {
         margin: 0 auto;
         width: 26rem;
         max-width: 100%;
+
+        // One plate under the whole head, not one per part.
+        //
+        // Every piece in here already carried its own surface — the source
+        // sticker, the cover's ink frame, the title plate — so nothing was
+        // unreadable and `--mem-veil`'s usual job (text on the doodle ground)
+        // did not apply. What was missing is the opposite: with the doodles
+        // running at full volume BETWEEN them, four plates read as four
+        // unrelated objects rather than as one now-playing card. Measured at
+        // 1400x950 on the deployed app; the ground is a 3840x1600 tile, so
+        // there is always something loud in the gaps.
+        //
+        // Veil rather than panel, and that is the rule: this is content, not
+        // chrome. It stays 92% opaque, so the ground still shows through — the
+        // doodles are dimmed, not deleted.
+        // Through the mixins, not written out: a central change to the radius,
+        // the border or the offset would otherwise leave this one plate behind,
+        // and no census covers it.
+        @include candy-box(var(--mem-veil));
+        @include candy-shadow;
+        padding: 1.25rem;
     }
 
     .np-image {
