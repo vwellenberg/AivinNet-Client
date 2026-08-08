@@ -52,7 +52,12 @@
 import { ref } from "vue";
 
 import useSearchStore from "@/stores/search";
-import { clearRecentSearches, getRecentSearches, removeRecentSearch } from "@/utils/recentSearches";
+import {
+  clearRecentSearches,
+  getRecentSearches,
+  promoteRecentSearch,
+  removeRecentSearch,
+} from "@/utils/recentSearches";
 
 import SearchSvg from "@/assets/icons/search.svg";
 import CancelSvg from "@/assets/icons/a.svg";
@@ -65,6 +70,12 @@ function refresh() {
   recents.value = getRecentSearches();
 }
 function apply(term: string) {
+  // BEFORE the query is set: the debounce watcher records whatever lands in
+  // the field, and it cannot tell a term that came out of this list from one
+  // that is being typed. Promoting first leaves the term at the head, so the
+  // record that follows folds it against itself and changes nothing — without
+  // this, clicking a chip could fold away the entry above it.
+  promoteRecentSearch(term);
   search.query = term;
 }
 function remove(term: string) {
@@ -95,7 +106,10 @@ function clearAll() {
     // Above the plate, which is pulled up underneath it.
     position: relative;
     z-index: 1;
-    padding: 0 $medium;
+    // The plate's padding PLUS its frame: the plate carries a 3px border and
+    // the head does not, so equal padding would have stood the caption 3px
+    // left of the first chip below it.
+    padding: 0 calc(#{$medium} + #{$candy-border-w});
   }
 
   // The caption is a STICKER, like every other section head on the ground
@@ -193,7 +207,14 @@ function clearAll() {
 
     .chip-term,
     .chip-remove {
-      height: 100%;
+      // The two buttons cover the pill's BORDER as well. `height: 100%`
+      // resolves against the content box, which is 2.75rem minus the ink frame
+      // on both sides = 38px — so the role's 44px target would have been a
+      // 38px one with a 3px dead ring around it, and the chip used to be the
+      // button itself. Neither of them paints a background at rest, so nothing
+      // is drawn over the frame.
+      height: calc(100% + #{$candy-border-w * 2});
+      margin: -$candy-border-w 0;
       background: transparent;
       border: none;
       color: inherit;
@@ -216,7 +237,10 @@ function clearAll() {
       display: flex;
       align-items: center;
       min-width: 0;
-      padding: 0 $smaller 0 $medium;
+      // Reaches over the frame on the leading edge too, and pays it back as
+      // padding so the label does not move.
+      margin-left: -$candy-border-w;
+      padding: 0 $smaller 0 calc(#{$medium} + #{$candy-border-w});
     }
 
     .chip-label {
@@ -229,10 +253,10 @@ function clearAll() {
     .chip-remove {
       display: grid;
       place-items: center;
-      width: 1.85rem;
+      width: calc(1.85rem + #{$candy-border-w});
       flex-shrink: 0;
-      padding: 0;
-      padding-right: $smaller;
+      margin-right: -$candy-border-w;
+      padding: $candy-border-w calc(#{$smaller} + #{$candy-border-w}) $candy-border-w 0;
       border-radius: $candy-radius-pill;
       // Reserved on both sides of the pointer state, so revealing it can never
       // resize the chip under the pointer.
@@ -250,14 +274,12 @@ function clearAll() {
       // teal (play) or yellow (playing), which mean something else here.
       //
       // `content-box` so the plate keeps the padding as a margin to the pill's
-      // own edge: the whole width stays clickable (no dead strip), only the
-      // paint stops short.
-      &:hover {
-        background-color: var(--mem-hover-text);
-        background-clip: content-box;
-        color: var(--mem-hover);
-        opacity: 1;
-      }
+      // own edge and its frame: the whole button stays clickable (no dead
+      // strip), only the paint stops short. The rule itself lives in the
+      // pointer block below — declared here it would tie on specificity with
+      // the gate's `&:hover .chip-remove` and lose on source order, which is
+      // the trap styling.md documents: the dedicated state would have painted
+      // permanently washed out.
     }
 
     // Pointer-gated, and the gate has a touch answer (styling.md): `:hover`
@@ -280,6 +302,19 @@ function clearAll() {
       &:focus-within .chip-remove {
         opacity: 0.75;
         pointer-events: auto;
+      }
+
+      // A state of its OWN, because the chip's hover paints identically over
+      // "search this again" and over "delete this", and only one of those is
+      // irreversible. It takes the contrast surface the hover already
+      // established, inverted once more — no new colour, and no borrowing of
+      // teal (play) or yellow (playing), which mean something else here.
+      // AFTER the two rules above, which it ties with on specificity.
+      .chip-remove:hover {
+        background-color: var(--mem-hover-text);
+        background-clip: content-box;
+        color: var(--mem-hover);
+        opacity: 1;
       }
     }
 

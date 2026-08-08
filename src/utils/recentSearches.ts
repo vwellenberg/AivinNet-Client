@@ -61,13 +61,17 @@ function foldAgainstPrevious(term: string, list: string[]): string[] {
 function migrateStoredList(list: string[]): string[] {
     if (readLocalStorage(MIGRATED_KEY) === true) return list
 
-    // The flag goes down FIRST, and a refusal to store it cancels the whole
-    // migration. Without the flag there is nothing keeping this to one run,
-    // and a whole-list fold on every read is the two-chips-per-click bug the
-    // second bullet above describes — worse than leaving the old debris in
-    // place, which is at least only ugly. `writeLocalStorage` swallows quota
-    // and refused-storage errors and reports them in its return value, so
-    // this is the only place they can be noticed.
+    // Two writes, so one of them can fail alone, and the ORDER picks which
+    // half-done state is possible. `writeLocalStorage` swallows quota and
+    // refused-storage errors into its return value, so this is where they are
+    // noticed at all.
+    //
+    // Flag first: if the list write then fails, the old debris stays for good
+    // — ugly, and nothing worse. The other order buys a window where the list
+    // is folded but the flag is missing, and a whole-list fold that repeats on
+    // every read is the two-chips-per-click bug the second bullet above
+    // describes. Between permanent ugliness and repeatable data loss, this
+    // one is not close.
     if (!writeLocalStorage(MIGRATED_KEY, true)) return list
 
     // The same rule as above, applied to every adjacency the stored list
@@ -97,6 +101,29 @@ export function getRecentSearches(): string[] {
     if (!Array.isArray(list)) return []
 
     return migrateStoredList(list.filter((item): item is string => typeof item === 'string'))
+}
+
+/**
+ * Puts a term that CAME FROM the list back on top, without folding.
+ *
+ * Applying a chip runs the term through the search field, so the debounce
+ * watcher records it a moment later like any other query — and the fold, which
+ * cannot see where a query came from, would fold it against the head. Clicking
+ * "yesterday" in ["yes", "bite", "yesterday"] destroyed "yes" that way. Called
+ * first, this moves the term to the head, and the record that follows finds it
+ * already there: a term folded against itself changes nothing.
+ *
+ * This is the signal recordRecentSearch's docblock says it does not get. It
+ * exists at exactly one call site — the chip — because that is the only place
+ * where a query is known not to be typing.
+ */
+export function promoteRecentSearch(term: string) {
+    const lower = term.trim().toLowerCase()
+    const list = getRecentSearches()
+    const stored = list.find(item => item.toLowerCase() === lower)
+    if (stored === undefined) return
+
+    writeLocalStorage(KEY, [stored, ...list.filter(item => item !== stored)])
 }
 
 /**

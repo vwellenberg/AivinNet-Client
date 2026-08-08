@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
     clearRecentSearches,
     getRecentSearches,
+    promoteRecentSearch,
     recordRecentSearch,
     removeRecentSearch,
 } from '../recentSearches'
@@ -162,6 +163,29 @@ describe('recentSearches', () => {
         setItem.mockRestore()
 
         expect(getRecentSearches()).toEqual(['age of empires'])
+    })
+
+    // Applying a chip is the one case where the query is KNOWN not to be
+    // typing, and promoting it first is what carries that knowledge into the
+    // record that the debounce watcher fires a moment later.
+    describe('applying a chip', () => {
+        it('keeps every other entry, including the one the fold would take', () => {
+            recordRecentSearch('yesterday')
+            recordRecentSearch('bite')
+            recordRecentSearch('yes')
+
+            promoteRecentSearch('yesterday')
+            recordRecentSearch('yesterday') // what the watcher does next
+
+            expect(getRecentSearches()).toEqual(['yesterday', 'yes', 'bite'])
+        })
+
+        it('ignores a term that is not in the list', () => {
+            recordRecentSearch('weezer')
+
+            promoteRecentSearch('nothing stored')
+            expect(getRecentSearches()).toEqual(['weezer'])
+        })
     })
 
     // The price of that ordering, stated so a change to it is a decision and
