@@ -1,5 +1,11 @@
 <template>
-  <div class="search-page-top-results">
+  <!-- `content-page` is the shared reservation for the player bar (app-grid):
+    the bar overlays the bottom of every scroller, and this one had 4rem
+    against a 5.125rem bar — measured, the last row sat 18px underneath it,
+    which is the same 18px styling.md records for #307. Home, playlists and
+    the rest were already on the class; this scroller simply never was, and
+    nothing ended low enough here for it to show until now. -->
+  <div class="search-page-top-results content-page">
     <!-- No query yet. The page answers the question people arrive with when
       they do not know what to type: what have I got? Recent searches first
       (the shortest path back), then the artist band, then the numbers.
@@ -95,7 +101,7 @@ const noResults = computed(
 .search-page-top-results {
   height: 100%;
   overflow: auto;
-  padding: 0 $padright $padbottom $padleft;
+  // Indents and the bar reserve come from `content-page` on the element.
 
   // The idle column: three blocks, one left edge, one rhythm between them.
   // The page indent is the host's above, so none of the three carries its own
