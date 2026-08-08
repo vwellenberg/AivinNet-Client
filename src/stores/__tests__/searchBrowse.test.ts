@@ -96,29 +96,59 @@ describe('searchBrowse store', () => {
         expect(store.loaded).toBe(false)
     })
 
-    it('shows the whole list until a letter is picked', async () => {
+    it('shows the picked letter, and only that', async () => {
         get.mockResolvedValueOnce(page(['Air', 'Bite', 'Cake']))
 
         const store = useBrowseStore()
         await store.fetchArtists()
 
-        expect(store.shown).toHaveLength(3)
-
         store.selectLetter('B')
         expect(store.shown.map(a => a.name)).toEqual(['Bite'])
     })
 
-    it('treats a second press of the same key as "all again"', async () => {
+    // Opening on "no letter" means opening on whatever sorts first, and in a
+    // real library that is the "#" group — "…Und Null Sekunden, 01, 02, 03".
+    it('opens on the first LETTER that has anyone, never on #', async () => {
+        get.mockResolvedValueOnce(page(['01', '...Und Null Sekunden', 'Bite', 'Cake']))
+
+        const store = useBrowseStore()
+        await store.fetchArtists()
+
+        expect(store.letter).toBe('B')
+        expect(store.shown.map(a => a.name)).toEqual(['Bite'])
+    })
+
+    it('falls back to # when the library has no latin initials at all', async () => {
+        get.mockResolvedValueOnce(page(['01', '響']))
+
+        const store = useBrowseStore()
+        await store.fetchArtists()
+
+        expect(store.letter).toBe(OTHER)
+        expect(store.shown).toHaveLength(2)
+    })
+
+    // A band whose second press empties the page below it is a trap.
+    it('keeps the letter selected when its key is pressed again', async () => {
         get.mockResolvedValueOnce(page(['Air', 'Bite']))
 
         const store = useBrowseStore()
         await store.fetchArtists()
 
         store.selectLetter('A')
-        expect(store.letter).toBe('A')
-
         store.selectLetter('A')
-        expect(store.letter).toBeNull()
-        expect(store.shown).toHaveLength(2)
+
+        expect(store.letter).toBe('A')
+        expect(store.shown.map(a => a.name)).toEqual(['Air'])
+    })
+
+    it('ignores a press on a letter that has nobody', async () => {
+        get.mockResolvedValueOnce(page(['Air']))
+
+        const store = useBrowseStore()
+        await store.fetchArtists()
+
+        store.selectLetter('Z')
+        expect(store.letter).toBe('A')
     })
 })

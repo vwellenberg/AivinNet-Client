@@ -42,11 +42,9 @@ const browse = useBrowseStore();
 
 const items = computed(() => browse.shown.map(item => ({ type: "artist", item })));
 
-const rowTitle = computed(() =>
-  browse.letter === null
-    ? `Browse artists · ${browse.artists.length}`
-    : `Artists · ${browse.letter}`
-);
+// The caption names the library first and the selection second, so the row
+// keeps saying what it is once a letter has been pressed a few times.
+const rowTitle = computed(() => `Artists · ${browse.letter} · ${browse.shown.length}`);
 
 function bandTitle(key: string) {
   const count = browse.counts[key];

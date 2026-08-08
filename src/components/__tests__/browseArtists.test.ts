@@ -13,9 +13,10 @@ vi.mock("@/requests/useAxios", () => ({ default: vi.fn() }));
 
 const artist = (name: string) => ({ name, artisthash: name, image: `${name}.webp` });
 
-function mountBand(names: string[]) {
+function mountBand(names: string[], letter = "A") {
   const store = useBrowseStore();
   store.artists = names.map(artist) as never;
+  store.letter = letter;
   // The row itself is CardScroller's business and pulls the router with it;
   // this test is about the band.
   return mount(BrowseArtists, { global: { stubs: { CardScroller: true } } });
@@ -53,13 +54,18 @@ describe("the letter band", () => {
   });
 
   it("announces which key is pressed", async () => {
-    const w = mountBand(["Air", "Bite"]);
-    const a = w.findAll(".band-key")[LETTERS.indexOf("A")];
+    const w = mountBand(["Air", "Bite"], "A");
+    const keys = w.findAll(".band-key");
+    const a = keys[LETTERS.indexOf("A")];
+    const b = keys[LETTERS.indexOf("B")];
 
-    expect(a.attributes("aria-pressed")).toBe("false");
-    await a.trigger("click");
     expect(a.attributes("aria-pressed")).toBe("true");
     expect(a.classes()).toContain("on");
+    expect(b.attributes("aria-pressed")).toBe("false");
+
+    await b.trigger("click");
+    expect(b.attributes("aria-pressed")).toBe("true");
+    expect(a.attributes("aria-pressed")).toBe("false");
   });
 
   it("renders nothing at all while the library has not arrived", () => {

@@ -47,14 +47,17 @@ export default defineStore('searchBrowse', () => {
     })
 
     /**
-     * What the row shows: the selected letter's artists, or the start of the
-     * list while nothing is selected. The row itself renders as many as its
-     * grid has columns (CardScroller), so this stays the full group.
+     * The selected letter's artists. The row renders as many as its grid has
+     * columns (CardScroller), so this stays the whole group.
+     *
+     * There is no "all" state, and that is a measured decision rather than a
+     * simplification: showing the list from the top means showing whatever
+     * sorts first, and in a real library that is the "#" group — the opening
+     * row read "…Und Null Sekunden, 01, 02, 03, 04", none of which is a band
+     * anyone went looking for. A letter is always selected instead.
      */
     const shown = computed(() =>
-        letter.value === null
-            ? artists.value
-            : artists.value.filter(artist => initialOf(artist.name) === letter.value)
+        artists.value.filter(artist => initialOf(artist.name) === letter.value)
     )
 
     async function fetchArtists() {
@@ -86,6 +89,15 @@ export default defineStore('searchBrowse', () => {
 
             artists.value = all
             loaded.value = true
+
+            // Open on the first LETTER that has anyone — "A" in any real
+            // library. "#" is skipped here even though it sorts first: it is
+            // the catch-all for digits and non-latin names, which is the one
+            // group nobody opens the page hoping to see.
+            if (letter.value === null) {
+                const has = (key: string) => all.some(a => initialOf(a.name) === key)
+                letter.value = LETTERS.filter(key => key !== OTHER).find(has) ?? LETTERS.find(has) ?? null
+            }
         } catch {
             failed.value = true
         } finally {
@@ -93,8 +105,11 @@ export default defineStore('searchBrowse', () => {
         }
     }
 
-    function selectLetter(key: string | null) {
-        letter.value = letter.value === key ? null : key
+    // No toggling back to "nothing selected": with no letter there is no row,
+    // and a band whose second press empties the page below it is a trap, not a
+    // shortcut.
+    function selectLetter(key: string) {
+        if (counts.value[key]) letter.value = key
     }
 
     /**
