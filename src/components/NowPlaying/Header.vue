@@ -16,7 +16,12 @@
             </RouterLink>
             <NowPlayingInfo @handle-fav="handleFav" />
             <Progress v-if="isMobile" />
-            <div class="below-progress">
+            <!-- Every child here is gated on isMobile/isSmallPhone, so on a
+                 desktop this was an empty 0px div still contributing its
+                 `margin-top: 1rem`. Invisible on the bare ground, but the veil
+                 plate below makes it 16px of dead air inside the card. Safe
+                 gate: isSmallPhone (<=660) is a subset of isMobile (<=900). -->
+            <div v-if="isMobile" class="below-progress">
                 <div v-if="isMobile" class="time">
                     {{ formatSeconds(queue.duration.current) }}
                 </div>
@@ -271,10 +276,11 @@ function handleFav() {
         // Veil rather than panel, and that is the rule: this is content, not
         // chrome. It stays 92% opaque, so the ground still shows through — the
         // doodles are dimmed, not deleted.
-        background-color: var(--mem-veil);
-        border: $candy-border;
-        border-radius: $candy-radius;
-        box-shadow: 4px 4px 0 var(--mem-shadow);
+        // Through the mixins, not written out: a central change to the radius,
+        // the border or the offset would otherwise leave this one plate behind,
+        // and no census covers it.
+        @include candy-box(var(--mem-veil));
+        @include candy-shadow;
         padding: 1.25rem;
     }
 
