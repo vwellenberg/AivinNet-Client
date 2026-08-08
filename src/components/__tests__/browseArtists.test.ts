@@ -50,13 +50,23 @@ describe("the letter band", () => {
 
   // A key that vanishes when its letter is empty moves every other key, which
   // is the one thing a band people aim at must not do.
-  it("keeps an empty letter visible, disabled and announced", () => {
-    const z = mountBand(["Air"]).findAll(".band-key")[LETTERS.indexOf("Z")];
+  it("keeps an empty letter visible, announced and still reachable", () => {
+    const w = mountBand(["Air"]);
+    const store = useBrowseStore();
+    const z = w.findAll(".band-key")[LETTERS.indexOf("Z")];
 
     expect(z.classes()).toContain("off");
-    expect(z.attributes("disabled")).toBeDefined();
     expect(z.find(".n").exists()).toBe(false);
+    expect(z.attributes("aria-disabled")).toBe("true");
     expect(z.attributes("title")).toBe("No artists under Z");
+    // NOT the `disabled` attribute: a disabled control is not hit-tested, so
+    // its title never appears, and it drops out of the tab order — a third of
+    // this band would be unreachable by keyboard for the sake of a press that
+    // the store already refuses.
+    expect(z.attributes("disabled")).toBeUndefined();
+
+    z.trigger("click");
+    expect(store.letter).toBe("A");
   });
 
   it("announces which key is pressed", async () => {

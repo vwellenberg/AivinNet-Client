@@ -112,9 +112,8 @@ export default defineStore('searchBrowse', () => {
         // cleared when the attempt actually succeeds.
         try {
             const all: Artist[] = []
-            let total = Infinity
 
-            while (all.length < total) {
+            for (;;) {
                 const { status, data } = await useAxios({
                     url:
                         paths.api.getall.artists +
@@ -126,18 +125,29 @@ export default defineStore('searchBrowse', () => {
                 // whatever body came back. A 500 read as "an empty page" would
                 // have left the band permanently absent AND marked loaded, so
                 // the failure has to be read off the status here.
-                if (status !== 200 || !Array.isArray(data?.items)) {
+                if (status !== 200 || !Array.isArray(data?.items) || typeof data.total !== 'number') {
                     failed.value = true
                     return
                 }
 
-                total = data.total ?? 0
-                // A page that comes back empty ends the loop even if `total`
-                // disagrees — otherwise a mismatch between the two spins here
-                // forever.
-                if (!data.items.length) break
-
                 all.push(...data.items)
+
+                // Done — including the empty library, where the first page is
+                // empty and `total` is 0.
+                if (all.length >= data.total) break
+
+                // A page that comes back empty while `total` says there is
+                // more ends the loop, or a mismatch between the two would spin
+                // here forever. It is NOT a complete load though: committing a
+                // truncated list as a good one would cache it for the whole
+                // TTL, with every letter past the cut showing no count and
+                // refusing to be pressed, and nothing to retry. Show what
+                // arrived, leave `loaded` alone so the next visit tries again.
+                if (!data.items.length) {
+                    if (all.length) artists.value = all
+                    else failed.value = true
+                    return
+                }
             }
 
             artists.value = all

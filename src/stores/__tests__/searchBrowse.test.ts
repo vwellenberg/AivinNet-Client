@@ -68,8 +68,10 @@ describe('searchBrowse store', () => {
         expect(get.mock.calls[1][0].url).toContain('start=500')
     })
 
-    // A total the pages never reach would otherwise spin here forever.
-    it('stops when a page comes back empty, whatever the total claims', async () => {
+    // A total the pages never reach would otherwise spin here forever — but a
+    // truncated list committed as a good one is cached for the whole TTL, with
+    // every letter past the cut refusing to be pressed and nothing to retry.
+    it('shows a truncated list without calling it loaded', async () => {
         get.mockResolvedValueOnce(page(['Bite'], 9999)).mockResolvedValueOnce(page([], 9999))
 
         const store = useBrowseStore()
@@ -77,6 +79,29 @@ describe('searchBrowse store', () => {
 
         expect(get).toHaveBeenCalledTimes(2)
         expect(store.artists).toHaveLength(1)
+        expect(store.loaded).toBe(false)
+    })
+
+    it('treats an empty library as an answer, not as a failure', async () => {
+        get.mockResolvedValueOnce(page([], 0))
+
+        const store = useBrowseStore()
+        await store.fetchArtists()
+
+        expect(store.failed).toBe(false)
+        expect(store.loaded).toBe(true)
+        expect(store.artists).toEqual([])
+        expect(store.letter).toBeNull()
+    })
+
+    it('treats a body without a total as a failure', async () => {
+        get.mockResolvedValueOnce({ status: 200, data: { items: [{ name: 'Bite' }] } })
+
+        const store = useBrowseStore()
+        await store.fetchArtists()
+
+        expect(store.failed).toBe(true)
+        expect(store.loaded).toBe(false)
     })
 
     it('fetches once, however often it is asked', async () => {

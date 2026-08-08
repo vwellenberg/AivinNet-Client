@@ -131,6 +131,14 @@ const noResults = computed(
   .search-idle {
     display: grid;
     gap: 2rem;
+
+    // The prompt used to sit inside a block that claimed the full height, so
+    // it centred itself in the page. In this auto-height column it would
+    // collapse to its own content at the very top — a sentence stranded under
+    // the top bar. It keeps a page's worth of room to centre in.
+    .nothing {
+      min-height: 24rem;
+    }
   }
 
   .header {

@@ -31,7 +31,7 @@
           type="button"
           class="band-key"
           :class="{ on: browse.letter === key, off: !browse.counts[key] }"
-          :disabled="!browse.counts[key]"
+          :aria-disabled="!browse.counts[key]"
           :aria-pressed="browse.letter === key"
           :title="bandTitle(key)"
           @click="browse.selectLetter(key)"
@@ -160,15 +160,15 @@ onMounted(browse.fetchArtists);
     // aim at when its keys never move. No shadow, because nothing here is
     // raised — it cannot be pressed.
     //
-    // `pointer-events` is handed back on purpose. The pill role turns it off
-    // for `:disabled`, and a key that ignores the pointer entirely also never
-    // shows its title — so "No artists under Z" could not be read, which is
-    // the one thing a greyed key has to be able to say.
+    // `aria-disabled`, not the `disabled` ATTRIBUTE (see the template): a
+    // disabled control is not hit-tested at all, so its title never appears —
+    // and "No artists under Z" is the one thing a greyed key has to be able to
+    // say. It also drops out of the tab order, which makes a third of the band
+    // unreachable by keyboard. The press is a no-op in the store instead.
     &.off {
       opacity: 0.4;
       box-shadow: none;
       cursor: default;
-      pointer-events: auto;
 
       &:hover {
         background-color: $candy-pink-soft;
