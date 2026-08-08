@@ -152,10 +152,16 @@ onMounted(browse.fetchArtists);
     // An empty letter is shown and disabled, not hidden: the band is easier to
     // aim at when its keys never move. No shadow, because nothing here is
     // raised — it cannot be pressed.
+    //
+    // `pointer-events` is handed back on purpose. The pill role turns it off
+    // for `:disabled`, and a key that ignores the pointer entirely also never
+    // shows its title — so "No artists under Z" could not be read, which is
+    // the one thing a greyed key has to be able to say.
     &.off {
       opacity: 0.4;
       box-shadow: none;
       cursor: default;
+      pointer-events: auto;
 
       &:hover {
         background-color: $candy-pink-soft;

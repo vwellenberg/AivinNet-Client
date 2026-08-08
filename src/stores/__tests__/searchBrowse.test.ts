@@ -105,6 +105,26 @@ describe('searchBrowse store', () => {
         expect(store.loaded).toBe(false)
     })
 
+    // Clearing it at the START of the attempt unmounted the notice the retry
+    // button lives in, so the block went blank for the whole retry and the
+    // button's disabled state was unreachable.
+    it('keeps failed set while the retry is in flight', async () => {
+        get.mockResolvedValueOnce({ status: 500, data: undefined })
+        const store = useBrowseStore()
+        await store.fetchArtists()
+
+        let resolve: (value: unknown) => void = () => {}
+        get.mockReturnValueOnce(new Promise(r => (resolve = r)))
+        const inFlight = store.fetchArtists()
+
+        expect(store.failed).toBe(true)
+        expect(store.loading).toBe(true)
+
+        resolve(page(['Bite']))
+        await inFlight
+        expect(store.failed).toBe(false)
+    })
+
     it('retries after a failure', async () => {
         get.mockResolvedValueOnce({ status: 500, data: undefined })
         const store = useBrowseStore()

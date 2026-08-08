@@ -59,9 +59,16 @@ function loadStats(): Promise<StatItemData[]> {
       const stats: StatItemData[] = res.data?.stats || [];
       // Ordered by WANTED rather than by the response, so the row reads the
       // same whatever order the backend happens to send.
-      return WANTED.map(kind => stats.find(s => s.cssclass === kind)).filter(
+      const wanted = WANTED.map(kind => stats.find(s => s.cssclass === kind)).filter(
         (s): s is StatItemData => Boolean(s)
       );
+
+      // An empty answer is not an answer worth keeping for the session: a 200
+      // that carried none of the four would otherwise pin the block shut until
+      // a reload.
+      if (!wanted.length) pending = null;
+
+      return wanted;
     })
     .catch(() => {
       pending = null;
@@ -86,11 +93,11 @@ onMounted(async () => {
   // what their numbers need — the same answer the charts row gives, minus its
   // scrollbar (it would sit on top of the tiles).
   overflow-x: auto;
-  // `overflow-x` makes overflow-y compute to `auto` as well, so the tiles'
-  // 4px offset shadow is cut off flush along the bottom without this — the
-  // trap styling.md records for the chip scroller in #399. The charts row
-  // pays for it with its own 1rem padding.
-  padding-bottom: $small;
+  // The offset shadow falls to the BOTTOM AND THE RIGHT, and `overflow-x`
+  // clips both (it makes overflow-y compute to `auto` too) — scrolled to the
+  // end, the last tile lost its right edge. Same reservation `.tabheaders`
+  // makes for the search chips, same trap styling.md records for #399.
+  padding: 0 $small $small 0;
   @include hideScrollbars;
 
   .statitem {

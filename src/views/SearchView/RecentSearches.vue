@@ -338,10 +338,5 @@ function clearAll() {
     }
   }
 
-  @include allPhones {
-    // No narrower head padding here: it has to stay equal to the plate's, or
-    // the caption sticker and the first chip below it stand on two different
-    // left edges.
-  }
 }
 </style>

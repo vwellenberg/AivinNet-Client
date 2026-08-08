@@ -53,10 +53,12 @@ export function initialOf(name: string): string {
 
 // The list is fetched whole (names, hashes and image paths — no tracks), so the
 // band can state a count per letter and switching letters costs no request.
-// 500 at a time rather than one open-ended call: the response for a 500-artist
-// library is ~50 kB, and a library ten times that size should arrive in pages
-// rather than in one lump.
-const PAGE = 500
+//
+// The page size is large on purpose: the backend re-sorts its whole artist
+// store per request, so pages are the expensive axis, not bytes. 2000 is one
+// request for any library this app is likely to meet (~50 kB for 500 artists)
+// and still bounded for the ones it is not.
+const PAGE = 2000
 
 export default defineStore('searchBrowse', () => {
     const artists = ref<Artist[]>([])
@@ -94,8 +96,10 @@ export default defineStore('searchBrowse', () => {
         if (loaded.value || loading.value) return
 
         loading.value = true
-        failed.value = false
-
+        // `failed` is NOT cleared here: clearing it synchronously unmounted the
+        // notice the retry button sits in, so the block went blank for the
+        // whole attempt and the button's disabled state was unreachable. It is
+        // cleared when the attempt actually succeeds.
         try {
             const all: Artist[] = []
             let total = Infinity
@@ -128,6 +132,7 @@ export default defineStore('searchBrowse', () => {
 
             artists.value = all
             loaded.value = true
+            failed.value = false
 
             // Open on the first LETTER that has anyone — "A" in any real
             // library. "#" is skipped here even though it sorts first: it is
