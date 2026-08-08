@@ -90,8 +90,10 @@ function clearAll() {
 
 <style lang="scss">
 .recent-searches {
-  height: 100%;
-  padding: 0 $padright $padbottom $padleft;
+  // Neither the page indent nor the full height belong here any more: this
+  // block is the first of three in the idle column (TopResults), the host
+  // already states the indent, and a block that claims 100% height pushes the
+  // letter band and the numbers off the first screen.
 
   .recent-head {
     display: flex;
@@ -337,8 +339,6 @@ function clearAll() {
   }
 
   @include allPhones {
-    padding-left: 1rem;
-    padding-right: 1rem;
     // No narrower head padding here: it has to stay equal to the plate's, or
     // the caption sticker and the first chip below it stand on two different
     // left edges.

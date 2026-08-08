@@ -1,7 +1,15 @@
 <template>
   <div class="search-page-top-results">
-    <!-- No query yet: invite the user with recent searches / an idle prompt -->
-    <RecentSearches v-if="!hasQuery" />
+    <!-- No query yet. The page answers the question people arrive with when
+      they do not know what to type: what have I got? Recent searches first
+      (the shortest path back), then the artist band, then the numbers.
+      Deliberately NOT here: "recently played" and "recently added" (home) or
+      the charts (stats) — a row shown twice makes two screens the same one. -->
+    <div v-if="!hasQuery" class="search-idle">
+      <RecentSearches />
+      <BrowseArtists />
+      <LibraryNumbers />
+    </div>
 
     <template v-else>
       <NoItems
@@ -67,6 +75,8 @@ import useSearchStore from "@/stores/search";
 import SearchSvg from "@/assets/icons/search.svg";
 import TopItem from "@/components/RightSideBar/Search/Top/TopItem.vue";
 import TopTracks from "@/components/RightSideBar/Search/Top/TopTracks.vue";
+import BrowseArtists from "@/components/SearchView/BrowseArtists.vue";
+import LibraryNumbers from "@/components/SearchView/LibraryNumbers.vue";
 import RecentItems from "@/components/shared/CardScroller.vue";
 import NoItems from "@/components/shared/NoItems.vue";
 import RecentSearches from "./RecentSearches.vue";
@@ -86,6 +96,15 @@ const noResults = computed(
   height: 100%;
   overflow: auto;
   padding: 0 $padright $padbottom $padleft;
+
+  // The idle column: three blocks, one left edge, one rhythm between them.
+  // The page indent is the host's above, so none of the three carries its own
+  // — that is what keeps the recent plate, the letter band and the numbers on
+  // the same line down the page.
+  .search-idle {
+    display: grid;
+    gap: 2rem;
+  }
 
   .header {
     display: grid;
