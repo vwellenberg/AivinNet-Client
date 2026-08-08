@@ -64,7 +64,11 @@ function loadStats(): Promise<StatItemData[]> {
 
   fetchedAt = Date.now();
 
-  pending = getStats()
+  // `mine` so a settled request only ever clears ITS OWN entry: a slow call
+  // that resolves after the TTL has already started a second one would
+  // otherwise wipe the newer promise out of the cache, and the mount after
+  // that would fire a third aggregation.
+  const mine: Promise<StatItemData[]> = getStats()
     .then(res => {
       if (res.status !== 200) throw new Error(`stats: ${res.status}`);
 
@@ -75,19 +79,19 @@ function loadStats(): Promise<StatItemData[]> {
         (s): s is StatItemData => Boolean(s)
       );
 
-      // An empty answer is not an answer worth keeping for the session: a 200
-      // that carried none of the four would otherwise pin the block shut until
-      // a reload.
-      if (!wanted.length) pending = null;
+      // An empty answer is not an answer worth keeping: a 200 that carried
+      // none of the four would otherwise pin the block shut until the TTL.
+      if (!wanted.length && pending === mine) pending = null;
 
       return wanted;
     })
     .catch(() => {
-      pending = null;
+      if (pending === mine) pending = null;
       return [];
     });
 
-  return pending;
+  pending = mine;
+  return mine;
 }
 
 const items = ref<StatItemData[]>([]);

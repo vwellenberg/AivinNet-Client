@@ -181,18 +181,5 @@ export default defineStore('searchBrowse', () => {
         if (counts.value[key]) letter.value = key
     }
 
-    /**
-     * Exported for tests: resetting the pinia registry between them is not
-     * reliable here (see the note in gotcha_vitest_resetmodules_pinia).
-     */
-    function $reset() {
-        artists.value = []
-        letter.value = null
-        loading.value = false
-        loaded.value = false
-        failed.value = false
-        fetchedAt = 0
-    }
-
-    return { artists, letter, loading, loaded, failed, counts, shown, fetchArtists, selectLetter, $reset }
+    return { artists, letter, loading, loaded, failed, counts, shown, fetchArtists, selectLetter }
 })

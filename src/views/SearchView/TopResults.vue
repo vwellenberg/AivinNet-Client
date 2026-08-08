@@ -9,6 +9,19 @@
       <RecentSearches />
       <BrowseArtists />
       <LibraryNumbers />
+      <!-- The floor. All three blocks above can come up empty at once — no
+        recent searches, an empty or unreachable library, no stats — and this
+        page used to carry the prompt unconditionally, so removing it opened a
+        path to a completely blank screen. It stays out of the way whenever
+        there is anything to browse, and out of the FAILED case too, where the
+        band says something more useful. -->
+      <NoItems
+        v-if="!browse.artists.length && !browse.loading && !browse.failed"
+        :icon="SearchSvg"
+        :flag="true"
+        :title="'Search your library'"
+        :description="'Find songs, albums, artists, playlists and folders.'"
+      />
     </div>
 
     <template v-else>
@@ -70,6 +83,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
+import useBrowseStore from "@/stores/searchBrowse";
 import useSearchStore from "@/stores/search";
 
 import SearchSvg from "@/assets/icons/search.svg";
@@ -82,6 +96,7 @@ import NoItems from "@/components/shared/NoItems.vue";
 import RecentSearches from "./RecentSearches.vue";
 
 const search = useSearchStore();
+const browse = useBrowseStore();
 
 const hasQuery = computed(() => (search.query || "").trim().length > 0);
 const noResults = computed(
