@@ -44,6 +44,42 @@ anderen Track. Muster: in einer **Action** würfeln (`rollShuffleNext`), Ergebni
 (`shuffleNextIndex`), der Getter liest nur. Neu würfeln bei Track-Wechsel, Queue-Ersetzung
 (`tracklist.setNewList`) und Toggle.
 
+## ⚠️ Shuffle merkt sich INDIZES — jede Queue-Mutation muss sie mitziehen (#450)
+
+Permanenter Shuffle hält zwei Dinge, und beide sind **absolute Indizes in die Tracklist**:
+`shuffleNextIndex` (das vorgewürfelte Ziel, gelesen von `nextindex` → Audio-Preload und
+Gruppen-Broadcast) und `shuffleRecent` (die Historie, gelesen von `previndex` und als
+Vermeidungsliste der nächsten Ziehung).
+
+**Jeder Splice nummeriert die Zeilen darunter um.** Von der Shuffle-Seite aus ist davon nichts zu
+sehen: Die Zahlen bleiben gültig und benennen still andere Tracks. Das Symptom ist nie ein Fehler,
+sondern **der falsche Song** — und im Preload-Fall hört man sogar einen anderen Track, als die
+Leiste anzeigt.
+
+Die Arithmetik liegt in `utils/shuffleIndexes.ts` (`shiftAfterInsert` / `shiftAfterRemove` /
+`remapAfterMove`), die Store-Actions daneben in `queue.ts`. Wer eine **neue** Queue-Mutation baut,
+ruft die passende auf — dieselbe Pflicht wie der DeviceSync-Seam. Vier Stellen tun das heute:
+`insertAt`, `removeByIndex`, `moveTrack`, `shuffleList`.
+
+Drei Fallen, alle im Review gefunden, nachdem der erste Fix „fertig" aussah:
+
+- **Umzeigen, nicht neu würfeln.** Ein Re-Roll wirft ein Ziel weg, dessen Audio schon vorgeladen
+  ist, und ändert bei jedem Einreihen, was als Nächstes läuft. Ausnahme: Die Zeile **war** das
+  Ziel (`shiftAfterRemove` gibt `null`) — dann gibt es nichts, worauf man zeigen könnte.
+- **„Play next" muss unter Shuffle gezielt werden.** Sequenziell trifft der Einschub `nextindex`
+  von selbst; unter Shuffle zeigt das Ziel woanders hin und wandert am Einschub **vorbei**. Dafür
+  gibt es `insertAt(..., aimNext)` — als **Parameter**, nicht als Aufruf danach: Er muss vor der
+  Preload-Prüfung liegen (sonst überlebt das alte Audio) und hinter dem Gruppen-Seam (sonst feuert
+  er auf dem abgefangenen Pfad, wo lokal gar nichts gesplict wurde).
+- **`shuffleList` räumt auf, statt zu würfeln.** `rollShuffleNext` schiebt als Erstes den
+  `currentindex` in die Historie — und der ist dort noch der **Vor-Shuffle**-Index. Rollen würde
+  die eben geleerte Liste sofort wieder verschmutzen. `shuffleQueue` setzt danach `currentindex = 0`
+  und `play()` würfelt korrekt.
+
+Und die Preload-Frage wird über den **Track** entschieden, nie über den Index: `index == nextindex`
+stimmt nur in sequenzieller Reihenfolge. Muster: Track an `nextindex` vor dem Splice merken,
+danach vergleichen.
+
 ## ⚠️ Ein ausgespielter Track geht NICHT durch `play()`
 
 Der reale Auto-Übergang ist der lückenlose: der Player hat das nächste Audio-Element vorgeladen,
