@@ -235,7 +235,12 @@ export default defineStore('search', () => {
 
             recordRecentSearch(newQuery)
 
-            if (!settings.use_sidebar && route.value.name !== Routes.search) {
+            // No longer gated on `use_sidebar`: the sidebar used to host a
+            // search tab, so with it open the query had somewhere to render and
+            // navigating away would have been wrong. Since #424 the sidebar is
+            // the Now Playing panel — leaving the gate in place made typing in
+            // the top bar fetch results that nothing displayed.
+            if (route.value.name !== Routes.search) {
                 router.push({
                     name: Routes.search,
                     params: {

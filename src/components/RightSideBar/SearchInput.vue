@@ -2,8 +2,7 @@
     <div
         class="gsearch-input"
         @click="
-            !settings.use_sidebar &&
-                $route.name !== Routes.search &&
+            $route.name !== Routes.search &&
                 $router.push({
                     name: Routes.search,
                     params: { page: 'top' },
