@@ -341,6 +341,15 @@ export default defineStore('tracklist', {
                     // it paused — `onAudioCanPlay` pauses again unless
                     // `queue.playing`, which is false in this branch.
                     player.playCurrent()
+
+                    // The clock belongs to the source, and swapping it while
+                    // paused does not touch it: `onAudioCanPlay` bails before
+                    // `setDurationFromFile` whenever `playing` is false. The bar
+                    // would read the DELETED track's length over a source at
+                    // 0:00 — and the ±10s hotkeys seek relative to that number,
+                    // so a stale position lands the new track minutes off.
+                    queue.setCurrentDuration(0)
+                    queue.setDurationFromFile(this.tracklist[successor].duration || 0)
                 }
 
                 // The successor's index is a PRE-splice number, and the splice

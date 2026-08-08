@@ -432,6 +432,9 @@ describe('tracklist.removeByIndex: removing the playing row', () => {
         queue.shuffleNextIndex = 7
         queue.playing = false
         const successor = tracklist.tracklist[7]
+        // A stale clock to overwrite — 0 against 0 would prove nothing.
+        successor.duration = 200
+        queue.duration = { current: 42, full: 999 }
 
         tracklist.removeByIndex(3)
 
@@ -441,6 +444,11 @@ describe('tracklist.removeByIndex: removing the playing row', () => {
         // pause played a track that is no longer in the queue.
         expect(started).toBe(successor)
         expect(queue.playing).toBe(false)
+        // The clock follows the source. While paused nothing else resets it —
+        // `onAudioCanPlay` bails before `setDurationFromFile` — so the bar kept
+        // the deleted track's length, and the ±10s hotkeys seek relative to it.
+        expect(queue.duration.current).toBe(0)
+        expect(queue.duration.full).toBe(200)
     })
 
     it('does not keep playing the row it just deleted under repeat: one', () => {
