@@ -32,8 +32,16 @@ const isPrefixPair = (a: string, b: string) => a.startsWith(b) || b.startsWith(a
  *
  * What remains true after both: the term the fold runs against is the one that
  * was searched immediately before, so shortening a term you JUST searched
- * promotes the longer one instead of storing the fragment. That is the trade,
- * and it is bounded to that one adjacency.
+ * promotes the longer one instead of storing the fragment.
+ *
+ * That trade has a sharp edge, and it is sharper than "one adjacency" sounds,
+ * because the adjacency renews itself: while "yesterday" sits at the head,
+ * searching the band "Yes" folds into it and leaves the head unchanged, so the
+ * next attempt does the same — "Yes" is unrecordable until something else is
+ * searched. Recording is driven by the debounce watcher, which cannot tell a
+ * deliberate shorter query from a backspace; separating them needs a signal
+ * this function is not given (the click that applied a chip, or a dwell timer),
+ * and short of that, debris is the failure worth preventing.
  */
 function foldAgainstPrevious(term: string, list: string[]): string[] {
     const previous = list[0]
@@ -53,6 +61,15 @@ function foldAgainstPrevious(term: string, list: string[]): string[] {
 function migrateStoredList(list: string[]): string[] {
     if (readLocalStorage(MIGRATED_KEY) === true) return list
 
+    // The flag goes down FIRST, and a refusal to store it cancels the whole
+    // migration. Without the flag there is nothing keeping this to one run,
+    // and a whole-list fold on every read is the two-chips-per-click bug the
+    // second bullet above describes — worse than leaving the old debris in
+    // place, which is at least only ugly. `writeLocalStorage` swallows quota
+    // and refused-storage errors and reports them in its return value, so
+    // this is the only place they can be noticed.
+    if (!writeLocalStorage(MIGRATED_KEY, true)) return list
+
     // The same rule as above, applied to every adjacency the stored list
     // already has instead of to the one a new term creates.
     const folded: string[] = []
@@ -68,7 +85,6 @@ function migrateStoredList(list: string[]): string[] {
     }
 
     writeLocalStorage(KEY, folded)
-    writeLocalStorage(MIGRATED_KEY, true)
     return folded
 }
 

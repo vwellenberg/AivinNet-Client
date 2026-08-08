@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
     clearRecentSearches,
     getRecentSearches,
@@ -132,6 +132,36 @@ describe('recentSearches', () => {
         type('yesterday')
 
         expect(getRecentSearches()).toEqual(['yesterday', 'bite'])
+    })
+
+    // The other half of that price, and the sharper one: the adjacency renews
+    // itself, so a term that is a prefix of the head cannot be recorded at all
+    // until something else is searched. Written down so a future change to the
+    // rule is a decision rather than a surprise.
+    it('cannot record a term that is a prefix of the head, until the head moves', () => {
+        recordRecentSearch('yesterday')
+
+        recordRecentSearch('yes')
+        expect(getRecentSearches()).toEqual(['yesterday'])
+
+        recordRecentSearch('bite')
+        recordRecentSearch('yes')
+        expect(getRecentSearches()).toEqual(['yes', 'bite', 'yesterday'])
+    })
+
+    // Without the flag there is nothing keeping the whole-list fold to one
+    // run, and a fold on every read collapses the survivors of any deletion.
+    // A refusal to store it therefore cancels the migration entirely.
+    it('leaves the stored list alone when the migration flag cannot be stored', () => {
+        localStorage.setItem('recentSearches', JSON.stringify(['age', 'age of empires']))
+
+        const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+            throw new Error('quota exceeded')
+        })
+        expect(getRecentSearches()).toEqual(['age', 'age of empires'])
+        setItem.mockRestore()
+
+        expect(getRecentSearches()).toEqual(['age of empires'])
     })
 
     // The price of that ordering, stated so a change to it is a decision and

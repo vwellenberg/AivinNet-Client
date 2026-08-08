@@ -233,6 +233,7 @@ function clearAll() {
       flex-shrink: 0;
       padding: 0;
       padding-right: $smaller;
+      border-radius: $candy-radius-pill;
       // Reserved on both sides of the pointer state, so revealing it can never
       // resize the chip under the pointer.
       transition: opacity 0.15s ease;
@@ -240,6 +241,22 @@ function clearAll() {
       svg {
         width: 0.7rem;
         height: 0.7rem;
+      }
+
+      // A state of its OWN, because the chip's hover paints identically over
+      // "search this again" and over "delete this", and only one of those is
+      // irreversible. It takes the contrast surface the hover already
+      // established, inverted once more — no new colour, and no borrowing of
+      // teal (play) or yellow (playing), which mean something else here.
+      //
+      // `content-box` so the plate keeps the padding as a margin to the pill's
+      // own edge: the whole width stays clickable (no dead strip), only the
+      // paint stops short.
+      &:hover {
+        background-color: var(--mem-hover-text);
+        background-clip: content-box;
+        color: var(--mem-hover);
+        opacity: 1;
       }
     }
 
