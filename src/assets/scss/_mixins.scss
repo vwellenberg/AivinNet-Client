@@ -115,3 +115,29 @@
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// The player bar overlays the bottom of EVERY scroll container (#acontent
+// spans the bar's grid row so the memphis ground runs behind it), so each one
+// has to reserve the bar's height itself — see styling.md and $bottombarheight.
+//
+// A mixin rather than only the `.content-page` class: that class also brings a
+// scrollbar gutter and an alt-layout top padding, and the search scroller wants
+// the reserve WITHOUT those (its tab-chip row sits outside the scroller, so a
+// 12px gutter puts the two on different left edges — measured). Writing the
+// three lines out at the second call site is what left this page 18px short in
+// the first place, so they live here.
+// ---------------------------------------------------------------------------
+@mixin player-bar-reserve($extra: $padbottom) {
+  padding-bottom: calc($extra + $bottombarheight);
+
+  @include allPhones {
+    padding-bottom: calc($extra + $bottombarheight-phone);
+  }
+
+  // The reserve follows the bar: a landscape phone gets its 92px back in the
+  // one viewport where height is scarce.
+  @include shortViewport {
+    padding-bottom: calc($extra + $bottombarheight-short);
+  }
+}

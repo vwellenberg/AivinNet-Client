@@ -119,21 +119,14 @@ $g-border: solid $candy-border-w $mem-line;
     padding-left: $padleft;
     padding-right: $padright;
     // Reserve the player bar's row — see $bottombarheight for why the content
-    // area runs underneath it in the first place.
-    padding-bottom: calc($padbottom + $bottombarheight);
+    // area runs underneath it in the first place. The three breakpoints live in
+    // `player-bar-reserve` so a second caller cannot get one of them wrong.
+    @include player-bar-reserve;
     -webkit-overflow-scrolling: touch;
 
     @include allPhones {
         padding-left: 1rem;
         padding-right: 1rem;
-        padding-bottom: calc($padbottom + $bottombarheight-phone);
-    }
-
-    // The reserve follows the bar. Keeping the phone value here would hand back
-    // 92px of the little height a landscape phone has, in the one viewport
-    // where it is scarce.
-    @include shortViewport {
-        padding-bottom: calc($padbottom + $bottombarheight-short);
     }
 }
 

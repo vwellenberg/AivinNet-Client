@@ -1,11 +1,5 @@
 <template>
-  <!-- `content-page` is the shared reservation for the player bar (app-grid):
-    the bar overlays the bottom of every scroller, and this one had 4rem
-    against a 5.125rem bar — measured, the last row sat 18px underneath it,
-    which is the same 18px styling.md records for #307. Home, playlists and
-    the rest were already on the class; this scroller simply never was, and
-    nothing ended low enough here for it to show until now. -->
-  <div class="search-page-top-results content-page">
+  <div class="search-page-top-results">
     <!-- No query yet. The page answers the question people arrive with when
       they do not know what to type: what have I got? Recent searches first
       (the shortest path back), then the artist band, then the numbers.
@@ -101,7 +95,19 @@ const noResults = computed(
 .search-page-top-results {
   height: 100%;
   overflow: auto;
-  // Indents and the bar reserve come from `content-page` on the element.
+  padding-left: $padleft;
+  padding-right: $padright;
+  // The player bar overlays the foot of every scroller and this one reserved
+  // $padbottom (4rem) against a 5.125rem bar: measured at maximum scroll, the
+  // last row sat 18px underneath it — the same shortfall styling.md records
+  // for #307. The mixin is the one place the three breakpoints are written.
+  //
+  // NOT the `.content-page` class, which is where the mixin's other caller
+  // lives: it also brings `scrollbar-gutter: stable both-edges` and an
+  // alt-layout `padding-top`, and this page has its tab-chip row OUTSIDE the
+  // scroller — measured, the gutter put the chips and the results on left
+  // edges 12px apart, and the results started 2rem lower than before.
+  @include player-bar-reserve;
 
   // The idle column: three blocks, one left edge, one rhythm between them.
   // The page indent is the host's above, so none of the three carries its own
