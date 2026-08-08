@@ -141,6 +141,13 @@ const dragOverClass = computed(() => {
 })
 
 function onDragStart(e: DragEvent) {
+    // The same guard as the `draggable` binding, and it has to be here too:
+    // `draggable="false"` on the row does NOT stop a drag that starts on a
+    // natively draggable child. The cover is now marked (TrackTitle.vue), but
+    // one guard on the emitter is what makes the rule hold for whatever
+    // draggable element lands in this row next.
+    if (!props.droppable) return
+
     showDragStart(e, props.track, props.track.index, props.source)
 }
 

@@ -1,7 +1,12 @@
 <template>
   <div class="tracktitle flex">
     <div class="thumbnail" @click.prevent="$emit('play')">
-      <img :src="imguri + track.image" class="album-art image rounded-sm" />
+      <!-- ⚠️ `draggable="false"` is load-bearing, not tidiness. An <img> is
+           natively draggable, so grabbing the cover fires `dragstart` on the
+           ROW — including on rows that never opted into dragging. The index
+           that travels with it belongs to whatever list this row is in, and a
+           drop target reading it as its own position moves the wrong track. -->
+      <img :src="imguri + track.image" class="album-art image rounded-sm" draggable="false" />
       <div class="thumb-play-overlay" v-if="!is_current">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
       </div>

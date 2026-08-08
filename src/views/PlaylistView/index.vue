@@ -208,8 +208,15 @@ const scrollerItems = computed(() => {
     return [header, afterHeader, ...body]
 })
 
-async function onTrackDropped(_source: dropSources, _track: Track, newIndex: number, oldIndex: number) {
+async function onTrackDropped(source: dropSources, _track: Track, newIndex: number, oldIndex: number) {
     stopAutoScroll()
+
+    // A row dragged in from somewhere else carries an index into THAT list —
+    // a search result's position, an album's track number — and acting on it
+    // would reorder this playlist by a number that means nothing here. The
+    // queue view has always checked this (`views/NowPlaying/main.vue`); this
+    // one took the source and ignored it.
+    if (source !== dropSources.playlist) return
 
     // Resolve the move to trackhash anchors BEFORE mutating the list. Sending
     // the whole tracklist (the old behaviour) truncated the playlist to whatever
