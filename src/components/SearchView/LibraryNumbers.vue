@@ -1,8 +1,14 @@
 <template>
   <!-- Not a second implementation of a stat card: this is the SAME `Stats`
     component the charts screen renders, handed a filtered list. It already
-    owns the tile, the icon per kind and the horizontal scroll. -->
-  <Stats v-if="items.length" class="library-numbers" :items="items" />
+    owns the tile, the icon per kind and the horizontal scroll.
+    The wrapper is not decoration: `Stats` declares `inheritAttrs: false`, so a
+    class put on the component itself never reaches an element — measured, the
+    padding reset below simply did not apply and the row stood 1rem right of
+    the two blocks above it. -->
+  <div v-if="items.length" class="library-numbers">
+    <Stats :items="items" />
+  </div>
 </template>
 
 <script setup lang="ts">
