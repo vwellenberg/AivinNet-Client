@@ -256,6 +256,26 @@ function handleFav() {
         margin: 0 auto;
         width: 26rem;
         max-width: 100%;
+
+        // One plate under the whole head, not one per part.
+        //
+        // Every piece in here already carried its own surface — the source
+        // sticker, the cover's ink frame, the title plate — so nothing was
+        // unreadable and `--mem-veil`'s usual job (text on the doodle ground)
+        // did not apply. What was missing is the opposite: with the doodles
+        // running at full volume BETWEEN them, four plates read as four
+        // unrelated objects rather than as one now-playing card. Measured at
+        // 1400x950 on the deployed app; the ground is a 3840x1600 tile, so
+        // there is always something loud in the gaps.
+        //
+        // Veil rather than panel, and that is the rule: this is content, not
+        // chrome. It stays 92% opaque, so the ground still shows through — the
+        // doodles are dimmed, not deleted.
+        background-color: var(--mem-veil);
+        border: $candy-border;
+        border-radius: $candy-radius;
+        box-shadow: 4px 4px 0 var(--mem-shadow);
+        padding: 1.25rem;
     }
 
     .np-image {
