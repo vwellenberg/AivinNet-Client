@@ -680,7 +680,15 @@ plattiert" — und die Wirte **aufsammeln statt auflisten**
 (`devicesButtonAnatomy.test.ts`: über alle `.vue` streichen, die die Komponente importieren; eine
 feste Dreierliste ließe den vierten Wirt still durch).
 
-Zwei Dinge, die dabei mit hochkamen:
+Sechs Dinge, die dabei mit hochkamen:
+
+- ⚠️ **Eine Platte legt Abstände offen, die ein blanker Glyph verdeckt hat.** `.left-group` stand
+  im `largePhones`-Block auf `gap: 0` und ließ das Cover einen privaten `margin-right` tragen —
+  tragfähig, solange die hinteren Bedienelemente blanke Glyphen waren: ein 24-px-Icon in einer
+  44-px-Box bringt 10 px eigenes Padding mit, also sieht die Reihe bei **jedem** Gap gleichmäßig
+  aus. Mit Füllung standen `next` und `devices` gemessen bei **exakt 0** — zwei 3-px-Ink-Rahmen
+  auf Stoß. Der Abstand gehört deshalb der Reihe (`$bar-gap-phone`), nicht einem Kind. Dasselbe
+  gilt für den Unmute-Knopf im stummen Zustand.
 
 - **`candy-box()` malt Fläche und Rahmen — keinen Schatten.** Der beigetretene Zustand (grün) war
   damit der einzige *gefüllte* Knopf der App, der flach auf der Bar lag. Der Offset kam vor #244

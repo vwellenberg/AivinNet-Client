@@ -139,7 +139,10 @@ const settings = useSettings()
     }
 
     @include allPhones {
-        gap: 0.75rem;
+        // The same 0.75rem this used to spell out — under its name now. It is
+        // the value `$bar-gap-tight` already stood for, and a literal in a
+        // breakpoint block is where the bar's unowned gaps kept surviving.
+        gap: $bar-gap-tight;
 
         .skip-prev {
             margin-left: $small;

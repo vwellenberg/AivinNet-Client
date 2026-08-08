@@ -44,11 +44,18 @@ const KNOWN_HOSTS = [
 ];
 
 /**
- * Selectors that would target the button itself. `.np-devices button` is in
- * here because a descendant selector is how the Now Playing header sized it
- * without ever naming it — the drift does not have to spell out the class.
+ * Class names that mean "this rule is about the devices button". `np-devices`
+ * is in here because a descendant selector is how the Now Playing header sized
+ * it without ever naming the button — the drift does not have to spell out the
+ * class.
+ *
+ * ⚠️ Matched against the SELECTOR TEXT, not via `block()`. That helper's opener
+ * requires the name to follow line-start, whitespace, `,` or `>`, so a compound
+ * selector slips past it — and `> button.ds-joined { … }` is precisely the form
+ * `Right.vue` used before this PR. A census blind to the shape of the bug it
+ * was written for is worse than none.
  */
-const OWNING_SELECTORS = [".devices-btn", ".bar-devices", ".ds-joined", ".np-devices button"];
+const OWNED_CLASSES = ["devices-btn", "bar-devices", "ds-joined", "np-devices"];
 
 describe("devices button anatomy", () => {
   it("takes its own role, at the chrome footprint", () => {
@@ -90,25 +97,22 @@ describe("devices button anatomy", () => {
   });
 
   it("is styled by no host at all", () => {
-    const offenders: string[] = [];
-
-    for (const [path, source] of Object.entries(SOURCES)) {
-      if (path === COMPONENT) continue;
-
+    const offenders = Object.entries(SOURCES)
+      .filter(([path]) => path !== COMPONENT)
       // ⚠️ `styleBlock` slices from `<style>`, so a component WITHOUT one hands
       // back the file's last character and every check below would pass on an
       // empty string. That is the silent green this file's header warns about,
       // so a styleless component is skipped explicitly rather than "passing".
-      if (!source.includes("<style")) continue;
-
-      const css = styleBlock(source);
-      for (const selector of OWNING_SELECTORS) {
+      .filter(([, source]) => source.includes("<style"))
+      .flatMap(([path, source]) => selectorsIn(styleBlock(source)).map(sel => ({ path, sel })))
+      .filter(({ sel }) => {
         // `:not(.devices-btn)` is an EXCLUSION, not a rule about the button —
         // it is how the desktop bar plates its other controls while leaving
-        // this one to its own role. Only a selector that OPENS a block counts.
-        if (block(css, selector).body !== "") offenders.push(`${path}: ${selector}`);
-      }
-    }
+        // this one to its own role. Strip those before looking.
+        const bare = sel.replace(/:not\([^)]*\)/g, "");
+        return OWNED_CLASSES.some(cls => new RegExp(`\\.${cls}\\b`).test(bare));
+      })
+      .map(({ path, sel }) => `${path}: ${sel}`);
 
     expect(
       offenders,
@@ -118,3 +122,17 @@ describe("devices button anatomy", () => {
     ).toEqual([]);
   });
 });
+
+/**
+ * Every selector that opens a rule in a stylesheet, whatever its shape.
+ *
+ * Deliberately not `block()`: this has to see `> button.ds-joined` and
+ * `.np-devices button` as readily as a bare class, because a host patch is
+ * written in whichever form is convenient at the time — and the two the repo
+ * actually used were both compound.
+ */
+function selectorsIn(css: string): string[] {
+  return [...css.matchAll(/(^|[;{}])([^;{}]+?)\{/g)]
+    .map(m => m[2].replace(/\s+/g, " ").trim())
+    .filter(sel => sel && !sel.startsWith("@"));
+}

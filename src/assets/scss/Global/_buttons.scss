@@ -69,9 +69,23 @@ $bar-glyph-play: 1.75rem;
 // 20px, i.e. the value the transport row already used: it is the group with
 // the most controls, so it is the rhythm the eye has already learned.
 $bar-gap: 1.25rem;
-// The volume slider is not a fourth control, it is the speaker's other half —
-// so it sits closer than two neighbours would.
+// Closer than two neighbours would stand. Two groups want that, for the same
+// reason from opposite ends: the volume slider is not a fourth control but the
+// speaker's other half, and the transport on a phone has to pack five controls
+// into a row that is 328px wide.
 $bar-gap-tight: 0.75rem;
+// The phone row. It is a third value and it needs to be, because the space is
+// genuinely not there: at 360px the row is cover 48 + transport 156 + devices
+// 44 out of 328 usable, and while the player is silent an unmute button joins
+// them — four gaps at $bar-gap would overflow the screen on its own.
+//
+// It gets a NAME rather than being written into the breakpoint block, for the
+// same reason the two above have one: the bar carried three unowned gaps before
+// #387, and the one that is out of step is only visible with a ruler on it.
+// (`.left-group` reached this by having `gap: 0` and letting the cover carry a
+// private margin — measured, `next` and `devices` stood at exactly 0 once the
+// devices button had a fill.)
+$bar-gap-phone: 0.5rem;
 
 // ---------------------------------------------------------------------------
 // THE COMPACT SCALE — the app's SECOND footprint, which until now had no name.

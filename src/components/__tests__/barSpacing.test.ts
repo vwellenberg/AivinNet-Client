@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { block, styleBlock } from "./scssBlocks";
+import { block, ownDeclarations, styleBlock } from "./scssBlocks";
 
 // ---------------------------------------------------------------------------
 // The player bar has ONE spacing value, and every group of it reads the token.
@@ -57,5 +57,35 @@ describe("player bar spacing", () => {
         [...styleBlock(source).matchAll(/(?:^|[\s;{])gap\s*:\s*(\d+px)/g)].map(m => `${path}: gap: ${m[1]}`)
       );
     expect(offenders, `a bar group is spacing itself in pixels again`).toEqual([]);
+  });
+
+  // ⚠️ The two above between them still let one shape through: a BREAKPOINT gap
+  // written as a generic spacing token. The first reads only a group's OPENING
+  // `gap:`, and the second only rejects literal pixels — so
+  // `@include largePhones { gap: $small }` passed both while being a fourth bar
+  // spacing next to the three named ones. That is the same unowned-value drift
+  // one level in, and a breakpoint block is exactly where the phone row's
+  // `gap: 0` sat unnoticed until the devices button got a fill.
+  //
+  // Scoped to the GROUPS above, not to `/BottomBar/`: `BottomBar.vue` also has
+  // gaps, but they space the stacked ROWS of the phone bar (track / seek /
+  // navigation), which is a different question from how far apart two controls
+  // stand.
+  it.each(GROUPS)("%s › %s spaces its breakpoints from a bar token too", (file, selector) => {
+    const BAR_TOKENS = ["$bar-gap", "$bar-gap-tight", "$bar-gap-phone"];
+
+    const body = ownDeclarations(block(styleBlock(SOURCES[file]), selector).body);
+    expect(body, `no \`${selector} { … }\` block in ${file}`).not.toBe("");
+
+    const offenders = [...body.matchAll(/(?:^|[\s;{])gap\s*:\s*([^;]+);/g)]
+      .map(m => m[1].trim())
+      .filter(value => !BAR_TOKENS.includes(value));
+
+    expect(
+      offenders,
+      `\`${selector}\` states a gap that belongs to no bar token. Breakpoint overrides count — ` +
+        "a generic $small or a bare rem here is a spacing nobody owns; give it a name in " +
+        "Global/_buttons.scss like the three that do."
+    ).toEqual([]);
   });
 });

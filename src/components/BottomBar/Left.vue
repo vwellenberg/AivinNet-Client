@@ -330,12 +330,13 @@ defineEmits<{
         // spacing has to be real. Same observation `_buttons.scss` records for
         // the desktop bar's 2px right-hand group, one breakpoint down.
         //
-        // $small rather than the chrome's $bar-gap because the space genuinely
-        // is not there: at 360px the row is cover 48 + transport 156 + devices
-        // 44 out of 328, and while the player is silent an unmute button joins
-        // them. The cover's own `margin-right` is gone with this — it was this
-        // rule's other half, written on one child.
-        gap: $small;
+        // `$bar-gap-phone`, not the chrome's `$bar-gap` and not a bare $small:
+        // the space genuinely is not there at 360px (the token carries the
+        // arithmetic), and a third bar gap written into a breakpoint block is
+        // exactly the unowned value the bar had three of before #387. The
+        // cover's own `margin-right` is gone with this — it was this rule's
+        // other half, written on one child.
+        gap: $bar-gap-phone;
         max-width: calc(100% - 8px);
     }
 }
