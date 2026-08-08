@@ -97,8 +97,8 @@ Zwei Bedingungen, sonst kippt es:
 
 - **Die Marke darf nicht im selben Farbkanal liegen wie die Fläche.** Wäre der Haken auch
   `currentColor`, würde das Glyph überall dort zu einem massiven Fleck, wo ein Wirt `color: ink`
-  pinnt — und das tun mehrere (`SongItem.vue` auf gefüllten Zeilen, `TrackItem.vue` in der Queue,
-  `FavoritesCard.vue` auf der Kachel). Deshalb: Fläche = `currentColor`, Marke = feste Farbe.
+  pinnt — und das tun mehrere (`SongItem.vue` auf gefüllten Zeilen, die Kopfzeilen-Aktionen).
+  Deshalb: Fläche = `currentColor`, Marke = feste Farbe.
 - **Die Wirte, die Ink pinnen, meinen den AUS-Zustand.** Ihre Regeln gehören auf
   `:not(.is-fav)` gescopet, sonst entscheidet Spezifität statt Absicht. Real passiert:
   `.float-buttons .heart-button svg` (0,2,1) schlug `.heart-button.is-fav` (0,2,0), also war ein
