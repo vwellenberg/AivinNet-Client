@@ -77,7 +77,16 @@ describe("the letter band", () => {
   it("renders nothing at all while the library has not arrived", () => {
     const w = mountBand([]);
     expect(w.find(".browse-artists").exists()).toBe(false);
-    expect(w.find(".browse-failed").exists()).toBe(false);
+    expect(w.find(".browse-notice").exists()).toBe(false);
+  });
+
+  it("says it is loading, rather than sitting blank", () => {
+    const store = useBrowseStore();
+    vi.spyOn(store, "fetchArtists").mockResolvedValue(undefined);
+    store.loading = true;
+
+    const w = mount(BrowseArtists, { global: { stubs: { CardScroller: true } } });
+    expect(w.find(".browse-notice").text()).toContain("Loading");
   });
 
   // The store knew it had failed and nobody read it, so the block was simply
@@ -88,12 +97,26 @@ describe("the letter band", () => {
     store.failed = true;
 
     const w = mount(BrowseArtists, { global: { stubs: { CardScroller: true } } });
-    expect(w.find(".browse-failed").exists()).toBe(true);
+    expect(w.find(".browse-notice").exists()).toBe(true);
     expect(w.find(".browse-artists").exists()).toBe(false);
 
     fetch.mockClear(); // the mount's own call
     await w.find(".retry").trigger("click");
     expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  // A refresh that fails after the store's TTL still has the whole list in
+  // hand; replacing a working band with an error is the worse answer.
+  it("keeps the band when a refresh fails but the artists are still there", () => {
+    const store = useBrowseStore();
+    vi.spyOn(store, "fetchArtists").mockResolvedValue(undefined);
+    store.artists = [artist("Air")] as never;
+    store.letter = "A";
+    store.failed = true;
+
+    const w = mount(BrowseArtists, { global: { stubs: { CardScroller: true } } });
+    expect(w.find(".browse-artists").exists()).toBe(true);
+    expect(w.find(".browse-notice").exists()).toBe(false);
   });
 });
 
