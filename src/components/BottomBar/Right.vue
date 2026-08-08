@@ -86,9 +86,15 @@ defineEmits<{
     // of the bar cannot drift apart again.
     //
     // Two exclusions, both because they bring their own complete anatomy:
-    // HeartSvg (it takes its own role, plus a teal favourited state) and the joined
-    // devices button (white glyph on a green box, owned by DevicesButton.vue).
-    // Spelled out rather than left to specificity luck.
+    // HeartSvg (it takes its own role, plus a teal favourited state) and the
+    // devices button (plate at rest, green toggle box when joined — the whole
+    // thing owned by DevicesButton.vue). Spelled out rather than left to
+    // specificity luck.
+    //
+    // ⚠️ The devices exclusion used to read `:not(.ds-joined)`, i.e. it carved
+    // out the STATE rather than the control — so the plating below reached the
+    // idle button here while the phone bar stripped it back to a bare glyph,
+    // and the same component was two different buttons on two screens.
     //
     // ⚠️ The heart's exclusion used to be a hole in this rule rather than a
     // delegation: its role rendered a header-sized 54x36 box, so the one
@@ -96,32 +102,12 @@ defineEmits<{
     // match the row. It takes `btn_role="bar"` at the call site now, which
     // reads the SAME `$bar-control` this rule does — the carve-out is about
     // colour and state, not about size.
-    > button:not(.heart-button):not(.ds-joined) {
+    > button:not(.heart-button):not(.devices-btn) {
         @include btn-action($size: $bar-control);
         // The control glyphs are currentColor (filled bodies, stroked details)
         // — colour them through `color`, never `fill`, or the stroked ones
         // (shuffle, repeat, lyrics) get flooded solid.
         color: $candy-text;
-    }
-
-    // The joined devices button is excluded above because its LOOK is its own
-    // (green box, white glyph). Its FOOTPRINT is not — it belongs to the bar,
-    // like every other control here. Without this the one button whose size
-    // nobody owns falls back to whatever the global default happens to be.
-    > button.ds-joined {
-        width: $bar-control;
-        height: $bar-control;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: $candy-radius-sm;
-        cursor: pointer;
-
-        svg {
-            width: $bar-glyph;
-            height: $bar-glyph;
-        }
     }
 
     button.aux.aux-off svg {

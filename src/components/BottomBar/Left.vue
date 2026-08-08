@@ -95,7 +95,7 @@
              this in sync with another device" — and Devices stays reachable on
              the Now Playing page, which is where it lived before it was added
              here. -->
-        <DevicesButton v-if="phoneBar && !settings.is_silent" class="bar-devices" />
+        <DevicesButton v-if="phoneBar && !settings.is_silent" />
     </div>
 </template>
 
@@ -171,38 +171,12 @@ defineEmits<{
         @include btn-toggle-on;
     }
 
-    // Devices button in the mobile bar: same footprint as a HotKeys control,
-    // pinned to the end so the track title keeps the flexible space. Reads the
-    // shared bar tokens rather than restating a size — that is the whole point
-    // of them.
-    .bar-devices {
-        flex-shrink: 0;
-        height: $bar-control;
-        width: $bar-control;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        // Stated, not inherited: the rounded corner used to come from the
-        // global button base. The joined state re-declares it with its own
-        // green box, so only the idle one was left square.
-        border-radius: $candy-radius-sm;
-        cursor: pointer;
-
-        svg {
-            width: $bar-glyph;
-            height: $bar-glyph;
-        }
-
-        // Idle only: bare glyph on the bar. The joined state keeps the shared
-        // green box + ink frame from DevicesButton.vue, so these must not
-        // strip its border/fill (they are more specific than the component's
-        // own rule and used to win).
-        &:not(.ds-joined) {
-            border: none;
-            background-color: transparent;
-            color: $candy-text;
-        }
-    }
+    // (The devices button used to be patched here: a hand-written 44px box
+    // plus `border: none; background-color: transparent` for the idle state.
+    // That made it the one control in this row without a surface, next to a
+    // prev/play/next that are all plated. It takes its own role in
+    // DevicesButton.vue now — footprint included — so there is nothing left to
+    // state at this call site.)
     align-items: center;
     font-size: small;
     font-weight: 700;
@@ -279,11 +253,9 @@ defineEmits<{
 
         @include largePhones {
             flex-shrink: 0;
-            margin-right: $medium;
-        }
-
-        @include smallerPhones {
-            margin-right: $small;
+            // (The `margin-right` that used to stand here — $medium, dropping to
+            // $small on the narrowest phones — was the cover's private half of a
+            // spacing rule the row now owns as a `gap`. See the note there.)
         }
     }
 
@@ -348,7 +320,23 @@ defineEmits<{
 
     @include largePhones {
         display: flex;
-        gap: 0;
+        // NOT 0, and this is what the plated devices button exposed: measured
+        // at 390 and 360, `next` and `devices` sat at a gap of exactly 0 — two
+        // 3px ink frames touching, reading as one welded 91px block.
+        //
+        // It was invisible for as long as the trailing controls were bare
+        // glyphs: a 24px icon in a 44px box carries 10px of padding of its own,
+        // so the row looked evenly spaced at any gap. Give them a fill and the
+        // spacing has to be real. Same observation `_buttons.scss` records for
+        // the desktop bar's 2px right-hand group, one breakpoint down.
+        //
+        // `$bar-gap-phone`, not the chrome's `$bar-gap` and not a bare $small:
+        // the space genuinely is not there at 360px (the token carries the
+        // arithmetic), and a third bar gap written into a breakpoint block is
+        // exactly the unowned value the bar had three of before #387. The
+        // cover's own `margin-right` is gone with this — it was this rule's
+        // other half, written on one child.
+        gap: $bar-gap-phone;
         max-width: calc(100% - 8px);
     }
 }
