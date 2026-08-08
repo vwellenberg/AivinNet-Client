@@ -16,6 +16,16 @@ A Spotify-style music player frontend, branded as **AivinNet**. This is a fork o
 | **Playlist** — track list with ambient gradient     | **Artists** — library grid                             |
 | ![Playlist view](docs/screenshots/playlist.png)     | ![Artists](docs/screenshots/artists.png)               |
 
+### Dark theme
+
+The whole palette flips through the moon toggle in the top bar. With **Auto dark mode** on, it also
+switches itself: dark from 20:00, light from 08:00, always in Berlin time so every device agrees.
+
+|                                                     |                                                        |
+| --------------------------------------------------- | ------------------------------------------------------ |
+| **Home**                                            | **Playlist**                                           |
+| ![Home in dark theme](docs/screenshots/home-dark.png) | ![Playlist in dark theme](docs/screenshots/playlist-dark.png) |
+
 ---
 
 ## Features
