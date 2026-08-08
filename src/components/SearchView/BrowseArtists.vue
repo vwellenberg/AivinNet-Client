@@ -1,12 +1,22 @@
 <template>
   <!-- A failed load says so and offers the retry, rather than leaving the
     block silently absent: the store already knew, and nobody read it. The
-    band is an extra, so the notice is one quiet line, not an alarm. -->
-  <div v-if="browse.failed" class="browse-failed">
+    band is an extra, so the notice is one quiet line, not an alarm.
+    Only when there is nothing to show: a refresh that fails after the store's
+    TTL still has the whole list in hand, and replacing a working band with an
+    error is a worse answer than keeping the band. -->
+  <div v-if="browse.failed && !browse.artists.length" class="browse-notice">
     <span>Could not load the artist list.</span>
     <button type="button" class="retry" :disabled="browse.loading" @click="browse.fetchArtists()">
       Try again
     </button>
+  </div>
+
+  <!-- The first load has nothing to render yet, and the column would sit blank
+    until it lands. One line rather than a skeleton: the band is an extra, and
+    a shape that pretends to be content is worse than a sentence that is. -->
+  <div v-else-if="browse.loading && !browse.artists.length" class="browse-notice">
+    <span>Loading your library…</span>
   </div>
 
   <div v-else-if="browse.artists.length" class="browse-artists">
@@ -56,9 +66,12 @@ const browse = useBrowseStore();
 
 const items = computed(() => browse.shown.map(item => ({ type: "artist", item })));
 
-// The caption names the kind first and the selection second, so the row keeps
-// saying what it is once a letter has been pressed a few times.
-const rowTitle = computed(() => `Artists · ${browse.letter} · ${browse.shown.length}`);
+// The caption names the kind and the selection — NOT the group size. The row
+// shows as many cards as its grid has columns, so a "· 180" here would be a
+// number the row visibly does not keep. The count belongs on the key, where it
+// is a promise about what pressing it selects, and the row's SEE ALL is the
+// way onwards.
+const rowTitle = computed(() => `Artists · ${browse.letter}`);
 
 const artistListRoute = "/artists";
 
@@ -73,7 +86,7 @@ onMounted(browse.fetchArtists);
 
 <style lang="scss">
 // Text on the doodled ground needs a plate like any other (styling.md).
-.browse-failed {
+.browse-notice {
   display: flex;
   align-items: center;
   gap: $small;

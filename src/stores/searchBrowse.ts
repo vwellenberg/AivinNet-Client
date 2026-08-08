@@ -150,11 +150,16 @@ export default defineStore('searchBrowse', () => {
             // the catch-all for digits and non-latin names, which is the one
             // group nobody opens the page hoping to see.
             //
+            // Re-checked on EVERY load, not only the first: a refetch after a
+            // tag edit or a rescan can empty the letter that was selected, and
+            // the key then rendered pressed and disabled at once over a row of
+            // placeholder tiles.
+            //
             // Read off `counts`, which is one pass over the list; asking
             // `initialOf` per key per artist is 26 more of them, on the list
             // this store exists to keep whole.
-            if (letter.value === null) {
-                const tally = counts.value
+            const tally = counts.value
+            if (letter.value === null || !tally[letter.value]) {
                 letter.value =
                     LETTERS.filter(key => key !== OTHER).find(key => tally[key]) ??
                     LETTERS.find(key => tally[key]) ??

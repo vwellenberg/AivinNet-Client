@@ -1,6 +1,8 @@
 <template>
-  <div class="recent-searches">
-    <template v-if="recents.length">
+  <!-- The ROOT is gated, not just its contents: as an always-rendered empty
+    div it still took a row and the 2rem gap of the idle column, which is a
+    blank strip above the letter band for anyone with no recent searches. -->
+  <div v-if="recents.length" class="recent-searches">
       <!-- The head sits ON the plate's top edge: a caption sticker plus the
         clear button, both half over the frame. It is one flow row with the
         plate pulled up under it — not an absolutely positioned overlay — so a
@@ -36,14 +38,6 @@
           </div>
         </div>
       </div>
-    </template>
-
-    <!-- With no recent searches this block renders NOTHING. It used to fill the
-      page with a "Search your library / nothing here" prompt, which was the
-      right answer while the idle page was otherwise empty. It is the wrong one
-      now: the prompt would sit on top of a working artist browser and the
-      library's numbers, telling someone there is nothing here while the rest
-      of the screen shows them what there is. -->
   </div>
 </template>
 
