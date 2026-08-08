@@ -103,13 +103,6 @@ function handleFav() {
 </script>
 
 <style lang="scss">
-// ⚠️ The inset is a MARGIN, not padding — see the sticker note below. This
-// override exists for the narrow Now-Playing column and must move the chip,
-// not fatten it.
-.now-playing-view.isSmall .now-playing-header .nowplaying_title {
-    margin-left: 0.5rem;
-}
-
 .now-playing-header {
     padding-bottom: $smaller;
     position: relative;
@@ -121,12 +114,19 @@ function handleFav() {
         // Library, Top Tracks, the playlist groups, See all) already opted into.
         // They were simply never added to that list.
         @include mem-sticker;
-        // The 1rem inset used to be `padding-left`, which is fine on bare text.
-        // On a sticker, padding is the chip's own inner space: left as padding
-        // it would stretch the plate instead of moving it away from the edge.
-        // Same for the `padding-top` the second caption carried — it is folded
-        // into `margin-top` below.
-        margin: 1.25rem 0 1.25rem 1rem;
+        // No left inset: the chip's leading edge is the page's leading edge.
+        //
+        // The 1rem (0.5rem on narrow layouts) that stood here is what an inset
+        // is FOR on bare text — keeping a word off the edge. A sticker carries
+        // that gap inside itself as the chip's own padding, so the margin was
+        // left over from the bare-text era and did the one thing a caption must
+        // not do: push its plate out of line with the rows it labels. Measured
+        // on the deployed app — rows at 303, captions at 319 (desktop) and
+        // 31/39 in the narrow column — while every other caption in the app
+        // (Browse Library, the card rows, Top Tracks) sits flush on the same
+        // 303. `margin-top`/`margin-bottom` are the air between the sections
+        // and stay. See .claude/rules/styling.md.
+        margin: 1.25rem 0;
         // The caption is a flex line so the count badge can sit on the same
         // baseline box; identical rendering for the caption that has none.
         display: inline-flex;
@@ -139,10 +139,6 @@ function handleFav() {
             // height as the Up Next chip above it.
             margin-top: 2.5rem;
             margin-bottom: 1rem;
-        }
-
-        @media only screen and (max-width: 724px) {
-            margin-left: 0.5rem;
         }
     }
 

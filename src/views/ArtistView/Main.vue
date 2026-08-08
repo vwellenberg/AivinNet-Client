@@ -248,10 +248,6 @@ onBeforeRouteLeave(() => store.resetAll())
         padding-top: 1rem;
     }
 
-    .section-title {
-        padding-left: 1rem;
-    }
-
     .statshead {
         padding: $medium;
         padding-top: 2rem;

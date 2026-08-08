@@ -54,10 +54,6 @@ defineProps<{
         font-weight: 700;
     }
 
-    .section-title.isSmall {
-        padding-left: 0.5rem !important;
-    }
-
     .error {
         padding-left: 1rem;
         // "No tracks" fallback sits on the page ground -> theme-aware muted.
@@ -67,12 +63,11 @@ defineProps<{
     h3 {
         display: flex;
         justify-content: space-between;
-        padding-left: 1rem !important; // applies to favorite page
-        padding-right: $small;
-
-        @media only screen and (max-width: 724px) {
-            padding-left: $small !important; // applies to favorite page
-        }
+        // No padding of its own: on a sticker the horizontal padding IS the
+        // chip, and these overrides (1rem left, $small right, both older than
+        // the sticker) made it lopsided — measured 16px left against 8px right
+        // on Favorites, 16 against 11.2 on an artist page. `mem-sticker` sets
+        // both sides; the caption keeps them.
     }
 }
 </style>

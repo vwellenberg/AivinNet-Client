@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { blocks, styleBlock } from "./scssBlocks";
+import { blocks, ownDeclarations, styleBlock } from "./scssBlocks";
 
 // ---------------------------------------------------------------------------
 // A section caption on the page ground is a STICKER (`mem-sticker`), never bare
@@ -44,6 +44,17 @@ const NOT_ON_THE_GROUND: Record<string, string> = {
   "components/modals/RootDirsPrompt.vue": "inside a modal",
   "views/PairView.vue": "on the pairing plate",
 };
+
+/** Every `.scss` under the given root, relative to `src/`. */
+function scssFiles(root: string, prefix = ""): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(join("src", root, prefix), { withFileTypes: true })) {
+    const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) out.push(...scssFiles(root, rel));
+    else if (entry.name.endsWith(".scss")) out.push(`${root}/${rel}`);
+  }
+  return out;
+}
 
 /** Every `.vue` under the given roots, relative to `src/`. */
 function vueFiles(root: string, prefix = ""): string[] {
@@ -117,6 +128,280 @@ describe("section captions on the page ground are stickers", () => {
         `${path} renders ${tag} on the page ground with no mem-sticker rule for it — ` +
           "give it the mixin, or add the file to NOT_ON_THE_GROUND with the surface it sits on"
       ).toBe(true);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ...and a sticker sits FLUSH with what it labels.
+//
+// The same captions that were bare text once carried a left inset for the
+// reason bare text needs one: keeping the word off the page edge. A sticker
+// carries that gap inside itself (the chip's padding), so the leftover margin
+// only moves the plate out of the line its own rows keep — measured on the
+// deployed app, "Up Next"/"Queue" stood 16px (8px in the narrow column) right
+// of the tracks they label, while every caption on Home sits flush at 303.
+//
+// Two halves, because the leftover was written both ways and only one of them
+// moves the plate:
+//
+//   MARGIN-left  — moves the chip off the line. Must be zero.
+//   PADDING-left — grows the chip inwards, so the plate stays put and the TEXT
+//                  drifts. It is the chip's own space and `mem-sticker` sets
+//                  both sides at once; a rule that touches one side alone makes
+//                  it lopsided (Artist/Favorites "Top Tracks": 16px left
+//                  against 8px right). So padding is checked for SYMMETRY, not
+//                  for zero — a caption is free to be a bigger chip.
+//
+// The vertical margins are the air between sections and no business of this.
+//
+// ⚠️ Known blind spot, stated rather than left to be discovered: a FOREIGN file
+// reaching a caption through an ELEMENT selector (`.fav-tracks h3 { … }`) is not
+// covered. Class selectors are, compound forms included — a caption's class is
+// app-wide, so those are enumerable — but `h3` app-wide would flag every card
+// title in the app. The two foreign insets found here were removed and the rule
+// in styling.md says where a caption's rules belong; this census cannot prove
+// the next one.
+// ---------------------------------------------------------------------------
+
+/**
+ * A shorthand's values. Splits on whitespace OUTSIDE brackets, so
+ * `0 calc(#{$medium} + 2px)` is two values and not four — the form is already
+ * in the app (RecentSearches), and naive splitting would both fail a symmetric
+ * chip and skip a real inset by miscounting the parts.
+ */
+function shorthandParts(value: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = "";
+  for (const char of value.trim()) {
+    if (char === "(" || char === "[") depth++;
+    else if (char === ")" || char === "]") depth--;
+    if (/\s/.test(char) && depth === 0) {
+      if (current) parts.push(current);
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  if (current) parts.push(current);
+  return parts;
+}
+
+/** The left value of a box shorthand: 1→all, 2/3→2nd, 4→4th. */
+function shorthandLeft(value: string): string | null {
+  const parts = shorthandParts(value);
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2 || parts.length === 3) return parts[1];
+  if (parts.length === 4) return parts[3];
+  return null;
+}
+
+/**
+ * The bodies of every rule whose selector ENDS in this class — including the
+ * compound forms `blocks()` cannot see, because it wants the selector followed
+ * directly by `{`. `.section-title.isSmall { padding-left: … }` is one of the
+ * rules this census removed, and without this it could come back green.
+ *
+ * A trailing descendant (`.section-title .badge`) is deliberately NOT matched:
+ * that styles a child, not the caption.
+ */
+function classBlocks(css: string, classSelector: string): string[] {
+  const name = classSelector.slice(1).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const opener = new RegExp(`\\.${name}(?![\\w-])(?:[.:#\\[][^\\s{,]*)*\\s*[{,]`, "g");
+  const out: string[] = [];
+
+  for (const match of css.matchAll(opener)) {
+    // A selector list (`.a, .b { … }`) — walk on to the brace that opens it.
+    let i = match.index! + match[0].length - 1;
+    while (i < css.length && css[i] !== "{") {
+      if (css[i] === ";" || css[i] === "}") break;
+      i++;
+    }
+    if (css[i] !== "{") continue;
+
+    let depth = 1;
+    let j = i + 1;
+    while (j < css.length && depth > 0) {
+      if (css[j] === "{") depth++;
+      else if (css[j] === "}") depth--;
+      j++;
+    }
+    out.push(css.slice(i + 1, j - 1));
+  }
+  return out;
+}
+
+/** The side values a rule sets for one box, in source order (shorthands too). */
+function sides(declarations: string, box: "margin" | "padding"): { left: string[]; right: string[] } {
+  const left: string[] = [];
+  const right: string[] = [];
+  const pattern = new RegExp(`${box}(-left|-right)?\\s*:\\s*([^;{}]+)`, "g");
+
+  for (const [, side, raw] of declarations.matchAll(pattern)) {
+    // `!important` says how hard a value pushes, not how far — and every
+    // override of this kind in the app is written with it.
+    const value = raw.replace(/!important/g, "").trim();
+    if (side === "-left") left.push(value);
+    else if (side === "-right") right.push(value);
+    else {
+      const horizontal = shorthandLeft(value);
+      if (horizontal !== null) {
+        left.push(horizontal);
+        // Only the 4-value form can differ left from right.
+        const parts = shorthandParts(value);
+        right.push(parts.length === 4 ? parts[1] : horizontal);
+      }
+    }
+  }
+  return { left, right };
+}
+
+// `auto` passes: it is not a fixed inset, and on the `inline-flex` chip these
+// captions are it resolves to 0 anyway.
+const isZero = (value: string) => /^(0[a-z%]*|auto)$/.test(value);
+
+/** The bodies of every rule in one stylesheet that can reach a heading. */
+function rulesFor(css: string, tag: string): string[] {
+  return selectorsFor(tag)
+    .flatMap(selector => (selector.startsWith(".") ? classBlocks(css, selector) : blocks(css, selector)))
+    .map(ownDeclarations);
+}
+
+/**
+ * Every stylesheet in the app: the components' own <style> blocks and the
+ * global partials.
+ *
+ * Needed because a caption's inset does not have to live in the caption's own
+ * file, and the two that survived the first pass here did not: the artist page
+ * wrote `.artist-page .section-title { padding-left: 1rem }` and the favorites
+ * page `.fav-tracks .artist-top-tracks h3 { padding-right: $small }`, each
+ * reaching a caption defined one component away. A per-file census reads green
+ * on both — measured on the built app, the chip was still 16px/11.2px.
+ */
+const STYLESHEETS: { path: string; css: string }[] = [
+  ...[...vueFiles("views"), ...vueFiles("components")].map(path => ({
+    path,
+    css: styleBlock(readFileSync(join("src", path), "utf-8")),
+  })),
+  ...scssFiles("assets/scss").map(path => ({
+    path,
+    css: readFileSync(join("src", path), "utf-8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/[^\n]*/g, ""),
+  })),
+];
+
+/** Every rule in ANOTHER file that targets one of these class selectors. */
+function foreignRulesTargeting(classSelectors: string[], own: string): { path: string; declarations: string }[] {
+  const out: { path: string; declarations: string }[] = [];
+  for (const { path, css } of STYLESHEETS) {
+    if (path === own) continue;
+    for (const selector of classSelectors) {
+      for (const body of classBlocks(css, selector)) out.push({ path, declarations: ownDeclarations(body) });
+    }
+  }
+  return out;
+}
+
+/** The rules that style a heading, resolved the way the cascade resolves them. */
+function captionRules(style: string, tag: string): string[] {
+  // Class rules before the element rule, and the element rule only when no
+  // class rule exists — which is how the cascade resolves it. The search page
+  // writes `h3 { margin: $small }` for the title INSIDE the top-result card and
+  // `.section-title { … }` for the two captions on the ground; reading both as
+  // the caption's own would fail a heading whose rendered inset is 0.
+  //
+  // Every rule the winning selector has, though, not just the one holding the
+  // sticker: the inset that started this lived in a SEPARATE block outside the
+  // component's own nesting (`.now-playing-view.isSmall … {}`), which is where
+  // a narrow-layout override naturally goes.
+  const selectors = selectorsFor(tag);
+  const byClass = selectors.filter(selector => selector.startsWith("."));
+  const found = byClass.flatMap(selector => classBlocks(style, selector));
+  if (found.length) return found.map(ownDeclarations);
+  return selectors
+    .filter(selector => !selector.startsWith("."))
+    .flatMap(selector => blocks(style, selector))
+    .map(ownDeclarations);
+}
+
+describe("a caption sticker keeps the page's leading edge", () => {
+  // Both paths through captionRules() are guarded, or a parser that stopped
+  // matching would leave the loop below with nothing to assert and go green.
+  // The element path is the one PlaylistCardGroup's bare <h3> rides.
+  it.each([
+    ["components/NowPlaying/Header.vue", "class"],
+    ["components/PlaylistsList/PlaylistCardGroup.vue", "element"],
+  ])("reads the %s caption's own rules (%s selector)", path => {
+    const host = HOSTS.find(h => h.path === path);
+    expect(host, `${path} no longer renders a heading`).toBeTruthy();
+    const style = styleBlock(host!.source);
+    for (const tag of headings(host!.source)) {
+      expect(captionRules(style, tag).length, `no rule found for ${tag} in ${path}`).toBeGreaterThan(0);
+    }
+  });
+
+  it.each(HOSTS)("$path leaves its caption on the leading edge", ({ path, source }) => {
+    if (NOT_ON_THE_GROUND[path]) return;
+
+    const style = styleBlock(source);
+    for (const tag of headings(source)) {
+      for (const rule of captionRules(style, tag)) {
+        for (const left of sides(rule, "margin").left) {
+          expect(
+            isZero(left),
+            `${path} insets ${tag} by ${left} — a sticker's own padding is the gap to its ` +
+              "text, so a left margin only pushes the chip out of line with the rows below it"
+          ).toBe(true);
+        }
+      }
+
+      // A caption's class is app-wide, so a page one directory over can reach
+      // it — and both remaining insets did. Each of those rules answers for
+      // itself: it may not move the plate either.
+      const foreign = foreignRulesTargeting(
+        selectorsFor(tag).filter(selector => selector.startsWith(".")),
+        path
+      );
+      for (const { path: from, declarations } of foreign) {
+        for (const left of sides(declarations, "margin").left) {
+          expect(
+            isZero(left),
+            `${from} insets ${tag} (of ${path}) by ${left} — a caption keeps the page's leading edge`
+          ).toBe(true);
+        }
+      }
+
+      // Padding is read across every rule that can reach the heading — class
+      // and element alike, here and in the other files — and each FILE answers
+      // for itself. Not cascade-resolved like the margin above: `mem-sticker`
+      // sets the chip in the class rule, and `padding-left: 1rem` on the bare
+      // `h3` or from another page's stylesheet beats it. Per file, because a
+      // symmetric chip in one file must not vouch for a one-sided override in
+      // the next.
+      const perFile = new Map<string, { left: string[]; right: string[] }>();
+      for (const rule of [
+        ...rulesFor(style, tag).map(declarations => ({ path, declarations })),
+        ...foreign,
+      ]) {
+        const own = sides(rule.declarations, "padding");
+        const seen = perFile.get(rule.path) ?? { left: [], right: [] };
+        perFile.set(rule.path, { left: [...seen.left, ...own.left], right: [...seen.right, ...own.right] });
+      }
+
+      for (const [from, padding] of perFile) {
+        if (!padding.left.length && !padding.right.length) continue;
+        // The side a file leaves alone comes from the mixin — a DIFFERENT value
+        // than the one being written, which is the lopsidedness itself.
+        const last = (values: string[]) => values[values.length - 1] ?? "from mem-sticker";
+        expect(
+          last(padding.left),
+          `${from} pads ${tag} (of ${path}) unevenly — left ${last(padding.left)}, ` +
+            `right ${last(padding.right)}. mem-sticker sets both sides of the chip; ` +
+            "overriding one alone makes it lopsided"
+        ).toBe(last(padding.right));
+      }
     }
   });
 });
