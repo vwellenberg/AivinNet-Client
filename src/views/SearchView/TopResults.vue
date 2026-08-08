@@ -22,11 +22,11 @@
       />
       <div v-if="search.top_results.top_result && search.top_results.top_result.type" class="header">
         <div class="top">
-          <h3>Top Result</h3>
+          <h3 class="section-title">Top Result</h3>
           <TopItem />
         </div>
         <div class="tracks">
-          <h3>Tracks</h3>
+          <h3 class="section-title">Tracks</h3>
           <TopTracks />
         </div>
       </div>
@@ -87,19 +87,51 @@ const noResults = computed(
     grid-template-columns: max-content 1fr;
     gap: 1rem;
 
-    .top > h3 {
-      margin-left: $medium;
-    }
-
     @include largePhones {
       grid-template-columns: 1fr;
     }
   }
 
+  // The two section captions of this page. They were the last ones in the app
+  // still standing free on the doodle ground — every other one (the card-row
+  // captions, "Top Tracks", "Browse Library", "Up Next"/"Queue", the chart
+  // groups, the recent-searches head next door) had already opted into
+  // `mem-sticker`; these two were simply never added to that list, and a
+  // theme-aware `color` does nothing about a saturated shape running behind
+  // the word.
+  //
+  // Scoped to the class, NOT to `h3`: the bare element selector in this file
+  // also reaches the title *inside* the top-result card, which sits on a panel
+  // and must not become a sticker on a plate.
+  .section-title {
+    @include mem-sticker;
+    // On a sticker the inset is a MARGIN — as padding it would fatten the chip
+    // instead of moving it (styling.md). The left value keeps the caption on
+    // the same edge as the plate below it.
+    margin: 0 0 $small;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  // Search results are content, so they read on `--mem-veil` like the folder
+  // list and the song lists — the rows themselves are transparent, so without
+  // it the titles sat straight on the doodle tile (styling.md). Scoped to this
+  // page rather than written into TopTracks.vue: the same component also
+  // renders inside the right sidebar, which is already a panel and needs no
+  // plate of its own.
+  .right-search-top-tracks {
+    background-color: var(--mem-veil);
+    border: $candy-border;
+    border-radius: $candy-radius-sm;
+    // Keeps a row's own hover frame from doubling up with this one — same
+    // reasoning as the folder list.
+    padding: $smaller;
+  }
+
   h3 {
     margin: $small;
-    // Section headings (Top Result / Tracks / Artists / ...) sit on the page
-    // ground -> theme-aware.
+    // The top-result card's own title. It sits on the card's panel, so it keeps
+    // the theme-aware content colour rather than a plate.
     color: $mem-content-text;
   }
 
