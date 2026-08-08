@@ -157,19 +157,79 @@ describe("section captions on the page ground are stickers", () => {
 //
 // ⚠️ Known blind spot, stated rather than left to be discovered: a FOREIGN file
 // reaching a caption through an ELEMENT selector (`.fav-tracks h3 { … }`) is not
-// covered. Class selectors are — a caption's class is app-wide, so those are
-// enumerable — but `h3` app-wide would flag every card title in the app. The
-// two foreign insets found here were removed and the rule in styling.md says
-// where a caption's rules belong; this census cannot prove the next one.
+// covered. Class selectors are, compound forms included — a caption's class is
+// app-wide, so those are enumerable — but `h3` app-wide would flag every card
+// title in the app. The two foreign insets found here were removed and the rule
+// in styling.md says where a caption's rules belong; this census cannot prove
+// the next one.
 // ---------------------------------------------------------------------------
+
+/**
+ * A shorthand's values. Splits on whitespace OUTSIDE brackets, so
+ * `0 calc(#{$medium} + 2px)` is two values and not four — the form is already
+ * in the app (RecentSearches), and naive splitting would both fail a symmetric
+ * chip and skip a real inset by miscounting the parts.
+ */
+function shorthandParts(value: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = "";
+  for (const char of value.trim()) {
+    if (char === "(" || char === "[") depth++;
+    else if (char === ")" || char === "]") depth--;
+    if (/\s/.test(char) && depth === 0) {
+      if (current) parts.push(current);
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  if (current) parts.push(current);
+  return parts;
+}
 
 /** The left value of a box shorthand: 1→all, 2/3→2nd, 4→4th. */
 function shorthandLeft(value: string): string | null {
-  const parts = value.trim().split(/\s+/);
+  const parts = shorthandParts(value);
   if (parts.length === 1) return parts[0];
   if (parts.length === 2 || parts.length === 3) return parts[1];
   if (parts.length === 4) return parts[3];
   return null;
+}
+
+/**
+ * The bodies of every rule whose selector ENDS in this class — including the
+ * compound forms `blocks()` cannot see, because it wants the selector followed
+ * directly by `{`. `.section-title.isSmall { padding-left: … }` is one of the
+ * rules this census removed, and without this it could come back green.
+ *
+ * A trailing descendant (`.section-title .badge`) is deliberately NOT matched:
+ * that styles a child, not the caption.
+ */
+function classBlocks(css: string, classSelector: string): string[] {
+  const name = classSelector.slice(1).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const opener = new RegExp(`\\.${name}(?![\\w-])(?:[.:#\\[][^\\s{,]*)*\\s*[{,]`, "g");
+  const out: string[] = [];
+
+  for (const match of css.matchAll(opener)) {
+    // A selector list (`.a, .b { … }`) — walk on to the brace that opens it.
+    let i = match.index! + match[0].length - 1;
+    while (i < css.length && css[i] !== "{") {
+      if (css[i] === ";" || css[i] === "}") break;
+      i++;
+    }
+    if (css[i] !== "{") continue;
+
+    let depth = 1;
+    let j = i + 1;
+    while (j < css.length && depth > 0) {
+      if (css[j] === "{") depth++;
+      else if (css[j] === "}") depth--;
+      j++;
+    }
+    out.push(css.slice(i + 1, j - 1));
+  }
+  return out;
 }
 
 /** The side values a rule sets for one box, in source order (shorthands too). */
@@ -189,7 +249,7 @@ function sides(declarations: string, box: "margin" | "padding"): { left: string[
       if (horizontal !== null) {
         left.push(horizontal);
         // Only the 4-value form can differ left from right.
-        const parts = value.split(/\s+/);
+        const parts = shorthandParts(value);
         right.push(parts.length === 4 ? parts[1] : horizontal);
       }
     }
@@ -201,10 +261,10 @@ function sides(declarations: string, box: "margin" | "padding"): { left: string[
 // captions are it resolves to 0 anyway.
 const isZero = (value: string) => /^(0[a-z%]*|auto)$/.test(value);
 
-/** Every rule in the file that can reach a heading — class rules and element ones. */
-function allCaptionRules(style: string, tag: string): string[] {
+/** The bodies of every rule in one stylesheet that can reach a heading. */
+function rulesFor(css: string, tag: string): string[] {
   return selectorsFor(tag)
-    .flatMap(selector => blocks(style, selector))
+    .flatMap(selector => (selector.startsWith(".") ? classBlocks(css, selector) : blocks(css, selector)))
     .map(ownDeclarations);
 }
 
@@ -232,12 +292,13 @@ const STYLESHEETS: { path: string; css: string }[] = [
   })),
 ];
 
-/** Every rule anywhere that targets one of these class selectors. */
-function rulesTargeting(classSelectors: string[]): { path: string; declarations: string }[] {
+/** Every rule in ANOTHER file that targets one of these class selectors. */
+function foreignRulesTargeting(classSelectors: string[], own: string): { path: string; declarations: string }[] {
   const out: { path: string; declarations: string }[] = [];
   for (const { path, css } of STYLESHEETS) {
+    if (path === own) continue;
     for (const selector of classSelectors) {
-      for (const body of blocks(css, selector)) out.push({ path, declarations: ownDeclarations(body) });
+      for (const body of classBlocks(css, selector)) out.push({ path, declarations: ownDeclarations(body) });
     }
   }
   return out;
@@ -257,7 +318,7 @@ function captionRules(style: string, tag: string): string[] {
   // a narrow-layout override naturally goes.
   const selectors = selectorsFor(tag);
   const byClass = selectors.filter(selector => selector.startsWith("."));
-  const found = byClass.flatMap(selector => blocks(style, selector));
+  const found = byClass.flatMap(selector => classBlocks(style, selector));
   if (found.length) return found.map(ownDeclarations);
   return selectors
     .filter(selector => !selector.startsWith("."))
@@ -299,7 +360,10 @@ describe("a caption sticker keeps the page's leading edge", () => {
       // A caption's class is app-wide, so a page one directory over can reach
       // it — and both remaining insets did. Each of those rules answers for
       // itself: it may not move the plate either.
-      const foreign = rulesTargeting(selectorsFor(tag).filter(selector => selector.startsWith(".")));
+      const foreign = foreignRulesTargeting(
+        selectorsFor(tag).filter(selector => selector.startsWith(".")),
+        path
+      );
       for (const { path: from, declarations } of foreign) {
         for (const left of sides(declarations, "margin").left) {
           expect(
@@ -309,35 +373,34 @@ describe("a caption sticker keeps the page's leading edge", () => {
         }
       }
 
-      // Padding is read across EVERY rule that can reach the heading, class and
-      // element alike, in this file and in the others — not cascade-resolved
-      // like the margin above. The lopsided one is exactly the case that
-      // resolution would hide: `mem-sticker` sets the chip in the CLASS rule
-      // and `padding-left: 1rem` from another page's stylesheet beats it.
-      // Nothing about "the class rule exists" makes those stop applying.
-      const padding = [
-        ...allCaptionRules(style, tag).map(declarations => ({ path, declarations })),
+      // Padding is read across every rule that can reach the heading — class
+      // and element alike, here and in the other files — and each FILE answers
+      // for itself. Not cascade-resolved like the margin above: `mem-sticker`
+      // sets the chip in the class rule, and `padding-left: 1rem` on the bare
+      // `h3` or from another page's stylesheet beats it. Per file, because a
+      // symmetric chip in one file must not vouch for a one-sided override in
+      // the next.
+      const perFile = new Map<string, { left: string[]; right: string[] }>();
+      for (const rule of [
+        ...rulesFor(style, tag).map(declarations => ({ path, declarations })),
         ...foreign,
-      ].reduce(
-        (all, rule) => {
-          const own = sides(rule.declarations, "padding");
-          const stamp = (values: string[]) => values.map(value => ({ value, from: rule.path }));
-          return { left: [...all.left, ...stamp(own.left)], right: [...all.right, ...stamp(own.right)] };
-        },
-        { left: [] as { value: string; from: string }[], right: [] as { value: string; from: string }[] }
-      );
-      // The side a rule leaves alone reads as "from the mixin", which is a
-      // DIFFERENT value than the one being written — that is the lopsidedness.
-      const last = (values: { value: string; from: string }[]) =>
-        values[values.length - 1] ?? { value: "from mem-sticker", from: "-" };
-      if (padding.left.length || padding.right.length) {
-        const [left, right] = [last(padding.left), last(padding.right)];
+      ]) {
+        const own = sides(rule.declarations, "padding");
+        const seen = perFile.get(rule.path) ?? { left: [], right: [] };
+        perFile.set(rule.path, { left: [...seen.left, ...own.left], right: [...seen.right, ...own.right] });
+      }
+
+      for (const [from, padding] of perFile) {
+        if (!padding.left.length && !padding.right.length) continue;
+        // The side a file leaves alone comes from the mixin — a DIFFERENT value
+        // than the one being written, which is the lopsidedness itself.
+        const last = (values: string[]) => values[values.length - 1] ?? "from mem-sticker";
         expect(
-          left.value,
-          `${path}: ${tag} is padded unevenly — left ${left.value} (${left.from}), ` +
-            `right ${right.value} (${right.from}). mem-sticker sets both sides of the chip; ` +
+          last(padding.left),
+          `${from} pads ${tag} (of ${path}) unevenly — left ${last(padding.left)}, ` +
+            `right ${last(padding.right)}. mem-sticker sets both sides of the chip; ` +
             "overriding one alone makes it lopsided"
-        ).toBe(right.value);
+        ).toBe(last(padding.right));
       }
     }
   });
