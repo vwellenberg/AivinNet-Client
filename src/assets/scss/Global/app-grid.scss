@@ -450,7 +450,15 @@ $g-border: solid $candy-border-w $mem-line;
         // this strip comes back clean, including the ones that signed off the
         // previous attempt (#483). This one was measured in a real browser.
         background-image: var(--page-gradient, none);
-        background-repeat: no-repeat;
+        // `repeat-x`, and that is not cosmetic: with `local` the background's
+        // POSITIONING area is the scrollport, which excludes both gutters, so
+        // `100%` is 24px narrower than the box being painted. `no-repeat` left
+        // exactly that much bare paper down each side — measured 244,242,237
+        // at both edges against 90,88,118 in the middle. The band is uniform
+        // horizontally (a 180deg gradient), so tiling it is invisible and
+        // fills the full border box, gutters included. Vertically it stays
+        // single: `repeat-x` repeats along x only.
+        background-repeat: repeat-x;
         background-attachment: local;
         // Matches the gradient's settle stop (see pageGradient) — below this
         // the bare grid-paper ground takes over.

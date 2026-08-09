@@ -81,8 +81,16 @@ describe("the cover veil is painted under the scrollbar", () => {
 
   it("is the scroll container's own background", () => {
     expect(scroller).toMatch(/background-image:\s*var\(--page-gradient,\s*none\);/);
-    expect(scroller).toMatch(/background-repeat:\s*no-repeat;/);
     expect(scroller).toMatch(/background-size:\s*100%\s*\d+px;/);
+  });
+
+  it("tiles horizontally so the gutters are painted too", () => {
+    // `local` positions the background against the scrollport, which excludes
+    // both gutters — so `100%` is 24px short of the painted box and
+    // `no-repeat` leaves bare paper down each side (measured 244,242,237 at
+    // both edges). Tiling a horizontally uniform band is invisible and fills
+    // the border box.
+    expect(scroller).toMatch(/background-repeat:\s*repeat-x;/);
   });
 
   it("still scrolls away with the header", () => {
