@@ -8,9 +8,6 @@
             :min-item-size="72"
             :items="scrollerItems"
         >
-            <template #before>
-                <div class="page-gradient-decor" aria-hidden="true"></div>
-            </template>
             <template #default="{ item, index, active }">
                 <DynamicScrollerItem
                     :item="item"

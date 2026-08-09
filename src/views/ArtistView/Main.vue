@@ -9,7 +9,6 @@
             style="height: 100%;overflow-x: hidden;"
         >
             <template #before>
-                <div class="page-gradient-decor" aria-hidden="true"></div>
                 <Header />
             </template>
             <template #default="{ item, index, active }">

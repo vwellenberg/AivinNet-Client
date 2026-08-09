@@ -1002,10 +1002,34 @@ unsichtbar in jeder einzelnen Datei: das Decor sagte `0` und meinte „ganz", de
 Regeln weiter oben aus einem anderen Grund, und die 12 px selbst lebten als Literal in einer
 dritten Datei.
 
-Wer die volle Fläche braucht, greift um `$scrollbar-w` zurück **und** lässt den Scroller den
-Überstand malen statt scrollen: `overflow-x: clip` + `overflow-clip-margin: $scrollbar-w`. Ohne
-das zweite ist alles jenseits der rechten Padding-Kante scrollbarer Überlauf — der Schleier
-säße richtig und die Seite ließe sich dafür seitwärts schieben. Die drei Stellen hängen am Token
+**Und Zurückgreifen reicht nicht** — das war der zweite Anlauf (#540). Der rechte Gutter ist
+kein leerer Platz, er trägt die **echte Scrollbar**, und Chrome clippt gescrollten *Inhalt* am
+Scrollport, während es die Scrollbar in einer eigenen Ebene darüber malt. Kein `left`/`right`
+erreicht diese Pixel: sie gehören der Scrollbar, nicht dem Inhalt. Nach #483 blieb der Streifen
+rechts deshalb stehen — links verschwand er, weil dort nur reservierter Leerraum liegt. „Links
+passt, rechts nicht" ist die Signatur genau dieses Fehlers.
+
+Was die Fläche erreicht, ist eine Ebene **hinter** dem Scroller (dessen Elternteil), die der
+transparente `::-webkit-scrollbar-track` durchscheinen lässt. Gemessen auf der laufenden App
+(Playlist 11, 3399 px, Rinnen gegen die Mitte):
+
+| Träger | linke Rinne | Mitte | rechte Rinne |
+| --- | --- | --- | --- |
+| Kind des Scrollers | 90,88,118 | 90,88,118 | 244,242,237 ❌ |
+| Scroller-Hintergrund, `local` | 244,242,237 ❌ | 90,88,118 | 244,242,237 ❌ |
+| Hintergrund von `.v-scroll-page` | 90,88,118 | 90,88,118 | 90,88,118 ✅ |
+
+⚠️ `background-attachment: local` ist **keine** Abkürzung: Chrome clippt auch diesen Hintergrund
+am Scrollport und verliert damit *beide* Rinnen. `repeat-x` heilt das nicht — geclippt wird die
+Malfläche, nicht die Positionierungsfläche. Ein Hintergrund hinter dem Scroller scrollt dafür
+nicht von selbst mit; die Kopplung macht `--veil-scroll`, geschrieben vom globalen Scroll-Handler
+in `App.vue` — und der muss auf den Seiten-Scroller eingegrenzt sein, weil horizontale Karussells
+dauerhaft `scrollTop === 0` melden und den Schleier sonst nach oben zurückschnappen lassen.
+
+⚠️ **Headless kann diesen Fehler nicht sehen**: Chromium malt dort überhaupt keine Scrollbar,
+selbst ein deckend roter Track ändert am Screenshot nichts. Der Streifen misst sich headless
+immer sauber — so wurde #483 abgenommen. Alles, was die äußersten `$scrollbar-w` betrifft, gehört
+in einen echten Browser (Preview-Build auf eigenem Port). Die Stellen hängen am Token
 `$scrollbar-w` und werden von `scrollbarGutter.test.ts` zusammengehalten.
 
 ## ⚠️ Eine halbe Kante ist keine Kante — und ein sticky Kopf ist eine Platte

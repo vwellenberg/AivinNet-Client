@@ -147,10 +147,11 @@ $navheight: 4.5rem;
 
 // Width of our own scrollbar (Global/scrollbars.scss) — and therefore the
 // width of the gutter the content scrollers reserve on BOTH edges
-// (`scrollbar-gutter: stable both-edges`). A gutter sits outside the padding
-// box, so anything that has to cover the full content area from inside a
-// scroller has to reach back over it: see .page-gradient-decor in
-// Global/app-grid.scss. The two are tied together by scrollbarGutter.test.ts.
+// (`scrollbar-gutter: stable both-edges`). The RIGHT gutter holds the real
+// scrollbar widget, which Chrome paints outside the scrollport: nothing drawn
+// as scroll CONTENT can cover those pixels, which is why the cover veil is a
+// background of the scroller itself (see `.scroller` in Global/app-grid.scss).
+// The two are tied together by scrollbarGutter.test.ts.
 $scrollbar-w: 12px;
 
 // The settings modal's height, FIXED rather than grown from its content.

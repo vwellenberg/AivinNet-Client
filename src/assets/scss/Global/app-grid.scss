@@ -420,59 +420,53 @@ $g-border: solid $candy-border-w $mem-line;
 }
 
 .v-scroll-page {
-    // The page gradient lives on a decor element INSIDE the scroll container
-    // (rendered via the scroller's #before slot), not on this static
-    // container: the colour band belongs to the header block and must scroll
-    // away with it, like Spotify. Views provide the gradient via
-    // --page-gradient. The decor is absolutely positioned so it spans the
-    // scroller's full padding box PLUS both scrollbar gutters (see below) —
-    // painting the item wrapper instead left unpainted bands where the
-    // scroller has horizontal padding.
     // Memphis design: transparent — the grid-paper ground on #acontent shows
-    // through (pageGradient() returns 'transparent'; decor kept for a future
-    // re-theme).
+    // through wherever the cover veil is off or has faded out.
     background-color: transparent;
 
-    .page-gradient-decor {
-        position: absolute;
-        top: 0;
-        // Reaching OVER the scrollbar gutter, not stopping at it. An absolute
-        // child spans its containing block's padding box, and the gutter the
-        // scroller reserves on both edges (`scrollbar-gutter: stable
-        // both-edges`) sits OUTSIDE that box — so `left/right: 0` left a
-        // $scrollbar-w strip of bare grid paper down each side of the veil,
-        // full height of the header band. Measured on the running app: decor
-        // 271…1425 inside a content area of 259…1437.
-        left: -$scrollbar-w;
-        right: -$scrollbar-w;
-        // Matches the gradient's settle stop (see pageGradient) — below this
-        // the flat page background takes over.
-        height: 800px;
-        background: var(--page-gradient, none);
-        pointer-events: none;
-    }
+    // THE cover veil (album / artist / playlist). Views provide the colour band
+    // via --page-gradient.
+    //
+    // ⚠️ It lives on this static container, BEHIND the scroller, and not inside
+    // it — which is where it was, as an absolutely positioned
+    // `.page-gradient-decor`. Chrome clips scrolled CONTENT at the scrollport,
+    // and the real scrollbar sits outside that in a layer of its own: the veil
+    // stopped $scrollbar-w short of the right content edge and the transparent
+    // scrollbar track showed bare grid paper through the gap, the full height
+    // of the header band. No left/right value reaches those pixels — they
+    // belong to the scrollbar, not to the content. What reaches them is a layer
+    // BEHIND the scrollbar, which the transparent track shows through.
+    //
+    // Measured on the running app (playlist 11, 3399px, sampling the gutters
+    // against the middle): as a child of the scroller 244,242,237 at the right
+    // edge; as this background 90,88,118, same as the middle. And no,
+    // `background-attachment: local` on the scroller is NOT a shortcut — it
+    // clips the background to the scrollport as well, which loses BOTH gutters
+    // (measured 244,242,237 left and right).
+    //
+    // The left gutter never had the problem (reserved space, no scrollbar
+    // widget), which is why this read as "the left is fine" and hid for so long.
+    //
+    // ⚠️ Headless Chromium paints NO scrollbar at all — not even a fully opaque
+    // track shows up in a screenshot — so this strip measures clean headless
+    // whether it is broken or not. That is how the previous attempt (#483) was
+    // signed off. Verify it in a real browser.
+    background-image: var(--page-gradient, none);
+    background-repeat: no-repeat;
+    // Matches the gradient's settle stop (see pageGradient) — below this the
+    // bare grid-paper ground takes over.
+    background-size: 100% 800px;
+    // A background behind the scroller does not scroll on its own, so the band
+    // is pulled up by the scroller's own offset instead: App.vue's global
+    // scroll handler writes --veil-scroll. That keeps the "scrolls away with
+    // the header" behaviour the veil had while it lived inside the scroller.
+    background-position: 0 calc(-1 * var(--veil-scroll, 0px));
 
     .scroller {
-        // Anchor for .page-gradient-decor: absolute children of the scroll
-        // container scroll with the content.
         position: relative;
-        // The overhang above must be PAINTED, not scrolled to: anything past
-        // the right padding edge is scrollable overflow, so a plain
-        // `overflow: auto` would answer the wider veil with $scrollbar-w of
-        // sideways scroll. `clip` + a clip margin of exactly the overhang
-        // shows it and scrolls nothing — verified by sampling the painted
-        // pixels 3px inside the content edge (bare paper 244,242,237 before,
-        // veil 86,85,116 after) and by a real sideways wheel, in Chromium AND
-        // Firefox. Reading the decor's rectangle is NOT that proof: a clipped
-        // element still reports its full box.
-        //
-        // Where the platform has overlay scrollbars (macOS, phones, current
-        // Firefox) the gutter is zero and the decor hangs over the scroller
-        // instead — harmless, because `#acontent` clips at the same edge
-        // anyway. The gutter can never be WIDER than $scrollbar-w: it is our
-        // own scrollbar that sets it (Global/scrollbars.scss).
-        overflow-x: clip;
-        overflow-clip-margin: $scrollbar-w;
+        // Sideways overflow is never wanted here; without it the `auto` on the
+        // other axis would hand this one a horizontal bar.
+        overflow-x: hidden;
         padding-right: $padright;
         height: 100%;
         width: 100%;
