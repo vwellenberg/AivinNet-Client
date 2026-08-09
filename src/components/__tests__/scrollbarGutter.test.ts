@@ -35,6 +35,7 @@ const read = (path: string) => readFileSync(path, "utf-8");
 const VARIABLES = read("src/assets/scss/_variables.scss");
 const SCROLLBARS = read("src/assets/scss/Global/scrollbars.scss");
 const APP_GRID = read("src/assets/scss/Global/app-grid.scss");
+const APP = read("src/App.vue");
 const VIEWS = [
   "src/views/AlbumView/index.vue",
   "src/views/ArtistView/Main.vue",
@@ -77,31 +78,31 @@ describe("the scrollbar gutter has one width", () => {
 });
 
 describe("the cover veil is painted under the scrollbar", () => {
-  const scroller = block(APP_GRID, ".scroller");
+  // The static page, NOT `.scroller`: a background on the scroll container is
+  // clipped to the scrollport (`local`) and loses BOTH gutters — measured
+  // 244,242,237 left and right against 90,88,118 in the middle.
+  const page = block(APP_GRID, ".v-scroll-page");
+  const veil = page.slice(0, page.indexOf(".scroller {"));
 
-  it("is the scroll container's own background", () => {
-    expect(scroller).toMatch(/background-image:\s*var\(--page-gradient,\s*none\);/);
-    expect(scroller).toMatch(/background-size:\s*100%\s*\d+px;/);
+  it("is the static page's background, behind the scroller", () => {
+    expect(veil).toMatch(/background-image:\s*var\(--page-gradient,\s*none\);/);
+    expect(veil).toMatch(/background-size:\s*100%\s*\d+px;/);
   });
 
-  it("tiles horizontally so the gutters are painted too", () => {
-    // `local` positions the background against the scrollport, which excludes
-    // both gutters — so `100%` is 24px short of the painted box and
-    // `no-repeat` leaves bare paper down each side (measured 244,242,237 at
-    // both edges). Tiling a horizontally uniform band is invisible and fills
-    // the border box.
-    expect(scroller).toMatch(/background-repeat:\s*repeat-x;/);
-  });
-
-  it("still scrolls away with the header", () => {
-    // `scroll` (the default) would pin the band to the viewport and leave it
-    // hanging over the track list.
-    expect(scroller).toMatch(/background-attachment:\s*local;/);
+  it("is dragged along by the scroller's offset", () => {
+    // A background behind the scroller does not scroll on its own. Without
+    // this the band would sit still over the track list instead of scrolling
+    // away with the header.
+    expect(veil).toMatch(
+      /background-position:\s*0\s*calc\(-1\s*\*\s*var\(--veil-scroll,\s*0px\)\);/
+    );
+    expect(APP).toContain("--veil-scroll");
+    expect(APP).toContain('closest(".v-scroll-page")');
   });
 
   it("keeps no decor child that would double the tint", () => {
     // Both mechanisms at once paint the gradient twice — measurably darker
-    // (96,96,124 -> 46,46,85 on playlist 11).
+    // (90,88,118 -> 46,46,85 on playlist 11).
     expect(strip(APP_GRID)).not.toContain("page-gradient-decor");
     for (const view of VIEWS) expect(view).not.toContain("page-gradient-decor");
   });
