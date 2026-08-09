@@ -356,6 +356,13 @@ Zwei Dinge, die dabei jedes Mal auffallen:
   eigenen `padding-left`). Legitim bleibt eine negative Marge, deren Betrag **nicht** die
   eigene Einrückung ist — z. B. die Textfläche der Kartenzeilen, die genau deshalb eine
   begründete Ausnahme im Zensus hat.
+- **Gemessen wird am laufenden Build: `node scripts/edge-audit.js`.** Er misst jede
+  Sticker-Überschrift gegen den Block darunter (Liste/Grid/Platte) und meldet Versatz sowie
+  schiefes Chip-Padding. Beide Fehlstellungen dieser Runde kamen aus Nutzer-Screenshots, nicht
+  aus den Zensus-Tests — und das ist kein Zufall: Padding aus einem **Mixin**, interpolierte
+  Selektoren und Sass-Arithmetik sind für einen Quelltext-Zensus unsichtbar und hier trivial
+  sichtbar. Nach jeder Kanten-/Kopf-Änderung einmal laufen lassen; gegen den **alten** Build
+  gegenprüfen, sonst weiß man nicht, ob er misst oder nur grün ist.
 - **Ein Zensus über „die Datei erwähnt `mem-sticker`" ist keiner.** Eine Komponente, die
   ihre erste Überschrift plattiert und daneben eine zweite blank stehen lässt, bleibt damit
   grün — und das ist exakt die Form dieses Bugs. `sectionCaptionSticker.test.ts` sammelt
