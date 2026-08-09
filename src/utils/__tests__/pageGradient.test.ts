@@ -30,17 +30,21 @@ describe('pageGradient', () => {
         expect(gradient).toContain('rgba(58, 95, 138')
     })
 
-    it('is transparent without a cover colour', () => {
-        expect(pageGradient()).toBe('transparent')
-        expect(pageGradient('')).toBe('transparent')
+    // `none`, not `transparent`: the veil is a background IMAGE (the scroll
+    // container's own, see app-grid.scss). `transparent` is not a valid
+    // <image>, so `background-image: var(--page-gradient)` would drop the whole
+    // declaration instead of resolving to "no veil".
+    it('is none without a cover colour', () => {
+        expect(pageGradient()).toBe('none')
+        expect(pageGradient('')).toBe('none')
     })
 
-    it('is transparent for every detail page once the setting is off', () => {
+    it('is none for every detail page once the setting is off', () => {
         useSettings().togglePageGradient()
 
-        expect(pageGradient(COVER_BG)).toBe('transparent')
+        expect(pageGradient(COVER_BG)).toBe('none')
         // Different pages pass different cover colours; all of them go flat.
-        expect(pageGradient('#a13b2f')).toBe('transparent')
+        expect(pageGradient('#a13b2f')).toBe('none')
     })
 
     it('comes back when the setting is switched on again', () => {

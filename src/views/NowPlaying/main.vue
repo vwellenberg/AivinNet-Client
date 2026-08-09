@@ -4,7 +4,7 @@
     class="now-playing-view v-scroll-page"
     :class="{ isSmall, isMedium }"
     style="position: relative"
-    :style="{ background: pageGradient() }"
+    :style="{ backgroundImage: pageGradient() }"
     @dragover="onScrollerDragOver"
     @dragleave="onScrollerDragLeave"
     @drop="stopAutoScroll"

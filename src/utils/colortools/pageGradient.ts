@@ -28,7 +28,11 @@ export const MEMPHIS = brandColors.memphis
  * re-render when the setting flips.
  */
 export function pageGradient(bg?: string): string {
-    if (!bg || !useSettings().use_page_gradient) return 'transparent'
+    // `none`, not `transparent`: the veil is a background IMAGE now (see
+    // `.v-scroll-page .scroller` in app-grid.scss), and `transparent` is not a
+    // valid <image> — the whole declaration would be dropped instead of
+    // resolving to "no veil".
+    if (!bg || !useSettings().use_page_gradient) return 'none'
     const [r, g, b] = parseColor(bg)
     const stop = (a: number) => `rgba(${r}, ${g}, ${b}, ${a})`
     // Slightly stronger than the first memphis iteration (0.55/0.25): with the
