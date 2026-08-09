@@ -170,12 +170,24 @@ import { menus } from "./navitems";
   // In the landscape bar the navigation is one block among three, not the whole
   // width: `space-between` would push the five targets to the far edges of
   // whatever room is left. They hug instead, at the shared touch size.
-  @include shortViewport {
-    justify-content: flex-end;
-    gap: 0;
+  //
+  // ⚠️ Nested under allPhones, and that is the whole fix (#458): a flat DESKTOP
+  // window is also a short viewport. `shortViewport` is height-and-orientation
+  // only, so at 1280x500 it matched while `allPhones` (<=900px wide) did not —
+  // the sidebar stayed vertical with its labels showing, and every row was
+  // squeezed to a 44px plate with the text spilling over its neighbours.
+  //
+  // The rule this belongs to: the bar in a short viewport is the PHONE bar
+  // (.claude/rules/styling.md). Both halves of the condition have to be true.
+  // Same shape as the top bar's pill, which got this treatment in #445.
+  @include allPhones {
+    @include shortViewport {
+      justify-content: flex-end;
+      gap: 0;
 
-    .nav-item {
-      width: $bar-control;
+      .nav-item {
+        width: $bar-control;
+      }
     }
   }
 
