@@ -56,6 +56,7 @@ pyjwt.encode({"sub": {"id": 1}, "iat": …, "nbf": …, "exp": …,
 | `clipfind.js` | **wer schneidet den Schatten ab?** Läuft die Vorfahren-Kette eines Elements hoch und listet je Ebene Box, `overflow` und `padding`. `SEL=`, `ROUTE=`, `BASE=` |
 | `tokencensus.js` | **Design-Token-Zensus**: gruppiert Rahmenbreite, Radius, Schriftgröße und Schatten-Versatz über 12 Routen × hell/dunkel — siehe unten |
 | `scripts/overflow-check.js` (**im Repo**, nicht in `~/uitest`) | **Mobile-Overflow-Gate**: rendert `/` und die Suche über 320/360/390/412/430 px und schlägt fehl, sobald der Layout-Viewport breiter wird als der Bildschirm. Läuft automatisch am Ende von `scripts/deploy-client.sh`; für Branch-Builds von Hand mit `BASE=<proxy>` |
+| `scripts/edge-audit.js` (**im Repo**) | **Kanten-Gate**: misst jede Sticker-Überschrift gegen den Block, den sie beschriftet, und meldet Versatz sowie schiefes Chip-Padding. Zweites Gate am Ende von `scripts/deploy-client.sh`. `TOKEN=`, `BASE=`, `WIDTH=`, `ROUTES=`, `MIN_COMPARED=`. ⚠️ Beide Gates teilen einen Vertrag: **0 sauber · 1 Fund · 2 Harness kaputt** — „nicht gelaufen" darf nie wie „sauber" aussehen, und ein Fund nie wie ein Harness-Fehler |
 | `pixelprobe.js` | **welche Farbe steht wirklich an dieser Stelle?** Tastet eine waagerechte Linie im Bild ab (Clip → Canvas), statt Element-Rechtecken zu glauben. `ROUTE=`, `BASE=`, `ENGINE=` |
 | `previewproxy.js` + `run*.sh` | Branch-`dist` über einen Proxy servieren und messen |
 | `queueseams.js`, `verify3.js` | E2E für Queue-Seams und Group-Sync |

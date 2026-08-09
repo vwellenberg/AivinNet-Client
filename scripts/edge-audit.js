@@ -25,7 +25,18 @@
 // ⚠️ This is the check the source censuses cannot be: padding that arrives
 // through a mixin, a selector built by interpolation and Sass arithmetic are
 // all invisible to a source scan, and all perfectly visible here.
-const { chromium } = require("playwright");
+// Resolved defensively: this throws at MODULE scope, before the async body
+// below, so the `.catch` at the bottom cannot see it — node would exit 1 and
+// the caller would read "drift found" from a script that never ran. The
+// deploy's `[[ -d node_modules/playwright ]]` guard proves a directory exists,
+// not that the module resolves.
+let chromium;
+try {
+  ({ chromium } = require("playwright"));
+} catch (error) {
+  console.error(`HARNESS: playwright is not resolvable (${error.message}) — set NODE_PATH`);
+  process.exit(2);
+}
 
 const DEFAULT_ROUTES = [
   "/",
@@ -166,6 +177,12 @@ const DEFAULT_ROUTES = [
   //
   // A real library well below this floor is a broken run too — an empty
   // library cannot answer the question this script asks.
+  // Drift outranks the floor. A run can find real FAILs and still fall under
+  // it (a half-loaded library, a route that timed out), and reporting that as
+  // "measured nothing" would hand the caller a green deploy with the findings
+  // printed right above it — the one outcome worse than not running at all.
+  if (fail) process.exit(1);
+
   const floor = Number(process.env.MIN_COMPARED || 8);
   if (measured < floor) {
     console.error(
@@ -174,7 +191,7 @@ const DEFAULT_ROUTES = [
     );
     process.exit(2);
   }
-  process.exit(fail ? 1 : 0);
+  process.exit(0);
 })().catch((e) => {
   console.error(e);
   process.exit(2);

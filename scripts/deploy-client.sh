@@ -81,15 +81,20 @@ fi
 curl -s http://localhost:1970/ | grep -oE "index\.[a-z0-9]+\.(js|css)" | head -2
 
 # ---------------------------------------------------------------------------
-# Post-deploy gate: no phone width may force a wider layout viewport.
+# Post-deploy gates. Both live HERE, not in Vitest, because jsdom has no layout
+# engine — and both answer a bug class that reached the user before it reached
+# a test:
 #
-# This lives HERE, not in Vitest, because jsdom has no layout engine — the two
-# "not responsive any more" reports (#433, then the same bar again at 360px)
-# were min-content arithmetic that only a real browser computes. The gate runs
-# against the app that was just deployed, across the real phone-width spectrum
-# (320–430; measuring only 390 is what let the second report through).
+#   overflow-check  no phone width may force a wider layout viewport (#433, and
+#                   the same bar again at 360px because only 390 was measured)
+#   edge-audit      every section caption starts on the same left edge as the
+#                   block it labels (#526, #528 — both reported from user
+#                   screenshots; padding from a mixin and Sass arithmetic are
+#                   invisible to the source censuses and obvious to a browser)
 #
-# A FAIL exits non-zero so it cannot be missed; the SKIP paths stay loud on
+# A FAIL exits non-zero so it cannot be missed, and BOTH run before that exit:
+# fixing one drift only to be told about the next on the following deploy is
+# how a gate becomes something people route around. The SKIP paths stay loud on
 # purpose — a gate that silently evaporates is how this class of bug shipped.
 # ---------------------------------------------------------------------------
 UITEST="${UITEST:-$HOME/uitest}"
@@ -105,15 +110,49 @@ with app.app_context():
 PY
 )
     if [[ -n "$TOKEN" ]]; then
-        if NODE_PATH="$UITEST/node_modules" TOKEN="$TOKEN" node "$REPO/scripts/overflow-check.js"; then
-            echo "OVERFLOW_CHECK_OK"
-        else
-            echo "OVERFLOW_FAIL — a phone width renders wider than its viewport, see FAIL lines above"
+        gate_failed=0
+
+        # Both scripts share one contract: 0 clean · 1 finding · 2 harness
+        # error. Reading "non-zero" as "finding" made a missing chromium abort
+        # the deploy with "a phone width renders wider than its viewport" and
+        # no FAIL lines above it — the conflation this block argues against,
+        # committed by the block itself.
+        set +e
+        NODE_PATH="$UITEST/node_modules" TOKEN="$TOKEN" node "$REPO/scripts/overflow-check.js"
+        overflow_status=$?
+        set -e
+        case "$overflow_status" in
+            0) echo "OVERFLOW_CHECK_OK" ;;
+            1)
+                echo "OVERFLOW_FAIL — a phone width renders wider than its viewport, see FAIL lines above"
+                gate_failed=1
+                ;;
+            *) echo "OVERFLOW_CHECK_SKIPPED (harness error — see the output above)" ;;
+        esac
+
+        # Exit 2 is "measured nothing" (dead token, empty library), not "found
+        # drift". It is loud but does NOT fail the deploy, same as the SKIP
+        # paths: a harness that cannot run is a different problem from a layout
+        # that is wrong, and conflating them trains people to ignore both.
+        set +e
+        NODE_PATH="$UITEST/node_modules" TOKEN="$TOKEN" node "$REPO/scripts/edge-audit.js"
+        edge_status=$?
+        set -e
+        case "$edge_status" in
+            0) echo "EDGE_AUDIT_OK" ;;
+            1)
+                echo "EDGE_AUDIT_FAIL — a caption is off the edge it labels, see FAIL lines above"
+                gate_failed=1
+                ;;
+            *) echo "EDGE_AUDIT_SKIPPED (the run measured nothing — see the HARNESS line above)" ;;
+        esac
+
+        if [[ "$gate_failed" -ne 0 ]]; then
             exit 1
         fi
     else
-        echo "OVERFLOW_CHECK_SKIPPED (could not mint a token via $BACKEND)"
+        echo "POST_DEPLOY_CHECKS_SKIPPED (could not mint a token via $BACKEND)"
     fi
 else
-    echo "OVERFLOW_CHECK_SKIPPED (no playwright under $UITEST)"
+    echo "POST_DEPLOY_CHECKS_SKIPPED (no playwright under $UITEST)"
 fi
