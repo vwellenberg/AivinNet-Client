@@ -12,6 +12,7 @@ import { AddToQueueIcon, DeleteIcon, DownloadIcon, ImageIcon, PlayNextIcon, Plus
 import { getBaseUrl, paths } from '@/config'
 import { Album, Option, Playlist, Track } from '@/interfaces'
 import useModal from '@/stores/modal'
+import { loggedInUserIsAdmin } from '@/settings/utils'
 import { get_find_on_social, getAddToPlaylistOptions } from './utils'
 
 export default async (album?: Album) => {
@@ -151,15 +152,17 @@ export default async (album?: Album) => {
         action: () => toggleAlbumPin(album as Album),
     }
 
-    return [
-        play_next,
-        add_to_queue,
-        add_to_playlist,
-        pin,
-        find_cover_online,
-        upload_cover,
-        remove_cover,
-        download_album,
-        get_find_on_social('album', '', album),
-    ]
+    const options = [play_next, add_to_queue, add_to_playlist, pin]
+
+    // Cover changes rewrite the shared library — the picture every account sees,
+    // and (with the embed setting on) the audio files themselves. The backend
+    // rejects all three with 403 for a non-admin since AivinNet#105, so offering
+    // them here would only produce an error toast.
+    if (loggedInUserIsAdmin()) {
+        options.push(find_cover_online, upload_cover, remove_cover)
+    }
+
+    options.push(download_album, get_find_on_social('album', '', album))
+
+    return options
 }

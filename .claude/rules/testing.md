@@ -67,6 +67,24 @@ Eingaben — „die Komponentenliste ist nicht leer", „die Selektorliste enth�
 Treffer". Genau der zweite hat den leeren Glob oben gefunden. Zusätzlich einmal von Hand rot
 stellen (die Zeile wieder entfernen, Test laufen lassen) und das Ergebnis in den PR schreiben.
 
+### ⚠️ Ein Zensus über einen BEZEICHNER besteht, sobald der Import dasteht
+
+`adminOnlyActions.test.ts` suchte zuerst nach `loggedInUserIsAdmin` als Wort. In der
+Mutationsprobe wurde `if (loggedInUserIsAdmin())` zu `if (true)` — das Kontextmenü war für
+jeden offen, der Import stand weiter oben, und **der Test blieb grün**. Ein Bezeichner beweist
+nur, dass jemand die Vokabel kennt.
+
+Also: **Import-Zeilen vor dem Prüfen wegwerfen** und die Form verlangen, die auch wirkt — den
+Aufruf (`loggedInUserIsAdmin\s*\(`) bzw. den Ausdruck (`is_admin`). Wo eine Referenz die
+richtige Schreibweise ist, bekommt sie ein **eigenes, engeres** Muster: Eine Settings-Kategorie
+gated per `show_if: loggedInUserIsAdmin` (ohne Klammern), und das Muster pinnt gleich mit, an
+welchem Schlüssel es hängt.
+
+**Die Probe gehört dazu, nicht die Absicht:** jede Regel, die der Zensus behauptet, einmal
+einzeln brechen und den Test rot sehen. Vier Mutationen, vier rote Läufe, dazu ein grüner
+Baseline- und ein grüner Restore-Lauf — das Ergebnis in den PR. Ohne diesen Lauf hätte hier ein
+Test gestanden, der genau den Fehler durchlässt, gegen den er geschrieben wurde.
+
 ## Realistische Fixtures
 
 Backend-Formate nachbilden, nicht schönen: `image`-Strings mit `?pathhash=`-Suffix,

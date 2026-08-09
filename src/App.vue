@@ -145,10 +145,17 @@ function updateContentElemSize({ width, height }: { width: number; height: numbe
 
 function handleRootDirsPrompt() {
     getRootDirs().then(dirs => {
-        if (dirs.length === 0) {
-            modal.showRootDirsPromptModal();
-        } else {
+        if (dirs.length) {
             settings.setRootDirs(dirs);
+            return;
+        }
+
+        // Nothing configured yet. The prompt is a setup assistant: every control
+        // in it writes root dirs or browses the server filesystem, and both are
+        // admin-only on the backend. Shown to a guest it would be an undismissable
+        // modal on every app start whose buttons all answer 403.
+        if (auth.is_admin) {
+            modal.showRootDirsPromptModal();
         }
     });
 }
