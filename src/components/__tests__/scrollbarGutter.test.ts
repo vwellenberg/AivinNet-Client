@@ -41,11 +41,17 @@ const VIEWS = [
   "src/views/PlaylistView/index.vue",
 ].map(read);
 
+/**
+ * Declarations only. Both stylesheets explain the mechanism at length — the
+ * prose talks about `{`/`}` often enough that counting them raw would slice the
+ * wrong block, and it names the retired `.page-gradient-decor` on purpose, so a
+ * census over the raw text would read its own history as a live rule.
+ */
+const strip = (raw: string) => raw.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+
 /** The rule body that follows `selector {`, brace-balanced. */
 function block(raw: string, selector: string): string {
-  // Comments first: this file's own prose talks about `{` and `}` often
-  // enough that counting them raw would slice the wrong block.
-  const source = raw.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  const source = strip(raw);
   const start = source.indexOf(`${selector} {`);
   expect(start, `${selector} not found`).toBeGreaterThan(-1);
   let depth = 0;
@@ -88,7 +94,7 @@ describe("the cover veil is painted under the scrollbar", () => {
   it("keeps no decor child that would double the tint", () => {
     // Both mechanisms at once paint the gradient twice — measurably darker
     // (96,96,124 -> 46,46,85 on playlist 11).
-    expect(APP_GRID).not.toContain("page-gradient-decor");
+    expect(strip(APP_GRID)).not.toContain("page-gradient-decor");
     for (const view of VIEWS) expect(view).not.toContain("page-gradient-decor");
   });
 });
