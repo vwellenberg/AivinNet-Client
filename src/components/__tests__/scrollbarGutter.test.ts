@@ -100,6 +100,14 @@ describe("the cover veil is painted under the scrollbar", () => {
     expect(APP).toContain('closest(".v-scroll-page")');
   });
 
+  it("listens to the page's own scroller, not to the card rails", () => {
+    // The handler runs in the capture phase for every scroll container on the
+    // page, and the headers carry horizontal card rails whose `scrollTop` is
+    // permanently 0 — reacting to those would snap the veil back to the top of
+    // a page that is scrolled.
+    expect(APP).toContain('classList?.contains("scroller")');
+  });
+
   it("keeps no decor child that would double the tint", () => {
     // Both mechanisms at once paint the gradient twice — measurably darker
     // (90,88,118 -> 46,46,85 on playlist 11).

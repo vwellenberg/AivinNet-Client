@@ -211,8 +211,13 @@ function handleGlobalScroll(event: Event) {
     // background behind the scroller does not scroll on its own. This is what
     // buys back the "band scrolls away with the header" behaviour that the
     // veil had while it lived inside the scroller.
+    //
+    // ⚠️ The page's OWN scroller only. This fires in the capture phase for
+    // every scroll container on the page, and the header carries horizontal
+    // card rails — those have `scrollTop === 0` at all times, so reacting to
+    // them would snap the veil back to the top of a page that is scrolled.
     const target = event.target as HTMLElement | null;
-    if (!target || typeof target.scrollTop !== "number" || !target.closest) return;
+    if (!target?.classList?.contains("scroller")) return;
     const page = target.closest(".v-scroll-page") as HTMLElement | null;
     if (page) page.style.setProperty("--veil-scroll", `${target.scrollTop}px`);
 }
