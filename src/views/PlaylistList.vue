@@ -4,15 +4,18 @@
             <template #name>Playlists</template>
             <template #description>
                 You have {{ pStore.playlists.length }} playlists in your library
-                <br />
-                <form spellcheck="false" @submit.prevent="() => {}">
+            </template>
+            <template #after>
+                <!-- The filter is a CONTROL, so it lives in the head's control
+                     slot. It sat in `#description` — which GenericHeader hides
+                     on every viewport — so the field was in the DOM at zero
+                     size and the filtering behind it unreachable (#528). -->
+                <form class="playlist-filter" spellcheck="false" @submit.prevent="() => {}">
                     <input
                         id="playlistsearch"
                         v-model="input"
-                        class="rounded-sm no-border"
                         type="search"
                         placeholder="Search playlists"
-                        name=""
                     />
                 </form>
             </template>
@@ -119,7 +122,6 @@ const playlists = computed(() => {
     #playlistsearch {
         width: 16rem;
         max-width: 100%;
-        margin-top: 1rem;
         background-color: $candy-pink-soft;
         border: $candy-border;
         color: $candy-black;
@@ -128,6 +130,11 @@ const playlists = computed(() => {
         padding: $medium;
         outline: none;
         appearance: none;
+        // The pill radius and the offset shadow every other control on this
+        // page wears — the field was styled during the memphis round but never
+        // rendered, so these two never came up.
+        border-radius: $candy-radius-pill;
+        @include candy-shadow;
     }
 
     .playlist-button {
