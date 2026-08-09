@@ -116,24 +116,11 @@
 
     // ⚠️ These two are NOT inside the phone block above — it closes on the line
     // before them, so they apply on every viewport: the description is hidden
-    // app-wide, and this font-size silently replaces the 3.25rem one further
-    // up. Left as found on purpose — the descriptions have not been shown for
-    // months and nobody missed them, so the accident matches the decision.
-    //
-    // ⚠️ It also hides whatever ELSE gets parked here, and two things were:
-    //
-    //   - the playlists page kept its filter field in this slot, so the input
-    //     sat in the DOM at zero size and the filtering behind it could never
-    //     receive a keystroke (removed in #533)
-    //   - ArtistDiscography STILL puts its "which artist is this" line here —
-    //     a RouterLink back to the artist plus the release count — so that
-    //     page currently announces "albums" and not whose. Measured: the link
-    //     renders at width 0. Not fixed here; it needs a place to move to, not
-    //     a deletion.
-    //
-    // So: nothing interactive and nothing load-bearing goes in this slot while
-    // it is not painted. Check here first when something "is in the DOM but
-    // does nothing".
+    // app-wide (including the "Search playlists" form that lives in that slot),
+    // and this font-size silently replaces the 3.25rem one further up. Left as
+    // found on purpose: un-hiding a description sticker on six pages and
+    // surfacing a search field is a product change, not an edge fix. Noted so
+    // the next reader does not have to re-derive it.
     h1 {
         font-size: 1.75rem;
     }

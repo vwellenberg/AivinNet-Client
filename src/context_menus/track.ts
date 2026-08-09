@@ -201,7 +201,10 @@ export default async (track: Track): Promise<Option[]> => {
         go_to_artist,
         open_in_explorer,
         download_track,
-        find_cover_online,
+        // Admin-only, and it keeps its place in the row: the cover search replaces
+        // the album art every account sees, so the backend refuses it for a guest
+        // (the 403 stands regardless of what is shown here).
+        ...(loggedInUserIsAdmin() ? [find_cover_online] : []),
         get_find_on_social('track', `${track.title} ${track.artists[0].name}`),
         // del_track,
     ]

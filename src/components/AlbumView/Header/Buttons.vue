@@ -11,6 +11,7 @@
          the context menu, where you pick from suggestions. This button searches
          and decides on its own, and only accepts a verified match. -->
     <button
+      v-if="auth.is_admin"
       class="mb-cover"
       :class="{ loading: mbLoading }"
       :title="mbLoading ? 'Loading…' : 'Fetch cover automatically'"
@@ -40,6 +41,7 @@ import { storeToRefs } from "pinia";
 
 import { favType, playSources } from "@/enums";
 import useAlbumStore from "@/stores/pages/album";
+import useAuth from "@/stores/auth";
 
 import MoreSvg from "@/assets/icons/more.svg";
 import SearchSvg from "@/assets/icons/search.svg";
@@ -53,6 +55,7 @@ import { fetchCoverFromMusicBrainz } from "@/requests/musicbrainz";
 import { NotifType, Notification } from "@/stores/notification";
 
 const store = useAlbumStore();
+const auth = useAuth();
 const { info: album } = storeToRefs(store);
 
 const context_menu_showing = ref(false);

@@ -4,7 +4,9 @@
             <div class="username ellip2">Hi {{ auth.user.firstname || auth.user.username }}</div>
         </div>
         <div class="separator"></div>
-        <div class="item scan" @click="onScan">
+        <!-- A scan walks the root dirs and can drop tracks from the library, so
+             the backend refuses it for non-admins (AivinNet#105). -->
+        <div v-if="auth.is_admin" class="item scan" @click="onScan">
             <div class="label">Quick scan</div>
             <ReloadSvg />
         </div>
