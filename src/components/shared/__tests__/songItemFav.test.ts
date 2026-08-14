@@ -13,9 +13,13 @@ vi.mock('@/stores/queue', () => ({
 vi.mock('@/helpers/contextMenuHandler', () => ({
     showTrackContextMenu: () => {},
 }))
-vi.mock('vue-router', () => ({
-    useRoute: () => ({ path: '/folder' }),
-}))
+// Partial, not wholesale: `src/router` calls `createRouter` at module load and
+// sits somewhere in this import chain, so a mock that drops it takes the whole
+// suite file down with it.
+vi.mock('vue-router', async () => {
+    const actual = await vi.importActual<typeof import('vue-router')>('vue-router')
+    return { ...actual, useRoute: () => ({ path: '/folder' }) }
+})
 
 import SongItem from '../SongItem.vue'
 
