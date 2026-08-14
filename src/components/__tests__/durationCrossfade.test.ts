@@ -90,11 +90,16 @@ function rules(css: string, parent = ""): Rule[] {
   return out;
 }
 
+/** A component's SCSS, comments and the `<style>` tags themselves removed. */
+function scss(source: string): string {
+  return styleBlock(source).replace(/<\/?style[^>]*>/g, "");
+}
+
 /** Every rule of every component whose selector reaches the duration slot. */
 function durationRules(): Rule[] {
   return Object.entries(SOURCES)
     .filter(([, source]) => source.includes(".song-duration"))
-    .flatMap(([, source]) => rules(styleBlock(source)))
+    .flatMap(([, source]) => rules(scss(source)))
     .filter(rule => /\.song-duration\b/.test(rule.selector));
 }
 
@@ -118,7 +123,7 @@ describe("the track-row duration slot", () => {
   });
 
   it("swaps duration for caption under the pointer, pointer-gated", () => {
-    const css = styleBlock(SOURCES[OWNER]);
+    const css = scss(SOURCES[OWNER]);
     const gated = css.slice(css.indexOf("@media (hover: hover)"));
 
     expect(css).toContain("@media (hover: hover)");
