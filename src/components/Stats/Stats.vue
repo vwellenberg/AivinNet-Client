@@ -71,7 +71,12 @@ defineOptions({
     grid-template-columns: 1fr max-content;
     overflow-x: auto;
     gap: 1.5rem;
-    padding: 1rem;
+    // No left inset — the tiles start where the page's captions, cards and rows
+    // start. Measured against the leading edge: 319px here against 303px for
+    // the head and the chart rows on the stats page, and 315px on album/artist
+    // (those two pages override the padding, see below). The tile carries its
+    // own padding, so the container's was pure offset.
+    padding: 1rem 1rem 1rem 0;
 
     // The stat cards scroll horizontally by touch/drag; never show the
     // scrollbar (it overlaps the cards on mobile — same treatment as the
@@ -89,7 +94,9 @@ defineOptions({
 }
 
 .statsdates {
-    padding: 1rem;
+    // Same leading edge as the tiles above it — the caption's own chip padding
+    // carries the air (styling.md, "Der Sticker fluchtet links").
+    padding: 1rem 1rem 1rem 0;
     text-transform: uppercase;
     font-size: 0.75rem;
     font-weight: 900;
