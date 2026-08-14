@@ -25,7 +25,7 @@
                     :albumartists="track.albumartists"
                 />
             </div>
-            <HeartSvg :state="track?.is_favorite" btn_role="action" @handleFav="handleFav" />
+            <HeartSvg :state="queue.currenttrackIsFav" btn_role="action" @handleFav="handleFav" />
         </div>
 
         <!-- About the artist. The card is left out entirely when the store has
@@ -177,7 +177,7 @@ const infoRows = computed(() => {
 // disagree — see BottomBar.vue.
 function handleFav() {
     favoriteHandler(
-        track.value?.is_favorite,
+        queue.currenttrackIsFav,
         favType.track,
         track.value?.trackhash || '',
         () => null,

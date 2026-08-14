@@ -55,7 +55,7 @@
             class="np-fav"
             btn_role="bar"
             title="Favorite"
-            :state="queue.currenttrack?.is_favorite"
+            :state="queue.currenttrackIsFav"
             @handleFav="$emit('handleFav')"
         />
         <!-- Silence is a dead end on a small phone: this bar has no volume

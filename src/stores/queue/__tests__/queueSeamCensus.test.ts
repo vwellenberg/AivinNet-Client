@@ -36,7 +36,7 @@ const SOURCES: Record<string, string> = {
  * A structural write to the queue: it changes WHICH tracks are in the list or
  * in what order — i.e. the trackhash list the server identifies by queue_id.
  *
- * Deliberately not matched: `toggleFav`/`retagTrack` write fields of a track
+ * Deliberately not matched: `setFav`/`retagTrack` write fields of a track
  * that is already in the list. They leave the trackhash sequence untouched, so
  * they cannot desync the group queue.
  */

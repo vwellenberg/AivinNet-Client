@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { dropSources, favType } from '@/enums'
@@ -70,6 +70,7 @@ import { showTrackContextMenu as showContext } from '@/helpers/contextMenuHandle
 import favoriteHandler from '@/helpers/favoriteHandler'
 import { Track } from '@/interfaces'
 import { isMedium, isSmall } from '@/stores/content-width'
+import useFavorites from '@/stores/favorites'
 import useQueueStore from '@/stores/queue'
 import { showDragStart, trackBandClass } from '@/utils/songItemMethods'
 
@@ -125,7 +126,16 @@ const showDateColumn = computed(() => Boolean(props.show_date_added) && !isSmall
 // _candy.scss for the accents themselves.
 const bandClass = computed(() => trackBandClass(props.index))
 
-const is_fav = ref(props.track.is_favorite || false)
+// Read, not copied. This used to be a `ref` seeded from the prop and re-seeded
+// only when the row was RECYCLED onto another trackhash, so every flip that did
+// not come from this row itself — the player bar, the Now Playing header, the
+// right panel, another row for the same track — left the heart here showing the
+// state the list was loaded with. The registry is the answer for the hash (see
+// stores/favorites.ts); the prop is what the list arrived with.
+const favorites = useFavorites()
+const is_fav = computed(
+    () => favorites.flag(favType.track, props.track.trackhash) ?? props.track.is_favorite ?? false
+)
 
 const emit = defineEmits<{
     (e: 'playThis'): void
@@ -215,25 +225,16 @@ function isCurrentPlaying() {
 }
 
 function addToFav(trackhash: string) {
+    // No setter/remover: the handler records the flip for the hash, and this
+    // row reads it back through `is_fav` like every other heart for that track.
     favoriteHandler(
         is_fav.value,
         favType.track,
         trackhash,
-        () => (is_fav.value = true),
-        () => (is_fav.value = false)
+        () => null,
+        () => null
     )
 }
-
-const stopWatcher = watch(
-    () => props.track.trackhash,
-    () => {
-        is_fav.value = props.track.is_favorite
-    }
-)
-
-onBeforeUnmount(() => {
-    stopWatcher()
-})
 
 const route = useRoute()
 const isFavoritesPage = route.path.startsWith('/favorites')

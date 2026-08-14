@@ -379,12 +379,15 @@ export default defineStore('tracklist', {
                 player.clearNextAudio()
             }
         },
-        toggleFav(index: number) {
-            const track = this.tracklist[index]
-
-            if (track) {
-                track.is_favorite = !track.is_favorite
-            }
+        // Apply a favourite flip to every copy of the track in the queue. By
+        // hash and idempotent by value — see helpers/favoriteHandler.ts, the
+        // only caller, for why it is neither by index nor a toggle any more.
+        setFav(trackhash: string, is_favorite: boolean) {
+            this.tracklist.forEach(track => {
+                if (track.trackhash === trackhash) {
+                    track.is_favorite = is_favorite
+                }
+            })
         },
         // Apply an edited track's new tags to any copies already in the queue
         // (matched by the pre-edit trackhash). currentindex is left untouched, so
