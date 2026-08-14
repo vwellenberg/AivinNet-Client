@@ -166,6 +166,33 @@ defineEmits<{
     }
 }
 
+// The crossfade between the two twins above: at rest the duration, under the
+// pointer the caption ("N plays") in its place. It has to live HERE, next to
+// the pair — it stood in SongItem.vue's hover block and lost, at equal
+// specificity, to a later `opacity: 0.75` on `.song-duration` in that same
+// file's mirrored-hover block. Both twins then painted at 75 %, stacked (they
+// share one slot: the caption is absolutely positioned over the duration),
+// which reads as two numbers printed on top of each other in one pill — on
+// every row of a narrow-layout artist page (#541).
+//
+// Deeper than the resting `opacity: 0` above on purpose, so the swap does not
+// depend on which style block the bundler emits last.
+//
+// Pointer devices only, like every other row-hover rule: `:hover` latches
+// after a tap on touch (styling.md), and a latched swap would leave the
+// tapped row showing the caption for good.
+@media (hover: hover) {
+    .songlist-item:hover > .options-and-duration {
+        .song-duration.has_help_text {
+            opacity: 0;
+        }
+
+        .song-duration.help-text {
+            opacity: 1;
+        }
+    }
+}
+
 // Removed with this change: two rules keyed on `.heart-icon.is-favorited`, a
 // class the template never sets (it binds `is_fav`). Both were dead — one hid
 // the favourited heart on medium phones, where `.heart-icon` is already

@@ -306,13 +306,9 @@ const isFavoritesPage = route.path.startsWith('/favorites')
             // tie.
             @include candy-row-hover;
 
-            .song-duration.has_help_text {
-                opacity: 0;
-            }
-
-            .song-duration.help-text {
-                opacity: 1;
-            }
+            // (The duration/help-text crossfade used to stand here. It lives in
+            // TrackDuration.vue now, next to the pair it swaps — see the note
+            // there and the `opacity` warning in the mirrored block below.)
 
             .options-and-duration .heart-icon {
                 visibility: visible;
@@ -417,10 +413,24 @@ const isFavoritesPage = route.path.startsWith('/favorites')
     .songlist-item:hover:not(.current):not(.contexton) {
         color: var(--mem-hover-text);
 
-        .song-album,
-        .song-duration {
+        .song-album {
             color: var(--mem-hover-text);
             opacity: 0.75;
+        }
+
+        // ⚠️ The duration is muted by COLOUR, not by `opacity` — and that is
+        // not a style preference. `opacity` on `.song-duration` is the channel
+        // the duration/help-text pair crossfades on (TrackDuration.vue): one
+        // twin fades out while the other fades in. A blanket `opacity: 0.75`
+        // from here outranked both and left them stacked at 75 % on top of each
+        // other — "04:02" and "1 play" in the same pill, unreadable, on every
+        // row of a narrow-layout artist page (#541).
+        //
+        // `color-mix` mutes text AND the pill's `currentColor` ring by the same
+        // amount, so this looks identical to what the opacity did — it just
+        // leaves the crossfade its channel.
+        .song-duration {
+            color: color-mix(in srgb, var(--mem-hover-text) 75%, transparent);
         }
 
         .options-and-duration {
