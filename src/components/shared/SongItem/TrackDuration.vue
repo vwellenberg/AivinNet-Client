@@ -168,15 +168,18 @@ defineEmits<{
 
 // The crossfade between the two twins above: at rest the duration, under the
 // pointer the caption ("N plays") in its place. It has to live HERE, next to
-// the pair — it stood in SongItem.vue's hover block and lost, at equal
-// specificity, to a later `opacity: 0.75` on `.song-duration` in that same
-// file's mirrored-hover block. Both twins then painted at 75 %, stacked (they
-// share one slot: the caption is absolutely positioned over the duration),
-// which reads as two numbers printed on top of each other in one pill — on
-// every row of a narrow-layout artist page (#541).
+// the pair — it stood in SongItem.vue's hover block at (0,4,0) and was
+// OUTRANKED by that same file's mirrored-hover block, which muted album and
+// duration together at (0,5,0) with a blanket `opacity: 0.75`. Both twins then
+// painted at 75 %, stacked (they share one slot: the caption is absolutely
+// positioned over the duration), which reads as two numbers printed on top of
+// each other in one pill — on every row of a narrow-layout artist page (#541).
 //
-// Deeper than the resting `opacity: 0` above on purpose, so the swap does not
-// depend on which style block the bundler emits last.
+// ⚠️ The `> .options-and-duration` step is what buys this rule its (0,5,0);
+// dropping it puts the crossfade back where it lost. And being one level
+// deeper than the caption's resting `opacity: 0` above is deliberate too —
+// at equal specificity the swap would hang on which block the bundler emits
+// last.
 //
 // Pointer devices only, like every other row-hover rule: `:hover` latches
 // after a tap on touch (styling.md), and a latched swap would leave the

@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { describe, expect, it } from "vitest";
 
 import { styleBlock } from "./scssBlocks";
@@ -10,8 +11,8 @@ import { styleBlock } from "./scssBlocks";
 //
 // That makes `opacity` on `.song-duration` a CHANNEL, not a free property. The
 // row-hover block in SongItem.vue muted album and duration together with a
-// blanket `opacity: 0.75`, which outranked both halves of the swap at higher
-// specificity — so under the pointer both twins painted at 75 %, stacked, and
+// blanket `opacity: 0.75` at (0,5,0), which outranked both halves of the swap
+// at (0,4,0) — so under the pointer both twins painted at 75 %, stacked, and
 // the pill read as two numbers printed on top of each other. It hit every row
 // of an artist page below 950px of content width, where the Plays column is
 // dropped and `help_text` is the only surface for the count (#541).
@@ -44,6 +45,15 @@ interface Rule {
  * Every rule in a (nested) stylesheet as a flattened selector plus its own
  * declarations.
  *
+ * Two things the naive version got wrong, both of which make the census go
+ * quietly green rather than fail:
+ *
+ * - **A comma group is expanded, one rule per part.** Left joined, one twin
+ *   anywhere in the group would exempt the whole declaration — and
+ *   `.song-album, .song-duration { … }` is the very idiom this bug arrived in.
+ * - **The last declaration of a block needs no `;`.** Dropped, a one-line
+ *   `.song-duration { opacity: 0.75 }` would carry no declarations at all.
+ *
  * At-rules (`@media`, `@include allPhones { … }`) are transparent: they change
  * when a rule applies, never what it selects — and a breakpoint override is
  * exactly where this kind of drift likes to hide.
@@ -68,7 +78,14 @@ function rules(css: string, parent = ""): Rule[] {
 
       const head = pending.trim();
       const inner = css.slice(i + 1, j - 1);
-      out.push(...rules(inner, head.startsWith("@") ? parent : `${parent} ${head.replace(/&/g, parent)}`));
+
+      if (head.startsWith("@")) {
+        out.push(...rules(inner, parent));
+      } else {
+        for (const part of head.split(",")) {
+          out.push(...rules(inner, `${parent} ${part.trim().replace(/&/g, parent)}`));
+        }
+      }
 
       pending = "";
       i = j;
@@ -86,20 +103,46 @@ function rules(css: string, parent = ""): Rule[] {
     i++;
   }
 
-  out.push({ selector: parent.trim(), declarations });
+  out.push({ selector: parent.trim(), declarations: declarations + pending });
   return out;
 }
 
-/** A component's SCSS, comments and the `<style>` tags themselves removed. */
+/**
+ * The SCSS of a source file — an SFC's `<style>` content or a whole
+ * stylesheet — with comments and the tags themselves removed.
+ *
+ * ⚠️ `styleBlock` slices from `indexOf("<style")`, which is `-1` on a plain
+ * `.scss` file and would hand back its LAST CHARACTER. The guard is what lets
+ * this census read both kinds of file.
+ */
 function scss(source: string): string {
+  if (!source.includes("<style")) return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
   return styleBlock(source).replace(/<\/?style[^>]*>/g, "");
 }
 
-/** Every rule of every component whose selector reaches the duration slot. */
+/**
+ * Every stylesheet that could reach a track row, components AND global SCSS.
+ *
+ * The `.vue` half comes through the glob (the test then sees what the build
+ * sees); stylesheets have to be read from disk, because a raw glob returns an
+ * EMPTY string for them and a source-scanning test goes silently green on it
+ * (.claude/rules/testing.md).
+ *
+ * `app-grid.scss` is not a hypothetical: it is the documented home of the row's
+ * responsive rules, and the pointer-gating bug of #457 lived there. A blanket
+ * `opacity` on the duration would be just as fatal from there as from the SFC.
+ */
+const STYLESHEETS = ["src/assets/scss/Global/app-grid.scss", "src/assets/scss/_candy.scss"];
+
+function allSources(): string[] {
+  return [...Object.values(SOURCES), ...STYLESHEETS.map(file => readFileSync(file, "utf-8"))];
+}
+
+/** Every rule of every stylesheet whose selector reaches the duration slot. */
 function durationRules(): Rule[] {
-  return Object.entries(SOURCES)
-    .filter(([, source]) => source.includes(".song-duration"))
-    .flatMap(([, source]) => rules(scss(source)))
+  return allSources()
+    .filter(source => source.includes(".song-duration"))
+    .flatMap(source => rules(scss(source)))
     .filter(rule => /\.song-duration\b/.test(rule.selector));
 }
 
@@ -108,6 +151,12 @@ describe("the track-row duration slot", () => {
     // The parser is the weak point of a source-scanning test: broken, it finds
     // nothing and reports success (.claude/rules/testing.md).
     expect(durationRules().length).toBeGreaterThanOrEqual(4);
+
+    // And the inputs are the second weak point: a stylesheet read off disk that
+    // came back empty, or a glob that stopped matching, looks exactly like a
+    // clean codebase.
+    expect(Object.keys(SOURCES)).toContain(OWNER);
+    for (const file of STYLESHEETS) expect(readFileSync(file, "utf-8").length).toBeGreaterThan(0);
   });
 
   it("spends `opacity` only on the crossfade between the two twins", () => {
