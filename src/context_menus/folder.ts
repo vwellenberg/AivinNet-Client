@@ -12,8 +12,10 @@ import { getAddToPlaylistOptions } from "./utils";
 export default async (path: string) => {
   const modal = useModal();
 
+  // Everything under the folder, recursively — the folder page's track rows
+  // keep the plain "Play next" for one song.
   const play_next = <Option>{
-    label: "Play next",
+    label: "Play folder next",
     action: () => {
       getTracksInPath(path).then((tracks) => {
         const store = useTracklist();
@@ -24,7 +26,7 @@ export default async (path: string) => {
   };
 
   const add_to_queue = <Option>{
-    label: "Add to Queue",
+    label: "Add folder to queue",
     action: () => {
       getTracksInPath(path).then((tracks) => {
         const store = useTracklist();

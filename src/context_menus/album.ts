@@ -22,8 +22,12 @@ export default async (album?: Album) => {
         album = albumStore.info
     }
 
+    // Named for the WHOLE album, and the track row's menu says plain "Play next"
+    // for a single song. Both menus are one right-click apart on the album page:
+    // with the same wording on both, "Play next" on the header dropped 25 rows
+    // into the queue and read like a bug (reported 2026-08-15).
     const play_next = <Option>{
-        label: 'Play next',
+        label: 'Play album next',
         action: async () => {
             let tracks: Track[] = []
 
@@ -39,7 +43,7 @@ export default async (album?: Album) => {
     }
 
     const add_to_queue = <Option>{
-        label: 'Add to queue',
+        label: 'Add album to queue',
         action: async () => {
             let tracks: Track[] = []
 

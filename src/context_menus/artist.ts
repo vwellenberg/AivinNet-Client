@@ -8,8 +8,10 @@ import { Option, Playlist } from '@/interfaces'
 import { getAddToPlaylistOptions, get_find_on_social } from './utils'
 
 export default async (artisthash: string, artistname: string) => {
+    // Every track by the artist, not the row that was right-clicked — the
+    // artist page lists tracks too, and its rows carry their own "Play next".
     const play_next = <Option>{
-        label: 'Play next',
+        label: 'Play artist next',
         action: () => {
             getArtistTracks(artisthash).then(tracks => {
                 const store = useTracklist()
@@ -20,7 +22,7 @@ export default async (artisthash: string, artistname: string) => {
     }
 
     const add_to_queue = <Option>{
-        label: 'Add to queue',
+        label: 'Add artist to queue',
         action: () => {
             getArtistTracks(artisthash).then(tracks => {
                 const store = useTracklist()

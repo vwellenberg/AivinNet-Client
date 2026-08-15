@@ -473,7 +473,9 @@ function onFolderContextMenu(e: MouseEvent, folder: PlaylistFolder) {
       },
     },
     {
-      label: "Play next",
+      // Every track in every playlist of the folder — same naming rule as the
+      // other container menus, so it can't be read as "the one row I clicked".
+      label: "Play folder next",
       icon: PlayNextIcon,
       action: async () => {
         const tracks = await getFolderTracks(folder);
@@ -481,7 +483,7 @@ function onFolderContextMenu(e: MouseEvent, folder: PlaylistFolder) {
       },
     },
     {
-      label: "Add to queue",
+      label: "Add folder to queue",
       icon: AddToQueueIcon,
       action: async () => {
         const tracks = await getFolderTracks(folder);
