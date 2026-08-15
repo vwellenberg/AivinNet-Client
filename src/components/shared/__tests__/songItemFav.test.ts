@@ -25,6 +25,7 @@ import SongItem from '../SongItem.vue'
 
 import { dropSources, favType } from '@/enums'
 import { Track } from '@/interfaces'
+import { content_width } from '@/stores/content-width'
 import useFavorites from '@/stores/favorites'
 
 const track = (over: Partial<Track> = {}) =>
@@ -46,12 +47,22 @@ const mountRow = (t: Track) =>
         props: { track: t, index: 1, source: dropSources.playlist },
     })
 
-/** What the row hands its two children as the favourite state. */
-const favProps = (wrapper: ReturnType<typeof mountRow>) =>
-    wrapper
-        .findAllComponents({ name: 'TrackIndex' })
-        .concat(wrapper.findAllComponents({ name: 'TrackDuration' }))
-        .map(c => c.props('is_fav'))
+/**
+ * What the row hands BOTH of its favourite-aware children — the index column
+ * (which swaps the number for the toggle) and the duration column (which holds
+ * the inline marker). Two, and the count is asserted: the index column is
+ * behind `v-if="!isSmall"`, and the module-level content width starts at 0, so
+ * without the width set below this reads one child and still passes.
+ */
+const favProps = (wrapper: ReturnType<typeof mountRow>) => {
+    const children = [
+        ...wrapper.findAllComponents({ name: 'TrackIndex' }),
+        ...wrapper.findAllComponents({ name: 'TrackDuration' }),
+    ]
+    expect(children).toHaveLength(2)
+
+    return children.map(c => c.props('is_fav'))
+}
 
 // ---------------------------------------------------------------------------
 // A track is held by several stores at once and those are separate objects, so
@@ -64,6 +75,8 @@ const favProps = (wrapper: ReturnType<typeof mountRow>) =>
 describe('SongItem favourite marker', () => {
     beforeEach(() => {
         setActivePinia(createPinia())
+        // A desktop-width row, so both favourite-aware columns render.
+        content_width.value = 1200
     })
 
     it('falls back to the flag the list was loaded with', () => {
