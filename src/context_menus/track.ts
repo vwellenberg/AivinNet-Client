@@ -72,8 +72,10 @@ export default async (track: Track): Promise<Option[]> => {
         icon: PlusIcon,
     }
 
+    // The BARE labels belong to the single track: every container menu
+    // (album/artist/folder/playlist) names its subject instead.
     const add_to_q: Option = {
-        label: 'Add to Queue',
+        label: 'Add to queue',
         action: () => {
             useTracklist().addTrack(track)
         },

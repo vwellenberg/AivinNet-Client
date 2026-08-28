@@ -22,8 +22,10 @@ export default async (playlist: Playlist, on_page = false) => {
     action: () => playFromPlaylist(String(playlist.id)),
   };
 
+  // The whole playlist. On the playlist page this menu sits one right-click
+  // away from the track rows, which keep the plain "Play next".
   const playNext: Option = {
-    label: "Play next",
+    label: "Play playlist next",
     icon: PlayNextIcon,
     action: async () => {
       const data = await getPlaylist(String(playlist.id), false, 0, -1);
@@ -33,7 +35,7 @@ export default async (playlist: Playlist, on_page = false) => {
   };
 
   const addToQueue: Option = {
-    label: "Add to queue",
+    label: "Add playlist to queue",
     icon: AddToQueueIcon,
     action: async () => {
       const data = await getPlaylist(String(playlist.id), false, 0, -1);
