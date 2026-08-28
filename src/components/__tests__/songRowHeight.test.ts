@@ -66,12 +66,20 @@ describe("the track row height has one source", () => {
       if (expression === "SONG_ROW_HEIGHT") continue;
 
       // Bound through a local constant — then THAT has to be the constant.
-      const local = source.match(
-        new RegExp(`const\s+${expression}\s*(?::\s*number\s*)?=\s*([^\n;]+)`)
-      );
-      if (local && local[1].trim() === "SONG_ROW_HEIGHT") continue;
+      // Collected with matchAll rather than a per-name regex built from a
+      // template literal: `\s` inside one is just `s`, and the census would
+      // have gone quietly green on every file it was meant to catch.
+      const locals = new Map<string, string>();
+      for (const decl of source.matchAll(
+        /const\s+([A-Za-z_$][\w$]*)\s*(?::\s*number\s*)?=\s*([^\n;]+)/g
+      )) {
+        locals.set(decl[1], decl[2].trim());
+      }
 
-      offenders.push(`${path}: :item-size="${expression}"${local ? ` (= ${local[1].trim()})` : ""}`);
+      const local = locals.get(expression);
+      if (local === "SONG_ROW_HEIGHT") continue;
+
+      offenders.push(`${path}: :item-size="${expression}"${local ? ` (= ${local})` : ""}`);
     }
 
     expect(offenders, "fixed-size track scrollers must pitch rows at SONG_ROW_HEIGHT").toEqual([]);
