@@ -53,10 +53,12 @@ describe("favourite state colour", () => {
       // needs nothing. One that does must SAY what the state looks like.
       if (!/@include\s+btn-/.test(body)) return;
 
-      // Deliberately not "must be teal". The bar states `$mem-content-text`,
-      // because there the fill of the glyph carries the state and teal is
-      // reserved for the play button — that is a decision, and it belongs in
-      // the file, not in this test. What must not happen is a role that says
+      // Deliberately not "must be teal", even though every role states teal
+      // today. `role-bar` argued the other way for a release — the fill of the
+      // glyph carries the state there, teal belongs to the play button — and
+      // that is a decision, so it belongs in the file rather than in this test.
+      // (It lost: an ink heart on the bar's paper plate reads as a dark blob.
+      // See #542.) What must not happen is a role that says
       // nothing and lets the cascade decide: intent and accident look the same
       // on screen, which is how the bar lost its teal for a release (#396).
       expect(

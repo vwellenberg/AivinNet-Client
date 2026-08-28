@@ -23,10 +23,8 @@
         <TrackIndex
             v-if="!isSmall"
             :index="index"
-            :is_fav="is_fav"
             :is_current="isCurrent()"
             :is_current_playing="isCurrentPlaying()"
-            @add-to-fav="addToFav(track.trackhash)"
         />
 
         <TrackTitle

@@ -23,6 +23,19 @@ import { favType } from '@/enums'
  * preference to its own copy's field. Only what CHANGED is held (this is not a
  * cache of the library's favourites): an item nobody toggled falls back to the
  * flag it was loaded with.
+ *
+ * Recorded first and never invalidated, for the run of the tab. That is the
+ * trade, and it is deliberate: the server is asked about the playing track on
+ * every read of `queue.currenttrack`, so anything that let a later reply win
+ * would put the original bug back — a heart that fills on click and empties a
+ * moment later. What it costs is that un-favouriting the same track from
+ * ANOTHER tab or device stays invisible here until the page is reloaded. The
+ * app has no favourite events to listen for; when it grows some, they belong
+ * here, writing through `record` like every other answer.
+ *
+ * Not persisted, and it must not be: it is the session's memory of its own
+ * clicks, and the durable answer already lives on the server (and, for the
+ * queue, in the tracklist `favoriteHandler` writes alongside it).
  */
 export default defineStore('favorites', {
     state: () => ({

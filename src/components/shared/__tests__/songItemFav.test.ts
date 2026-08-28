@@ -25,7 +25,6 @@ import SongItem from '../SongItem.vue'
 
 import { dropSources, favType } from '@/enums'
 import { Track } from '@/interfaces'
-import { content_width } from '@/stores/content-width'
 import useFavorites from '@/stores/favorites'
 
 const track = (over: Partial<Track> = {}) =>
@@ -48,20 +47,17 @@ const mountRow = (t: Track) =>
     })
 
 /**
- * What the row hands BOTH of its favourite-aware children — the index column
- * (which swaps the number for the toggle) and the duration column (which holds
- * the inline marker). Two, and the count is asserted: the index column is
- * behind `v-if="!isSmall"`, and the module-level content width starts at 0, so
- * without the width set below this reads one child and still passes.
+ * What the row hands the duration column, which is where the inline marker
+ * lives. Only that one: `TrackIndex` takes no favourite state — the marker sat
+ * beside the track number once and moved to the duration column long ago (see
+ * the note in TrackIndex.vue), and this branch drops the prop it still
+ * declared and never read.
  */
-const favProps = (wrapper: ReturnType<typeof mountRow>) => {
-    const children = [
-        ...wrapper.findAllComponents({ name: 'TrackIndex' }),
-        ...wrapper.findAllComponents({ name: 'TrackDuration' }),
-    ]
-    expect(children).toHaveLength(2)
+const favProp = (wrapper: ReturnType<typeof mountRow>) => {
+    const columns = wrapper.findAllComponents({ name: 'TrackDuration' })
+    expect(columns).toHaveLength(1)
 
-    return children.map(c => c.props('is_fav'))
+    return columns[0].props('is_fav')
 }
 
 // ---------------------------------------------------------------------------
@@ -75,23 +71,21 @@ const favProps = (wrapper: ReturnType<typeof mountRow>) => {
 describe('SongItem favourite marker', () => {
     beforeEach(() => {
         setActivePinia(createPinia())
-        // A desktop-width row, so both favourite-aware columns render.
-        content_width.value = 1200
     })
 
     it('falls back to the flag the list was loaded with', () => {
-        expect(favProps(mountRow(track({ is_favorite: true })))).toEqual([true, true])
-        expect(favProps(mountRow(track({ is_favorite: false })))).toEqual([false, false])
+        expect(favProp(mountRow(track({ is_favorite: true })))).toBe(true)
+        expect(favProp(mountRow(track({ is_favorite: false })))).toBe(false)
     })
 
     it('follows a flip recorded elsewhere for the same track', async () => {
         const wrapper = mountRow(track({ is_favorite: false }))
-        expect(favProps(wrapper)).toEqual([false, false])
+        expect(favProp(wrapper)).toBe(false)
 
         useFavorites().record(favType.track, 'abc', true)
         await nextTick()
 
-        expect(favProps(wrapper)).toEqual([true, true])
+        expect(favProp(wrapper)).toBe(true)
     })
 
     it('ignores a flip recorded for a different track', async () => {
@@ -100,6 +94,6 @@ describe('SongItem favourite marker', () => {
         useFavorites().record(favType.track, 'other', true)
         await nextTick()
 
-        expect(favProps(wrapper)).toEqual([false, false])
+        expect(favProp(wrapper)).toBe(false)
     })
 })

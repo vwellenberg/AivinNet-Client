@@ -394,9 +394,18 @@ export default defineStore('Queue', {
             }
 
             isFavorite(current?.trackhash || 'mehmehmeh', favType.track).then(is_fav => {
-                if (current) {
-                    current.is_favorite = is_fav
-                }
+                if (!current) return
+
+                // Never over the session's own answer. This request is fired on
+                // READ and lands whenever it lands, so one that left before a
+                // favourite was flipped here would write the pre-flip value back
+                // — and `isFavorite` returns `false` on any error, so a single
+                // failed check would undo a flip even without a race. The
+                // tracklist is persisted, which is what makes that stick: the
+                // wrong value would come back on the next load.
+                if (useFavorites().flag(favType.track, current.trackhash) !== undefined) return
+
+                current.is_favorite = is_fav
             })
 
             return current
