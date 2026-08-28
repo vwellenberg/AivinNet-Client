@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import SongItem from '@/components/shared/SongItem.vue'
 import { dropSources } from '@/enums'
-import { trackBandFade } from '@/utils/songItemMethods'
+import { SONG_ROW_HEIGHT, trackBandFade } from '@/utils/songItemMethods'
 import { Track } from '@/interfaces'
 import { isMedium, isSmall } from '@/stores/content-width'
 
@@ -54,7 +54,7 @@ defineProps<{
     total?: number
 }>()
 
-const itemHeight = 64
+const itemHeight = SONG_ROW_HEIGHT
 </script>
 
 <style lang="scss">
