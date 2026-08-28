@@ -2,12 +2,15 @@
     <div class="chartgroup rounded" :class="settings.statsgroup">
         <ChartsHeader :name="settings.statsgroup" @change-period="changePeriod" @change-group="changeGroup" :period="settings.statsperiod" />
         <br />
-        <div class="noitems rounded-sm" v-if="items.length === 0">
-            <div v-if="loading" class="loading">
+        <!-- The empty and the loading state are ONE slot, so they are one
+             object; and before the first answer lands there is nothing to say,
+             so the plate itself waits (see the style block). -->
+        <div v-if="items.length === 0 && (loading || loaded)" class="chartnotice">
+            <template v-if="loading">
                 <div class="spinner"></div>
-                <span>fetching data...</span>
-            </div>
-            <div v-if="!loading && loaded">No {{ settings.statsgroup.slice(0, -1) }} data found for this period</div>
+                <span>Fetching data…</span>
+            </template>
+            <span v-else>No {{ settings.statsgroup.slice(0, -1) }} data found for this period</span>
         </div>
         <ChartItem
             v-for="(item, index) in items"
@@ -45,15 +48,18 @@
                 </button>
             </div>
         </div>
-        <div class="scrobbleinfo rounded-sm">
+        <!-- Same rule as the status slot: a plate with nothing on it is not a
+             caption. Both stickers were painted while the period was still
+             loading — an empty calendar chip and a bare arrow chip. -->
+        <div v-if="scrobbleInfo" class="scrobbleinfo rounded-sm">
             <div class="date">
                 <CalendarSvg />
-                {{ scrobbleInfo?.dates }}
+                {{ scrobbleInfo.dates }}
             </div>
             <div class="scrobbleinfo-trend">
-                <ArrowSvg class="trend" :class="scrobbleInfo?.trend" />
+                <ArrowSvg class="trend" :class="scrobbleInfo.trend" />
                 <div class="text">
-                    {{ scrobbleInfo?.text }}
+                    {{ scrobbleInfo.text }}
                 </div>
             </div>
         </div>
@@ -121,6 +127,11 @@ async function getItems() {
     const seq = ++fetchSeq
     items2[settings.statsgroup] = []
     loaded.value = false
+    // The caption belongs to the period being fetched, not to the previous
+    // one: without this, a week → alltime switch left the old date range and
+    // trend arrow standing for the whole request. A wrong caption is worse
+    // than none, which is what its `v-if` now shows.
+    scrobbleInfo.value = null
     let isPending = true
 
     // Set a timeout to show the loader after 250ms
@@ -203,21 +214,32 @@ onMounted(async () => {
 
 <style lang="scss">
 .chartgroup {
-    .loading {
-        display: flex;
+    // "Fetching data…" and "No album data found for this period" are the same
+    // slot in two states, so they are ONE object — a caption sticker on the
+    // doodled ground (#468): panel, ink frame, hard offset, and no hatch,
+    // because a status line promises nothing you can press (styling.md).
+    //
+    // It was a flat blush bar across the full width: no frame, no shadow — the
+    // only text on this screen still standing on a bare fill after #404 plated
+    // every other caption. And the fill was `$candy-pink-soft`, which is a
+    // THEME var carrying STATIC ink — measured in the running dark theme,
+    // #17171a on #222226: 1.13:1, a bar with an invisible sentence in it.
+    // Exactly the pairing the token note in _candy.scss warns about, and
+    // `mem-sticker` writes both halves itself.
+    //
+    // No height either. The old box pinned 3.25rem around 1rem of padding, so
+    // a message that wraps (a phone, "No playlist data found for this period")
+    // ran out of its own frame. A sticker is as big as its words.
+    //
+    // Horizontally flush with the rows it stands in for (#555): the sticker's
+    // own padding carries the air, so it takes no margin of its own.
+    .chartnotice {
+        @include mem-sticker($pad: 0.7rem 1rem);
+        // The mixin's `inline-block` would stack the spinner over the text.
+        display: inline-flex;
+        align-items: center;
         gap: $small;
-    }
-
-    .noitems {
-        height: 3.25rem;
-        padding: 1rem;
-        background-color: $candy-pink-soft;
-        // Horizontally flush with the rows this plate stands in for (they span
-        // the group edge to edge, measured 303/1393). The vertical margin is
-        // the air between the sections and stays.
-        margin: 1rem 0;
         margin-bottom: 2rem;
-        color: $candy-black;
     }
 
     .chartpager {

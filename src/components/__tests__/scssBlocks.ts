@@ -135,3 +135,30 @@ export function shorthandLeft(value: string): string | null {
   if (parts.length === 4) return parts[3];
   return null;
 }
+
+/**
+ * Every rule body in a stylesheet, at ANY nesting depth, reduced to the
+ * declarations it owns itself.
+ *
+ * ⚠️ NOT `/\{([^{}]*)\}/g`. That regex only ever sees the INNERMOST bodies:
+ * measured over `src/**` + `*.vue`, 307 rule bodies declare a background and
+ * 178 of them contain a child rule, so a census built on it is blind to more
+ * than half of what it claims to sweep. The block this file was written for
+ * was caught by it only because it happened to have no child rule.
+ */
+export function ruleBodies(css: string): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < css.length; i++) {
+    if (css[i] !== "{") continue;
+
+    let depth = 1;
+    let j = i + 1;
+    while (j < css.length && depth > 0) {
+      if (css[j] === "{") depth++;
+      else if (css[j] === "}") depth--;
+      j++;
+    }
+    if (depth === 0) out.push(ownDeclarations(css.slice(i + 1, j - 1)));
+  }
+  return out;
+}
