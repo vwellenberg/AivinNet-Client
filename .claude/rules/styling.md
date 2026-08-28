@@ -155,6 +155,25 @@ Zeilen, und nur die Unterkante kann das ohne ein zweites Flag sagen: `.is-last` 
 während „erste Zeile" auf der Playlist-Seite gar nicht existiert (dort kappt die Leiste). Oben
 angehängt bräuchte sie eine eigene Aussage „über mir steht schon etwas".
 
+⚠️ **Und weil sie unten hängt, ist sie das Erste, was eine falsche `item-size` frisst.** Ein
+`RecycleScroller` **misst nicht** — er stapelt seine Zeilen in exakt `item-size` Abstand, und der
+Item-Wrapper ist `overflow: visible` (app-grid.scss). Eine Zeile, die höher ist als das Raster,
+malt also über die untersten Pixel ihrer Vorgängerin, ohne dass irgendetwas clippt oder meldet.
+Drei Listen führten `64` gegen die 72 px aus `$song-item-height`: 8 px Überlappung, und die
+Perforation lag genau darin. Sichtbar blieb sie nur zu **8 %** — so viel Tinte scheint durch die
+zu 92 % deckende `--mem-veil`-Platte der nächsten Zeile (gemessen `rgb(226,224,220)` statt
+`rgb(23,23,26)`; #553). Schwarz waren nur die Kanten, die niemand überlappt: die Schlusskante der
+letzten Zeile und die Ink-Rahmen der gefüllten Zustände — gemeldet wurde das als „manchmal
+schwarz, sonst eher so blass".
+
+**Die Zahl hat deshalb eine Quelle:** `SONG_ROW_HEIGHT` (`utils/songItemMethods.ts`), gegen
+`$song-item-height` gespiegelt und von `songRowHeight.test.ts` an jeden `RecycleScroller`
+gebunden, der `SongItem`s stapelt. `DynamicScroller`s `min-item-size` gehört ausdrücklich **nicht**
+dazu — das ist eine Schätzung vor der Messung, und diese Scroller tragen gemischten Inhalt
+(Disc-Leisten, Kartenzeilen, Köpfe), dessen Höhe keine Zeilenhöhe ist. Der Unterschied ist auch
+die Gegenprobe: dieselben Zeilen malten unter dem messenden Scroller der Album-Ansicht die ganze
+Zeit volle Tinte.
+
 Alle drei Layer liegen im **Background**, nicht auf Pseudo-Elementen: `::before` und `::after`
 gehören der laufenden Zeile (Textur + Zackenband), und eine laufende Zeile braucht ihr Band
 weiterhin.
