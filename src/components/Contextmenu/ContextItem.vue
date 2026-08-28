@@ -273,8 +273,20 @@ function runChildAction(action: () => void) {
         transform: scale(0.85);
     }
 
+    // Takes the row's leftover width instead of a fixed 9rem. The old number
+    // left 7px of the 13rem menu unused and cut "Add playlist to queue" (148px
+    // of text into a 144px box) — a label that names its subject is exactly the
+    // kind that runs long, so the column has to follow the menu, not a guess.
+    // `min-width: 0` is what lets it shrink below its text and ellipsize at all.
     .label {
-        width: 9rem;
+        flex: 1;
+        min-width: 0;
+    }
+
+    // The chevron of a submenu row is absolutely positioned ON TOP of the label
+    // (see `.more` above), so a full-width label would run underneath it.
+    &:has(> .more) .label {
+        padding-right: 1rem;
     }
 }
 

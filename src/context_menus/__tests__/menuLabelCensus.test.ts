@@ -39,7 +39,14 @@ function walk(dir: string): string[] {
 /** Queue calls that take a LIST — the container actions. */
 const BULK = /\b(?:insertAfterCurrent|addTracks)\s*\(/
 
-/** Queue calls that take ONE track — the track row's actions. */
+/**
+ * Queue calls that take ONE track — the track row's actions.
+ *
+ * `addTrack` is also a playlist-store action (`stores/pages/playlist.ts`), so
+ * this only holds because the bodies below are the OPTION LITERAL and nothing
+ * else. Slicing "up to the next label" instead would have run the last option
+ * of a file to EOF and swept unrelated calls in with it.
+ */
 const SINGLE = /\b(?:playTrackNext|addTrack)\s*\(/
 
 /**
@@ -59,26 +66,109 @@ interface Entry {
 }
 
 /**
- * Every `label: '…'` in the file, paired with the source that follows it up to
- * the next label — i.e. the option's own `action`. Menu options are object
- * literals whose label comes first, so the slice holds that option and nothing
- * else. Brace-matching would be more principled and buys nothing here: the only
- * question asked of the slice is which queue call it contains.
+ * Comments and strings carry braces, and comments here quote labels verbatim
+ * ("…says plain \"Play next\" for a single song"). Blanked rather than removed
+ * so every index still points at the same character of the original.
+ */
+function blank(source: string): string {
+    let out = ''
+    let i = 0
+
+    while (i < source.length) {
+        const rest = source.slice(i)
+        const open = /^(\/\/|\/\*|['"`])/.exec(rest)
+
+        if (!open) {
+            out += source[i++]
+            continue
+        }
+
+        const token = open[1]
+        const close = token === '//' ? '\n' : token === '/*' ? '*/' : token
+        let end = i + token.length
+
+        while (end < source.length && !source.startsWith(close, end)) {
+            end += source[end] === '\\' ? 2 : 1
+        }
+        end = Math.min(end + close.length, source.length)
+
+        // Keep the newlines: line numbers in a failure message should be real.
+        out += source.slice(i, end).replace(/[^\n]/g, ' ')
+        i = end
+    }
+
+    return out
+}
+
+/** The block starting at the `{` at `open`, up to its matching `}`. */
+function blockAt(source: string, open: number): string {
+    let depth = 0
+
+    for (let i = open; i < source.length; i++) {
+        if (source[i] === '{') depth++
+        else if (source[i] === '}' && --depth === 0) return source.slice(open, i + 1)
+    }
+
+    return ''
+}
+
+/**
+ * Every `label: '…'` in the file, paired with the OPTION LITERAL it belongs to
+ * — the innermost `{ … }` around it, which is exactly the option object and
+ * therefore exactly its `action`.
+ *
+ * The cheaper "slice up to the next label" costs both ends: the last option of
+ * a file runs to EOF and adopts whatever helper follows it, and a `label:` that
+ * is not a quoted string (see DYNAMIC below) is invisible, so the option after
+ * it gets attributed to the one before.
  */
 function entriesOf(file: string): Entry[] {
     const source = readFileSync(file, 'utf-8')
-    const marks = [...source.matchAll(/label:\s*(['"`])([^'"`]*)\1/g)]
+    const clean = blank(source)
+    const found: Entry[] = []
+    const opens: number[] = []
 
-    return marks.map((mark, i) => ({
-        file,
-        label: mark[2],
-        body: source.slice(mark.index, i + 1 < marks.length ? marks[i + 1].index : source.length),
-    }))
+    for (let i = 0; i < clean.length; i++) {
+        if (clean[i] === '{') opens.push(i)
+        else if (clean[i] === '}') opens.pop()
+        else if (clean.startsWith('label:', i) && opens.length) {
+            // The label text itself was blanked out — read it back from the
+            // untouched source at the same offset.
+            const quoted = /^label:\s*(['"`])([^'"`]*)\1/.exec(source.slice(i))
+            if (quoted) {
+                found.push({ file, label: quoted[2], body: blockAt(clean, opens[opens.length - 1]) })
+            }
+        }
+    }
+
+    return found
 }
 
-const ENTRIES = walk(ROOT).flatMap(entriesOf)
+const FILES = walk(ROOT)
+const ENTRIES = FILES.flatMap(entriesOf)
 const BULK_ENTRIES = ENTRIES.filter(entry => BULK.test(entry.body))
 const SINGLE_ENTRIES = ENTRIES.filter(entry => SINGLE.test(entry.body))
+
+/**
+ * Labels this census cannot read: computed at runtime, so there is no string to
+ * judge. Pinned rather than ignored — the exemption stays a decision. None of
+ * them queues anything: two are pin/unpin toggles, the rest are names of
+ * playlists, folders and artists filled in from data.
+ */
+const DYNAMIC = ['is_pinned ?', 'playlist.pinned ?', 'playlist.name', 'artist.name', 'f.name']
+
+/**
+ * `label:` sites that are NOT a quoted string, in the files this census reads.
+ *
+ * Only those files: `label: string` in an interface is a type, not a label, and
+ * the point here is the menus. Read off the blanked source so a label quoted
+ * inside a COMMENT cannot pose as one.
+ */
+function dynamicLabelsOf(file: string): string[] {
+    return [...blank(readFileSync(file, 'utf-8')).matchAll(/label:([^\n,]{0,40})/g)]
+        .map(match => match[1].trim())
+        .filter(Boolean) // a quoted label blanks out to nothing — that one IS read
+}
 
 describe('menu label census — inputs', () => {
     it('walks the source tree and parses labelled options out of it', () => {
@@ -90,6 +180,20 @@ describe('menu label census — inputs', () => {
                 'src/components/LeftSidebar/index.vue',
             ])
         )
+        // Bodies are OPTION LITERALS, not slivers and not half the file: a
+        // brace-matcher that lost its place would break both checks below
+        // without either of them going red on its own.
+        expect(ENTRIES.every(entry => entry.body.startsWith('{') && entry.body.endsWith('}'))).toBe(true)
+        expect(Math.max(...ENTRIES.map(entry => entry.body.length))).toBeLessThan(2000)
+    })
+
+    it('knows every label it cannot read', () => {
+        const menus = [...new Set(ENTRIES.map(entry => entry.file))]
+        const unread = menus
+            .flatMap(dynamicLabelsOf)
+            .filter(expression => !DYNAMIC.some(known => expression.startsWith(known)))
+
+        expect(unread).toEqual([])
     })
 
     it('finds both queue lanes, in every menu that has them', () => {

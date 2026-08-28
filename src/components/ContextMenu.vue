@@ -66,7 +66,11 @@ context.$subscribe((mutation, state) => {
   position: fixed;
   top: 0;
   left: 0;
-  width: 13rem;
+  // 14rem, not 13: the labels name their subject since the "Play next"
+  // mix-up, and the longest of them ("Add playlist to queue", 148px of Space
+  // Grotesk) did not fit the label column a 13rem menu leaves over — it
+  // ellipsed away the very word that disambiguates the entry.
+  width: 14rem;
   z-index: 1000 !important;
   height: min-content;
   padding: $small;
