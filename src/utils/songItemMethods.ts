@@ -48,11 +48,12 @@ export const TRACK_BAND_MIN_FADE = 0.25;
  *
  * `index` is whatever the call site passes as the ordinal, and that is not
  * always a plain integer — the album view passes the track number off the tags,
- * and the prop's type allows a string. A descending ordinal stays possible:
- * a list that numbers backwards from an API total emits negatives the moment
- * it has loaded fewer rows than that total claims.
- * Anything unparseable falls back to the first accent, so a row is never the
- * only one without a spine.
+ * and the prop's type allows a string. It can also DESCEND: `TopTracks.vue`
+ * numbers backwards from a `total` (`total - index`), which Favorites.vue feeds
+ * from its API count. That goes negative once `index` passes `total` — i.e.
+ * when MORE rows are rendered than the count claims, a stale or capped count
+ * against a longer loaded list. Anything unparseable falls back to the first
+ * accent, so a row is never the only one without a spine.
  */
 export function trackBandClass(index: number | string): string {
   const n = Number.parseInt(String(index), 10);
