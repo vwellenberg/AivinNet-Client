@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { blocks, ownDeclarations, styleBlock } from "./scssBlocks";
+import { blocks, ownDeclarations, shorthandLeft, shorthandParts, styleBlock } from "./scssBlocks";
 
 // ---------------------------------------------------------------------------
 // A section caption on the page ground is a STICKER (`mem-sticker`), never bare
@@ -164,38 +164,6 @@ describe("section captions on the page ground are stickers", () => {
 // the next one.
 // ---------------------------------------------------------------------------
 
-/**
- * A shorthand's values. Splits on whitespace OUTSIDE brackets, so
- * `0 calc(#{$medium} + 2px)` is two values and not four — the form is already
- * in the app (RecentSearches), and naive splitting would both fail a symmetric
- * chip and skip a real inset by miscounting the parts.
- */
-function shorthandParts(value: string): string[] {
-  const parts: string[] = [];
-  let depth = 0;
-  let current = "";
-  for (const char of value.trim()) {
-    if (char === "(" || char === "[") depth++;
-    else if (char === ")" || char === "]") depth--;
-    if (/\s/.test(char) && depth === 0) {
-      if (current) parts.push(current);
-      current = "";
-      continue;
-    }
-    current += char;
-  }
-  if (current) parts.push(current);
-  return parts;
-}
-
-/** The left value of a box shorthand: 1→all, 2/3→2nd, 4→4th. */
-function shorthandLeft(value: string): string | null {
-  const parts = shorthandParts(value);
-  if (parts.length === 1) return parts[0];
-  if (parts.length === 2 || parts.length === 3) return parts[1];
-  if (parts.length === 4) return parts[3];
-  return null;
-}
 
 /**
  * The bodies of every rule whose selector ENDS in this class — including the

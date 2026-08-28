@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { ownDeclarations, styleBlock } from "./scssBlocks";
+import { ownDeclarations, shorthandParts, styleBlock } from "./scssBlocks";
 
 // ---------------------------------------------------------------------------
 // A block does not indent itself and hand the indent back.
@@ -83,24 +83,6 @@ const STYLESHEETS = [
   })),
 ];
 
-/** Split a shorthand on whitespace outside brackets, so `calc(a + b)` is one value. */
-function shorthandParts(value: string): string[] {
-  const parts: string[] = [];
-  let depth = 0;
-  let current = "";
-  for (const char of value.trim()) {
-    if (char === "(" || char === "[") depth++;
-    else if (char === ")" || char === "]") depth--;
-    if (/\s/.test(char) && depth === 0) {
-      if (current) parts.push(current);
-      current = "";
-      continue;
-    }
-    current += char;
-  }
-  if (current) parts.push(current);
-  return parts;
-}
 
 /**
  * The left padding a rule sets on itself at the DEFAULT breakpoint, or null.

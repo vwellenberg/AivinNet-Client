@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { blocks, ownDeclarations, styleBlock } from "./scssBlocks";
+import { blocks, ownDeclarations, shorthandLeft, styleBlock } from "./scssBlocks";
 
 // ---------------------------------------------------------------------------
 // One leading edge per page.
@@ -57,34 +57,6 @@ const KNOWN_HOSTS = [
   "/src/views/ArtistView/Main.vue",
 ];
 
-/** The parts of a box shorthand, `var(…)`/`calc(…)` kept whole. */
-function shorthandParts(value: string): string[] {
-  const parts: string[] = [];
-  let depth = 0;
-  let current = "";
-  for (const char of value.trim()) {
-    if (char === "(") depth++;
-    if (char === ")") depth--;
-    if (/\s/.test(char) && depth === 0) {
-      if (current) parts.push(current);
-      current = "";
-      continue;
-    }
-    current += char;
-  }
-  if (current) parts.push(current);
-  return parts;
-}
-
-/** The left value of a box shorthand: 1→all, 2/3→2nd, 4→4th. */
-function shorthandLeft(value: string): string | null {
-  const parts = shorthandParts(value);
-  if (parts.length === 1) return parts[0];
-  if (parts.length === 2 || parts.length === 3) return parts[1];
-  if (parts.length === 4) return parts[3];
-  return null;
-}
-
 /**
  * Does this row paint its own surface?
  *
@@ -99,7 +71,14 @@ function shorthandLeft(value: string): string | null {
  * Either way the MARGIN always counts — that moves the box itself.
  */
 function paintsItsOwnSurface(declarations: string): boolean {
-  return /(?:^|[\s;])background(?:-color)?:/.test(declarations) || /@include\s+(?:mem-sticker|candy-box)/.test(declarations);
+  // The VALUE decides, not the presence of the declaration. `background:
+  // transparent` paints nothing — reading it as a plate would hand any row an
+  // opt-out of the padding check, which is the #550 regression with a one-line
+  // key. `background-image` counts: a hatch or a gradient is a surface too.
+  const painted = [...declarations.matchAll(/(?:^|[\s;{])background(?:-color|-image)?:([^;}]+)/g)].some(
+    ([, value]) => !/^\s*(transparent|none|inherit|initial|unset)\s*$/.test(value)
+  );
+  return painted || /@include\s+(?:mem-sticker|candy-box)/.test(declarations);
 }
 
 /** Every left inset a block declares, through the shorthand or on its own. */
@@ -132,6 +111,18 @@ describe("leading edge", () => {
       expect(
         hosts.some(([path]) => path === known),
         `${known} no longer matches the sweep — did the class names change?`
+      ).toBe(true);
+    }
+
+    // ⚠️ And every ROW has to be found somewhere. The host guard above does NOT
+    // cover this: ChartItemGroup.vue keeps matching through `.scrobbleinfo`, so
+    // renaming `.noitems` would drop that row out of the census with all five
+    // files still present and the test still green — a census quietly policing
+    // one row less than it claims.
+    for (const row of ROWS) {
+      expect(
+        hosts.some(([, source]) => blocks(styleBlock(source), row).length > 0),
+        `no host declares ${row} any more — did it move, or was it renamed?`
       ).toBe(true);
     }
 
