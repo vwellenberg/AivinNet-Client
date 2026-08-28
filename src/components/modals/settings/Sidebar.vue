@@ -13,7 +13,16 @@
                     {{ group.title }}
                 </div>
                 <div class="gitems">
-                    <div
+                    <!--
+                        A real <button>, not a div with a @click: these twelve
+                        rows are the only way into the panes, so as divs the
+                        whole settings window was keyboard-unreachable — Tab
+                        landed on the close button and nowhere else. Same rule
+                        `controlScale.test.ts` already holds the app's other
+                        row controls to.
+                    -->
+                    <button
+                        type="button"
                         class="gitem rounded-sm"
                         v-for="item in group.groups"
                         :key="item.title"
@@ -23,12 +32,12 @@
                         }"
                         @click="() => $emit('setTab', item.title || '')"
                     >
-                        <Avatar :size="18" :name="auth.user.username || ''" v-if="item.title === 'Profile'" />
+                        <Avatar :size="24" :name="auth.user.username || ''" v-if="item.title === 'Profile'" />
                         <span class="icon" v-html="item.icon" v-else></span>
                         <span>
                             {{ item.title }}
                         </span>
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>
@@ -113,38 +122,44 @@ defineEmits<{
     // active tab with a white fill and no frame; next to the plated sidebar two
     // panels away that read as a different kit.
     .gitem {
-        padding: 6px $small;
+        // On a phone this list IS the modal's first screen, and the whole row
+        // is the tap target. It measured 36px there (5px of padding around a
+        // 20px glyph) — under the 44px this app gives its chrome everywhere
+        // else, see styling.md "Touch-Ziele". The row reads the chrome tier
+        // now: `$bar-control` box, `$bar-glyph` glyph, one size on every width.
+        min-height: $bar-control;
+        padding: $smaller $small;
         cursor: pointer;
         display: flex;
         align-items: center;
+        // The global <button> reset centres its content and reserves no width;
+        // a row reads from its leading edge and fills the pane.
+        justify-content: flex-start;
+        text-align: left;
+        width: 100%;
         gap: $medium;
         font-weight: 700;
-        font-size: 14px;
+        font-size: 15px;
         margin-top: $smaller;
-        position: relative;
         // Parentheses on purpose: the hatch census reads the argument list, so
         // an argument-less include would read as "states no answer" (#468).
         @include mem-row-plate($hatch: true);
 
-        @include largePhones {
-            padding: 5px $small;
-        }
-
         // Glyph and label ride on the smooth fill; the texture stays in the
         // ring. Only the spans: the Profile row renders an <Avatar> whose root
         // is the bare image/svg, and a cover with padding would shrink it
-        // inside its fixed 20px box — and only for users who uploaded a picture,
+        // inside its fixed 24px box — and only for users who uploaded a picture,
         // because the two avatar variants render different elements.
         > span {
             @include mem-hatch-clear(4px);
         }
 
         svg {
-            width: 1.25rem;
+            width: $bar-glyph;
         }
 
         .icon {
-            height: 1.25rem;
+            height: $bar-glyph;
         }
 
         // Pointer-gated at the source (#457) — a latched tap would leave one
@@ -159,26 +174,13 @@ defineEmits<{
             @include mem-row-plate-active;
         }
 
+        // About closes the list, and the gap the group captions already carry
+        // is the whole separation. The ink rule that used to sit here was the
+        // only horizontal cut in the pane: on a phone, where this list fills
+        // the screen, it read as the panel being sliced in two rather than as
+        // one trailing entry set apart.
         &.about {
-            // The ink line above About reaches the frame instead of being a 1px
-            // grey hairline drawn inside it — the same correction #422 made over
-            // the LIBRARY caption.
-            margin-top: 1rem;
-        }
-
-        // ⚠️ `left: 0` on an absolutely positioned child resolves against the
-        // PADDING box, so the plate's own 3px border would inset the divider by
-        // 3px on each side and leave it visibly short of the frame it is meant
-        // to reach. Pulled back out by exactly the border width.
-        &.about::before {
-            content: '';
-            height: $candy-border-w;
-            position: absolute;
-            top: -0.5rem;
-            left: -$candy-border-w;
-
-            background-color: $mem-line;
-            width: calc(100% + #{$candy-border-w * 2});
+            margin-top: 1.25rem;
         }
     }
 }

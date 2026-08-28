@@ -17,9 +17,11 @@ import theme from './theme'
 import tracks from './tracks'
 // icons
 import AlbumSvg from '@/assets/icons/album.svg?raw'
-import AvatarSvg from '@/assets/icons/artist.svg?raw'
+import ArtistSvg from '@/assets/icons/artist.svg?raw'
+import BackupSvg from '@/assets/icons/backup.svg?raw'
+import CoverSvg from '@/assets/icons/cover.svg?raw'
 import FolderSvg from '@/assets/icons/folder.svg?raw'
-import TrackSvg from '@/assets/icons/mic.svg?raw'
+import TrackSvg from '@/assets/icons/note.svg?raw'
 import AppearanceSvg from '@/assets/icons/paintbrush.svg?raw'
 
 const npStrings = strings.nowPlayingStrings
@@ -74,20 +76,20 @@ export const library = {
             // null means settings table is not created yet
             show_if: () => useSettings().feat !== null,
             title: 'Artists',
-            icon: AvatarSvg,
+            icon: ArtistSvg,
             desc: 'Customize artist separators',
             settings: [separators],
         },
         {
             show_if: () => useSettings().feat !== null,
             title: 'Album Cover',
-            icon: AlbumSvg,
+            icon: CoverSvg,
             desc: 'Fetch missing album covers from MusicBrainz, iTunes and Deezer',
             settings: [...musicbrainz],
         },
         {
             title: "Backup",
-            icon: AvatarSvg,
+            icon: BackupSvg,
             desc: "Backup and restore your settings",
             settings: [...restore],
         }

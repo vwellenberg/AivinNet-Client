@@ -35,7 +35,8 @@ optische Größe am Füllgrad der jeweiligen viewBox (daher kam „Lyrics-Icon z
 Seit #311 sind die Navigations- und Chrome-Glyphen (home, search, folder\*, bookmark\*, playlist\*,
 chart, settings, album, artist, delete, plus, queue, more, expand, arrow\*, volume-\*, pin\*,
 download, pencil, reload, devices, headphones, a, square, check.filled, check.circle.fill,
-heart\*) **ein** Satz:
+heart\*, note, sowie seit der Settings-Runde paintbrush, phone, info, users, cover, backup)
+**ein** Satz:
 
 - **24×24-Box, ~18 px optisches Glyph** (Ink von 3 bis 21), **2,4 px** Strich, runde Kappen und
   Ecken. 2 px war der erste Wurf und las sich neben den 3-px-Rahmen und der fetten Schrift dieses
@@ -428,9 +429,18 @@ App der Theme-Toggle.
 Neu gezeichnete Icons vor dem Commit **ansehen, nicht nur schreiben**: ein Kontaktbogen aus allen
 Glyphen, hell und dunkel, bei 24/36/64 px, headless gerendert. Genau daran fiel das Zahnrad auf.
 
-Noch im alten Stil (selten, einzeln, kein sichtbarer Stilbruch): `mic`, `paintbrush`, `calendar`,
-`explicit`, `lastfm`, `symlink`, `grid`, `radio`, `sparkles`, `timer`, `phone`, `image`, `info`,
-`eye*`, `logout`, `avatar`, `lyrics`, `add_to_queue`, `add-to-queue`.
+Noch im alten Stil (selten, einzeln, kein sichtbarer Stilbruch): `calendar`, `explicit`, `lastfm`,
+`symlink`, `grid`, `radio`, `sparkles`, `timer`, `image`, `eye*`, `logout`, `lyrics`,
+`add_to_queue`, `add-to-queue`.
+
+⚠️ **„Einzeln, kein sichtbarer Stilbruch" hält nur, solange die Glyphen einzeln stehen.** Fünf
+davon (`paintbrush`, `phone`, `avatar`, `mic`, `info`) saßen in **einer** Liste — der
+Bereichsliste des Settings-Fensters — untereinander neben vier Chrome-Glyphen, und dort war der
+Bruch sofort sichtbar: gefüllte Silhouetten neben gestrichenen Umrissen, gemeldet als „Icons
+prüfen, Stil nicht konsistent". Wer einen Legacy-Glyph in eine Liste hängt, zeichnet ihn vorher
+neu. Dieselbe Liste trug zweimal **dasselbe** Icon für zwei verschiedene Einträge (Albums/Album
+Cover, Artists/Backup) — ein wiederverwendetes Glyph fällt beim Schreiben nie auf, in der
+gerenderten Spalte sofort.
 
 ⚠️ **Diese Liste zählte lange auch Dateien mit, die gar nicht mehr importiert wurden**
 (`tag`, `sdcard`, `hifi`, `upload`, `play-next`, `previous`, `heart*` — seit dem Wechsel des
