@@ -45,7 +45,11 @@ const periods = ['week', 'month', 'year', 'alltime']
 <style lang="scss">
 .chartheader {
     padding: $smaller 0 1rem 0;
-    margin: 0 1rem;
+    // No horizontal inset, same call as the group's other non-row children in
+    // #555: the tabs are a plate with their own padding, and they line up with
+    // the page title above and the chart rows below. It sat 16px inside both.
+    // `space-between` means the margin missed the period tabs on the right by
+    // the same amount.
     display: flex;
     justify-content: space-between;
     align-items: center;

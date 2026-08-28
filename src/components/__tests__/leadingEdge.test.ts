@@ -47,11 +47,15 @@ const ROWS = [
   ".statsdates",
   ".scrobbleinfo",
   ".chartpager",
-  ".noitems",
+  ".chartnotice",
+  // The tabs above the rows are the same row one level up — a plate with its
+  // own padding, sitting 16px inside the page title and the chart rows.
+  ".chartheader",
 ];
 const KNOWN_HOSTS = [
   "/src/components/AlbumView/GenreBanner.vue",
   "/src/components/Stats/ChartItemGroup.vue",
+  "/src/components/Stats/ChartsHeader.vue",
   "/src/components/Stats/Stats.vue",
   "/src/views/AlbumView/index.vue",
   "/src/views/ArtistView/Main.vue",
@@ -116,9 +120,10 @@ describe("leading edge", () => {
 
     // ⚠️ And every ROW has to be found somewhere. The host guard above does NOT
     // cover this: ChartItemGroup.vue keeps matching through `.scrobbleinfo`, so
-    // renaming `.noitems` would drop that row out of the census with all five
-    // files still present and the test still green — a census quietly policing
-    // one row less than it claims.
+    // renaming a row would drop it out of the census with all the files still
+    // present and the test still green — a census quietly policing one row less
+    // than it claims. It earned its keep immediately: `.noitems` became
+    // `.chartnotice` in the very next change to that file.
     for (const row of ROWS) {
       expect(
         hosts.some(([, source]) => blocks(styleBlock(source), row).length > 0),
