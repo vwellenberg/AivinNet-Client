@@ -1,7 +1,7 @@
 import { loggedInUserIsAdmin } from '../utils'
 
 import { SettingCategory } from '@/interfaces/settings'
-import AvatarSvg from '@/assets/icons/avatar.svg?raw'
+import UsersSvg from '@/assets/icons/users.svg?raw'
 import { SettingType } from '../enums'
 
 export default <SettingCategory>{
@@ -9,7 +9,7 @@ export default <SettingCategory>{
     groups: [
         {
             title: 'Accounts',
-            icon: AvatarSvg,
+            icon: UsersSvg,
             settings: [
                 {
                     type: SettingType.accounts,
