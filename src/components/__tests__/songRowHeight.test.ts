@@ -50,24 +50,26 @@ describe("the track row height has one source", () => {
   // A list of three would have been exactly as green before the bug as after.
   it("is what every fixed-size track scroller pitches its rows at", () => {
     const offenders: string[] = [];
+    const audited: string[] = [];
 
     for (const [path, raw] of Object.entries(VUE_SOURCES)) {
       const source = stripComments(raw);
       if (!source.includes("<RecycleScroller")) continue;
       if (!/SongItem/.test(source)) continue;
 
-      const binding = source.match(/:item-size="([^"]+)"/);
-      if (!binding) {
+      audited.push(path);
+
+      // A file may hold more than one scroller — audit EVERY binding in it,
+      // not just the first. Reading `match` alone would grade a second,
+      // unrelated scroller's number as if it were the track list's.
+      const bindings = [...source.matchAll(/:item-size="([^"]+)"/g)];
+      if (!bindings.length) {
         offenders.push(`${path}: no :item-size binding`);
         continue;
       }
 
-      const expression = binding[1].trim();
-      if (expression === "SONG_ROW_HEIGHT") continue;
-
-      // Bound through a local constant — then THAT has to be the constant.
-      // Collected with matchAll rather than a per-name regex built from a
-      // template literal: `\s` inside one is just `s`, and the census would
+      // Locals collected with matchAll rather than a per-name regex built from
+      // a template literal: `\s` inside one is just `s`, and the census would
       // have gone quietly green on every file it was meant to catch.
       const locals = new Map<string, string>();
       for (const decl of source.matchAll(
@@ -76,12 +78,38 @@ describe("the track row height has one source", () => {
         locals.set(decl[1], decl[2].trim());
       }
 
-      const local = locals.get(expression);
-      if (local === "SONG_ROW_HEIGHT") continue;
+      // ⚠️ The name is not the value. A file that declares its OWN
+      // `const SONG_ROW_HEIGHT = 64` reads exactly like a compliant one — the
+      // same shape as "the import is there, so the rule must hold". The
+      // identifier only counts when it comes from the shared module.
+      const importsConstant =
+        /import\s*\{[^}]*\bSONG_ROW_HEIGHT\b[^}]*\}\s*from\s*["']@\/utils\/songItemMethods["']/.test(
+          source
+        );
 
-      offenders.push(`${path}: :item-size="${expression}"${local ? ` (= ${local})` : ""}`);
+      for (const binding of bindings) {
+        const expression = binding[1].trim();
+        const resolved = expression === "SONG_ROW_HEIGHT" ? expression : locals.get(expression);
+
+        if (resolved === "SONG_ROW_HEIGHT" && importsConstant && !locals.has("SONG_ROW_HEIGHT")) {
+          continue;
+        }
+
+        offenders.push(
+          `${path}: :item-size="${expression}"` +
+            (resolved && resolved !== expression ? ` (= ${resolved})` : "") +
+            (importsConstant ? "" : " — SONG_ROW_HEIGHT not imported from @/utils/songItemMethods")
+        );
+      }
     }
 
+    // ⚠️ A census that examined nothing reads exactly like a clean one. If the
+    // marker stops matching (a kebab-cased tag, a moved glob), this is the only
+    // line that says so — without it the three lists could all regress to a
+    // literal and the suite would stay green.
+    expect(audited.length, "the RecycleScroller/SongItem census matched no files").toBeGreaterThan(
+      2
+    );
     expect(offenders, "fixed-size track scrollers must pitch rows at SONG_ROW_HEIGHT").toEqual([]);
   });
 });

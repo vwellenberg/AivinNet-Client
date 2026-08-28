@@ -2,15 +2,6 @@ import { dropSources } from "@/enums";
 import { Track } from "@/interfaces";
 
 /**
- * How many accents the colour guide band cycles through. Must match
- * `$mem-band-colours` in _candy.scss, which emits one `band-N` class per entry;
- * a class this returns without a matching rule leaves that row with no band.
- */
-// TWO, not five. Five rotating full-strength accents made the list loud and
-// said nothing — colour 3 only ever meant "third row in the cycle". Two cool
-// tones do the one job a band has to do (tell two neighbouring rows apart), and
-// a SECOND dimension carries the meaning instead: see `trackBandFade`.
-/**
  * The rendered height of a track row, in px — the single source for every
  * fixed-size scroller that stacks `SongItem`s. Mirrors `$song-item-height`
  * (4.5rem, _variables.scss); the pair is tied together by
@@ -32,6 +23,15 @@ import { Track } from "@/interfaces";
  */
 export const SONG_ROW_HEIGHT = 72;
 
+/**
+ * How many accents the colour guide band cycles through. Must match
+ * `$mem-band-colours` in _candy.scss, which emits one `band-N` class per entry;
+ * a class this returns without a matching rule leaves that row with no band.
+ */
+// TWO, not five. Five rotating full-strength accents made the list loud and
+// said nothing — colour 3 only ever meant "third row in the cycle". Two cool
+// tones do the one job a band has to do (tell two neighbouring rows apart), and
+// a SECOND dimension carries the meaning instead: see `trackBandFade`.
 export const TRACK_BAND_COUNT = 2;
 
 /** Weakest the band ever gets, so row 1 still has a visible spine. */
