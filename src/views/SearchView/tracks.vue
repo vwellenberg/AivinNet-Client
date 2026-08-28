@@ -17,7 +17,7 @@
                 v-slot="{ item, index }"
                 style="height: 100%"
                 :items="scrollerItems"
-                :item-size="64"
+                :item-size="SONG_ROW_HEIGHT"
                 key-field="id"
             >
                 <component :is="item.component" v-bind="item.props" @playThis="playFromSearch(index)" />
@@ -40,6 +40,7 @@ import SearchSvg from '@/assets/icons/search.svg'
 import AlbumsFetcher from '@/components/ArtistView/AlbumsFetcher.vue'
 import NoItems from '@/components/shared/NoItems.vue'
 import SongItem from '@/components/shared/SongItem.vue'
+import { SONG_ROW_HEIGHT } from '@/utils/songItemMethods'
 
 const queue = useQueue()
 const search = useSearch()

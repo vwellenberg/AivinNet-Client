@@ -39,10 +39,10 @@ import { getArtistTracks } from "@/requests/artists";
 import { isMedium, isSmall } from "@/stores/content-width";
 
 import SongItem from "@/components/shared/SongItem.vue";
-import { trackBandFade } from "@/utils/songItemMethods";
+import { SONG_ROW_HEIGHT, trackBandFade } from "@/utils/songItemMethods";
 import updatePageTitle from "@/utils/updatePageTitle";
 
-const itemHeight = 64;
+const itemHeight = SONG_ROW_HEIGHT;
 const route = useRoute();
 const queue = useQueue();
 const tracklist = useTracklist();

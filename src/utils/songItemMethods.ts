@@ -2,6 +2,28 @@ import { dropSources } from "@/enums";
 import { Track } from "@/interfaces";
 
 /**
+ * The rendered height of a track row, in px — the single source for every
+ * fixed-size scroller that stacks `SongItem`s. Mirrors `$song-item-height`
+ * (4.5rem, _variables.scss); the pair is tied together by
+ * components/__tests__/songRowHeight.test.ts.
+ *
+ * ⚠️ A `RecycleScroller` does NOT measure: it pitches its rows at exactly
+ * `item-size`, and a row taller than that OVERLAPS the one above it — the
+ * scroller's item wrapper is `overflow: visible` (app-grid.scss), so nothing
+ * clips and nothing errors. Three lists carried a hand-written `64` against a
+ * 72px row, so every row covered the bottom 8px of its predecessor, and with
+ * it the perforation that separates two rows: measured on the running app the
+ * ink dashes came out rgb(226,224,220) instead of rgb(23,23,26) — all that
+ * showed through the next row's 92%-opaque veil plate was 8% of them. The same
+ * rows under a `DynamicScroller` (album view), which measures, painted full ink.
+ *
+ * `DynamicScroller`'s `min-item-size` is deliberately NOT this constant: it is
+ * a pre-measurement estimate, and those scrollers host mixed content (disc
+ * bars, card rows, headers) whose height is not a track row's.
+ */
+export const SONG_ROW_HEIGHT = 72;
+
+/**
  * How many accents the colour guide band cycles through. Must match
  * `$mem-band-colours` in _candy.scss, which emits one `band-N` class per entry;
  * a class this returns without a matching rule leaves that row with no band.

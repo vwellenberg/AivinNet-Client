@@ -9,12 +9,18 @@ const content_height = ref(0)
 // SECTION: HEIGHT
 const heightLarge = computed(() => content_height.value > 1080)
 
-// One track height is 64px. We want to load 2.75 times
-// the amount of tracks that can fit in the content height
-// Comes in handy on paginated pages, because the component
-// which is at the bottom of the page will reliably be remounted
-// causing more tracks to be loaded again
-// 2.75x is ~50 tracks on a 2560x1440 screen.
+// How many tracks a paginated page asks the server for: what fits in the
+// content height, times ~2.75. The multiple is the point — the component at
+// the bottom of a page is reliably remounted, so it fetches again, and the
+// surplus is what keeps that from being visible. ~50 tracks on a 2560x1440
+// screen.
+//
+// ⚠️ The 64 is NOT the row height (that is SONG_ROW_HEIGHT, 72px — see
+// songItemMethods.ts). It is a fetch heuristic and stays deliberately
+// generous: fixing it to 72 would only mean asking for fewer rows, and the
+// whole value of the number is that it over-shoots. Same standing as
+// `maxAbumCards` below — a request size, never a layout measurement, which is
+// why the row-height census cannot and should not reach it.
 const track_limit = computed(() => Math.round((content_height.value / 64) * 2.75))
 
 const resizer_width = ref(0)
