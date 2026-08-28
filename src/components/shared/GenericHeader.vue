@@ -116,11 +116,22 @@
 
     // ⚠️ These two are NOT inside the phone block above — it closes on the line
     // before them, so they apply on every viewport: the description is hidden
-    // app-wide (including the "Search playlists" form that lives in that slot),
-    // and this font-size silently replaces the 3.25rem one further up. Left as
-    // found on purpose: un-hiding a description sticker on six pages and
-    // surfacing a search field is a product change, not an edge fix. Noted so
-    // the next reader does not have to re-derive it.
+    // app-wide, and this font-size silently replaces the 3.25rem one further
+    // up. Left as found on purpose — the descriptions have not been shown for
+    // months and nobody missed them, so the accident matches the decision.
+    //
+    // What is NOT fine is parking anything else in the slot, and two pages did:
+    // the playlists filter field (removed, #538) and this page's "which artist
+    // is this" line, which moved to `#after` in this change. Both were in the
+    // DOM at zero size, one of them a control nobody could reach.
+    //
+    // So: nothing interactive and nothing load-bearing goes in `#description`
+    // while it is not painted. Check here first when something "is in the DOM
+    // but does nothing".
+    //
+    // (This note described the filter field as still present until now — an
+    // older branch restored the earlier wording on merge. Worth knowing that a
+    // comment can travel backwards.)
     h1 {
         font-size: 1.75rem;
     }

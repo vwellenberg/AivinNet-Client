@@ -489,6 +489,103 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 }
 
 // ---------------------------------------------------------------------------
+// "How many of them there are" — the small outlined chip beside a caption.
+//
+// Pastel ENTITY tint, never the saturated "on"-state colour: a count is not a
+// state, and keeping those two registers apart is what stops the palette's
+// three jobs from blurring (see mem-entity-tint).
+//
+// Written out twice would have been fine right up until the two drifted, which
+// is how the devices button ended up with three anatomies (#499). `$entity` is
+// the tint: 'track' for the queue count, 'album' for a release count.
+// ---------------------------------------------------------------------------
+@mixin mem-count-chip($entity) {
+  @include mem-entity-tint($entity);
+  border: 2px solid $mem-line;
+  border-radius: $candy-radius-pill;
+  padding: 0 0.45rem;
+  font-size: $medium;
+  font-weight: 700;
+  // Digits must not re-flow the chip's width as the number grows.
+  font-variant-numeric: tabular-nums;
+}
+
+// ---------------------------------------------------------------------------
+// A tab group is ONE segmented plate.
+//
+// Panel fill, ink frame, offset shadow, one ink divider between segments, and
+// yellow for the active one — the design's "on" signal, same as the pager
+// chips. No underline: the plate is its own divider (#422, no 1px hairlines in
+// a 3px ink world). No hatch (#476): the tabs are nothing but their words, so
+// a texture would only run behind the labels.
+//
+// Shared rather than copied. It was written for the charts header (#456) and
+// the discography page had missed the memphis round entirely — still on `$gray`
+// text and a 1px line. Two tab groups looking alike by coincidence is how the
+// devices button drifted across three hosts (#499).
+//
+// `$item` is the element the labels are: buttons in the charts header, router
+// links on the discography page.
+// ---------------------------------------------------------------------------
+@mixin mem-seg-tabs($item: "button") {
+  display: inline-flex;
+  background-color: $mem-panel;
+  border: $candy-border;
+  border-radius: $candy-radius-sm;
+  box-shadow: 3px 3px 0 var(--mem-shadow);
+  overflow: hidden;
+
+  #{$item} {
+    // 44px interior — the chrome touch-target floor (styling.md).
+    display: inline-flex;
+    align-items: center;
+    height: $bar-control;
+    padding: 0 $medium;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: $mem-content-text;
+    background-color: transparent;
+    border: none;
+    border-right: $candy-border;
+    border-radius: 0;
+    cursor: pointer;
+
+    &:last-child {
+      border-right: none;
+    }
+
+    // The pointer flip is a CUT (styling.md): fill and text swap in one frame,
+    // --mem-hover-text travels with the fill.
+    //
+    // `:not(.active)` rather than an `&.active:hover` override further down.
+    // Both keep the active tab yellow under the pointer, but only this one says
+    // so — and the hover census (hoverToken.test.ts) is right to stop the
+    // other: a `:hover` rule painting `$mem-yellow` reads as "hover has its own
+    // accent", which is the exact drift that test exists to prevent. The state
+    // that does not respond to the pointer should not be written as a hover
+    // state at all.
+    &:not(.active):hover {
+      background-color: var(--mem-hover);
+      color: var(--mem-hover-text);
+    }
+
+    &.active {
+      background-color: $mem-yellow;
+      color: $mem-ink;
+    }
+  }
+
+  @include allPhones {
+    #{$item} {
+      padding: 0 0.55rem;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // The active marker for a list whose rows are already coloured.
 //
 // Once every navigation row carries its own fill, "selected" can no longer BE a
