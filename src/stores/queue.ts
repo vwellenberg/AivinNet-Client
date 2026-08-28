@@ -5,6 +5,7 @@ import { favType } from '@/enums'
 import updateMediaNotif from '@/helpers/mediaNotification'
 import { Track } from '@/interfaces'
 import { isFavorite } from '@/requests/favorite'
+import useFavorites from './favorites'
 import useInterface from './interface'
 
 import { audioSource, getUrl, usePlayer } from '@/stores/player'
@@ -393,15 +394,41 @@ export default defineStore('Queue', {
             }
 
             isFavorite(current?.trackhash || 'mehmehmeh', favType.track).then(is_fav => {
-                if (current) {
-                    current.is_favorite = is_fav
-                }
+                if (!current) return
+
+                // Never over the session's own answer. This request is fired on
+                // READ and lands whenever it lands, so one that left before a
+                // favourite was flipped here would write the pre-flip value back
+                // — and `isFavorite` returns `false` on any error, so a single
+                // failed check would undo a flip even without a race. The
+                // tracklist is persisted, which is what makes that stick: the
+                // wrong value would come back on the next load.
+                if (useFavorites().flag(favType.track, current.trackhash) !== undefined) return
+
+                current.is_favorite = is_fav
             })
 
             return current
         },
         currenttrackhash(): string {
             return this.currenttrack?.trackhash || ''
+        },
+        /**
+         * Whether the playing track is a favourite — the reading every heart
+         * that shows it takes, so the bar, the Now Playing header and the right
+         * panel cannot disagree about one track.
+         *
+         * The session's own answer comes FIRST and the queue copy's field is
+         * only the fallback, because that field is also written from the server
+         * by `currenttrack` above: that refetch is fired on read and lands
+         * whenever it lands, so a reply that left before a local flip would
+         * otherwise undo the flip on screen a moment after the click.
+         */
+        currenttrackIsFav(): boolean {
+            const hash = this.currenttrackhash
+            if (!hash) return false
+
+            return useFavorites().flag(favType.track, hash) ?? this.currenttrack?.is_favorite ?? false
         },
         previndex(): number {
             const { tracklist } = useTracklist()

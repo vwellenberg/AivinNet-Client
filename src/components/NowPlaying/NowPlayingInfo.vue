@@ -14,7 +14,7 @@
     <div class="actions">
       <HeartSvg
         btn_role="action"
-        :state="queue.currenttrack?.is_favorite"
+        :state="queue.currenttrackIsFav"
         @handle-fav="$emit('handleFav', queue.currenttrackhash)"
       />
       <!-- A real <button>, not a bare glyph: this is a 44px touch target on a

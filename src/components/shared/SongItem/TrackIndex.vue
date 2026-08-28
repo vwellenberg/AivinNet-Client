@@ -17,13 +17,8 @@ import PlayingMeter from '@/components/shared/PlayingMeter.vue';
 
 defineProps<{
   index: number | string;
-  is_fav: boolean | undefined;
   is_current?: boolean;
   is_current_playing?: boolean;
-}>();
-
-defineEmits<{
-  (e: "addToFav"): void;
 }>();
 </script>
 

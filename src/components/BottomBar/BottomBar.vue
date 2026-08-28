@@ -48,7 +48,7 @@ const queue = useQStore()
 
 function handleFav() {
     favoriteHandler(
-        queue.currenttrack?.is_favorite,
+        queue.currenttrackIsFav,
         favType.track,
         queue.currenttrack?.trackhash || '',
         () => null,

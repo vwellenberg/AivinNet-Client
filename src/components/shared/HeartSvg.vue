@@ -162,11 +162,15 @@ defineEmits<{
 .heart-button.role-bar {
     @include btn-action($size: $bar-control);
 
-    // In the bar the state is the FILL OF THE GLYPH, not a colour — hollow
-    // heart means not saved, solid heart means saved, and that is the whole
-    // signal. Teal is reserved for playback here: on this bar the play button
-    // is meant to be the only coloured thing, so a teal marker two controls
-    // away competes with it for the same glance.
+    // Teal, like every other favourited heart in the app.
+    //
+    // This role used to state `$mem-content-text` instead, on the argument that
+    // the fill of the glyph carries the state here and teal belongs to the play
+    // button alone. Measured on the bar that did not hold: the marker sits on a
+    // paper plate, and a filled ink heart there reads as a dark blob rather
+    // than as "saved" — the state was legible only by comparing it against a
+    // hollow heart nobody has side by side. One sign, one state colour,
+    // wherever it stands.
     //
     // Stated rather than left to the role, and that is load-bearing: every
     // `btn-*` mixin sets `color`, matches `.heart-button.is-fav` at the same
@@ -177,12 +181,9 @@ defineEmits<{
     // asks every role to state its state colour, not to state a particular one.
     // Both halves spelled out, because `btn-action` colours its glyph twice:
     // the panel-safe tone at rest, static ink on the blush hover fill.
-    &.is-fav {
-        color: $mem-content-text;
-    }
-
+    &.is-fav,
     &.is-fav:hover {
-        color: $mem-ink;
+        color: $mem-teal;
     }
 
     // No drop-shadow on the glyph here. It exists so the marker reads as a

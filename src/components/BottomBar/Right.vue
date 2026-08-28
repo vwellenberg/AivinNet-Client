@@ -25,7 +25,7 @@
                 v-if="!hideHeart"
                 btn_role="bar"
                 title="Favorite"
-                :state="queue.currenttrack?.is_favorite"
+                :state="queue.currenttrackIsFav"
                 @handleFav="() => $emit('handleFav')"
             />
         </template>
