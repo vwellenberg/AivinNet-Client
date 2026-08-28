@@ -124,6 +124,15 @@ describe("genre banner anatomy", () => {
       blocks(css, ".genre-chip")[0],
       "a static accent fill needs static ink on it, in both themes"
     ).toMatch(/color:\s*\$mem-ink/);
+
+    // ⚠️ EVERY chip block, not just the base. The label overrides the fill on
+    // its own line, so a `color: $candy-text` written next to it is the same
+    // failure one rule further down — with the assertion above still green.
+    for (const chip of chips) {
+      for (const [, value] of chip.matchAll(/(?:^|[\s;])color:([^;}]+)/g)) {
+        expect(value.trim(), "a chip on a static fill carries static ink").toBe("$mem-ink");
+      }
+    }
   });
 
   it("nothing is styled as if it could be pressed", () => {

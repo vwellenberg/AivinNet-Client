@@ -59,7 +59,13 @@ const genres = computed(() => {
     width: max-content;
     gap: 1rem;
     padding-right: $medium;
-    overflow-x: hidden;
+    // ⚠️ No `overflow-x` here. The horizontal scroll belongs to `.genres-banner`
+    // (this element is `width: max-content` and never overflows), and setting
+    // ONE axis to anything but `visible` computes the OTHER to `auto` — which
+    // makes this a clip box exactly one chip tall and cuts the bottom 3px off
+    // every chip's offset shadow. Measured before the fix: 9 device pixels of
+    // ink under a chip, all of it the border, then bare ground. Same trap as
+    // the search tabs (RightSideBar/Search/TabsWrapper.vue).
     -webkit-overflow-scrolling: touch;
   }
 
