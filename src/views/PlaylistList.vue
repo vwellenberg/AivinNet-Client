@@ -4,17 +4,6 @@
             <template #name>Playlists</template>
             <template #description>
                 You have {{ pStore.playlists.length }} playlists in your library
-                <br />
-                <form spellcheck="false" @submit.prevent="() => {}">
-                    <input
-                        id="playlistsearch"
-                        v-model="input"
-                        class="rounded-sm no-border"
-                        type="search"
-                        placeholder="Search playlists"
-                        name=""
-                    />
-                </form>
             </template>
             <template #right>
                 <!-- On mobile the in-view header collapses; New Playlist lives as
@@ -25,11 +14,11 @@
             </template>
         </Header>
 
-        <PlaylistCardGroup v-if="!query && pinnedPlaylists.length" :playlists="pinnedPlaylists" :title="'Pinned'" />
+        <PlaylistCardGroup v-if="pinnedPlaylists.length" :playlists="pinnedPlaylists" :title="'Pinned'" />
         <PlaylistCardGroup
             v-if="playlists.length"
             :playlists="playlists"
-            :title="query ? 'Search Results' : `${pinnedPlaylists.length ? 'Other' : 'All'} Playlists`"
+            :title="`${pinnedPlaylists.length ? 'Other' : 'All'} Playlists`"
         />
         <NoItems
             :flag="!(playlists.length + pinnedPlaylists.length)"
@@ -41,12 +30,10 @@
 </template>
 
 <script setup lang="ts">
-import { debouncedRef } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 
 import usePStore from '@/stores/pages/playlists'
 import { isMobile } from '@/stores/content-width'
-import { useFuse } from '@/utils'
 import updatePageTitle from '@/utils/updatePageTitle'
 
 import PlaylistSvg from '@/assets/icons/playlist-1.svg'
@@ -59,9 +46,6 @@ import useModalStore from '@/stores/modal'
 
 const pStore = usePStore()
 const { showNewPlaylistModal } = useModalStore()
-
-const input = ref('')
-const query = debouncedRef(input, 300)
 
 const description = `You can create a playlist by right clicking on a track and selecting the
         "Add to Playlist" option`
@@ -76,17 +60,7 @@ onMounted(() => {
     updatePageTitle('Playlists')
 })
 
-const playlists = computed(() => {
-    if (!query.value) {
-        return pStore.playlists.filter(p => !p.pinned)
-    }
-
-    const p = useFuse(query.value, pStore.playlists, {
-        keys: ['name'],
-    })
-
-    return p.value.map(r => r.item)
-})
+const playlists = computed(() => pStore.playlists.filter(p => !p.pinned))
 </script>
 
 <style lang="scss">
@@ -114,20 +88,6 @@ const playlists = computed(() => {
             grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
             gap: 1rem;
         }
-    }
-
-    #playlistsearch {
-        width: 16rem;
-        max-width: 100%;
-        margin-top: 1rem;
-        background-color: $candy-pink-soft;
-        border: $candy-border;
-        color: $candy-black;
-        font-size: 0.95rem;
-        font-weight: 500;
-        padding: $medium;
-        outline: none;
-        appearance: none;
     }
 
     .playlist-button {
