@@ -142,18 +142,9 @@ function handleFav() {
         }
     }
 
-    // How many tracks are queued. Pastel TRACK yellow, not the saturated
-    // "on"-state yellow: this is an entity count, and the two registers are
-    // what keep the palette's three jobs apart (see mem-entity-tint).
+    // How many tracks are queued — the shared count chip, in track yellow.
     .queue-count {
-        @include mem-entity-tint('track');
-        border: 2px solid $mem-line;
-        border-radius: $candy-radius-pill;
-        padding: 0 0.45rem;
-        font-size: $medium;
-        font-weight: 700;
-        // Digits must not re-flow the chip's width as the queue grows.
-        font-variant-numeric: tabular-nums;
+        @include mem-count-chip('track');
     }
 
     .below-progress {
