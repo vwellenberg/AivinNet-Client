@@ -105,10 +105,13 @@ describe("the track row height has one source", () => {
 
     // ⚠️ A census that examined nothing reads exactly like a clean one. If the
     // marker stops matching (a kebab-cased tag, a moved glob), this is the only
-    // line that says so — without it the three lists could all regress to a
-    // literal and the suite would stay green.
+    // line that says so — without it both lists could regress to a literal and
+    // the suite would stay green. The floor is deliberately the CURRENT count
+    // minus one, not a fixed three: a list may legitimately leave the census
+    // (the orphaned SongList.vue did), and a guard that outranks reality turns
+    // into a chore instead of a warning.
     expect(audited.length, "the RecycleScroller/SongItem census matched no files").toBeGreaterThan(
-      2
+      1
     );
     expect(offenders, "fixed-size track scrollers must pitch rows at SONG_ROW_HEIGHT").toEqual([]);
   });
