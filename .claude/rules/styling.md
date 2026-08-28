@@ -577,6 +577,14 @@ Drei Dinge, die dabei jedes Mal schiefgehen:
   der Kasten exakt eine Pille hoch war, lag er deckungsgleich auf deren Radius und fiel nie auf;
   mit reserviertem Platz schneidet er die erste und letzte Pille an der Ecke.
 
+- **Eine Achse auf `hidden` setzt die andere auf `auto`.** Wer nur `overflow-x: hidden` schreibt,
+  baut einen **vertikalen** Clipper — die Regel liest sich waagerecht, klemmt aber senkrecht.
+  Real passiert im Genre-Banner (#550): `.scrollable` war `width: max-content` und lief nie über,
+  trug das `overflow-x` aber trotzdem, und die frisch geerbten Sticker-Schatten der Chips fielen
+  unten weg. Gemessen unter einem Chip: **9 Gerätepixel Ink** (der 3-px-Rahmen), dann direkt der
+  Grund — nach dem Löschen der Zeile 18. Wer horizontal scrollt, setzt das `overflow` auf **den
+  Scroller**, nicht auf die Reihe darin.
+
 **Geometrie beweist das nicht — Pixel schon.** `getBoundingClientRect()` kennt den Schatten nicht,
 und `scrollWidth` unterschlägt in Chrome das `padding-right` des Containers, meldet also selbst
 für korrekt reservierte Kästen einen Fehlbetrag. Der belastbare Test ist ein **A/B-Screenshot**:
