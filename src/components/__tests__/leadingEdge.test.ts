@@ -85,10 +85,28 @@ function shorthandLeft(value: string): string | null {
   return null;
 }
 
+/**
+ * Does this row paint its own surface?
+ *
+ * The distinction decides whether its `padding` counts. A BARE container has
+ * no edge of its own, so padding is the thing that pushes its children off the
+ * page's line — that is precisely what the genre banner and the stat rows did.
+ * A PLATE's padding sits inside its own frame: the plate's edge is what lines
+ * up, and taking the padding away would press the text against the border. The
+ * empty-state plate on the charts screen is the second kind, and reading its
+ * `padding: 1rem` as an inset was this census's first false positive.
+ *
+ * Either way the MARGIN always counts — that moves the box itself.
+ */
+function paintsItsOwnSurface(declarations: string): boolean {
+  return /(?:^|[\s;])background(?:-color)?:/.test(declarations) || /@include\s+(?:mem-sticker|candy-box)/.test(declarations);
+}
+
 /** Every left inset a block declares, through the shorthand or on its own. */
 function leftInsets(declarations: string): string[] {
   const out: string[] = [];
-  for (const property of ["padding", "margin"]) {
+  const properties = paintsItsOwnSurface(declarations) ? ["margin"] : ["padding", "margin"];
+  for (const property of properties) {
     for (const [, value] of declarations.matchAll(new RegExp(`(?:^|[\\s;{])${property}:([^;}]+)`, "g"))) {
       const left = shorthandLeft(value);
       if (left) out.push(left);
