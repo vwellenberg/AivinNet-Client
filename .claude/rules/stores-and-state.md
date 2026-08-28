@@ -29,6 +29,37 @@ zwischen zwei gerenderten Zeilen passieren kann. `/reorder` lehnt Nicht-Permutat
 Die Index-Arithmetik (Drop-Gap → finaler Index → Undo) liegt in `utils/playlistMove.ts` und ist
 gegen ein Modell des Server-Splices getestet — **nicht inline in der View wiederholen**.
 
+## ⚠️ Derselbe Track ist mehrere Objekte — Zustand pro HASH veröffentlichen (#543)
+
+Ein Track liegt gleichzeitig in mehreren Stores: auf der Seite, die ihn listet (`pages/folder`,
+`pages/album`, `pages/playlist`, `search`) **und** in `queue/tracklist`. Das sind **verschiedene
+Objekte** — `setNewList` bekommt zwar oft dieselben Referenzen, aber eben nicht immer: die
+Ordner-Ansicht lädt vor dem Abspielen ihre volle Trackliste neu (`getFiles`) und schiebt frische
+Objekte in die Queue. `is_favorite` auf einem Track ist damit eine **Momentaufnahme pro Kopie**,
+kein geteilter Zustand.
+
+Wer eine solche Eigenschaft umschaltet, darf sie deshalb nicht in die geklickte Kopie schreiben.
+`favoriteHandler` tat genau das (`tracklist.toggleFav(queue.currentindex)`), und `SongItem` hielt
+zusätzlich eine eigene `ref`-Kopie, die nur beim Recyceln der Zeile auf einen anderen Trackhash
+neu gesetzt wurde: Ein Favorit, aus der Player-Leiste gesetzt, erreichte die Zeile auf dem
+Bildschirm nie.
+
+**Muster:** Die Antwort einmal **pro Hash** in `stores/favorites.ts` eintragen (`record`), und jede
+Anzeige liest `flag(type, hash) ?? kopie.is_favorite`. Die Registry hält nur, was sich in dieser
+Sitzung geändert hat; das mitgelieferte Flag bleibt der Rückfall.
+
+- **Kopien trotzdem mitschreiben, aber per Hash und idempotent.** `tracklist.setFav(hash, wert)` —
+  nicht per Index und kein Toggle, sonst kippen Registry und Queue gegeneinander. Die Queue wird
+  persistiert, ein nur in der Registry gelandeter Flip wäre nach dem Reload wieder weg.
+- **⚠️ `queue.currenttrack` feuert beim LESEN einen Request** (`isFavorite`) und schreibt dessen
+  Antwort in den Track. Eine Antwort, die vor dem Klick losgeschickt wurde — oder eine
+  fehlgeschlagene, denn `isFavorite()` liefert bei jedem Fehler `false` — überschreibt sonst den
+  frischen Flip. Deshalb gilt die Registry zuerst, im Getter `currenttrackIsFav` **und** im
+  `.then` des Refetch.
+- **Gemessen** (1440px, Suchergebnis, Favorit aus der Leiste gesetzt): vorher Zeilen-Herz
+  `visibility: hidden`, Leisten-Herz `fill: rgb(23,23,26)`; nachher beide `rgb(47,191,163)` und
+  sichtbar. Gegenprobe auf `master` reproduziert beide Symptome.
+
 ## ⚠️ Optimistische Mutationen brauchen ein Rollback
 
 Bei fehlgeschlagenem Request die lokale Änderung zurücknehmen (`resolveMove().undo`), sonst
