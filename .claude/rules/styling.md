@@ -131,7 +131,8 @@ kann, muss der Länge der SCSS-Liste entsprechen — sonst steht eine Zeile stil
 `--band` einfach auf den Fallback fällt.
 
 ⚠️ **Der `index`-Prop ist nicht überall die Listenposition.** Die Album-Ansicht reicht die
-Track-Nummer aus den Tags durch, `SongList` zählt bei gesetztem `total` **rückwärts**, und der Typ
+Track-Nummer aus den Tags durch, `ArtistView/TopTracks.vue` zählt bei gesetztem `total`
+**rückwärts** (`total - index`, gefüttert aus dem API-Count von `Favorites.vue`), und der Typ
 erlaubt einen String. Deshalb parst `trackBandClass` defensiv und normalisiert das Vorzeichen:
 `band--2` matcht keine Regel, und eine Zeile ohne Band liest sich als Fehler, während eine Zeile
 mit der Farbe ihres Nachbarn nur als Wiederholung liest.

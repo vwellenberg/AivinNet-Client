@@ -45,9 +45,11 @@ describe("trackBandClass", () => {
   });
 
   it("never emits a negative class", () => {
-    // SongList counts DOWN when it is given a total (`total - index`), so a
-    // list shorter than its claimed total produces negatives. `band--2` matches
-    // no rule, which would drop the band on exactly those rows.
+    // `TopTracks.vue` numbers backwards from a `total` (`total - index`), which
+    // Favorites.vue feeds from its API count. The moment MORE rows are rendered
+    // than that count claims — a stale or capped count against a longer loaded
+    // list — `index` passes `total` and the ordinal goes negative. `band--2`
+    // matches no rule, which would drop the band on exactly those rows.
     for (const n of [-1, -4, -5, -6, -13]) {
       const cls = trackBandClass(n);
       expect(cls).toMatch(/^band-[01]$/);

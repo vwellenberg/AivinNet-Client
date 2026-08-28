@@ -133,9 +133,9 @@ const scrollerItems = computed(() => {
     const tracks = playlist.tracks.map((track, i) => {
         return {
             // Key by position (track.index = Fuse refIndex), like every other
-            // track list in the app (SongList, Queue, ...). filepath is NOT
-            // guaranteed unique, so a duplicate entry collided on the scroller
-            // key and one row collapsed into a blank gap.
+            // track list in the app (the queue panel, the search tracks tab,
+            // ...). filepath is NOT guaranteed unique, so a duplicate entry
+            // collided on the scroller key and one row collapsed into a blank gap.
             id: track.index,
             component: SongItem,
             props: {

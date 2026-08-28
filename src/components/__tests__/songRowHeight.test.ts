@@ -105,11 +105,15 @@ describe("the track row height has one source", () => {
 
     // ⚠️ A census that examined nothing reads exactly like a clean one. If the
     // marker stops matching (a kebab-cased tag, a moved glob), this is the only
-    // line that says so — without it the three lists could all regress to a
-    // literal and the suite would stay green.
-    expect(audited.length, "the RecycleScroller/SongItem census matched no files").toBeGreaterThan(
-      2
-    );
+    // line that says so — without it both lists could regress to a literal and
+    // the suite would stay green. The floor tracks the real population (two:
+    // ArtistTracks and the search Tracks tab) rather than a number of its own,
+    // because a list may legitimately leave the census — the orphaned
+    // SongList.vue did.
+    expect(
+      audited.length,
+      `the RecycleScroller/SongItem census matched ${audited.length} file(s): ${audited.join(", ") || "none"}`
+    ).toBeGreaterThan(1);
     expect(offenders, "fixed-size track scrollers must pitch rows at SONG_ROW_HEIGHT").toEqual([]);
   });
 });
