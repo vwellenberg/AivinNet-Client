@@ -285,8 +285,8 @@ function runChildAction(action: () => void) {
 
     // The chevron of a submenu row is absolutely positioned ON TOP of the label
     // (see `.more` above), so a full-width label would run underneath it.
-    &:has(> .more) .label {
-        padding-right: 1rem;
+    &:has(> .more) > .label {
+        padding-right: 1.5rem;
     }
 }
 
