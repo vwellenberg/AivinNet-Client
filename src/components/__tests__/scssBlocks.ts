@@ -96,3 +96,42 @@ export function ownDeclarations(css: string): string {
 
   return out;
 }
+
+/**
+ * The parts of a box shorthand (`margin: 1rem auto`), with `var(…)`/`calc(…)`
+ * kept whole and `!important` dropped.
+ *
+ * The flag is stripped rather than counted, because a shorthand that carries it
+ * has one token too many — and the callers below read the LEFT value by
+ * position (1→all, 2/3→2nd, 4→4th). Five parts fell through as `null` and the
+ * declaration left the census silently, which is the one failure mode a
+ * source-scanning test cannot survive (see the ⚠️ in .claude/rules/testing.md).
+ * Three censuses had grown their own copy of this parser and all three had the
+ * hole; it lives here now so the next one inherits the fix instead of the bug.
+ */
+export function shorthandParts(value: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = "";
+  for (const char of value.replace(/!\s*important/gi, "").trim()) {
+    if (char === "(" || char === "[") depth++;
+    else if (char === ")" || char === "]") depth--;
+    if (/\s/.test(char) && depth === 0) {
+      if (current) parts.push(current);
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  if (current) parts.push(current);
+  return parts;
+}
+
+/** The left value of a box shorthand: 1→all, 2/3→2nd, 4→4th. */
+export function shorthandLeft(value: string): string | null {
+  const parts = shorthandParts(value);
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2 || parts.length === 3) return parts[1];
+  if (parts.length === 4) return parts[3];
+  return null;
+}

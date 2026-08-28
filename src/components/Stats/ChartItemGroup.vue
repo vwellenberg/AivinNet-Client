@@ -212,7 +212,10 @@ onMounted(async () => {
         height: 3.25rem;
         padding: 1rem;
         background-color: $candy-pink-soft;
-        margin: 1rem;
+        // Horizontally flush with the rows this plate stands in for (they span
+        // the group edge to edge, measured 303/1393). The vertical margin is
+        // the air between the sections and stays.
+        margin: 1rem 0;
         margin-bottom: 2rem;
         color: $candy-black;
     }
@@ -223,7 +226,10 @@ onMounted(async () => {
         justify-content: space-between;
         flex-wrap: wrap;
         gap: $small;
-        margin: $medium 1rem;
+        // `space-between` puts the page-size chips on the left edge and the
+        // pager on the right one, so a horizontal margin misses BOTH: measured
+        // 319/1377 against the rows' 303/1393 directly above it.
+        margin: $medium 0;
 
         .pagesizes,
         .pagenav {
@@ -288,7 +294,12 @@ onMounted(async () => {
         font-size: 0.75rem;
         font-weight: 900;
 
-        margin: $medium 1.2rem;
+        // The two stickers below sit on the group's own edges — the left one
+        // where every chart row starts, the right one where they end. A
+        // horizontal margin moved both inwards: measured 322.2/1373.8 against
+        // the rows' 303/1393. Same leftover the genre banner and the stat
+        // tiles carried (#550), the last of the family.
+        margin: $medium 0;
 
         // Each half is its own STICKER (#468). This caption and the one under
         // the stat tiles were the last text in the app still standing free on
