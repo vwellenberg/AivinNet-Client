@@ -248,8 +248,9 @@ onBeforeRouteLeave(() => store.resetAll())
     }
 
     .statshead {
-        padding: $medium;
-        padding-top: 2rem;
+        // Left stays 0 (the component's own rule says why): the tiles line up
+        // with the genre chips above and the card rows below them.
+        padding: 2rem $medium $medium 0;
     }
 
     .vue-recycle-scroller__item-view {
