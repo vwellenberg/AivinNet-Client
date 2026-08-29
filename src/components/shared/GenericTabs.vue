@@ -35,20 +35,10 @@ defineProps<{
 
 <style lang="scss">
 .generictabs-scroll {
-  max-width: 100%;
-  // Room for the plate's offset shadow on BOTH sides it falls on. A box-shadow
-  // is overflow, not layout — it does not grow scrollWidth — so at the end of
-  // the scroll the right-hand shadow was cut off against the scroll port.
-  padding-bottom: 4px;
-  padding-right: 4px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  // The scroller anatomy is `mem-seg-scroll` (_candy.scss) — it was written
+  // here and is now shared with the charts header, which needed the same box
+  // and had nothing (#558).
+  @include mem-seg-scroll;
 }
 
 .generictabs {

@@ -137,6 +137,24 @@ function getRouterParams() {
 
     margin-bottom: $medium;
 
+    // A phone has no room for five columns side by side. Measured at 320px:
+    // the track is 258px, and the fixed part alone — 24 + 46 + 46 plus four
+    // 24px gaps — is 212, which left the title and the duration ~46px to
+    // share. They did not share it; they overlapped.
+    //
+    // So the duration drops UNDER the info block rather than out of the row.
+    // Hiding it would have been the easy half of this fix and the wrong one:
+    // "78 hrs, 16 mins" is the number the leaderboard is sorted by.
+    @include smallerPhones {
+        grid-template-columns: 1.5rem 2.9rem max-content 1fr;
+        gap: $small $medium;
+
+        .helptext {
+            grid-column: 4;
+            grid-row: 2;
+        }
+    }
+
     &:hover {
         // `$hatch: false` mirrors the base plate: a row that grew a texture
         // under the pointer would be worse than one that always had it.
@@ -223,10 +241,24 @@ function getRouterParams() {
     }
 
     .iteminfo {
+        // The `1fr` column this sits in has an automatic minimum of MIN-CONTENT
+        // like every other grid item, so without this the longest WORD in a
+        // title sets the row's width — and since #558 the group can no longer
+        // stretch to absorb it, it would push the page sideways instead. The
+        // measured 257px min-content is one library's titles, not a property
+        // of the layout.
+        min-width: 0;
+
         .title {
             font-size: 1rem;
             font-weight: bold;
             color: inherit;
+            // `anywhere`, not `break-word`: only this one lowers the element's
+            // MIN-CONTENT, which is the number the grid track reads. And not
+            // an ellipsis — a title that wraps to two lines is readable on a
+            // 320px phone; the same title clamped to one line in a column that
+            // narrow renders as nothing at all (measured).
+            overflow-wrap: anywhere;
         }
 
         .artist {
