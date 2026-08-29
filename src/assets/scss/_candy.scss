@@ -599,16 +599,38 @@ $range-track-default: calc(#{$range-h-default} - #{$candy-border-w * 2});
 // scrolls. The plate must not be the scroll port itself — its offset shadow
 // falls outside its border box, and a scroll port clips at its padding edge.
 //
-// Written for the discography page and copied nowhere: the charts header, the
-// only other host, is what this mixin exists to stop drifting from it.
+// Three hosts, and the drift between them is why this is a mixin: the
+// discography tabs (`.generictabs-scroll`, where it was written), the charts
+// header (`.seg-scroll`, which had nothing at all until #558) and the search
+// page's filter chips (`.tabheaders`, which had a third hand-rolled copy that
+// had already grown its own numbers). Registered in
+// `chartsNarrowViewport.test.ts`; a fourth copy is what that census stops.
 // ---------------------------------------------------------------------------
-@mixin mem-seg-scroll {
+
+// The default overhang: the offset shadow, and nothing else. A caller whose
+// content sticks out further says so — see `$reserve` below. It is a token
+// rather than a literal because the charts header has to CANCEL it (a
+// `space-between` row must end where its neighbours end), and a compensation
+// written as its own `-4px` is a silent coupling to a value it cannot see.
+//
+// No census guards this one: deleting it fails the BUILD, because the
+// compensation reads it (verified — `[sass] Undefined variable`). A compiler
+// error is a better guard than a test, and it is the reason the value lives
+// here rather than being passed around.
+$mem-seg-reserve: 4px !default;
+
+@mixin mem-seg-scroll($reserve: $mem-seg-reserve) {
   max-width: 100%;
-  // Room for the plate's offset shadow on BOTH sides it falls on. A box-shadow
-  // is overflow, not layout — it does not grow scrollWidth — so at the end of
-  // the scroll the right-hand shadow was cut off against the scroll port.
-  padding-bottom: 4px;
-  padding-right: 4px;
+  // Room for the offset shadow on BOTH sides it falls on. A box-shadow is
+  // overflow, not layout — it does not grow scrollWidth — so at the end of the
+  // scroll the right-hand shadow was cut off against the scroll port.
+  //
+  // `$reserve` is a knob because the shadow is not the only thing that can
+  // stick out: the search page's filter chips grow under the pointer (a 1.04
+  // scale on top of the 4px offset), so their row books 8px. A caller states
+  // what its content overhangs by; it does not restate the rest of this box.
+  padding-bottom: $reserve;
+  padding-right: $reserve;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;

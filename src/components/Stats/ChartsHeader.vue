@@ -94,12 +94,16 @@ watch(() => props.period, () => nextTick(() => revealActive(periodSeg.value)))
     .seg-scroll {
         @include mem-seg-scroll;
         // The shadow reserve lives INSIDE the scroll port, so on a
-        // `space-between` row it would hold the right-hand plate 4px off the
-        // row's right edge — the edge #555 aligned, and the one the trend
-        // sticker below it answers to. Pulled back out of the layout; the
-        // reserve still travels with the scroll. `leadingEdge.test.ts` watches
-        // the left side only, so this one is on the file.
-        margin-right: -4px;
+        // `space-between` row it would hold the right-hand plate off the row's
+        // right edge — the edge #555 aligned, and the one the trend sticker
+        // below it answers to. Pulled back out of the layout; the reserve
+        // still travels with the scroll.
+        //
+        // Reads the TOKEN, not a literal: this cancels exactly what the mixin
+        // books, and a hand-written `-4px` would keep pointing at the old
+        // number the day the default moves. `leadingEdge.test.ts` watches the
+        // left side only, so the right one is on this file.
+        margin-right: -$mem-seg-reserve;
     }
 
     .seg {

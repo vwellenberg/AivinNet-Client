@@ -117,32 +117,27 @@ onMounted(() => {
     position: relative;
     padding-left: $padleft;
 
-    #right-tabs {
-      max-width: calc(100% - 16px);
-    }
-
     // No `border-radius` here: the scroller has no fill of its own, so the
     // pill radius was only ever a clip mask — invisible while the box was
     // exactly one chip tall, and a corner shave on the first and last chip
     // now that it reserves the shadow below them.
+    //
+    // The box itself is `mem-seg-scroll` (_candy.scss), shared with the
+    // discography tabs and the charts header. It was the third hand-rolled
+    // copy of that anatomy and had already drifted: the overhang the chips
+    // actually need is 8px (the 4px offset plus their 1.04 hover scale), and
+    // that is the ONE thing this caller states.
+    //
+    // Both `max-width: calc(100% - 16px)` are gone with it — here and on the
+    // wrapper, which held the row 16px inside its own container a second time.
+    // They were a shadow reserve written as a width cap, and a cap is the
+    // wrong mechanism: the reserve has to sit INSIDE the scroll port, or it is
+    // unreachable exactly when the row is scrolled to its end. Measured at
+    // 1440px before this: the row ended at 1405 against a container edge of
+    // 1437.
     .tabheaders {
       margin: 0;
-      max-width: calc(100% - 16px);
-      overflow: auto;
-      overflow-y: hidden;
-      -webkit-overflow-scrolling: touch;
-
-      // The scroller reserves the offset shadow on the two sides it falls to.
-      // `overflow: auto` clips ink overflow as well, so without this the hard
-      // shadow is cut off flush along the bottom edge and along the last chip
-      // once the row is scrolled to its end — same trap as the sidebar rows.
-      // $small covers the 4px hover offset plus the 1.04 hover scale.
-      padding: 0 $small $small 0;
-
-      // The chips scroll horizontally by touch/drag; never show the
-      // scrollbar (it otherwise overlaps the chips on mobile, where the
-      // desktop-only designatedOS hide rule never applied).
-      @include hideScrollbars;
+      @include mem-seg-scroll($reserve: $small);
     }
 
     @include allPhones {

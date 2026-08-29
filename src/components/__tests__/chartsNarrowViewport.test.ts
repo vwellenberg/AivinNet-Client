@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
@@ -49,12 +49,62 @@ function segHosts(): [string, string][] {
 // overlapped in the remaining 46. Both halves are below, in that order.
 // ---------------------------------------------------------------------------
 
+/**
+ * A mixin's body, looked up by NAME.
+ *
+ * `blocks()` wants its selector followed by `{`, which stopped matching the
+ * moment this mixin took a parameter — and the failure read as "the mixin is
+ * gone", which it was not. The parameter list is exactly what this census is
+ * about now, so the lookup has to survive it.
+ */
+function mixinBody(css: string, name: string): string {
+  const at = css.indexOf(`@mixin ${name}`);
+  if (at < 0) return "";
+  const open = css.indexOf("{", at);
+  if (open < 0) return "";
+
+  let depth = 1;
+  let i = open + 1;
+  while (i < css.length && depth > 0) {
+    if (css[i] === "{") depth++;
+    else if (css[i] === "}") depth--;
+    i++;
+  }
+  // Keep the signature: the parameter is part of what is asserted.
+  return css.slice(at, i);
+}
+
+/**
+ * Every global stylesheet, read from DISK.
+ *
+ * ⚠️ `import.meta.glob(..., { as: "raw" })` hands back an EMPTY STRING for
+ * .scss — Vite runs stylesheets through the CSS pipeline, which is stubbed
+ * under test. A census that sweeps only `.vue` therefore cannot see
+ * `Global/search-tabheaders.scss`, where half of the search chip row lives:
+ * re-adding the width cap there would restore the regression with every
+ * assertion still green.
+ */
+function globalSheets(): [string, string][] {
+  const dir = "src/assets/scss";
+  const out: [string, string][] = [];
+
+  const walk = (at: string) => {
+    for (const entry of readdirSync(at, { withFileTypes: true })) {
+      const path = `${at}/${entry.name}`;
+      if (entry.isDirectory()) walk(path);
+      else if (entry.name.endsWith(".scss")) out.push([path, readFileSync(path, "utf8")]);
+    }
+  };
+  walk(dir);
+  return out;
+}
+
 describe("segmented tabs scroll instead of stretching the page", () => {
   it("keeps the scroller in one mixin", () => {
     const candy = readFileSync(CANDY_FILE, "utf8");
     expect(candy.length, `${CANDY_FILE} read empty — did it move?`).toBeGreaterThan(1000);
 
-    const [scroll] = blocks(candy, "@mixin mem-seg-scroll");
+    const scroll = mixinBody(candy, "mem-seg-scroll");
     expect(scroll, "no `mem-seg-scroll` mixin — the parser or the file changed").toBeTruthy();
 
     // The four declarations that make it work, each for its own reason:
@@ -64,9 +114,76 @@ describe("segmented tabs scroll instead of stretching the page", () => {
     expect(scroll, "the scroller scrolls sideways").toMatch(/overflow-x:\s*auto/);
     expect(scroll, "the other axis must be stated, or it computes to auto").toMatch(/overflow-y:\s*hidden/);
     expect(scroll, "a flex item does not shrink below min-content on its own").toMatch(/min-width:\s*0/);
-    expect(scroll, "the plate's offset shadow needs room inside the scroll port").toMatch(
-      /padding-(?:bottom|right):\s*4px/
+    // The reserve is a PARAMETER, not a literal: the search chips overhang by
+    // 8px (their 1.04 hover scale on top of the 4px offset), and hard-coding
+    // 4px is what kept that row on its own hand-rolled copy.
+    expect(scroll, "the offset shadow needs room inside the scroll port").toMatch(
+      /padding-(?:bottom|right):\s*\$reserve/
     );
+    expect(scroll, "and callers that overhang further need a knob for it").toMatch(
+      /@mixin mem-seg-scroll\(\$reserve:/
+    );
+  });
+
+  it("has no fourth hand-rolled copy of that box", () => {
+    // A LIST, not a sweep — and the difference is the point. Plenty of rows
+    // scroll sideways (`.statshead`, the genre chips): they scroll CARDS in a
+    // box that is nothing but a viewport. These three scroll a row of objects
+    // that each cast an offset shadow, which is what makes the reserve — and
+    // therefore this mixin — the right box for them. Adding a card scroller
+    // here would be as wrong as leaving one of these out.
+    //
+    // Every entry has to be FOUND, or a rename drops it and the census goes
+    // quiet while still reporting three.
+    const SCROLLERS = [".generictabs-scroll", ".seg-scroll", ".tabheaders"];
+
+    for (const selector of SCROLLERS) {
+      const hosts = Object.entries(SOURCES).filter(([, source]) => {
+        const own = blocks(styleBlock(source), selector);
+        return own.some(body => /@include\s+mem-seg-scroll/.test(body));
+      });
+      // ⚠️ And the STYLESHEETS, not only the components. `.tabheaders` has a
+      // second block in `Global/search-tabheaders.scss` — re-adding the width
+      // cap or the overflow there restores the exact regression this census
+      // was written for, in a file `import.meta.glob` cannot even read (Vite
+      // hands back an empty string for .scss under test).
+      const sheetBlocks: [string, string][] = [];
+      for (const [path, sheet] of globalSheets()) {
+        for (const body of blocks(sheet, selector)) sheetBlocks.push([path, body]);
+      }
+      expect(
+        hosts.length,
+        `no component builds ${selector} from mem-seg-scroll any more — renamed, or hand-rolled again?`
+      ).toBeGreaterThan(0);
+
+      const everyBlock: [string, string][] = [
+        ...hosts.flatMap(([path, source]) =>
+          blocks(styleBlock(source), selector).map(body => [path, body] as [string, string])
+        ),
+        ...sheetBlocks,
+      ];
+
+      for (const [path, body] of everyBlock) {
+        const own = ownDeclarations(body);
+        // What the mixin owns. `max-width` is on the list because the copy
+        // this replaced wrote its reserve as `calc(100% - 16px)` — a width
+        // cap, which puts the room OUTSIDE the scroll port, i.e. exactly
+        // where the shadow at the end of the scroll cannot reach it.
+        //
+        // LONGHANDS INCLUDED: the reserve is a PARAMETER now, so restating it
+        // as `padding-bottom` is the natural way to drift back, and a list of
+        // shorthands alone would wave that through. Written as a literal
+        // regex rather than built from a property list — `\s` inside a
+        // template literal is not an escape, and this file has shipped that
+        // bug twice (see the fixture in `can read a declaration at all`).
+        const OWNED =
+          /(?:^|[\s;{])(?:overflow(?:-[xy])?|max-width|padding(?:-(?:top|right|bottom|left))?)\s*:/;
+        expect(
+          OWNED.exec(own)?.[0].trim(),
+          `${path} restates a scroll-box property on ${selector} — that belongs to mem-seg-scroll`
+        ).toBeUndefined();
+      }
+    }
   });
 
   it("gives every tab plate a scroller, and none of them a hand-rolled one", () => {
