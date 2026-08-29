@@ -153,11 +153,18 @@ describe("search filter chips", () => {
       const css = styleBlock(read(VIEW_FILE));
 
       const row = block(css, ".tabheaders").body;
-      expect(row, "no .tabheaders block in the search view").toContain("overflow");
+      // The row's scroll box is `mem-seg-scroll` now, shared with the charts
+      // header and the discography tabs — it was the third hand-rolled copy of
+      // that anatomy. What this census is about did not change: the box clips
+      // ink overflow, so it has to book room for the chips' offset shadow. The
+      // chips ALSO grow 1.04 under the pointer, which is why this caller is
+      // the one that passes a reserve instead of taking the 4px default.
+      expect(row, "no .tabheaders block in the search view").toContain("@include mem-seg-scroll");
       expect(
-        /padding:[^;]*\$small[^;]*;/.test(ownDeclarations(row)),
-        `.tabheaders clips ink overflow (overflow: auto) and has to reserve the offset ` +
-          `shadow on the bottom and right, or the hard shadow is cut off flush.`
+        /mem-seg-scroll\(\s*\$reserve:\s*\$small\s*\)/.test(ownDeclarations(row)),
+        `.tabheaders clips ink overflow and has to reserve the offset shadow on the ` +
+          `bottom and right, or the hard shadow is cut off flush — $small, because ` +
+          `the chips overhang by their hover scale on top of the 4px offset.`
       ).toBe(true);
 
       const withQuery = block(css, "&.has_query").body;
