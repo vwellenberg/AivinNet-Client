@@ -20,7 +20,13 @@ import ChartItemGroup from './ChartItemGroup.vue'
 .stats-charts {
     .chartitemgroupsgrid {
         display: grid;
-        grid-template-columns: 1fr;
+        // `minmax(0, 1fr)`, not `1fr`: a grid item's automatic minimum is its
+        // MIN-CONTENT, so the group grew to whatever its widest child needed
+        // and took the page with it — measured at 320px, a 308px tab plate in
+        // a 258px track, everything under it cut off at the screen edge. The
+        // tabs scroll now (mem-seg-scroll); the track is what decides the
+        // width. The chart rows fit: their min-content is 257px.
+        grid-template-columns: minmax(0, 1fr);
         gap: 3rem;
     }
 }

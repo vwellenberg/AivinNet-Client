@@ -1,34 +1,43 @@
 <template>
     <div class="chartheader">
-        <div class="seg" role="group" aria-label="Chart type">
-            <button
-                v-for="g in groups"
-                :key="g"
-                type="button"
-                :class="{ active: g === name }"
-                :aria-pressed="g === name"
-                @click="$emit('changeGroup', g)"
-            >
-                {{ g }}
-            </button>
+        <!-- Each plate keeps its own size and its own scroller: a tab group is
+             its words, and four of them are 308px on a phone. Same box the
+             discography tabs sit in (mem-seg-scroll). -->
+        <div class="seg-scroll">
+            <div ref="groupSeg" class="seg" role="group" aria-label="Chart type">
+                <button
+                    v-for="g in groups"
+                    :key="g"
+                    type="button"
+                    :class="{ active: g === name }"
+                    :aria-pressed="g === name"
+                    @click="$emit('changeGroup', g)"
+                >
+                    {{ g }}
+                </button>
+            </div>
         </div>
-        <div class="seg" role="group" aria-label="Chart period">
-            <button
-                v-for="p in periods"
-                :key="p"
-                type="button"
-                :class="{ active: p === period }"
-                :aria-pressed="p === period"
-                @click="$emit('changePeriod', p)"
-            >
-                {{ p }}
-            </button>
+        <div class="seg-scroll">
+            <div ref="periodSeg" class="seg" role="group" aria-label="Chart period">
+                <button
+                    v-for="p in periods"
+                    :key="p"
+                    type="button"
+                    :class="{ active: p === period }"
+                    :aria-pressed="p === period"
+                    @click="$emit('changePeriod', p)"
+                >
+                    {{ p }}
+                </button>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { nextTick, onMounted, ref, watch } from 'vue'
+
+const props = defineProps<{
     name: string
     period: string
 }>()
@@ -40,6 +49,29 @@ defineEmits<{
 
 const groups = ['artists', 'albums', 'tracks', 'playlists']
 const periods = ['week', 'month', 'year', 'alltime']
+
+const groupSeg = ref<HTMLElement | null>(null)
+const periodSeg = ref<HTMLElement | null>(null)
+
+// A plate that scrolls can hold the selected tab off-screen — "playlists" and
+// "alltime" are the last of their four, so the state the page opens in is
+// exactly the one a phone would not show. The scroller is the plate's PARENT,
+// so `scrollIntoView` on the button moves the right box.
+//
+// `block: 'nearest'` matters: the default scrolls the PAGE vertically too, and
+// landing on /stats would jump past the header.
+function revealActive(seg: HTMLElement | null) {
+    const active = seg?.querySelector('button.active')
+    active?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+}
+
+onMounted(() => nextTick(() => {
+    revealActive(groupSeg.value)
+    revealActive(periodSeg.value)
+}))
+
+watch(() => props.name, () => nextTick(() => revealActive(groupSeg.value)))
+watch(() => props.period, () => nextTick(() => revealActive(periodSeg.value)))
 </script>
 
 <style lang="scss">
@@ -57,7 +89,19 @@ const periods = ['week', 'month', 'year', 'alltime']
     gap: $small;
 
     // One segmented plate per tab group — the anatomy itself lives in
-    // `mem-seg-tabs` (_candy.scss), shared with the discography tabs.
+    // `mem-seg-tabs` (_candy.scss), shared with the discography tabs. The box
+    // it scrolls in is `mem-seg-scroll`, shared with the same page.
+    .seg-scroll {
+        @include mem-seg-scroll;
+        // The shadow reserve lives INSIDE the scroll port, so on a
+        // `space-between` row it would hold the right-hand plate 4px off the
+        // row's right edge — the edge #555 aligned, and the one the trend
+        // sticker below it answers to. Pulled back out of the layout; the
+        // reserve still travels with the scroll. `leadingEdge.test.ts` watches
+        // the left side only, so this one is on the file.
+        margin-right: -4px;
+    }
+
     .seg {
         @include mem-seg-tabs;
     }

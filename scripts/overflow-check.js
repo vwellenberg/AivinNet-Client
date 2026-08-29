@@ -9,7 +9,7 @@
 // measured exactly 390px of min-content and passed there.
 //
 // Env: TOKEN (required, JWT cookie value) · BASE (default http://localhost:1970)
-//      WIDTHS (default 320,360,390,412,430) · ROUTES (default /,search)
+//      WIDTHS (default 320,360,390,412,430) · ROUTES (default /,search,stats)
 // Exit: 0 clean · 1 overflow found · 2 harness error
 //
 // Playwright is resolved via NODE_PATH (the server keeps it in ~/uitest);
@@ -19,9 +19,20 @@ const { chromium } = require("playwright");
 (async () => {
   const BASE = process.env.BASE || "http://localhost:1970";
   const widths = (process.env.WIDTHS || "320,360,390,412,430").split(",").map(Number);
-  const routes = (process.env.ROUTES || "/,/search/top?q=a").split(",");
+  // /stats is here because it is where this gate's blind spot was found: the
+  // charts tabs pushed their grid item 50px past the track at 320px and the
+  // page cut the tabs, the stat tile and the captions off — with the DOCUMENT
+  // still exactly as wide as the screen, so every width reported OK (#558).
+  const routes = (process.env.ROUTES || "/,/search/top?q=a,/stats").split(",");
   const browser = await chromium.launch();
   let fail = 0;
+
+  // The boxes that hold a whole route. Listed, because it cannot be inferred:
+  // plenty of boxes scroll sideways ON PURPOSE (the stat tiles, the genre
+  // chips, the tab plates). `seenBoxes` is what keeps the list honest — see
+  // the harness check at the end.
+  const PAGE_BOXES = [".content-page", ".search-page-top-results"];
+  const seenBoxes = new Set();
 
   for (const width of widths) {
     const ctx = await browser.newContext({
@@ -45,36 +56,73 @@ const { chromium } = require("playwright");
     for (const route of routes) {
       await page.goto(BASE + "/#" + route, { waitUntil: "networkidle", timeout: 45000 });
       await page.waitForTimeout(2500);
-      const m = await page.evaluate(() => {
+      const m = await page.evaluate((PAGE_BOXES) => {
         const doc = document.documentElement;
+        // Report the DEEPEST elements wider than the viewport — everything
+        // above them merely stretches to the expanded layout viewport.
+        //
+        // ⚠️ Run this UNCONDITIONALLY. It used to be gated on the document
+        // overflowing, which is exactly the case the page-box check below was
+        // added for: there the document measures the screen exactly, so a
+        // gated scan finds nothing and the FAIL line names no culprit. A gate
+        // that blocks a deploy without a locator is a gate nobody can act on.
         const wide = [];
-        if (doc.scrollWidth > doc.clientWidth + 1) {
-          // Report the DEEPEST elements wider than the viewport — everything
-          // above them merely stretches to the expanded layout viewport.
-          document.querySelectorAll("body *").forEach((el) => {
-            const rect = el.getBoundingClientRect();
-            const kidWide = [...el.children].some(
-              (kid) => kid.getBoundingClientRect().width > doc.clientWidth
-            );
-            if (rect.width > doc.clientWidth && !kidWide) {
-              const cls = String(el.className).split(" ").slice(0, 2).join(".");
-              wide.push(`${el.tagName}.${cls}=${Math.round(rect.width)}`);
+        document.querySelectorAll("body *").forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          const kidWide = [...el.children].some(
+            (kid) => kid.getBoundingClientRect().width > doc.clientWidth
+          );
+          if (rect.width > doc.clientWidth && !kidWide) {
+            const cls = String(el.className).split(" ").slice(0, 2).join(".");
+            wide.push(`${el.tagName}.${cls}=${Math.round(rect.width)}`);
+          }
+        });
+        // ⚠️ The document is not the whole story. A page scrolls in its own
+        // box (`overflow: auto`), so content wider than the screen is absorbed
+        // into THAT scroll instead of expanding the layout viewport: the doc
+        // measures exactly the screen width and the page is cut off anyway.
+        // That is how /stats passed this gate at every width while its tabs
+        // ran off the screen (#558). A page container that scrolls sideways is
+        // the same bug wearing a different number.
+        //
+        const seen = [];
+        const pages = [];
+        for (const selector of PAGE_BOXES) {
+          for (const el of document.querySelectorAll(selector)) {
+            seen.push(selector);
+            if (el.scrollWidth > el.clientWidth + 1) {
+              pages.push(`${selector}=${el.scrollWidth}/${el.clientWidth}`);
             }
-          });
+          }
         }
-        return { docW: doc.scrollWidth, clientW: doc.clientWidth, wide: wide.slice(0, 6) };
-      });
-      const ok = m.docW <= m.clientW + 1;
+        return { docW: doc.scrollWidth, clientW: doc.clientWidth, wide: wide.slice(0, 6), pages, seen };
+      }, PAGE_BOXES);
+      const ok = m.docW <= m.clientW + 1 && m.pages.length === 0;
+      for (const selector of m.seen) seenBoxes.add(selector);
       if (!ok) fail++;
       console.log(
         `${ok ? "OK  " : "FAIL"} w=${width} route=${route} doc=${m.docW} client=${m.clientW}` +
-          (m.wide.length ? " wide: " + m.wide.join(" | ") : "")
+          // Only on a FAIL: the scan runs always now, and a wide element inside
+          // a box that legitimately scrolls (the stat tiles, the tab plates)
+          // is not news.
+          (!ok && m.wide.length ? " wide: " + m.wide.join(" | ") : "") +
+          (m.pages.length ? " page scrolls sideways: " + m.pages.join(" | ") : "")
       );
     }
     await ctx.close();
   }
 
   await browser.close();
+
+  // ⚠️ A selector that matches nothing checks nothing, quietly. If a page box
+  // was never found on any route, this gate has stopped watching it — which is
+  // indistinguishable from "everything is fine" in the output above.
+  const missed = PAGE_BOXES.filter((selector) => !seenBoxes.has(selector));
+  if (missed.length) {
+    console.error(`HARNESS: page box never found on any route: ${missed.join(", ")}`);
+    process.exit(2);
+  }
+
   process.exit(fail ? 1 : 0);
 })().catch((e) => {
   console.error(e);
