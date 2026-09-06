@@ -197,6 +197,17 @@ defineEmits<{
         position: relative;
         height: 3rem;
 
+        // The cover is a fixed 3rem square, not a box that gives way. Without
+        // this it does: the long title/artist line next to it wins the flex
+        // fight, the box shrinks to a sliver while the 48px picture inside
+        // keeps its size, `no-scroll` clips the overflow — and the 10px corner
+        // radius on the visible strip turns the cover into a vertical pill.
+        // Measured on the deployed client with a five-artist track: 16.9px at
+        // 1024, 19.6px at 1280, correct again at 1440 only because there is
+        // room to spare. It stood inside `@include largePhones`, so the phone
+        // was pinned and every desktop width was not.
+        flex-shrink: 0;
+
         // Lauflicht comet ring around the playing cover (always visible here).
         // The soft green bloom is suppressed in the compact bar — it would be
         // clipped by no-scroll (overflow:hidden) anyway; the bloom lives on the
@@ -251,12 +262,11 @@ defineEmits<{
             }
         }
 
-        @include largePhones {
-            flex-shrink: 0;
-            // (The `margin-right` that used to stand here — $medium, dropping to
-            // $small on the narrowest phones — was the cover's private half of a
-            // spacing rule the row now owns as a `gap`. See the note there.)
-        }
+        // (The phone-only `flex-shrink: 0` that used to stand here moved to the
+        // top of this block: the squeeze is not a phone problem, it was only
+        // ever REPORTED from a phone. The `margin-right` that stood here too —
+        // $medium, dropping to $small on the narrowest phones — was the cover's
+        // private half of a spacing rule the row now owns as a `gap`.)
     }
 
     // (The cover-replacement heart used to be squared to 3rem here, with a
