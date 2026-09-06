@@ -89,7 +89,7 @@ export default async (album?: Album) => {
     // player may never index. Individual files arrive playable — and since the
     // server names them from the tags, they stay identifiable lying loose.
     const download_tracks = <Option>{
-        label: 'Download tracks separately',
+        label: 'Download as files',
         action: async () => {
             const tracks = await getAlbumTracks((album as Album).albumhash)
             await downloadTracksIndividually(tracks, (album as Album).title || 'This album')

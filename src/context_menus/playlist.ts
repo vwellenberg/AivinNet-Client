@@ -83,7 +83,7 @@ export default async (playlist: Playlist, on_page = false) => {
   };
 
   const downloadTracks: Option = {
-    label: "Download tracks separately",
+    label: "Download as files",
     icon: DownloadIcon,
     action: async () => {
       const data = await getPlaylist(String(playlist.id), false, 0, -1);
