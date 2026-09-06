@@ -1,3 +1,17 @@
+> # ⚠️ Moved
+>
+> **The AivinNet web client now lives in the main repository:
+> [vwellenberg/AivinNet](https://github.com/vwellenberg/AivinNet), in `client/`.**
+>
+> This repository is archived and read-only. It is kept for its history: the pull
+> request numbers up to #564 and the issues that links point at. Its full commit
+> history came along with the move, so `git blame` in the new home reaches back
+> through it.
+>
+> **Issues and pull requests go to
+> [vwellenberg/AivinNet](https://github.com/vwellenberg/AivinNet/issues)** — one
+> tracker for the server and the client, which is the point of the move.
+
 # AivinNet Client
 
 A Spotify-style music player frontend, branded as **AivinNet**. This is a fork of [swingmx/webclient](https://github.com/swingmx/webclient) with a full visual redesign and custom branding.
