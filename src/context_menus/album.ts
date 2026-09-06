@@ -6,6 +6,7 @@ import { addAlbumToPlaylist } from '@/requests/playlists'
 import { removeAlbumCover, uploadAlbumCover } from '@/requests/coverart'
 import { NotifType, Notification } from '@/stores/notification'
 import { toggleAlbumPin } from '@/helpers/pinAlbum'
+import { downloadTracksIndividually } from '@/helpers/downloadTracks'
 import usePinnedAlbums from '@/stores/pages/pinnedAlbums'
 
 import { AddToQueueIcon, DeleteIcon, DownloadIcon, ImageIcon, PlayNextIcon, PlusIcon, PushPinIcon, SearchIcon } from '@/icons'
@@ -79,6 +80,19 @@ export default async (album?: Album) => {
             const a = document.createElement('a')
             a.href = getBaseUrl() + paths.api.download + `/album/${album.albumhash}`
             a.click()
+        },
+        icon: DownloadIcon,
+    }
+
+    // The ZIP is right on a desktop and wrong on a phone, where it lands in
+    // Downloads, needs an unzip app, and leaves the files somewhere the music
+    // player may never index. Individual files arrive playable — and since the
+    // server names them from the tags, they stay identifiable lying loose.
+    const download_tracks = <Option>{
+        label: 'Download tracks separately',
+        action: async () => {
+            const tracks = await getAlbumTracks((album as Album).albumhash)
+            await downloadTracksIndividually(tracks, (album as Album).title || 'This album')
         },
         icon: DownloadIcon,
     }
@@ -166,7 +180,7 @@ export default async (album?: Album) => {
         options.push(find_cover_online, upload_cover, remove_cover)
     }
 
-    options.push(download_album, get_find_on_social('album', '', album))
+    options.push(download_album, download_tracks, get_find_on_social('album', '', album))
 
     return options
 }

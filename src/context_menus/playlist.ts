@@ -1,8 +1,10 @@
 import { Option, Playlist } from "../interfaces";
 import { playFromPlaylist } from "@/helpers/usePlayFrom";
 import { togglePlaylistPin } from "@/helpers/pinPlaylist";
-import { AddToQueueIcon, DeleteIcon, PencilIcon, PlayIcon, PlayNextIcon, PushPinIcon } from "@/icons";
+import { AddToQueueIcon, DeleteIcon, DownloadIcon, PencilIcon, PlayIcon, PlayNextIcon, PushPinIcon } from "@/icons";
 import { getPlaylist } from "@/requests/playlists";
+import { getBaseUrl, paths } from "@/config";
+import { downloadTracksIndividually } from "@/helpers/downloadTracks";
 import useModalStore from "@/stores/modal";
 import usePlaylistFolders from "@/stores/playlistFolders";
 import useTracklist from "@/stores/queue/tracklist";
@@ -65,6 +67,31 @@ export default async (playlist: Playlist, on_page = false) => {
     action: () => modal.showDeletePlaylistModal(playlist.id),
   };
 
+  // The page header carries a ZIP button, but the sidebar right-click had no
+  // download at all — and the ZIP is the wrong shape on a phone: it lands in
+  // Downloads, needs an unzip app, and the files end up somewhere the music
+  // player may never index. Track by track they arrive playable, named from
+  // their tags by the server.
+  const downloadZip: Option = {
+    label: "Download as ZIP",
+    icon: DownloadIcon,
+    action: () => {
+      const a = document.createElement("a");
+      a.href = getBaseUrl() + paths.api.download + `/playlist/${playlist.id}`;
+      a.click();
+    },
+  };
+
+  const downloadTracks: Option = {
+    label: "Download tracks separately",
+    icon: DownloadIcon,
+    action: async () => {
+      const data = await getPlaylist(String(playlist.id), false, 0, -1);
+      if (!data) return;
+      await downloadTracksIndividually(data.tracks, playlist.name || "This playlist");
+    },
+  };
+
   const folderStore = usePlaylistFolders();
 
   const moveToFolder: Option = {
@@ -96,5 +123,15 @@ export default async (playlist: Playlist, on_page = false) => {
     },
   };
 
-  return [play, playNext, addToQueue, pin, moveToFolder, ...(on_page ? [edit] : []), del];
+  return [
+    play,
+    playNext,
+    addToQueue,
+    pin,
+    moveToFolder,
+    downloadZip,
+    downloadTracks,
+    ...(on_page ? [edit] : []),
+    del,
+  ];
 };
