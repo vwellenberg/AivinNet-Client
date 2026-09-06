@@ -147,6 +147,24 @@ PY
             *) echo "EDGE_AUDIT_SKIPPED (the run measured nothing — see the HARNESS line above)" ;;
         esac
 
+        # Third gate, and the one with the longest record: a context-menu label
+        # cut by the ellipsis. #549 lost "Add playlist to queue", #561 shipped
+        # "Download tracks sepa…". Both times the word that told two entries
+        # apart was the word that disappeared, both times the source read fine,
+        # and both times it took a screenshot to notice.
+        set +e
+        NODE_PATH="$UITEST/node_modules" TOKEN="$TOKEN" node "$REPO/scripts/menu-label-fit.js"
+        label_status=$?
+        set -e
+        case "$label_status" in
+            0) echo "MENU_LABEL_FIT_OK" ;;
+            1)
+                echo "MENU_LABEL_FIT_FAIL — a menu label is cut off, see FAIL lines above"
+                gate_failed=1
+                ;;
+            *) echo "MENU_LABEL_FIT_SKIPPED (the run measured nothing — see the HARNESS line above)" ;;
+        esac
+
         if [[ "$gate_failed" -ne 0 ]]; then
             exit 1
         fi

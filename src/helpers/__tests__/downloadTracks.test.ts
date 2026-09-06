@@ -140,7 +140,7 @@ describe('download options', () => {
     // The quoted LABEL, so the prose above these options in the source (which
     // has to say "ZIP" to explain itself) cannot satisfy the rule.
     const ZIP = /label:\s*["']Download as ZIP["']/
-    const SEPARATE = /label:\s*["']Download tracks separately["']/
+    const SEPARATE = /label:\s*["']Download as files["']/
 
     it('finds the menus it is supposed to be checking', () => {
         const offering = Object.keys(MENUS).filter(file => ZIP.test(MENUS[file]))

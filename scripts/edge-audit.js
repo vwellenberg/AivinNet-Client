@@ -44,7 +44,7 @@ const DEFAULT_ROUTES = [
   "/artists",
   "/playlists",
   "/favorites",
-  "/folders",
+  "/folder/$home",
   "/stats",
   "/search/top?q=a",
   "/nowplaying/home",
